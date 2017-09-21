@@ -1,0 +1,181 @@
+$backgroundColor: #c2eabd;
+$textColor: #011936;
+$backgroundHoverColor: #f9dc5c;
+$backgroundActiveColor: #ed254e;
+
+$uiItemHeight: 1.3em;
+$transitionTime: 200ms;
+$transitionAll: all $transitionTime;
+
+#help {
+    position: absolute;
+    z-index: 1500;
+
+    right: 3em;
+    bottom: 3em;
+
+    padding: 1em;
+
+    background: $backgroundColor;
+
+    color: $textColor;
+
+    display:none;
+    opacity:0;
+
+    transition: opacity 1s;
+
+    .helpWindowItem {
+        line-height: 1.2em;
+    }
+
+    &.visible {
+        display: block;
+        opacity: 1;
+    }
+}
+
+.mouseIcon {
+    path {
+        fill: $textColor;
+    }
+
+    &.blinkLeft {
+        .left {
+            animation: pulsate 1s linear infinite;
+        }
+    }
+    &.blinkRight {
+        .right {
+            animation: pulsate 1s linear infinite;
+        }
+    }
+    &.blinkMiddle {
+        .middle {
+            animation: pulsate 1s linear infinite;
+        }
+    }
+}
+
+@keyframes pulsate {
+    0% {fill: $textColor}
+    40% {fill: $backgroundActiveColor}
+    80% {fill: $textColor}
+    100% {fill: $textColor}
+}
+
+/// FLOATING MENU
+#floatingMenu {
+    z-index:900;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display:block;
+
+    .button {
+        display:inline-block;
+        background: $backgroundColor;
+
+        width: $uiItemHeight;
+        height: $uiItemHeight;
+
+        margin: 0 0.5em 0.5em 0;
+        transition: $transitionAll;
+
+        cursor: pointer;
+        cursor: hand;
+
+        img {
+            width: 100%;
+            height: 100%;
+        }
+
+        &.closefullscreen {
+            display: none;
+        }
+
+        &:hover {
+            background: $backgroundHoverColor;
+        }
+
+        &:active {
+            background: $backgroundActiveColor;
+        }
+    }
+
+    &.fulscreenMode .button {
+        &.closefullscreen {
+            display: inline-block;
+        }
+        &.fullscreen {
+            display:none;
+        }
+    }
+}
+
+/// CONTEXT MENU
+$contextMenuPadding: 0.3em;
+$menuItemHeight: $uiItemHeight;
+$menuItemWidth: 10em;
+
+#contextMenu, #contextMenu ul {
+    z-index: 1000;
+    position: absolute;
+
+    background: $backgroundColor;
+
+    //border: 1px solid #424655;
+    //background: lightgoldenrodyellow;
+    //border-radius: 2px;
+}
+#contextMenu {
+    display: none;
+
+    width: $menuItemWidth;
+
+    margin: 0;
+    padding: $contextMenuPadding 0;
+
+    color:$textColor;
+
+    li {
+        list-style-type: none;
+
+        margin: 0;
+        padding: 0.1em $contextMenuPadding;
+
+        cursor: pointer;
+        cursor: hand;
+
+        display:block;
+
+        height: $menuItemHeight;
+
+        transition: $transitionAll;
+
+        > ul {
+            display: none;
+            position: relative;
+            left: ($menuItemWidth - $contextMenuPadding);
+
+            margin: (-1em - (2 * $contextMenuPadding)) 0 0 0;
+            padding: $contextMenuPadding 0;
+        }
+
+        &.gateOnly {
+            display: none;
+        }
+
+        &:hover {
+            background: $backgroundHoverColor;
+
+            > ul {
+                display:block;
+            }
+        }
+
+        &:active {
+            background: $backgroundActiveColor;
+        }
+    }
+}

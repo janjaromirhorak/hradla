@@ -1,0 +1,40 @@
+{
+  "name": "pure-js",
+  "version": "1.0.0",
+  "watch": {
+    "js_development": "es6/*.js",
+    "js_production": "es6/*.js"
+  },
+  "scripts": {
+    "clean:js": "rm -rf js/temp* js/app*",
+    "clean:css": "rm -rf css/style.css css/temp*",
+    "clean": "npm run clean:js ; npm run clean:css",
+    "build:js": "npm run clean:js ; npm run js:prebuild && npm run js:traceur && npm run js:bundle && npm run js:uglify && npm run js:afterbuild",
+    "build:js:dev": "npm run clean:js ; traceur --out js/app.js --source-maps file --modules inline -- es6/main.js",
+    "build:css": "npm run clean:css ; npm run css:prebuild && npm run css:sass && npm run css:normalize && npm run css:autoprefixer && npm run css:uglify && npm run css:afterbuild",
+    "build": "npm run build:js ; npm run build:css",
+    "js:prebuild": "mkdir js/temp",
+    "js:traceur": "traceur --out js/temp/main.js --modules=inline -- es6/main.js",
+    "js:bundle": "concat -o js/app.js js/lib/traceur-runtime.js js/temp/main.js",
+    "js:uglify": "uglifyjs js/app.js -m -c > js/app.min.js",
+    "js:afterbuild": "rm -rf js/temp*",
+    "css:prebuild": "mkdir css/temp",
+    "css:sass": "sass scss/style.scss > css/temp/compiled.css",
+    "css:normalize": "concat -o css/temp/normalized.css css/lib/normalize.css css/temp/compiled.css",
+    "css:autoprefixer": "postcss css/temp/normalized.css --use autoprefixer -d > css/style.css",
+    "css:uglify": "uglifycss css/style.css > css/style.min.css",
+    "css:afterbuild": "rm -rf css/temp*"
+  },
+  "devDependencies": {
+    "autoprefixer": "^7.1.4",
+    "closure": "^1.0.3",
+    "commander": "^2.11.0",
+    "concat": "^1.0.3",
+    "postcss-cli": "^4.1.1",
+    "sass": "^1.0.0-beta.2",
+    "traceur": "0.0.111",
+    "uglify-js": "^3.1.1",
+    "uglifycss": "0.0.27"
+  },
+  "dependencies": {}
+}
