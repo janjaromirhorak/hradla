@@ -1,5 +1,5 @@
 {
-  "name": "pure-js",
+  "name": "hradla",
   "version": "1.0.0",
   "watch": {
     "js_development": "es6/*.js",
