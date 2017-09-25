@@ -2,6 +2,7 @@ import * as svgObj from './svgObjects.js'
 import * as Structures from './structuresAndClasses.js'
 import Logic from './logic.js'
 
+// mapping logical states to css classes
 const stateClasses = {
     on: "stateOn",
     off: "stateOff",
@@ -9,6 +10,7 @@ const stateClasses = {
     oscillating: "stateOscillating"
 };
 
+// helper class used by Transform
 class Property {
     constructor(string) {
         if(string!==undefined) {
@@ -30,6 +32,7 @@ class Property {
     }
 }
 
+// used to manipulate the transform argument used in SVG
 export class Transform {
     constructor(string) {
         this.items = [];
@@ -141,6 +144,7 @@ export class Transform {
     }
 }
 
+// parent class for all network elements
 class NetworkElement {
     constructor(parentSVG) {
         if(!parentSVG) {
@@ -165,6 +169,8 @@ class NetworkElement {
     }
 }
 
+// parent class for input and output connectors (the things you click on
+// when you want to connect elements)
 class Connector extends NetworkElement {
     constructor(parentSVG, gridSize, left, top) { // unit of left / top is the size of the grid
         super(parentSVG);
@@ -300,6 +306,7 @@ export class OutputConnector extends Connector {
     }
 }
 
+// parent class for gates and input and output boxes
 class Box extends NetworkElement {
     constructor(parentSVG, name, category, gridWidth, gridHeight) {
         super(parentSVG);

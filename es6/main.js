@@ -14,6 +14,7 @@ $(function () {
     // start the app by calling the Svg class constructor
     new Svg(targetElementSelector, gridSize);
 
+    /* DEMO */
     // ONE BIT COMPARATOR
     /*
     let i1 = svg.newInput(100, 100);
