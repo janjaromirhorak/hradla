@@ -13,7 +13,7 @@ zobrazí volba pro odstranění tohoto prvku.
 
 ## Interaktivní prvky
 Pomocí uživatelského menu je možno přidávat na síť různé
-interaktivní prvky - hradla (`not`, `and`, `or`, `xor`, `nand`, `not`, `xnor`)
+interaktivní prvky - hradla (`not`, `and`, `or`, `xor`, `nand`, `not` a `xnor`)
 a vstupní a výstupní prvek.
 
 Po přidání prvku na pole je možno jej propojit s ostatními
