@@ -6,13 +6,18 @@ import Logic from './logic.js'
 import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
 
+/**
+ * Main class that runs the application
+ */
 export default class Svg {
     constructor(canvas, gridSize) {
+        // the jQuery object representing the SVG element that the whole app runs in
         this.$svg = $(canvas);
 
+        // resolution of the grid
         this.gridSize = gridSize;
 
-        this.boxes = []; // stores all boxes
+        this.boxes = []; // stores all boxes (gates, input, output etc.)
         this.wires = []; // stores all wires
 
         // create the defs element, used for patterns
@@ -33,15 +38,15 @@ export default class Svg {
         this.background = new svgObj.Rectangle(0, 0, "100%", "100%", "url(#grid)", "none");
         this.appendJQueryObject(this.background.get());
         this.refresh();
+        // END background pattern
 
         // CONSTRUCT CONTEXT MENU
         this.contextMenu = new ContextMenu(this);
 
         // CONSTRUCT FLOATING MENU
-        // this.floatingMenu = new FloatingMenu(this);
         this.floatingMenu = new FloatingMenu(this);
 
-        // ALL EVENT CALLBACKS
+        // ASSIGN EVENT CALLBACKS
         let target;
         this.$svg.on('mousedown', (event) => {
             target = this.getRealTarget(event.target);
@@ -70,6 +75,8 @@ export default class Svg {
         });
     }
 
+    // helps when creating wires -- if the firstConnectorId is specified, creates a new wire
+    // from firstConnectorId to connectorId, else saves the connectorId to the firstConnectorId variable
     wireCreationHelper(connectorId) {
         if(!this.firstConnectorId) {
             this.firstConnectorId = connectorId;
@@ -79,8 +86,14 @@ export default class Svg {
         }
     }
 
+    // a very simple singleton to return unique propagation ids
+    // (used to detect loops in the network simulation)
     getNewPropagationId() {
+        // restart the map storing the propagation history
+        // the variable stores a map, the key is connectorId, the value is an array of states
         this.propagationHistory = new Map();
+
+        // return unique propagationId
         if(this.propId===undefined) {
             this.propId = 1;
         } else {
@@ -93,11 +106,13 @@ export default class Svg {
     loopGuard(propagationId, connectorId, state) {
 
         if(propagationId===this.propId) {
+            // propagationHistory stores a map, the key is connectorId, the value is an array of states
+
             if(this.propagationHistory.has(connectorId)) {
-                // deepCopy is necessary, without it i am not able to add new items to stateList
-                // let stateList = Fn.deepCopy(this.propagationHistory.get(connectorId));
+                // get the list of states for the tested connector
                 let stateList = this.propagationHistory.get(connectorId);
 
+                // find if the connector was already in the specified state
                 let thisStateFound = false;
                 for (let i = 0 ; i < stateList.length ; ++i) {
                     if(stateList[i]===state) {
@@ -108,17 +123,22 @@ export default class Svg {
 
                 let lastState = stateList[stateList.length - 1];
 
+                // add the state to the propagation history
                 stateList[stateList.length] = state;
                 this.propagationHistory.set(connectorId, stateList);
 
                 if(thisStateFound) {
-                    // recursion is happening
+                    // a loop is detected
                     if (lastState!==state) {
+                        // the state is changing between iterations of the propagation loop
+                        // -> set state to oscillating, don't stop the propagation yet (to spread the "oscillating" state)
                         return {
                             stopPropagation: false,
                             state: Logic.state.oscillating
                         }
                     } else {
+                        // the state is not changing between iterations of the propagation loop
+                        // -> stop the propagation
                         return {
                             stopPropagation: true,
                             state: state
@@ -126,36 +146,43 @@ export default class Svg {
                     }
                 }
             } else {
+                // the connector is not in the propagationHistory yet, add it
                 this.propagationHistory.set(connectorId, [state]);
             }
         } else {
+            // the propagationId does not match, restart the propagation history
             this.propagationHistory = new Map();
         }
 
+        // else... do nothing (don't stop propagation, don't change the state)
         return {
             stopPropagation: false,
             state: state
         }
     }
 
+    // creates a new gate (name specifies the type ("not", "or", "xnor"...) at given coordinates
     newGate(name, x, y) {
         return this.newBox(x, y, new editorElements.Gate(this, name, x, y));
     }
 
+    // creates a new input box
     newInput(x, y) {
         return this.newBox(x, y, new editorElements.InputBox(this));
     }
 
+    // creates a new output box
     newOutput(x, y) {
         return this.newBox(x, y, new editorElements.OutputBox(this));
     }
 
+    // creates a new box (gate, input, output...)
     newBox(x, y, object) {
+        // add the box to the list
         let index = this.boxes.length;
-
         this.boxes[index] = object;
 
-        // translate the gate if x and y has been specified
+        // translate the box if x and y has been specified
         if(x && y) {
             let tr = new editorElements.Transform();
             tr.setTranslate(x, y);
@@ -163,41 +190,51 @@ export default class Svg {
             this.boxes[index].svgObj.addAttr({"transform": tr.get()});
         }
 
+        // add the box to the SVG element
         this.appendElement(this.boxes[index]);
 
+        // return the box to allow function chaining
         return this.boxes[index];
     }
 
-    removeBox(gateId) {
-        let $gate = $("#"+gateId);
+    // remove a box by the id
+    removeBox(boxId) {
+        // get the jQuery object of the box
+        let $box = $("#"+boxId);
 
         // find the gate in svg's list of gates
-        let gateIndex = -1;
+        let boxIndex = -1;
         for(let i = 0 ; i < this.boxes.length ; i++) {
-            if(this.boxes[i].svgObj.id===gateId) {
-                gateIndex = i;
+            if(this.boxes[i].svgObj.id===boxId) {
+                boxIndex = i;
                 break;
             }
         }
 
-        if(gateIndex > -1) {
-            // remove all wires connected to this gate
-            for(let i = 0; i < this.boxes[gateIndex].inputs.length; i++) {
-                this.removeWiresByConnectorId(this.boxes[gateIndex].inputs[i].svgObj.id);
+        // check if the box exists (it should)
+        if(boxIndex > -1) {
+            // remove all wires connected to this box
+            for(let i = 0; i < this.boxes[boxIndex].inputs.length; i++) {
+                this.removeWiresByConnectorId(this.boxes[boxIndex].inputs[i].svgObj.id);
             }
-            for(let i = 0; i < this.boxes[gateIndex].outputs.length; i++) {
-                this.removeWiresByConnectorId(this.boxes[gateIndex].outputs[i].svgObj.id);
+            for(let i = 0; i < this.boxes[boxIndex].outputs.length; i++) {
+                this.removeWiresByConnectorId(this.boxes[boxIndex].outputs[i].svgObj.id);
             }
 
-            // remove the gate
-            this.boxes.splice(gateIndex, 1);
-            $gate.remove();
+            // remove the box from the list
+            this.boxes.splice(boxIndex, 1);
+
+            // remove the box "physically" from the SVG element
+            $box.remove();
         } else {
-            console.error("Trying to remove an nonexisting gate. (Gate id: "+gateId+")");
+            // this should not ever happen
+            console.error("Trying to remove an nonexisting box. (Box id: "+boxId+")");
         }
     }
 
+    // creates a new wire connecting the connector with id "fromId" with the connector with id "toId"
     newWire(fromId, toId) {
+        // return false, if trying to connect a connector to itself
         if(fromId===toId) {
             return false;
         }
@@ -207,26 +244,31 @@ export default class Svg {
         let fromConnector = this.getConnectorById(fromId);
         let toConnector = this.getConnectorById(toId);
 
+        // input connector can have only one input -> remove all wires before adding this one
         if(fromConnector.isInputConnector) {
             this.removeWiresByConnectorId(fromId);
         }
-
         if(toConnector.isInputConnector) {
             this.removeWiresByConnectorId(toId);
         }
 
+        // create new wire
         let index = this.wires.length;
         this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize);
 
+        // add references to this wire to both connectors
         fromConnector.addWireId(this.wires[index].svgObj.id);
         toConnector.addWireId(this.wires[index].svgObj.id);
 
+        // add the wire to the SVG element and move it to the back
         this.appendElement(this.wires[index]);
         this.moveToBackById(this.wires[index].svgObj.id);
 
+        // return the object to allow function chaining
         return this.wires[index];
     }
 
+    // returns the wire object based on its id
     getWireById(wireId) {
         let wireCount = this.wires.length;
 
@@ -239,22 +281,29 @@ export default class Svg {
         return false;
     }
 
+    // returns all wires based on their connector Id
     getWiresByConnectorId(connectorId) {
         let connector = this.getConnectorById(connectorId);
         return connector.wireIds;
     }
 
+    // removes a wire based on its id
     removeWireById(wireId) {
+        // find a wire in the list of wires
         for(let i = 0 ; i < this.wires.length ; ++i) {
             if (this.wires[i].svgObj.id === wireId) {
 
+                // get connectors
                 let connector1 = this.wires[i].startConnector;
                 let connector2 = this.wires[i].endConnector;
 
+                // remove the wire references from the connectors
                 connector1.removeWireIdAndUpdate(wireId);
                 connector2.removeWireIdAndUpdate(wireId);
 
+                // "physically" remove whe wire from the SVG element
                 this.wires[i].svgObj.$el.remove();
+                // remove the wire from the list of wires
                 this.wires.splice(i, 1);
 
                 break;
@@ -262,9 +311,12 @@ export default class Svg {
         }
     }
 
+    // remove all wires connected to a connector specified by its id
     removeWiresByConnectorId(connectorId) {
+        // get the connector by its id
         let connector = this.getConnectorById(connectorId);
 
+        // for each wire id
         connector.wireIds.forEach((wireId) => {
             let wire = this.getWireById(wireId);
 
@@ -294,6 +346,7 @@ export default class Svg {
         }
     }
 
+    // get a box (input, output, gate...) by its id
     getBoxById(gateId) {
         for(let i = 0 ; i < this.boxes.length ; i++) {
             if(this.boxes[i].svgObj.id===gateId) {
@@ -303,20 +356,27 @@ export default class Svg {
         return false;
     }
 
+    // get a box from his child connector specified by id
     getBoxByConnectorId(connectorId) {
+        // go through all boxes and try to find the right connector
         for(let i = 0 ; i < this.boxes.length ; i++) {
+
+            // check inputs, if found, return the box
             for(let j = 0 ; j < this.boxes[i].inputs.length ; j++) {
                 if(this.boxes[i].inputs[j].svgObj.id===connectorId) {
                     return this.boxes[i];
                 }
             }
 
+            // check outputs, if found, return the box
             for(let j = 0 ; j < this.boxes[i].outputs.length ; j++) {
                 if(this.boxes[i].outputs[j].svgObj.id===connectorId) {
                     return this.boxes[i];
                 }
             }
         }
+
+        // not found, return false
         return false;
     }
 
@@ -383,15 +443,18 @@ export default class Svg {
         }
     }
 
+    // append an element to the SVG object (simple wrapper for appendJQUeryObject)
     appendElement(element) {
         this.appendJQueryObject(element.get());
     }
 
+    // append an jquery object to the SVG object and reload it
     appendJQueryObject(object) {
         this.$svg.append(object);
         this.refresh();
     }
 
+    // add a new pattern that can be used as a background of an SVG element
     addPattern(pattern) {
         this.$defs.append(pattern);
         this.refresh();
@@ -403,9 +466,11 @@ export default class Svg {
         console.log("SVG document has been reloaded.")
     }
 
+    // display the context menu
     displayContextMenu(x, y, $target) {
         this.contextMenu.display(x, y, $target);
     }
+    // hide the context menu
     hideContextMenu() {
         this.contextMenu.hide();
     }
@@ -452,16 +517,18 @@ export default class Svg {
         return blockedNodes;
     }
 
+    // move an element to the front (move it to be the last element)
     moveToFrontById(objId) {
         this.$svg.append($("#" + objId));
     }
 
+    // move an element to the back (move it to be the first element after the background)
     moveToBackById(objId) {
         $("#" + this.background.id)
             .after($("#" + objId));
     }
 
-    // get set of nodes, that is better not to use for wiring
+    // get set of nodes, that are not optimal for wiring (but can be used if necessary)
     getInconvenientNodes(ignoreWireId) {
 
         let inconvenientNodes = new Set();

@@ -1,7 +1,18 @@
+/**
+ * Initialize the application
+ */
+
 import Svg from './canvas.js';
 
+// initialize when jQuery is ready
 $(function () {
-    let svg = new Svg("svg#canvas", 10);
+    // selector of the inline SVG element that will be used to initialize the editor
+    const targetElementSelector = "svg#canvas";
+    // size of the grid in pixels
+    const gridSize = 10;
+
+    // start the app by calling the Svg class constructor
+    new Svg(targetElementSelector, gridSize);
 
     // ONE BIT COMPARATOR
     /*
