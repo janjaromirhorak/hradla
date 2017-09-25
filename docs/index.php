@@ -20,7 +20,7 @@ $content = preg_replace('/([^"\']*)\.md/', '$1', $content);
     <title>Logical Network Editor</title>
 
     <link href="https://fonts.googleapis.com/css?family=Inconsolata|Open+Sans:400,400i,700&amp;subset=latin-ext" rel="stylesheet">
-    <link href="../css/lib/normalize.css" rel="stylesheet">
+    <link href="css/lib/normalize.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
