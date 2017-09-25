@@ -119,6 +119,8 @@ export default class ContextMenu {
         return item;
     }
 
+    // appends an connditional item (that is shown only if the target
+    // has the class itemClass)
     // clickFunction takes one argument: ID of the target
     appendConditionalItem(itemClass, text, clickFunction) {
         if(!this.conditionalItems) {
@@ -132,6 +134,7 @@ export default class ContextMenu {
         }
     }
 
+    // decides whether or not to display specific conditional items
     resolveConditionalItems($target) {
         for(let i = 0; i < this.conditionalItems.length; ++i) {
             if($target.hasClass(this.conditionalItems[i].itemClass)) {
@@ -147,10 +150,12 @@ export default class ContextMenu {
         }
     }
 
+    // hides all conditional items
     hideAllConditionalItems() {
         this.$el.children('.conditional').remove();
     }
-    
+
+    // displays the context menu with the right set of conditional items
     display(x, y, $target) {
         this.position = {
             x: x,
@@ -166,6 +171,7 @@ export default class ContextMenu {
         this.resolveConditionalItems($target);
     }
 
+    // hides the context menu
     hide() {
         this.$el.css({display: 'none'});
         this.hideAllConditionalItems();

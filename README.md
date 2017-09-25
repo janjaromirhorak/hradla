@@ -9,3 +9,6 @@ npm run build
 
 ## live version
 [https://hradla.janjaromirhorak.cz/](https://hradla.janjaromirhorak.cz/)
+
+## czech documentation
+[docs/markdown/developer.md](docs/markdown/developer.md)

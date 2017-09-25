@@ -3,6 +3,7 @@ import Svg from './canvas.js';
 $(function () {
     let svg = new Svg("svg#canvas", 10);
 
+    /* DEMO */
     // ONE BIT COMPARATOR
     /*
     let i1 = svg.newInput(100, 100);

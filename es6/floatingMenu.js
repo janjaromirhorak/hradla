@@ -33,6 +33,7 @@ class helpWindow extends div {
         this.append(new helpWindowItem("<strong>main menu</strong>: right click"));
         this.append(new helpWindowItem("drag and drop to <strong>move elements</strong>"));
         this.append(new helpWindowItem("<strong>middle click</strong> to rotate elements"));
+        this.append(new helpWindowItem("<strong>click <img src='img/gui/help.svg' class='helpicon' alt='help icon'></strong> to display documentation (in czech)"));
     }
 
     append(item) {
@@ -79,9 +80,17 @@ export default class floatingMenu extends div {
         */
         let help = new floatingMenuItem("help", "help", "Display help");
         help.$el.on("mouseover", () => {
-           $("#help").addClass("visible");
+            $("#help").addClass("visible");
         }).on("mouseout", () => {
             $("#help").removeClass("visible");
+        }).on("click", () => {
+            console.log('lity IFRAME');
+            // $.featherlight({
+            //     iframe: './docs/',
+            //     iframeWidth: '90%',
+            //     iframeHeight: '90%'
+            // });
+            lity('./docs/');
         });
         this.append(help);
 
