@@ -6,3 +6,5 @@ Logical network editor that runs in your browser.
 npm install
 npm run build
 ```
+## czech documentation
+[docs/markdown/developer.md](docs/markdown/developer.md)
