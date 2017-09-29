@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# pretty urls
+RewriteRule ^$ ./html/user.html
+RewriteRule ^user$ ./html/user.html
+RewriteRule ^developer$ ./html/developer.html
+
+# generate the file if it does not exist
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^html/(.*).html generate.php?p=$1
