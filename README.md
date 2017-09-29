@@ -11,6 +11,9 @@ In one command:
 npm install && gulp
 ```
 
+## download compiled code
+You also can download the [already compiled version](https://github.com/janjaromirhorak/hradla/releases/latest) of the latest release.
+
 ## live version
 [https://hradla.janjaromirhorak.cz/](https://hradla.janjaromirhorak.cz/)
 
