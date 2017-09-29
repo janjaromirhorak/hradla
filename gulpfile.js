@@ -8,6 +8,8 @@ const gulp = require('gulp'),
     del = require('del'),
     htmlmin = require('gulp-html-minifier');
 
+const config = 'config.json';
+
 const out = 'deploy';
 const outCss = out + '/' + 'css';
 const outJs = out + '/' + 'js';
@@ -92,7 +94,7 @@ gulp.task('docs-styles', () => {
 });
 
 gulp.task('docs-backend', () => {
-    return gulp.src([docs + '/backend/**/*', docs + '/backend/.htaccess'])
+    return gulp.src([docs + '/backend/**/*', docs + '/backend/.htaccess', config])
         .pipe(gulp.dest(docsOut));
 });
 
