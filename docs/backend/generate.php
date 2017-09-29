@@ -4,7 +4,7 @@ $generatedFolder = "html";
 
 // load the "head" contents
 ob_start();
-include "include/head.php";
+include "include/head.inc";
 $head = ob_get_clean();
 
 require("texy/texy.php");
