@@ -22,7 +22,7 @@ function getConfig() {
 }
 
 function getAnalyticsCode(analyticsId) {
-    return "<script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-84321302-2\"></script>" +
+    return "<script async src=\"https://www.googletagmanager.com/gtag/js?id=" + analyticsId +"\"></script>" +
         "<script>\n" +
         "    window.dataLayer = window.dataLayer || [];\n" +
         "    function gtag(){dataLayer.push(arguments)};\n" +
