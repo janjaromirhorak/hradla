@@ -3,7 +3,9 @@ $sourceFolder = "text";
 $generatedFolder = "html";
 
 // load the "head" contents
-$head = file_get_contents("include/head.inc");
+ob_start();
+include "include/head.php";
+$head = ob_get_clean();
 
 require("texy/texy.php");
 $texy = new Texy();
