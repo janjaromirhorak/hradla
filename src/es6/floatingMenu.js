@@ -1,7 +1,11 @@
 
-class div {
-    constructor() {
-        this.$el = $("<div>");
+class jqueryElement {
+    constructor(specificTag) {
+        if(!specificTag) {
+            this.$el = $("<div>");
+        } else {
+            this.$el = $("<" + specificTag + ">")
+        }
     }
 }
 
@@ -15,7 +19,7 @@ class div {
 //     "        </g>" +
 //     "</svg>";
 
-class helpWindowItem extends div {
+class helpWindowItem extends jqueryElement {
     constructor(text) {
         super();
 
@@ -24,7 +28,7 @@ class helpWindowItem extends div {
     }
 }
 
-class helpWindow extends div {
+class helpWindow extends jqueryElement {
     constructor() {
         super();
 
@@ -42,9 +46,9 @@ class helpWindow extends div {
 }
 
 
-class floatingMenuItem extends div {
-    constructor(specificClass, icon, title) {
-        super();
+class floatingMenuItem extends jqueryElement {
+    constructor(specificClass, icon, title, specificTag) {
+        super(specificTag);
 
         this.$el.addClass("button");
         this.$el.addClass(specificClass);
@@ -58,7 +62,7 @@ class floatingMenuItem extends div {
     }
 }
 
-export default class floatingMenu extends div {
+export default class floatingMenu extends jqueryElement {
     constructor(parentSVG) {
         super();
 
@@ -78,19 +82,19 @@ export default class floatingMenu extends div {
             $('#' + id).removeClass('fulscreenMode');
         }));
         */
-        let help = new floatingMenuItem("help", "help", "Display help");
+        let help = new floatingMenuItem("help", "help", "Display help", "a");
         help.$el.on("mouseover", () => {
             $("#help").addClass("visible");
         }).on("mouseout", () => {
             $("#help").removeClass("visible");
-        }).on("click", () => {
-            console.log('lity IFRAME');
-            // $.featherlight({
-            //     iframe: './docs/',
-            //     iframeWidth: '90%',
-            //     iframeHeight: '90%'
-            // });
-            lity('./docs/');
+        })
+            // .on("click", () => {
+            // lity('./docs/');
+        // })
+        ;
+        help.$el.attr({
+            'href': './docs/',
+            'data-lity': ''
         });
         this.append(help);
 
