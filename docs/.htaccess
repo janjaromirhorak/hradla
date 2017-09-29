@@ -1,6 +1,0 @@
-
-RewriteEngine On
-#RewriteCond %{REQUEST_FILENAME} !-f
-
-RewriteRule ^user$ ./index.php?p=user
-RewriteRule ^developer$ ./index.php?p=developer
