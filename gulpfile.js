@@ -46,7 +46,7 @@ const libCss = lib + '/' + 'css';
 const libJs = lib + '/' + 'js';
 
 const docs = 'docs';
-const docsOut = docs + '/' + 'deploy';
+const docsOut = out + '/' + 'docs';
 const docsCss = docsOut + '/' + 'css';
 
 // compile and minimize sass
@@ -115,11 +115,9 @@ gulp.task('images', () => {
 });
 
 // removes the deploy directory
-gulp.task('clean-code', () => {
+gulp.task('clean', () => {
     return del(out);
 });
-
-gulp.task('clean', ['clean-code', 'docs-clean']);
 
 gulp.task('docs-styles', () => {
     return sass(docs + '/src/scss/style.scss', {style: 'expanded'})
@@ -160,15 +158,8 @@ gulp.task('docs-text', () => {
         .pipe(gulp.dest(docsOut + '/text'));
 });
 
-gulp.task('docs-clean', () => {
-    return del(docsOut);
-});
-
 // generate docs in the docs/deploy folder, then copy it into the deploy/docs folder
-gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text'], () => {
-    return gulp.src([docsOut + '/**/*', docsOut + '/.htaccess'])
-        .pipe(gulp.dest(out + '/docs'));
-});
+gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text']);
 
 gulp.task('default', ['scripts', 'styles', 'libraries', 'html', 'images', 'docs']);
 
