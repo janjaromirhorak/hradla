@@ -6,9 +6,31 @@ const gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     rename = require('gulp-rename'),
     del = require('del'),
-    htmlmin = require('gulp-html-minifier');
+    htmlmin = require('gulp-html-minifier'),
+    fs = require('fs'),
+    htmlreplace = require('gulp-html-replace');
 
-const config = 'config.json';
+const configFile = 'config.json';
+
+// get parsed config file
+let config = false;
+function getConfig() {
+    if(!config) {
+        config = JSON.parse(fs.readFileSync('./'+configFile));
+    }
+    return config;
+}
+
+function getAnalyticsCode(analyticsId) {
+    return "<script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-84321302-2\"></script>" +
+        "<script>\n" +
+        "    window.dataLayer = window.dataLayer || [];\n" +
+        "    function gtag(){dataLayer.push(arguments)};\n" +
+        "    gtag('js', new Date());\n" +
+        "\n" +
+        "    gtag('config', '" + analyticsId + "');\n" +
+        "</script>";
+}
 
 const out = 'deploy';
 const outCss = out + '/' + 'css';
@@ -49,10 +71,10 @@ gulp.task('scripts', () => {
 
 // copy and minimize JS libraries
 gulp.task('libraries-js', () => {
-   return gulp.src(libJs + '/**/*.js')
-       .pipe(rename({suffix: '.min'}))
-       .pipe(uglify())
-       .pipe(gulp.dest(outJs + '/lib'))
+    return gulp.src(libJs + '/**/*.js')
+        .pipe(rename({suffix: '.min'}))
+        .pipe(uglify())
+        .pipe(gulp.dest(outJs + '/lib'))
 });
 
 // copy and minimize CSS libraries
@@ -68,7 +90,20 @@ gulp.task('libraries', ['libraries-js', 'libraries-css']);
 
 // minimies the html file
 gulp.task('html', () => {
+    let conf = getConfig();
+    let analytics = conf['analytics'];
+    let replace = {
+        title: conf['title'],
+        gtag: ''
+    };
+
+    // inject the Google Analytics Gtag code, if the analytics id is specified in the config file
+    if(analytics) {
+        replace.gtag = getAnalyticsCode(analytics)
+    }
+
     return gulp.src('index.html')
+        .pipe(htmlreplace(replace))
         .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
         .pipe(gulp.dest(out));
 });
@@ -80,9 +115,11 @@ gulp.task('images', () => {
 });
 
 // removes the deploy directory
-gulp.task('clean', () => {
+gulp.task('clean-code', () => {
     return del(out);
 });
+
+gulp.task('clean', ['clean-code', 'docs-clean']);
 
 gulp.task('docs-styles', () => {
     return sass(docs + '/src/scss/style.scss', {style: 'expanded'})
@@ -93,9 +130,29 @@ gulp.task('docs-styles', () => {
         .pipe(gulp.dest(docsCss));
 });
 
-gulp.task('docs-backend', () => {
-    return gulp.src([docs + '/backend/**/*', docs + '/backend/.htaccess', config])
+gulp.task('docs-backend-copy', () => {
+    return gulp.src([docs + '/backend/**/*', docs + '/backend/.htaccess'])
         .pipe(gulp.dest(docsOut));
+});
+
+// copy doc's backend files, than inject the page title and gtag into the backend/include/head.inc file
+gulp.task('docs-backend', ['docs-backend-copy'], () => {
+    let conf = getConfig();
+    let analytics = conf['analytics'];
+    let replace = {
+        title: conf['title'],
+        gtag: ''
+    };
+
+    // inject the Google Analytics Gtag code, if the analytics id is specified in the config file
+    if(analytics) {
+        replace.gtag = getAnalyticsCode(analytics)
+    }
+
+    return gulp.src(docs + '/backend/include/head.inc')
+        .pipe(htmlreplace(replace))
+        .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
+        .pipe(gulp.dest(docsOut  + '/include'));
 });
 
 gulp.task('docs-text', () => {
@@ -107,6 +164,12 @@ gulp.task('docs-clean', () => {
     return del(docsOut);
 });
 
-gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text']);
+// generate docs in the docs/deploy folder, then copy it into the deploy/docs folder
+gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text'], () => {
+    return gulp.src([docsOut + '/**/*', docsOut + '/.htaccess'])
+        .pipe(gulp.dest(out + '/docs'));
+});
 
-gulp.task('default', ['scripts', 'styles', 'libraries', 'html', 'images']);
+gulp.task('default', ['scripts', 'styles', 'libraries', 'html', 'images', 'docs']);
+
+gulp.task('empty', () => {});
