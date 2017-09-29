@@ -21,6 +21,10 @@ const lib = 'lib';
 const libCss = lib + '/' + 'css';
 const libJs = lib + '/' + 'js';
 
+const docs = 'docs';
+const docsOut = docs + '/' + 'deploy';
+const docsCss = docsOut + '/' + 'css';
+
 // compile and minimize sass
 gulp.task('styles', () => {
     return sass(srcCss + '/style.scss', {style: 'expanded'})
@@ -75,7 +79,32 @@ gulp.task('images', () => {
 
 // removes the deploy directory
 gulp.task('clean', () => {
-    return del('deploy');
+    return del(out);
 });
+
+gulp.task('docs-styles', () => {
+    return sass(docs + '/src/scss/style.scss', {style: 'expanded'})
+        .pipe(autoprefixer('last 2 version'))
+        .pipe(gulp.dest(docsCss))
+        .pipe(rename({suffix: '.min'}))
+        .pipe(cssnano())
+        .pipe(gulp.dest(docsCss));
+});
+
+gulp.task('docs-backend', () => {
+    return gulp.src([docs + '/backend/**/*', docs + '/backend/.htaccess'])
+        .pipe(gulp.dest(docsOut));
+});
+
+gulp.task('docs-text', () => {
+    return gulp.src(docs + '/text/**/*')
+        .pipe(gulp.dest(docsOut + '/text'));
+});
+
+gulp.task('docs-clean', () => {
+    return del(docsOut);
+});
+
+gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text']);
 
 gulp.task('default', ['scripts', 'styles', 'libraries', 'html', 'images']);

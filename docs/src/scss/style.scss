@@ -1,3 +1,7 @@
+@import "lib/normalize";
+
+@include normalize();
+
 $green: #c2eabd;
 $darkBlue: #011936;
 $yellow: #f9dc5c;
