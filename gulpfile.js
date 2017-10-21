@@ -1,7 +1,6 @@
 "use strict";
 
 const gulp = require('gulp'),
-    // sass = require('gulp-ruby-sass'),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     cssnano = require('gulp-cssnano'),
@@ -54,7 +53,6 @@ const docsCss = docsOut + '/' + 'css';
 
 // compile and minimize sass
 gulp.task('styles', () => {
-    // return sass(srcCss + '/style.scss', {style: 'expanded'})
     return gulp.src(srcCss + '/style.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer('last 2 version'))
@@ -125,7 +123,6 @@ gulp.task('clean', () => {
 });
 
 gulp.task('docs-styles', () => {
-    // return sass(docs + '/src/scss/style.scss', {style: 'expanded'})
     return gulp.src(docs + '/src/scss/style.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer('last 2 version'))
