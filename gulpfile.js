@@ -11,6 +11,8 @@ const gulp = require('gulp'),
     htmlmin = require('gulp-html-minifier'),
     fs = require('fs'),
     htmlreplace = require('gulp-html-replace');
+    runSequence = require('run-sequence'),
+    watch = require('gulp-watch');
 
 const configFile = 'config.json';
 
@@ -168,3 +170,19 @@ gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text']);
 gulp.task('default', ['scripts', 'styles', 'libraries', 'html', 'images', 'docs']);
 
 gulp.task('empty', () => {});
+
+///// watches
+
+gulp.task('watch-scripts', () => {
+    return watch(srcJs + '/**', function () {
+        runSequence('scripts');
+    });
+});
+
+gulp.task('watch-styles', () => {
+   return watch(srcCss + '/**', function () {
+      runSequence('styles');
+   });
+});
+
+gulp.task('watch', ['watch-scripts', 'watch-styles']);
