@@ -1,4 +1,6 @@
 
+import {exportNetwork} from "./importExport.js";
+
 class jqueryElement {
     constructor(specificTag) {
         if(!specificTag) {
@@ -82,6 +84,20 @@ export default class floatingMenu extends jqueryElement {
             $('#' + id).removeClass('fulscreenMode');
         }));
         */
+
+        let exportButton = new floatingMenuItem("export", "export", "Export this network", "a");
+        exportButton.$el.on("click", () => {
+            let dataUri = 'data:application/json;charset=utf-8,'
+                + encodeURIComponent(new exportNetwork(parentSVG).json);
+            console.log(dataUri);
+            // window.location.href = dataUri;
+            exportButton.$el.attr("href", dataUri);
+        });
+        exportButton.$el.attr("download", "network.json");
+        exportButton.$el.attr("target", "_blank");
+        this.append(exportButton);
+
+
         let help = new floatingMenuItem("help", "help", "Display help", "a");
         help.$el.on("mouseover", () => {
             $("#help").addClass("visible");

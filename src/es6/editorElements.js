@@ -167,6 +167,11 @@ class NetworkElement {
     onMouseMove() {
         // empty function to prevent error messages, function is implemented later in the Box class
     }
+
+    get exportData() {
+        console.error("'json' getter has not been defined for this element", this);
+        return undefined;
+    }
 }
 
 // parent class for input and output connectors (the things you click on
@@ -347,6 +352,15 @@ class Box extends NetworkElement {
         this.svgObj.$el.addClass(category);
 
         this.generateBlockNodes();
+    }
+
+    get exportData() {
+        return {
+            name: this.name,
+            id: this.svgObj.id,
+            category: this.category,
+            transform: this.getTransform()
+        };
     }
 
     generateBlockNodes(marginTop = 0, marginRight = 0, marginBottom = 0, marginLeft = 0, ...specialNodes) {
@@ -591,7 +605,7 @@ class Box extends NetworkElement {
 }
 
 export class InputBox extends Box {
-    constructor(parentSVG) {
+    constructor(parentSVG, isOn = false) {
         const width = 7;
         const height = 4;
 
@@ -600,7 +614,13 @@ export class InputBox extends Box {
         this.addOutput(width, height / 2);
 
         this.outputs[0].setState(Logic.state.off, this.parentSVG.getNewPropagationId());
-        this.isOn = false;
+        this.isOn = isOn;
+    }
+
+    get exportData() {
+        let data = super.exportData;
+        data.isOn = this.isOn;
+        return data;
     }
 
     generateBlockNodes() {
@@ -772,6 +792,13 @@ export class Wire extends NetworkElement {
         }
 
         this.svgObj.$el.addClass("wire");
+    }
+
+    get exportData() {
+        return {
+            fromId: this.fromId,
+            toId: this.toId
+        };
     }
 
     setState(state, propagationId) {

@@ -70,6 +70,24 @@ export default class Svg {
         });
     }
 
+    get exportData() {
+        let data = {
+            gridSize: this.gridSize,
+            boxes: [],
+            wires: []
+        };
+
+        for(let i = 0; i < this.boxes.length; ++i) {
+            data.boxes[i] = this.boxes[i].exportData;
+        }
+
+        for(let i = 0; i < this.wires.length; ++i) {
+            data.wires[i] = this.wires[i].exportData;
+        }
+
+        return data;
+    }
+
     wireCreationHelper(connectorId) {
         if(!this.firstConnectorId) {
             this.firstConnectorId = connectorId;
