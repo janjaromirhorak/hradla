@@ -570,7 +570,11 @@ var $__src_47_es6_47_editorElements_46_js__ = (function() {
     return ($traceurRuntime.createClass)(NetworkElement, {
       onMouseDown: function() {},
       onMouseUp: function() {},
-      onMouseMove: function() {}
+      onMouseMove: function() {},
+      get exportData() {
+        console.error("'json' getter has not been defined for this element", this);
+        return undefined;
+      }
     }, {});
   }();
   var Connector = function($__super) {
@@ -697,6 +701,14 @@ var $__src_47_es6_47_editorElements_46_js__ = (function() {
       this.generateBlockNodes();
     }
     return ($traceurRuntime.createClass)(Box, {
+      get exportData() {
+        return {
+          name: this.name,
+          id: this.svgObj.id,
+          category: this.category,
+          transform: this.getTransform()
+        };
+      },
       generateBlockNodes: function() {
         var marginTop = arguments[0] !== (void 0) ? arguments[0] : 0;
         var marginRight = arguments[1] !== (void 0) ? arguments[1] : 0;
@@ -932,14 +944,20 @@ var $__src_47_es6_47_editorElements_46_js__ = (function() {
   }(NetworkElement);
   var InputBox = function($__super) {
     function InputBox(parentSVG) {
+      var isOn = arguments[1] !== (void 0) ? arguments[1] : false;
       var width = 7;
       var height = 4;
       $traceurRuntime.superConstructor(InputBox).call(this, parentSVG, "input", "io", width, height);
       this.addOutput(width, height / 2);
       this.outputs[0].setState(Logic.state.off, this.parentSVG.getNewPropagationId());
-      this.isOn = false;
+      this.isOn = isOn;
     }
     return ($traceurRuntime.createClass)(InputBox, {
+      get exportData() {
+        var data = $traceurRuntime.superGet(this, InputBox.prototype, "exportData");
+        data.isOn = this.isOn;
+        return data;
+      },
       generateBlockNodes: function() {
         $traceurRuntime.superGet(this, InputBox.prototype, "generateBlockNodes").call(this, 0, 1, 1, 0);
       },
@@ -1076,6 +1094,12 @@ var $__src_47_es6_47_editorElements_46_js__ = (function() {
       this.svgObj.$el.addClass("wire");
     }
     return ($traceurRuntime.createClass)(Wire, {
+      get exportData() {
+        return {
+          fromId: this.fromId,
+          toId: this.toId
+        };
+      },
       setState: function(state, propagationId) {
         this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
         switch (state) {
@@ -1487,9 +1511,30 @@ var $__src_47_es6_47_contextMenu_46_js__ = (function() {
       return ContextMenu;
     }};
 })();
+var $__src_47_es6_47_importExport_46_js__ = (function() {
+  "use strict";
+  var __moduleName = "src/es6/importExport.js";
+  var exportNetwork = function() {
+    function exportNetwork(parentSVG) {
+      this.parentSVG = parentSVG;
+    }
+    return ($traceurRuntime.createClass)(exportNetwork, {
+      get exportData() {
+        return this.parentSVG.exportData;
+      },
+      get json() {
+        return JSON.stringify(this.exportData, null, 2);
+      }
+    }, {});
+  }();
+  return {get exportNetwork() {
+      return exportNetwork;
+    }};
+})();
 var $__src_47_es6_47_floatingMenu_46_js__ = (function() {
   "use strict";
   var __moduleName = "src/es6/floatingMenu.js";
+  var exportNetwork = ($__src_47_es6_47_importExport_46_js__).exportNetwork;
   var jqueryElement = function() {
     function jqueryElement(specificTag) {
       if (!specificTag) {
@@ -1539,6 +1584,16 @@ var $__src_47_es6_47_floatingMenu_46_js__ = (function() {
       $traceurRuntime.superConstructor(floatingMenu).call(this);
       var id = 'floatingMenu';
       this.$el.attr("id", id);
+      var exportButton = new floatingMenuItem("export", "export", "Export this network", "a");
+      exportButton.$el.on("click", function() {
+        var data = {json: new exportNetwork(parentSVG).json};
+        data.jsonUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(data.json);
+        var content = '<div id="jsonExport">' + '<div class="code json">' + data.json + '</div>' + '<a href="' + data.jsonUri + '" download="network.json">download</a>' + '</div>';
+        lity(content);
+      });
+      exportButton.$el.attr("download", "network.json");
+      exportButton.$el.attr("target", "_blank");
+      this.append(exportButton);
       var help = new floatingMenuItem("help", "help", "Display help", "a");
       help.$el.on("mouseover", function() {
         $("#help").addClass("visible");
@@ -1614,6 +1669,20 @@ var $__src_47_es6_47_canvas_46_js__ = (function() {
       });
     }
     return ($traceurRuntime.createClass)(Svg, {
+      get exportData() {
+        var data = {
+          gridSize: this.gridSize,
+          boxes: [],
+          wires: []
+        };
+        for (var i = 0; i < this.boxes.length; ++i) {
+          data.boxes[i] = this.boxes[i].exportData;
+        }
+        for (var i$__10 = 0; i$__10 < this.wires.length; ++i$__10) {
+          data.wires[i$__10] = this.wires[i$__10].exportData;
+        }
+        return data;
+      },
       wireCreationHelper: function(connectorId) {
         if (!this.firstConnectorId) {
           this.firstConnectorId = connectorId;
@@ -1699,11 +1768,11 @@ var $__src_47_es6_47_canvas_46_js__ = (function() {
           }
         }
         if (gateIndex > -1) {
-          for (var i$__10 = 0; i$__10 < this.boxes[gateIndex].inputs.length; i$__10++) {
-            this.removeWiresByConnectorId(this.boxes[gateIndex].inputs[i$__10].svgObj.id);
+          for (var i$__11 = 0; i$__11 < this.boxes[gateIndex].inputs.length; i$__11++) {
+            this.removeWiresByConnectorId(this.boxes[gateIndex].inputs[i$__11].svgObj.id);
           }
-          for (var i$__11 = 0; i$__11 < this.boxes[gateIndex].outputs.length; i$__11++) {
-            this.removeWiresByConnectorId(this.boxes[gateIndex].outputs[i$__11].svgObj.id);
+          for (var i$__12 = 0; i$__12 < this.boxes[gateIndex].outputs.length; i$__12++) {
+            this.removeWiresByConnectorId(this.boxes[gateIndex].outputs[i$__12].svgObj.id);
           }
           this.boxes.splice(gateIndex, 1);
           $gate.remove();
@@ -1794,8 +1863,8 @@ var $__src_47_es6_47_canvas_46_js__ = (function() {
               return this.boxes[i];
             }
           }
-          for (var j$__12 = 0; j$__12 < this.boxes[i].outputs.length; j$__12++) {
-            if (this.boxes[i].outputs[j$__12].svgObj.id === connectorId) {
+          for (var j$__13 = 0; j$__13 < this.boxes[i].outputs.length; j$__13++) {
+            if (this.boxes[i].outputs[j$__13].svgObj.id === connectorId) {
               return this.boxes[i];
             }
           }
@@ -1812,9 +1881,9 @@ var $__src_47_es6_47_canvas_46_js__ = (function() {
         } else {
           var gateCount = this.boxes.length;
           for (var i = 0; i < gateCount; i++) {
-            var connector$__13 = this.boxes[i].getConnectorById(connectorId);
-            if (connector$__13) {
-              return connector$__13;
+            var connector$__14 = this.boxes[i].getConnectorById(connectorId);
+            if (connector$__14) {
+              return connector$__14;
             }
           }
         }
@@ -1919,11 +1988,11 @@ var $__src_47_es6_47_canvas_46_js__ = (function() {
       getInconvenientNodes: function(ignoreWireId) {
         var $__2 = this;
         var inconvenientNodes = new Set();
-        var $__14 = this,
-            $__15 = function(i) {
-              if (ignoreWireId === undefined || ignoreWireId !== $__14.wires[i].svgObj.id) {
+        var $__15 = this,
+            $__16 = function(i) {
+              if (ignoreWireId === undefined || ignoreWireId !== $__15.wires[i].svgObj.id) {
                 var prevPoint;
-                $__14.wires[i].points.forEach(function(point) {
+                $__15.wires[i].points.forEach(function(point) {
                   if (prevPoint === undefined) {
                     inconvenientNodes.add({
                       x: point.x,
@@ -1941,14 +2010,14 @@ var $__src_47_es6_47_canvas_46_js__ = (function() {
                         from += $__2.gridSize;
                       }
                     } else if (prevPoint.y === point.y) {
-                      var from$__16 = Math.min(prevPoint.x, point.x);
-                      var to$__17 = Math.max(prevPoint.x, point.x);
-                      while (from$__16 <= to$__17) {
+                      var from$__17 = Math.min(prevPoint.x, point.x);
+                      var to$__18 = Math.max(prevPoint.x, point.x);
+                      while (from$__17 <= to$__18) {
                         inconvenientNodes.add({
-                          x: from$__16,
+                          x: from$__17,
                           y: point.y
                         });
-                        from$__16 += $__2.gridSize;
+                        from$__17 += $__2.gridSize;
                       }
                     } else {
                       console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
@@ -1962,7 +2031,7 @@ var $__src_47_es6_47_canvas_46_js__ = (function() {
               }
             };
         for (var i = 0; i < this.wires.length; ++i) {
-          $__15(i);
+          $__16(i);
         }
         return inconvenientNodes;
       }

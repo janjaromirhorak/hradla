@@ -10,6 +10,6 @@ export class exportNetwork {
     }
 
     get json() {
-        return JSON.stringify(this.exportData);
+        return JSON.stringify(this.exportData, null, 2);
     }
 }

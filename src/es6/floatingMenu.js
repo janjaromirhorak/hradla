@@ -86,12 +86,29 @@ export default class floatingMenu extends jqueryElement {
         */
 
         let exportButton = new floatingMenuItem("export", "export", "Export this network", "a");
+        /*
         exportButton.$el.on("click", () => {
             let dataUri = 'data:application/json;charset=utf-8,'
                 + encodeURIComponent(new exportNetwork(parentSVG).json);
             console.log(dataUri);
             // window.location.href = dataUri;
             exportButton.$el.attr("href", dataUri);
+        });
+        */
+
+        exportButton.$el.on("click", () => {
+            let data = {
+                json: new exportNetwork(parentSVG).json
+            };
+            data.jsonUri = 'data:application/json;charset=utf-8,'
+                + encodeURIComponent(data.json);
+
+            let content = '<div id="jsonExport">' +
+                    '<div class="code json">' + data.json + '</div>' +
+                    '<a href="' + data.jsonUri + '" download="network.json">download</a>' +
+                '</div>';
+
+            lity(content);
         });
         exportButton.$el.attr("download", "network.json");
         exportButton.$el.attr("target", "_blank");
