@@ -10,7 +10,7 @@ const gulp = require('gulp'),
     del = require('del'),
     htmlmin = require('gulp-html-minifier'),
     fs = require('fs'),
-    htmlreplace = require('gulp-html-replace');
+    htmlreplace = require('gulp-html-replace'),
     runSequence = require('run-sequence'),
     watch = require('gulp-watch');
 
