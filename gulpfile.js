@@ -67,7 +67,7 @@ gulp.task('styles', () => {
 // compile and minimize es6
 gulp.task('scripts', () => {
     return gulp.src(srcJs + '/main.js')
-        .pipe(traceur({modules: 'inline'}))
+        .pipe(traceur({modules: 'inline', "source-maps": "inline"}))
         .pipe(gulp.dest(outJs))
         .pipe(rename({suffix: '.min'}))
         .pipe(uglify())
