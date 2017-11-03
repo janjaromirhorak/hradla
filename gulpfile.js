@@ -12,7 +12,8 @@ const gulp = require('gulp'),
     fs = require('fs'),
     htmlreplace = require('gulp-html-replace'),
     runSequence = require('run-sequence'),
-    watch = require('gulp-watch');
+    watch = require('gulp-watch'),
+    imagemin = require('gulp-imagemin');
 
 const configFile = 'config.json';
 
@@ -116,6 +117,14 @@ gulp.task('html', () => {
 // copies images
 gulp.task('images', () => {
     return gulp.src('img/*/*.svg')
+        .pipe(imagemin([
+            imagemin.svgo({
+                plugins: [
+                    {removeViewBox: true},
+                    {cleanupIDs: false}
+                ]
+            })
+        ]))
         .pipe(gulp.dest(outImg));
 });
 
