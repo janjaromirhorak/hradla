@@ -1,13 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 90 40">
- <g transform="translate(-5,-5)">
-  <path d="m32 43v-36h18c25 0 25 36 0 36h-18" fill-rule="evenodd" fill="#fff"/>
-  <circle cx="75.021553" cy="24.965517" r="3" fill="#fff"/>
-  <g stroke="#000" fill="none">
-   <path d="m79 25h16" stroke-width="2"/>
-   <path d="m31 15h-26" stroke-width="2"/>
-   <path d="m32 35h-27" stroke-width="1.99999988"/>
-  </g>
-  <path style="block-progression:tb;text-indent:0;text-decoration-line:none;text-transform:none" d="m30 5v1.4285714 37.1428576 1.428571h1.428571 19.047619c11.267908 0 20-9.000045 20-20s-8.732091-19.9999998-20-20h-19.047619-1.428571zm2.857143 2.8571429h15.238095 2.083333 0.267858 0.02976c9.760664 1e-7 16.666668 7.6399551 16.666668 17.1428571s-7.382195 17.142857-17.142857 17.142857h-17.142857v-34.2857141z"/>
-  <circle cx="75" stroke="#000" cy="25" r="4" stroke-width="3" fill="none"/>
- </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="90" height="40" id="svg2" version="1"><g id="layer1" transform="translate(-5 -5)"><path d="M32 43V7h18c25 0 25 36 0 36H32" id="path6375" fill="#fff" fill-rule="evenodd"/><circle id="path4736" cx="75.022" cy="24.966" r="3" fill="#fff" stroke-width=".5" stroke-linecap="round" stroke-miterlimit="10"/><path d="M79 25h16" id="path3059" fill="none" stroke="#000" stroke-width="2"/><path d="M31 15H5" id="path3061" fill="none" stroke="#000" stroke-width="2"/><path d="M32 35H5" id="path3944" fill="none" stroke="#000" stroke-width="2"/><path style="line-height:normal;-inkscape-font-specification:'Bitstream Vera Sans';text-indent:0;text-align:start;text-decoration-line:none;text-transform:none;block-progression:tb;marker:none" d="M30 5v40h20.476c11.268 0 20-9 20-20s-8.732-20-20-20H30zm2.857 2.857h17.619c9.76 0 16.667 7.64 16.667 17.143S59.76 42.143 50 42.143H32.857V7.857z" id="path2884" font-weight="400" font-family="Bitstream Vera Sans" overflow="visible" stroke-width="3"/><circle style="marker:none" id="path4008" cx="75" cy="25" r="4" overflow="visible" fill="none" stroke="#000" stroke-width="3"/></g></svg>
