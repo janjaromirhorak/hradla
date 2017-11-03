@@ -10,7 +10,7 @@ const gulp = require('gulp'),
     del = require('del'),
     htmlmin = require('gulp-html-minifier'),
     fs = require('fs'),
-    htmlreplace = require('gulp-html-replace'),
+    htmlReplace = require('gulp-html-replace'),
     runSequence = require('run-sequence'),
     watch = require('gulp-watch'),
     imagemin = require('gulp-imagemin');
@@ -109,7 +109,7 @@ gulp.task('html', () => {
     }
 
     return gulp.src('index.html')
-        .pipe(htmlreplace(replace))
+        .pipe(htmlReplace(replace))
         .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
         .pipe(gulp.dest(out));
 });
@@ -163,7 +163,7 @@ gulp.task('docs-backend', ['docs-backend-copy'], () => {
     }
 
     return gulp.src(docs + '/backend/include/head.inc')
-        .pipe(htmlreplace(replace))
+        .pipe(htmlReplace(replace))
         .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
         .pipe(gulp.dest(docsOut  + '/include'));
 });
