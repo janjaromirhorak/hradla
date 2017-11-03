@@ -1,4 +1,3 @@
-
 import {exportNetwork} from "./importExport.js";
 
 class jqueryElement {
@@ -55,12 +54,12 @@ class floatingMenuItem extends jqueryElement {
         this.$el.addClass("button");
         this.$el.addClass(specificClass);
 
-        let image = $("<img>");
-        image.attr("src", "img/gui/" + icon + ".svg");
-        image.attr("alt", title);
-        image.attr("title", title);
-
-        this.$el.append(image);
+        this.$el.append(
+            $("<img>")
+                .attr("src", "img/gui/" + icon + ".svg")
+                .attr("alt", title)
+                .attr("title", title)
+        );
     }
 }
 
@@ -72,29 +71,47 @@ export default class floatingMenu extends jqueryElement {
 
         this.$el.attr("id", id);
 
-        /*
-        this.append(new floatingMenuItem("fullscreen", "fs", "Enter fulscreen mode", () => {
-            // enable fullscreen using the jQuery fullScreen plugin
-            $(document).fullScreen(true);
-            $('#' + id).addClass('fulscreenMode');
-        }));
-        this.append(new floatingMenuItem("closefullscreen", "fs-close", "Exit fulscreen mode", () => {
-            // disable fullscreen using the jQuery fullScreen plugin
-            $(document).fullScreen(false);
-            $('#' + id).removeClass('fulscreenMode');
-        }));
-        */
-
         let exportButton = new floatingMenuItem("export", "export", "Export this network", "a");
         exportButton.$el.on("click", () => {
-            let dataUri = 'data:application/json;charset=utf-8,'
-                + encodeURIComponent(new exportNetwork(parentSVG).json);
-            console.log(dataUri);
-            // window.location.href = dataUri;
-            exportButton.$el.attr("href", dataUri);
+            let data = new exportNetwork(parentSVG);
+
+            // create the popup container holding all popup content (that will be passed to lity)
+            let $popup = $("<div>")
+                .attr("id", "jsonExport");
+
+            // generate the block with code to be displayed and append it to the popup element
+            $popup.append(
+                $("<pre>").append(
+                    $("<code>")
+                        .text(
+                            data.json(exportNetwork.style.pretty)
+                        )
+                )
+            );
+
+            // generate the links
+            $popup.append(
+                $("<a>").attr({
+                    "href": data.json(exportNetwork.style.pretty, true),
+                    "class": "download",
+                    "download": "network.json"
+                }).append(
+                    $("<img>").attr('src', "img/gui/export.svg")
+                ).append(" expanded JSON")
+            );
+            $popup.append(
+                $("<a>").attr({
+                    "href": data.json(exportNetwork.style.compact, true),
+                    "class": "download",
+                    "download": "network.min.json"
+                }).append(
+                    $("<img>").attr('src', "img/gui/export.svg")
+                ).append(" compact JSON")
+            );
+
+            lity($popup);
         });
-        exportButton.$el.attr("download", "network.json");
-        exportButton.$el.attr("target", "_blank");
+
         this.append(exportButton);
 
 
@@ -103,11 +120,8 @@ export default class floatingMenu extends jqueryElement {
             $("#help").addClass("visible");
         }).on("mouseout", () => {
             $("#help").removeClass("visible");
-        })
-            // .on("click", () => {
-            // lity('./docs/');
-        // })
-        ;
+        });
+
         help.$el.attr({
             'href': './docs/',
             'data-lity': ''

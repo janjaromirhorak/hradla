@@ -1,7 +1,9 @@
-$backgroundColor: #c2eabd;
-$textColor: #011936;
-$backgroundHoverColor: #f9dc5c;
-$backgroundActiveColor: #ed254e;
+@import "lib/fontawesome/font-awesome";
+
+$light: #c2eabd;
+$dark: #011936;
+$lightColor: #f9dc5c;
+$darkColor: #ed254e;
 
 $uiItemHeight: 1.3em;
 $transitionTime: 200ms;
@@ -16,9 +18,9 @@ $transitionAll: all $transitionTime;
 
     padding: 1em;
 
-    background: $backgroundColor;
+    background: $light;
 
-    color: $textColor;
+    color: $dark;
 
     display:none;
     opacity:0;
@@ -39,10 +41,10 @@ $transitionAll: all $transitionTime;
         opacity: 1;
     }
 }
-
+/*
 .mouseIcon {
     path {
-        fill: $textColor;
+        fill: $dark;
     }
 
     &.blinkLeft {
@@ -63,11 +65,15 @@ $transitionAll: all $transitionTime;
 }
 
 @keyframes pulsate {
-    0% {fill: $textColor}
-    40% {fill: $backgroundActiveColor}
-    80% {fill: $textColor}
-    100% {fill: $textColor}
-}
+    0% {fill: $dark
+    }
+    40% {fill: $darkColor
+    }
+    80% {fill: $dark
+    }
+    100% {fill: $dark
+    }
+}*/
 
 /// FLOATING MENU
 #floatingMenu {
@@ -79,7 +85,7 @@ $transitionAll: all $transitionTime;
 
     .button {
         display:inline-block;
-        background: $backgroundColor;
+        background: $light;
 
         width: $uiItemHeight;
         height: $uiItemHeight;
@@ -90,21 +96,25 @@ $transitionAll: all $transitionTime;
         cursor: pointer;
         cursor: hand;
 
+        color: black;
+
         img {
             width: 100%;
             height: 100%;
         }
 
+        /*
         &.closefullscreen {
             display: none;
         }
+        */
 
         &:hover {
-            background: $backgroundHoverColor;
+            background: $lightColor;
         }
 
         &:active {
-            background: $backgroundActiveColor;
+            background: $darkColor;
         }
     }
 
@@ -127,7 +137,7 @@ $menuItemWidth: 10em;
     z-index: 1000;
     position: absolute;
 
-    background: $backgroundColor;
+    background: $light;
 
     //border: 1px solid #424655;
     //background: lightgoldenrodyellow;
@@ -141,7 +151,7 @@ $menuItemWidth: 10em;
     margin: 0;
     padding: $contextMenuPadding 0;
 
-    color:$textColor;
+    color: $dark;
 
     li {
         list-style-type: none;
@@ -172,7 +182,7 @@ $menuItemWidth: 10em;
         }
 
         &:hover {
-            background: $backgroundHoverColor;
+            background: $lightColor;
 
             > ul {
                 display:block;
@@ -180,7 +190,46 @@ $menuItemWidth: 10em;
         }
 
         &:active {
-            background: $backgroundActiveColor;
+            background: $darkColor;
+        }
+    }
+}
+
+#jsonExport {
+    padding: 1em;
+
+    background:white;
+    color:black;
+
+    pre {
+        font-family: 'Overpass Mono', monospace;
+
+        overflow-y: auto;
+        max-height: 50vh;
+        width: 40em;
+        max-width: 90vw;
+        font-size: 0.9em;
+    }
+
+    a.download {
+        font-weight: bold;
+        display:inline-block;
+
+        margin:0.2em;
+        padding: 0.4em;
+
+        text-decoration: none;
+        color: $dark;
+        background: $light;
+
+        img {
+            height: 1.2em;
+            width: auto;
+            vertical-align: bottom;
+        }
+
+        &:hover {
+            background: $lightColor;
         }
     }
 }
