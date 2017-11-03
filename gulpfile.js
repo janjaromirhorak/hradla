@@ -47,8 +47,6 @@ const srcCss = src + '/' + 'scss';
 const srcJs = src + '/' + 'es6';
 
 const lib = 'lib';
-const libCss = lib + '/' + 'css';
-const libJs = lib + '/' + 'js';
 
 const docs = 'docs';
 const docsOut = out + '/' + 'docs';
@@ -75,24 +73,32 @@ gulp.task('scripts', () => {
         .pipe(gulp.dest(outJs))
 });
 
-// copy and minimize JS libraries
-gulp.task('libraries-js', () => {
-    return gulp.src(libJs + '/**/*.js')
-        .pipe(rename({suffix: '.min'}))
+
+gulp.task('lib-lity', ['lib-lity-js', 'lib-lity-css']);
+
+gulp.task('lib-lity-js', () => {
+    return gulp.src(lib + '/lity/*.js')
         .pipe(uglify())
-        .pipe(gulp.dest(outJs + '/lib'))
+        .pipe(rename({suffix: '.min'}))
+        .pipe(gulp.dest(outJs + '/lib'));
 });
 
-// copy and minimize CSS libraries
-gulp.task('libraries-css', () => {
-    return gulp.src(libCss + '/**/*.css')
-        .pipe(rename({suffix: '.min'}))
+gulp.task('lib-lity-css', () => {
+    return gulp.src(lib + '/lity/*.css')
         .pipe(cssnano())
+        .pipe(rename({suffix: '.min'}))
         .pipe(gulp.dest(outCss + '/lib'));
 });
 
+gulp.task('lib-other-js', () => {
+    return gulp.src(lib + '/other-js/*.js')
+        .pipe(uglify())
+        .pipe(rename({suffix: '.min'}))
+        .pipe(gulp.dest(outJs + '/lib'));
+});
+
 // copies all libraries
-gulp.task('libraries', ['libraries-js', 'libraries-css']);
+gulp.task('libraries', ['lib-lity', 'lib-other-js']);
 
 // minimies the html file
 gulp.task('html', () => {
