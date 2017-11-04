@@ -72,7 +72,8 @@ export default class Svg {
 
     get exportData() {
         let data = {
-            gridSize: this.gridSize,
+            // todo implement gridSize scaling
+            // gridSize: this.gridSize,
             boxes: [],
             wires: []
         };
@@ -80,12 +81,130 @@ export default class Svg {
         for(let i = 0; i < this.boxes.length; ++i) {
             data.boxes[i] = this.boxes[i].exportData;
         }
-
+/*
         for(let i = 0; i < this.wires.length; ++i) {
             data.wires[i] = this.wires[i].exportData;
         }
+        */
 
         return data;
+    }
+
+    importData(data) {
+        // todo implement gridSize scaling
+
+        // list of wires to be added
+        let newWires = new Map();
+
+        for(let i = 0 ; i < data.boxes.length; ++i) {
+            // add box
+            console.log(data.boxes[i]);
+            let box;
+            switch (data.boxes[i].category) {
+                case "gate":
+                    box = this.newGate(data.boxes[i].name, 0, 0);
+                    break;
+                case "io":
+                    switch (data.boxes[i].name) {
+                        case "input":
+                            box = this.newInput(0, 0, data.boxes[i].isOn);
+                            break;
+                        case "output":
+                            box = this.newOutput(0, 0);
+                            break;
+                        default:
+                            console.error("Unknown io box name '"+data.boxes[i].name+"'.");
+                            break;
+                    }
+                    break;
+                default:
+                    console.error("Unknown box category '"+data.boxes[i].category+"'.");
+            }
+
+            if (box) {
+                // proccess box transforms (translation and rotation)
+                let transform = new editorElements.Transform();
+                for(let j = 0 ; j < data.boxes[i].transform.items.length ; ++j) {
+                    switch (data.boxes[i].transform.items[j].name) {
+                        case "translate":
+                            transform.setTranslate(
+                                data.boxes[i].transform.items[j].args[0],
+                                data.boxes[i].transform.items[j].args[1]
+                            );
+                            break;
+                        case "rotate":
+                            transform.setRotate(
+                                data.boxes[i].transform.items[j].args[0],
+                                data.boxes[i].transform.items[j].args[1],
+                                data.boxes[i].transform.items[j].args[2]
+                            );
+                            break;
+                        default:
+                            console.error("Unknown transform property '"+data.boxes[i].transform.items[j].name+"'.");
+                            break;
+                    }
+                }
+
+                box.setTransform(transform);
+
+                // add all wires to the list of wires to be added
+                for(let j = 0 ; j < data.boxes[i].connections.input.length ; ++j) {
+                    let wireId = data.boxes[i].connections.input[j].wireId;
+                    let index = data.boxes[i].connections.input[j].index;
+
+                    let value = {
+                        type: "input",
+                        index: index,
+                        boxId: box.id
+                    };
+
+                    if(newWires.has(wireId)) {
+                        let oldValue = newWires.get(wireId)[0];
+                        newWires.set(wireId, [oldValue, value]);
+                    } else {
+                        newWires.set(wireId, [value]);
+                    }
+                }
+
+                // add all wires to the list of wires to be added
+                for(let j = 0 ; j < data.boxes[i].connections.output.length ; ++j) {
+                    let wireId = data.boxes[i].connections.output[j].wireId;
+                    let index = data.boxes[i].connections.output[j].index;
+
+                    let value = {
+                        type: "output",
+                        index: index,
+                        boxId: box.id
+                    };
+
+                    if(newWires.has(wireId)) {
+                        let oldValue = newWires.get(wireId)[0];
+                        newWires.set(wireId, [oldValue, value]);
+                    } else {
+                        newWires.set(wireId, [value]);
+                    }
+                }
+            }
+        }
+
+        newWires.forEach((item) => {
+            let connectorIds = [];
+            for(let i = 0; i <= 1; ++i) {
+                let box = this.getBoxById(item[i].boxId);
+                let connector;
+
+                if (item[i].type === "input") {
+                    connector = box.inputs[item[i].index];
+                } else if (item[i].type === "output") {
+                    connector = box.outputs[item[i].index];
+                } else {
+                    console.error("Unknown connector type.")
+                }
+
+                connectorIds[i] = connector.id;
+            }
+            this.newWire(connectorIds[0], connectorIds[1]);
+        });
     }
 
     wireCreationHelper(connectorId) {
@@ -160,8 +279,8 @@ export default class Svg {
         return this.newBox(x, y, new editorElements.Gate(this, name, x, y));
     }
 
-    newInput(x, y) {
-        return this.newBox(x, y, new editorElements.InputBox(this));
+    newInput(x, y, isOn = false) {
+        return this.newBox(x, y, new editorElements.InputBox(this, isOn));
     }
 
     newOutput(x, y) {

@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="export.svg">
+   sodipodi:docname="import.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
-     inkscape:cx="-54.821872"
-     inkscape:cy="23.561842"
+     inkscape:zoom="2"
+     inkscape:cx="6.7746121"
+     inkscape:cy="47.584408"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -42,7 +42,7 @@
      showguides="true"
      inkscape:guide-bbox="true">
     <sodipodi:guide
-       position="42.678571,17.5"
+       position="-0.11328125,60.11328"
        orientation="0.70710678,0.70710678"
        id="guide971"
        inkscape:locked="false" />
@@ -69,14 +69,12 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-992.3622)">
-    <rect
+    <path
        style="opacity:1;fill:#011936;fill-opacity:1;stroke:none;stroke-width:2.53408957;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect967-3-6-7"
-       width="48.606888"
-       height="10.607178"
-       x="5.6965561"
-       y="1035.9762"
-       ry="0" />
+       d="m 5.6972656,1035.9755 v 10.6074 H 54.302734 v -10.6074 z"
+       id="path895"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
     <path
        sodipodi:type="star"
        style="opacity:1;fill:#011936;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -93,15 +91,15 @@
        inkscape:randomized="0"
        d="M 29.645964,1015.287 15.535714,1039.7267 1.4254637,1015.287 Z"
        inkscape:transform-center-y="3.5673307"
-       transform="matrix(1.4124335,0,0,0.87578743,8.0568369,122.98991)" />
+       transform="matrix(-1.4124335,0,0,-0.87578743,51.943163,1907.5133)" />
     <rect
        style="opacity:1;fill:#011936;fill-opacity:1;stroke:none;stroke-width:1.95494962;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect967-3-6"
-       width="28.928444"
+       width="24.053467"
        height="10.607178"
-       x="-1027.8622"
-       y="24.696411"
+       x="1008.641"
+       y="-35.303589"
        ry="0"
-       transform="rotate(-90)" />
+       transform="rotate(90)" />
   </g>
 </svg>

@@ -156,6 +156,10 @@ class NetworkElement {
         this.svgObj = undefined;
     }
 
+    get id() {
+        return this.svgObj.id;
+    }
+
     onMouseDown() {
         // empty function to prevent error messages, function is implemented later in the Box class
     }
@@ -355,11 +359,72 @@ class Box extends NetworkElement {
     }
 
     get exportData() {
+        let connections = {
+            input: [],
+            output: []
+        };
+
+        let wireIdMap = new Map();
+        let wireId = 0;
+
+        // go through all input connectors
+        for (let i = 0 ; i < this.inputs.length ; ++i) {
+            // for all connector that has at least one wire connected
+            if(this.inputs[i].wireIds.size > 0) {
+                // go through each its wire id
+                this.inputs[i].wireIds.forEach((item) => {
+                    let thisWireId;
+                    if(!wireIdMap.has(item)) {
+                        // if the wire id is not in the map, add it and assign new arbitrary id
+                        wireIdMap.set(item, wireId);
+                        thisWireId = wireId;
+                        wireId++;
+                    } else {
+                        // else get id from the map
+                        thisWireId = wireIdMap.get(item);
+                    }
+
+                    // add this connection to the list
+                    connections.input[connections.input.length] = {
+                        index: i,
+                        wireId: thisWireId
+                    };
+                });
+            }
+        }
+
+        // go through all output connectors
+        for (let i = 0 ; i < this.outputs.length ; ++i) {
+            // for all connector that has at least one wire connected
+            if(this.outputs[i].wireIds.size > 0) {
+                // go through each its wire id
+                this.outputs[i].wireIds.forEach((item) => {
+                    let thisWireId;
+                    if(!wireIdMap.has(item)) {
+                        // if the wire id is not in the map, add it and assign new arbitrary id
+                        wireIdMap.set(item, wireId);
+                        thisWireId = wireId;
+                        wireId++;
+                    } else {
+                        // else get id from the map
+                        thisWireId = wireIdMap.get(item);
+                    }
+
+                    // add this connection to the list
+                    connections.output[connections.output.length] = {
+                        index: i,
+                        wireId: thisWireId
+                    };
+                });
+            }
+        }
+
         return {
             name: this.name,
-            id: this.svgObj.id,
+            // id: this.svgObj.id,
             category: this.category,
-            transform: this.getTransform()
+            transform: this.getTransform(),
+            connections: connections
         };
     }
 
@@ -613,8 +678,7 @@ export class InputBox extends Box {
 
         this.addOutput(width, height / 2);
 
-        this.outputs[0].setState(Logic.state.off, this.parentSVG.getNewPropagationId());
-        this.isOn = isOn;
+        this.on = isOn;
     }
 
     get exportData() {

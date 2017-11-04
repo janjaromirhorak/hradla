@@ -30,3 +30,12 @@ export class exportNetwork {
         }
     };
 }
+
+export class importNetwok {
+    constructor(parentSVG, string) {
+        parentSVG.importData(
+            JSON.parse(string)
+        );
+    }
+
+}

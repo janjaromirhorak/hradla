@@ -1,4 +1,4 @@
-import {exportNetwork} from "./importExport.js";
+import {exportNetwork, importNetwok} from "./importExport.js";
 
 class jqueryElement {
     constructor(specificTag) {
@@ -71,13 +71,61 @@ export default class floatingMenu extends jqueryElement {
 
         this.$el.attr("id", id);
 
+        /* IMPORT */
+
+        // here will be the instance of Lity stored
+        // (we need to store it, because the "import" button also closes Lity)
+        let lityInstanceImport;
+
+        let importButton = new floatingMenuItem("import", "import", "Import a network", "a");
+        importButton.$el.on("click", () => {
+            let $popup = $("<div>")
+                .addClass("importExport")
+                .addClass("import");
+
+            let textareaId = "importJSON";
+
+            $popup.append(
+                $("<textarea></textarea>").attr('id', textareaId)
+            ).append(
+                $("<a>")
+                    .attr({
+                        "href": "#",
+                        "class": "upload"
+                    })
+                    .append(
+                        $("<img>").attr('src', "img/gui/import.svg")
+                    )
+                    .append(" import from JSON")
+                    .on('click', () => {
+                        let $textarea = $('#'+textareaId);
+
+                        // get textarea contents
+                        let importString = $textarea.val();
+
+                        // close Lity
+                        lityInstanceImport.close();
+
+                        // proccess the imported data
+                        new importNetwok(parentSVG, importString);
+                    })
+            );
+
+            lityInstanceImport = lity($popup);
+        });
+
+        this.append(importButton);
+
+        /* EXPORT */
+
         let exportButton = new floatingMenuItem("export", "export", "Export this network", "a");
         exportButton.$el.on("click", () => {
             let data = new exportNetwork(parentSVG);
 
             // create the popup container holding all popup content (that will be passed to lity)
             let $popup = $("<div>")
-                .attr("id", "jsonExport");
+                .addClass("importExport")
+                .addClass("export");
 
             // generate the block with code to be displayed and append it to the popup element
             $popup.append(
@@ -114,6 +162,7 @@ export default class floatingMenu extends jqueryElement {
 
         this.append(exportButton);
 
+        /* HELP */
 
         let help = new floatingMenuItem("help", "help", "Display help", "a");
         help.$el.on("mouseover", () => {
