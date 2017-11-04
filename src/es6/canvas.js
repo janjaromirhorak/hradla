@@ -319,11 +319,8 @@ export default class Svg {
 
         if(gateIndex > -1) {
             // remove all wires connected to this gate
-            for(let i = 0; i < this.boxes[gateIndex].inputs.length; i++) {
-                this.removeWiresByConnectorId(this.boxes[gateIndex].inputs[i].svgObj.id);
-            }
-            for(let i = 0; i < this.boxes[gateIndex].outputs.length; i++) {
-                this.removeWiresByConnectorId(this.boxes[gateIndex].outputs[i].svgObj.id);
+            for(let i = 0; i < this.boxes[gateIndex].connectors.length; i++) {
+                this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[i].svgObj.id);
             }
 
             // remove the gate
@@ -442,16 +439,8 @@ export default class Svg {
 
     getBoxByConnectorId(connectorId) {
         for(let i = 0 ; i < this.boxes.length ; i++) {
-            for(let j = 0 ; j < this.boxes[i].inputs.length ; j++) {
-                if(this.boxes[i].inputs[j].svgObj.id===connectorId) {
-                    return this.boxes[i];
-                }
-            }
-
-            for(let j = 0 ; j < this.boxes[i].outputs.length ; j++) {
-                if(this.boxes[i].outputs[j].svgObj.id===connectorId) {
-                    return this.boxes[i];
-                }
+            if (this.boxes[i].getConnectorById(connectorId) !== undefined) {
+                return this.boxes[i];
             }
         }
         return false;
