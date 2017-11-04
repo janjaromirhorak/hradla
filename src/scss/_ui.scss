@@ -39,39 +39,7 @@ $transitionAll: all $transitionTime;
         opacity: 1;
     }
 }
-/*
-.mouseIcon {
-    path {
-        fill: $dark;
-    }
 
-    &.blinkLeft {
-        .left {
-            animation: pulsate 1s linear infinite;
-        }
-    }
-    &.blinkRight {
-        .right {
-            animation: pulsate 1s linear infinite;
-        }
-    }
-    &.blinkMiddle {
-        .middle {
-            animation: pulsate 1s linear infinite;
-        }
-    }
-}
-
-@keyframes pulsate {
-    0% {fill: $dark
-    }
-    40% {fill: $darkColor
-    }
-    80% {fill: $dark
-    }
-    100% {fill: $dark
-    }
-}*/
 
 /// FLOATING MENU
 #floatingMenu {
@@ -100,12 +68,6 @@ $transitionAll: all $transitionTime;
             width: 100%;
             height: 100%;
         }
-
-        /*
-        &.closefullscreen {
-            display: none;
-        }
-        */
 
         &:hover {
             background: $lightColor;
