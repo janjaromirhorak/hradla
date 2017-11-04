@@ -71,6 +71,9 @@ export default class Svg {
     }
 
     get exportData() {
+        this.exportWireIdMap = new Map();
+        this.exportWireId = 0;
+
         let data = {
             // todo implement gridSize scaling
             // gridSize: this.gridSize,
@@ -81,11 +84,6 @@ export default class Svg {
         for(let i = 0; i < this.boxes.length; ++i) {
             data.boxes[i] = this.boxes[i].exportData;
         }
-/*
-        for(let i = 0; i < this.wires.length; ++i) {
-            data.wires[i] = this.wires[i].exportData;
-        }
-        */
 
         return data;
     }
@@ -98,19 +96,21 @@ export default class Svg {
 
         for(let i = 0 ; i < data.boxes.length; ++i) {
             // add box
-            console.log(data.boxes[i]);
             let box;
             switch (data.boxes[i].category) {
                 case "gate":
-                    box = this.newGate(data.boxes[i].name, 0, 0);
+                    // add new gate (without reloading the SVG, we will reload it once after the import)
+                    box = this.newGate(data.boxes[i].name, 0, 0, false);
                     break;
                 case "io":
                     switch (data.boxes[i].name) {
                         case "input":
-                            box = this.newInput(0, 0, data.boxes[i].isOn);
+                            // add new input (without reloading the SVG, we will reload it once after the import)
+                            box = this.newInput(0, 0, data.boxes[i].isOn, false);
                             break;
                         case "output":
-                            box = this.newOutput(0, 0);
+                            // add new output (without reloading the SVG, we will reload it once after the import)
+                            box = this.newOutput(0, 0, false);
                             break;
                         default:
                             console.error("Unknown io box name '"+data.boxes[i].name+"'.");
@@ -148,63 +148,51 @@ export default class Svg {
                 box.setTransform(transform);
 
                 // add all wires to the list of wires to be added
-                for(let j = 0 ; j < data.boxes[i].connections.input.length ; ++j) {
-                    let wireId = data.boxes[i].connections.input[j].wireId;
-                    let index = data.boxes[i].connections.input[j].index;
+                for(let j = 0 ; j < data.boxes[i].connections.length ; ++j) {
+                    // get the artificial wire id
+                    let wireId = data.boxes[i].connections[j].wireId;
 
+                    // pass the values got from json into a variable that will be added into the map
                     let value = {
-                        type: "input",
-                        index: index,
+                        index: data.boxes[i].connections[j].index,
+                        type: data.boxes[i].connections[j].type,
                         boxId: box.id
                     };
 
+                    // add the value to the map
                     if(newWires.has(wireId)) {
-                        let oldValue = newWires.get(wireId)[0];
-                        newWires.set(wireId, [oldValue, value]);
+                        // if there already is a wire with this id in the map,
+                        // add the value to the end of the array of values
+                        let mapValue = newWires.get(wireId);
+                        mapValue[mapValue.length] = value;
+                        newWires.set(wireId, mapValue);
                     } else {
-                        newWires.set(wireId, [value]);
-                    }
-                }
-
-                // add all wires to the list of wires to be added
-                for(let j = 0 ; j < data.boxes[i].connections.output.length ; ++j) {
-                    let wireId = data.boxes[i].connections.output[j].wireId;
-                    let index = data.boxes[i].connections.output[j].index;
-
-                    let value = {
-                        type: "output",
-                        index: index,
-                        boxId: box.id
-                    };
-
-                    if(newWires.has(wireId)) {
-                        let oldValue = newWires.get(wireId)[0];
-                        newWires.set(wireId, [oldValue, value]);
-                    } else {
+                        // if there is no wire with this id in the map
+                        // add the wire and set the value to be the first element in the array
                         newWires.set(wireId, [value]);
                     }
                 }
             }
         }
 
+        // refresh the SVG document (needed for wiring)
+        this.refresh();
+
+        // with all boxes added, we can now connect them with wires
         newWires.forEach((item) => {
             let connectorIds = [];
-            for(let i = 0; i <= 1; ++i) {
-                let box = this.getBoxById(item[i].boxId);
-                let connector;
+            if(item[0] && item[1]) {
+                for (let i = 0; i <= 1; ++i) {
+                    let box = this.getBoxById(item[i].boxId);
 
-                if (item[i].type === "input") {
-                    connector = box.inputs[item[i].index];
-                } else if (item[i].type === "output") {
-                    connector = box.outputs[item[i].index];
-                } else {
-                    console.error("Unknown connector type.")
+                    connectorIds[i] = box.connectors[item[i].index].id;
                 }
-
-                connectorIds[i] = connector.id;
             }
-            this.newWire(connectorIds[0], connectorIds[1]);
+            this.newWire(connectorIds[0], connectorIds[1], false);
         });
+
+        // refresh the SVG document
+        this.refresh();
     }
 
     wireCreationHelper(connectorId) {
@@ -275,19 +263,19 @@ export default class Svg {
         }
     }
 
-    newGate(name, x, y) {
-        return this.newBox(x, y, new editorElements.Gate(this, name, x, y));
+    newGate(name, x, y, refresh = true) {
+        return this.newBox(x, y, new editorElements.Gate(this, name, x, y), refresh);
     }
 
-    newInput(x, y, isOn = false) {
-        return this.newBox(x, y, new editorElements.InputBox(this, isOn));
+    newInput(x, y, isOn = false, refresh = true) {
+        return this.newBox(x, y, new editorElements.InputBox(this, isOn), refresh);
     }
 
-    newOutput(x, y) {
-        return this.newBox(x, y, new editorElements.OutputBox(this));
+    newOutput(x, y, refresh = true) {
+        return this.newBox(x, y, new editorElements.OutputBox(this), refresh);
     }
 
-    newBox(x, y, object) {
+    newBox(x, y, object, refresh = true) {
         let index = this.boxes.length;
 
         this.boxes[index] = object;
@@ -300,7 +288,7 @@ export default class Svg {
             this.boxes[index].svgObj.addAttr({"transform": tr.get()});
         }
 
-        this.appendElement(this.boxes[index]);
+        this.appendElement(this.boxes[index], refresh);
 
         return this.boxes[index];
     }
@@ -331,7 +319,7 @@ export default class Svg {
         }
     }
 
-    newWire(fromId, toId) {
+    newWire(fromId, toId, refresh = true) {
         if(fromId===toId) {
             return false;
         }
@@ -355,7 +343,7 @@ export default class Svg {
         fromConnector.addWireId(this.wires[index].svgObj.id);
         toConnector.addWireId(this.wires[index].svgObj.id);
 
-        this.appendElement(this.wires[index]);
+        this.appendElement(this.wires[index], refresh);
         this.moveToBackById(this.wires[index].svgObj.id);
 
         return this.wires[index];
@@ -509,13 +497,15 @@ export default class Svg {
         }
     }
 
-    appendElement(element) {
-        this.appendJQueryObject(element.get());
+    appendElement(element, refresh = true) {
+        this.appendJQueryObject(element.get(), refresh);
     }
 
-    appendJQueryObject(object) {
+    appendJQueryObject(object, refresh = true) {
         this.$svg.append(object);
-        this.refresh();
+        if(refresh) {
+            this.refresh();
+        }
     }
 
     addPattern(pattern) {
@@ -573,7 +563,8 @@ export default class Svg {
                 });
             }
         }
-        this.refresh();
+        // todo ensure that this.refresh() is really unnecessary
+        // this.refresh();
         // return the set
         return blockedNodes;
     }

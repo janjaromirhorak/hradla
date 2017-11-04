@@ -369,60 +369,30 @@ class Box extends NetworkElement {
     }
 
     get exportData() {
-        let connections = {
-            input: [],
-            output: []
-        };
+        let connections = [];
 
-        let wireIdMap = new Map();
-        let wireId = 0;
-
-        // go through all input connectors
-        for (let i = 0 ; i < this.inputs.length ; ++i) {
+        // go through all connectors
+        for (let i = 0 ; i < this.connectors.length ; ++i) {
             // for all connector that has at least one wire connected
-            if(this.inputs[i].wireIds.size > 0) {
+            if(this.connectors[i].wireIds.size > 0) {
                 // go through each its wire id
-                this.inputs[i].wireIds.forEach((item) => {
+                this.connectors[i].wireIds.forEach((item) => {
                     let thisWireId;
-                    if(!wireIdMap.has(item)) {
+                    if(!this.parentSVG.exportWireIdMap.has(item)) {
                         // if the wire id is not in the map, add it and assign new arbitrary id
-                        wireIdMap.set(item, wireId);
-                        thisWireId = wireId;
-                        wireId++;
+                        this.parentSVG.exportWireIdMap.set(item, this.parentSVG.exportWireId);
+                        thisWireId = this.parentSVG.exportWireId;
+                        this.parentSVG.exportWireId++;
                     } else {
                         // else get id from the map
-                        thisWireId = wireIdMap.get(item);
+                        thisWireId = this.parentSVG.exportWireIdMap.get(item);
                     }
 
-                    // add this connection to the list
-                    connections.input[connections.input.length] = {
-                        index: i,
-                        wireId: thisWireId
-                    };
-                });
-            }
-        }
-
-        // go through all output connectors
-        for (let i = 0 ; i < this.outputs.length ; ++i) {
-            // for all connector that has at least one wire connected
-            if(this.outputs[i].wireIds.size > 0) {
-                // go through each its wire id
-                this.outputs[i].wireIds.forEach((item) => {
-                    let thisWireId;
-                    if(!wireIdMap.has(item)) {
-                        // if the wire id is not in the map, add it and assign new arbitrary id
-                        wireIdMap.set(item, wireId);
-                        thisWireId = wireId;
-                        wireId++;
-                    } else {
-                        // else get id from the map
-                        thisWireId = wireIdMap.get(item);
-                    }
 
                     // add this connection to the list
-                    connections.output[connections.output.length] = {
+                    connections[connections.length] = {
                         index: i,
+                        type: this.connectors[i].type,
                         wireId: thisWireId
                     };
                 });
