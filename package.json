@@ -1,6 +1,6 @@
 {
   "name": "hradla",
-  "version": "1.2.3",
+  "version": "1.2.5",
   "devDependencies": {
     "del": "^3.0.0",
     "gulp": "^3.9.1",
