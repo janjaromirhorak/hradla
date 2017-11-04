@@ -70,6 +70,131 @@ export default class Svg {
         });
     }
 
+    get exportData() {
+        this.exportWireIdMap = new Map();
+        this.exportWireId = 0;
+
+        let data = {
+            // todo implement gridSize scaling
+            // gridSize: this.gridSize,
+            boxes: [],
+            wires: []
+        };
+
+        for(let i = 0; i < this.boxes.length; ++i) {
+            data.boxes[i] = this.boxes[i].exportData;
+        }
+
+        return data;
+    }
+
+    importData(data) {
+        // todo implement gridSize scaling
+
+        // list of wires to be added
+        let newWires = new Map();
+
+        for(let i = 0 ; i < data.boxes.length; ++i) {
+            // add box
+            let box;
+            switch (data.boxes[i].category) {
+                case "gate":
+                    // add new gate (without reloading the SVG, we will reload it once after the import)
+                    box = this.newGate(data.boxes[i].name, 0, 0, false);
+                    break;
+                case "io":
+                    switch (data.boxes[i].name) {
+                        case "input":
+                            // add new input (without reloading the SVG, we will reload it once after the import)
+                            box = this.newInput(0, 0, data.boxes[i].isOn, false);
+                            break;
+                        case "output":
+                            // add new output (without reloading the SVG, we will reload it once after the import)
+                            box = this.newOutput(0, 0, false);
+                            break;
+                        default:
+                            console.error("Unknown io box name '"+data.boxes[i].name+"'.");
+                            break;
+                    }
+                    break;
+                default:
+                    console.error("Unknown box category '"+data.boxes[i].category+"'.");
+            }
+
+            if (box) {
+                // proccess box transforms (translation and rotation)
+                let transform = new editorElements.Transform();
+                for(let j = 0 ; j < data.boxes[i].transform.items.length ; ++j) {
+                    switch (data.boxes[i].transform.items[j].name) {
+                        case "translate":
+                            transform.setTranslate(
+                                data.boxes[i].transform.items[j].args[0],
+                                data.boxes[i].transform.items[j].args[1]
+                            );
+                            break;
+                        case "rotate":
+                            transform.setRotate(
+                                data.boxes[i].transform.items[j].args[0],
+                                data.boxes[i].transform.items[j].args[1],
+                                data.boxes[i].transform.items[j].args[2]
+                            );
+                            break;
+                        default:
+                            console.error("Unknown transform property '"+data.boxes[i].transform.items[j].name+"'.");
+                            break;
+                    }
+                }
+
+                box.setTransform(transform);
+
+                // add all wires to the list of wires to be added
+                for(let j = 0 ; j < data.boxes[i].connections.length ; ++j) {
+                    // get the artificial wire id
+                    let wireId = data.boxes[i].connections[j].wireId;
+
+                    // pass the values got from json into a variable that will be added into the map
+                    let value = {
+                        index: data.boxes[i].connections[j].index,
+                        type: data.boxes[i].connections[j].type,
+                        boxId: box.id
+                    };
+
+                    // add the value to the map
+                    if(newWires.has(wireId)) {
+                        // if there already is a wire with this id in the map,
+                        // add the value to the end of the array of values
+                        let mapValue = newWires.get(wireId);
+                        mapValue[mapValue.length] = value;
+                        newWires.set(wireId, mapValue);
+                    } else {
+                        // if there is no wire with this id in the map
+                        // add the wire and set the value to be the first element in the array
+                        newWires.set(wireId, [value]);
+                    }
+                }
+            }
+        }
+
+        // refresh the SVG document (needed for wiring)
+        this.refresh();
+
+        // with all boxes added, we can now connect them with wires
+        newWires.forEach((item) => {
+            let connectorIds = [];
+            if(item[0] && item[1]) {
+                for (let i = 0; i <= 1; ++i) {
+                    let box = this.getBoxById(item[i].boxId);
+
+                    connectorIds[i] = box.connectors[item[i].index].id;
+                }
+            }
+            this.newWire(connectorIds[0], connectorIds[1], false);
+        });
+
+        // refresh the SVG document
+        this.refresh();
+    }
+
     wireCreationHelper(connectorId) {
         if(!this.firstConnectorId) {
             this.firstConnectorId = connectorId;
@@ -138,19 +263,19 @@ export default class Svg {
         }
     }
 
-    newGate(name, x, y) {
-        return this.newBox(x, y, new editorElements.Gate(this, name, x, y));
+    newGate(name, x, y, refresh = true) {
+        return this.newBox(x, y, new editorElements.Gate(this, name, x, y), refresh);
     }
 
-    newInput(x, y) {
-        return this.newBox(x, y, new editorElements.InputBox(this));
+    newInput(x, y, isOn = false, refresh = true) {
+        return this.newBox(x, y, new editorElements.InputBox(this, isOn), refresh);
     }
 
-    newOutput(x, y) {
-        return this.newBox(x, y, new editorElements.OutputBox(this));
+    newOutput(x, y, refresh = true) {
+        return this.newBox(x, y, new editorElements.OutputBox(this), refresh);
     }
 
-    newBox(x, y, object) {
+    newBox(x, y, object, refresh = true) {
         let index = this.boxes.length;
 
         this.boxes[index] = object;
@@ -163,7 +288,7 @@ export default class Svg {
             this.boxes[index].svgObj.addAttr({"transform": tr.get()});
         }
 
-        this.appendElement(this.boxes[index]);
+        this.appendElement(this.boxes[index], refresh);
 
         return this.boxes[index];
     }
@@ -182,11 +307,8 @@ export default class Svg {
 
         if(gateIndex > -1) {
             // remove all wires connected to this gate
-            for(let i = 0; i < this.boxes[gateIndex].inputs.length; i++) {
-                this.removeWiresByConnectorId(this.boxes[gateIndex].inputs[i].svgObj.id);
-            }
-            for(let i = 0; i < this.boxes[gateIndex].outputs.length; i++) {
-                this.removeWiresByConnectorId(this.boxes[gateIndex].outputs[i].svgObj.id);
+            for(let i = 0; i < this.boxes[gateIndex].connectors.length; i++) {
+                this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[i].svgObj.id);
             }
 
             // remove the gate
@@ -197,7 +319,7 @@ export default class Svg {
         }
     }
 
-    newWire(fromId, toId) {
+    newWire(fromId, toId, refresh = true) {
         if(fromId===toId) {
             return false;
         }
@@ -221,7 +343,7 @@ export default class Svg {
         fromConnector.addWireId(this.wires[index].svgObj.id);
         toConnector.addWireId(this.wires[index].svgObj.id);
 
-        this.appendElement(this.wires[index]);
+        this.appendElement(this.wires[index], refresh);
         this.moveToBackById(this.wires[index].svgObj.id);
 
         return this.wires[index];
@@ -305,16 +427,8 @@ export default class Svg {
 
     getBoxByConnectorId(connectorId) {
         for(let i = 0 ; i < this.boxes.length ; i++) {
-            for(let j = 0 ; j < this.boxes[i].inputs.length ; j++) {
-                if(this.boxes[i].inputs[j].svgObj.id===connectorId) {
-                    return this.boxes[i];
-                }
-            }
-
-            for(let j = 0 ; j < this.boxes[i].outputs.length ; j++) {
-                if(this.boxes[i].outputs[j].svgObj.id===connectorId) {
-                    return this.boxes[i];
-                }
+            if (this.boxes[i].getConnectorById(connectorId) !== undefined) {
+                return this.boxes[i];
             }
         }
         return false;
@@ -383,13 +497,15 @@ export default class Svg {
         }
     }
 
-    appendElement(element) {
-        this.appendJQueryObject(element.get());
+    appendElement(element, refresh = true) {
+        this.appendJQueryObject(element.get(), refresh);
     }
 
-    appendJQueryObject(object) {
+    appendJQueryObject(object, refresh = true) {
         this.$svg.append(object);
-        this.refresh();
+        if(refresh) {
+            this.refresh();
+        }
     }
 
     addPattern(pattern) {
@@ -447,7 +563,8 @@ export default class Svg {
                 });
             }
         }
-        this.refresh();
+        // todo ensure that this.refresh() is really unnecessary
+        // this.refresh();
         // return the set
         return blockedNodes;
     }

@@ -1,6 +1,6 @@
 "use strict";
 
-class Fn {
+export class Fn {
     static deepCopy(arr) {
         return $.extend(true, [], arr);
     }

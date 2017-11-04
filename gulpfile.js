@@ -1,5 +1,7 @@
+"use strict";
+
 const gulp = require('gulp'),
-    sass = require('gulp-ruby-sass'),
+    sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     cssnano = require('gulp-cssnano'),
     traceur = require('gulp-traceur-cmdline'),
@@ -8,7 +10,10 @@ const gulp = require('gulp'),
     del = require('del'),
     htmlmin = require('gulp-html-minifier'),
     fs = require('fs'),
-    htmlreplace = require('gulp-html-replace');
+    htmlReplace = require('gulp-html-replace'),
+    runSequence = require('run-sequence'),
+    watch = require('gulp-watch'),
+    imagemin = require('gulp-imagemin');
 
 const configFile = 'config.json';
 
@@ -22,7 +27,7 @@ function getConfig() {
 }
 
 function getAnalyticsCode(analyticsId) {
-    return "<script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-84321302-2\"></script>" +
+    return "<script async src=\"https://www.googletagmanager.com/gtag/js?id=" + analyticsId +"\"></script>" +
         "<script>\n" +
         "    window.dataLayer = window.dataLayer || [];\n" +
         "    function gtag(){dataLayer.push(arguments)};\n" +
@@ -42,16 +47,15 @@ const srcCss = src + '/' + 'scss';
 const srcJs = src + '/' + 'es6';
 
 const lib = 'lib';
-const libCss = lib + '/' + 'css';
-const libJs = lib + '/' + 'js';
 
 const docs = 'docs';
-const docsOut = docs + '/' + 'deploy';
+const docsOut = out + '/' + 'docs';
 const docsCss = docsOut + '/' + 'css';
 
 // compile and minimize sass
 gulp.task('styles', () => {
-    return sass(srcCss + '/style.scss', {style: 'expanded'})
+    return gulp.src(srcCss + '/style.scss')
+        .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer('last 2 version'))
         .pipe(gulp.dest(outCss))
         .pipe(rename({suffix: '.min'}))
@@ -62,31 +66,39 @@ gulp.task('styles', () => {
 // compile and minimize es6
 gulp.task('scripts', () => {
     return gulp.src(srcJs + '/main.js')
-        .pipe(traceur({modules: 'inline'}))
+        .pipe(traceur({modules: 'inline', "source-maps": "inline"}))
         .pipe(gulp.dest(outJs))
         .pipe(rename({suffix: '.min'}))
         .pipe(uglify())
         .pipe(gulp.dest(outJs))
 });
 
-// copy and minimize JS libraries
-gulp.task('libraries-js', () => {
-    return gulp.src(libJs + '/**/*.js')
-        .pipe(rename({suffix: '.min'}))
+
+gulp.task('lib-lity', ['lib-lity-js', 'lib-lity-css']);
+
+gulp.task('lib-lity-js', () => {
+    return gulp.src(lib + '/lity/*.js')
         .pipe(uglify())
-        .pipe(gulp.dest(outJs + '/lib'))
+        .pipe(rename({suffix: '.min'}))
+        .pipe(gulp.dest(outJs + '/lib'));
 });
 
-// copy and minimize CSS libraries
-gulp.task('libraries-css', () => {
-    return gulp.src(libCss + '/**/*.css')
-        .pipe(rename({suffix: '.min'}))
+gulp.task('lib-lity-css', () => {
+    return gulp.src(lib + '/lity/*.css')
         .pipe(cssnano())
+        .pipe(rename({suffix: '.min'}))
         .pipe(gulp.dest(outCss + '/lib'));
 });
 
+gulp.task('lib-other-js', () => {
+    return gulp.src(lib + '/other-js/*.js')
+        .pipe(uglify())
+        .pipe(rename({suffix: '.min'}))
+        .pipe(gulp.dest(outJs + '/lib'));
+});
+
 // copies all libraries
-gulp.task('libraries', ['libraries-js', 'libraries-css']);
+gulp.task('libraries', ['lib-lity', 'lib-other-js']);
 
 // minimies the html file
 gulp.task('html', () => {
@@ -103,7 +115,7 @@ gulp.task('html', () => {
     }
 
     return gulp.src('index.html')
-        .pipe(htmlreplace(replace))
+        .pipe(htmlReplace(replace))
         .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
         .pipe(gulp.dest(out));
 });
@@ -111,18 +123,25 @@ gulp.task('html', () => {
 // copies images
 gulp.task('images', () => {
     return gulp.src('img/*/*.svg')
+        .pipe(imagemin([
+            imagemin.svgo({
+                plugins: [
+                    {removeViewBox: true},
+                    {cleanupIDs: false}
+                ]
+            })
+        ]))
         .pipe(gulp.dest(outImg));
 });
 
 // removes the deploy directory
-gulp.task('clean-code', () => {
+gulp.task('clean', () => {
     return del(out);
 });
 
-gulp.task('clean', ['clean-code', 'docs-clean']);
-
 gulp.task('docs-styles', () => {
-    return sass(docs + '/src/scss/style.scss', {style: 'expanded'})
+    return gulp.src(docs + '/src/scss/style.scss')
+        .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer('last 2 version'))
         .pipe(gulp.dest(docsCss))
         .pipe(rename({suffix: '.min'}))
@@ -150,7 +169,7 @@ gulp.task('docs-backend', ['docs-backend-copy'], () => {
     }
 
     return gulp.src(docs + '/backend/include/head.inc')
-        .pipe(htmlreplace(replace))
+        .pipe(htmlReplace(replace))
         .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
         .pipe(gulp.dest(docsOut  + '/include'));
 });
@@ -160,16 +179,25 @@ gulp.task('docs-text', () => {
         .pipe(gulp.dest(docsOut + '/text'));
 });
 
-gulp.task('docs-clean', () => {
-    return del(docsOut);
-});
-
 // generate docs in the docs/deploy folder, then copy it into the deploy/docs folder
-gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text'], () => {
-    return gulp.src([docsOut + '/**/*', docsOut + '/.htaccess'])
-        .pipe(gulp.dest(out + '/docs'));
-});
+gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text']);
 
 gulp.task('default', ['scripts', 'styles', 'libraries', 'html', 'images', 'docs']);
 
 gulp.task('empty', () => {});
+
+///// watches
+
+gulp.task('watch-scripts', () => {
+    return watch(srcJs + '/**', function () {
+        runSequence('scripts');
+    });
+});
+
+gulp.task('watch-styles', () => {
+   return watch(srcCss + '/**', function () {
+      runSequence('styles');
+   });
+});
+
+gulp.task('watch', ['watch-scripts', 'watch-styles']);

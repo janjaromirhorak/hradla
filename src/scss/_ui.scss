@@ -1,7 +1,7 @@
-$backgroundColor: #c2eabd;
-$textColor: #011936;
-$backgroundHoverColor: #f9dc5c;
-$backgroundActiveColor: #ed254e;
+$light: #c2eabd;
+$dark: #011936;
+$lightColor: #f9dc5c;
+$darkColor: #ed254e;
 
 $uiItemHeight: 1.3em;
 $transitionTime: 200ms;
@@ -16,9 +16,9 @@ $transitionAll: all $transitionTime;
 
     padding: 1em;
 
-    background: $backgroundColor;
+    background: $light;
 
-    color: $textColor;
+    color: $dark;
 
     display:none;
     opacity:0;
@@ -40,34 +40,6 @@ $transitionAll: all $transitionTime;
     }
 }
 
-.mouseIcon {
-    path {
-        fill: $textColor;
-    }
-
-    &.blinkLeft {
-        .left {
-            animation: pulsate 1s linear infinite;
-        }
-    }
-    &.blinkRight {
-        .right {
-            animation: pulsate 1s linear infinite;
-        }
-    }
-    &.blinkMiddle {
-        .middle {
-            animation: pulsate 1s linear infinite;
-        }
-    }
-}
-
-@keyframes pulsate {
-    0% {fill: $textColor}
-    40% {fill: $backgroundActiveColor}
-    80% {fill: $textColor}
-    100% {fill: $textColor}
-}
 
 /// FLOATING MENU
 #floatingMenu {
@@ -79,7 +51,7 @@ $transitionAll: all $transitionTime;
 
     .button {
         display:inline-block;
-        background: $backgroundColor;
+        background: $light;
 
         width: $uiItemHeight;
         height: $uiItemHeight;
@@ -90,21 +62,19 @@ $transitionAll: all $transitionTime;
         cursor: pointer;
         cursor: hand;
 
+        color: black;
+
         img {
             width: 100%;
             height: 100%;
         }
 
-        &.closefullscreen {
-            display: none;
-        }
-
         &:hover {
-            background: $backgroundHoverColor;
+            background: $lightColor;
         }
 
         &:active {
-            background: $backgroundActiveColor;
+            background: $darkColor;
         }
     }
 
@@ -127,7 +97,7 @@ $menuItemWidth: 10em;
     z-index: 1000;
     position: absolute;
 
-    background: $backgroundColor;
+    background: $light;
 
     //border: 1px solid #424655;
     //background: lightgoldenrodyellow;
@@ -141,7 +111,7 @@ $menuItemWidth: 10em;
     margin: 0;
     padding: $contextMenuPadding 0;
 
-    color:$textColor;
+    color: $dark;
 
     li {
         list-style-type: none;
@@ -172,7 +142,7 @@ $menuItemWidth: 10em;
         }
 
         &:hover {
-            background: $backgroundHoverColor;
+            background: $lightColor;
 
             > ul {
                 display:block;
@@ -180,7 +150,74 @@ $menuItemWidth: 10em;
         }
 
         &:active {
-            background: $backgroundActiveColor;
+            background: $darkColor;
+        }
+    }
+}
+
+// popup windows
+
+.importExport {
+    padding: 1em;
+
+    background:white;
+    color:black;
+
+    &.export pre, &.import textarea {
+        background: white;
+        color: black;
+        border: thin solid #aeaeae;
+
+        font-family: 'Overpass Mono', monospace;
+        font-size: 0.9em;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        width: 40em;
+        max-width: 90vw;
+    }
+
+    &.export {
+        pre {
+            max-height: 50vh;
+        }
+    }
+
+    &.import {
+        textarea {
+            resize: none;
+            display: block;
+
+            height: 50vh;
+        }
+    }
+
+    a.download, a.upload {
+        transition: $transitionAll;
+
+        font-weight: bold;
+        display:inline-block;
+
+        margin:0.5em 0.5em 0 0;
+        padding: 0.4em;
+
+        text-decoration: none;
+        color: $dark;
+        background: $light;
+
+        img {
+            height: 1.2em;
+            width: auto;
+            vertical-align: bottom;
+        }
+
+        &:hover {
+            background: $lightColor;
+        }
+
+        &:active {
+            background: $darkColor;
         }
     }
 }

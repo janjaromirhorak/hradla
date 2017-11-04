@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 50 40">
- <g transform="translate(-5.0434781,-7.40625)" stroke="#000">
-  <path d="m25.24512 27.40625h-20.2016419" stroke-width="1.78521609" fill="none"/>
-  <circle cx="-39.986965" stroke-linecap="round" transform="scale(-1,1)" cy="27.40625" r="14" stroke-miterlimit="10" stroke-width="2" fill="#0f0"/>
- </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="50" height="40" id="svg2" version="1"><g id="layer1" transform="translate(-5.043 -7.406)" stroke="#000"><path d="M25.245 27.406H5.043" id="path3059" fill="none" stroke-width="1.785"/><circle id="path4172" cx="-39.987" cy="27.406" r="14" transform="scale(-1 1)" fill="#0f0" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10"/></g></svg>
