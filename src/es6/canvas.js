@@ -77,8 +77,7 @@ export default class Svg {
         let data = {
             // todo implement gridSize scaling
             // gridSize: this.gridSize,
-            boxes: [],
-            wires: []
+            boxes: []
         };
 
         for(let i = 0; i < this.boxes.length; ++i) {
