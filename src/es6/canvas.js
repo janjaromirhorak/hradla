@@ -205,6 +205,7 @@ export default class Svg {
 
     getNewPropagationId() {
         this.propagationHistory = new Map();
+
         if(this.propId===undefined) {
             this.propId = 1;
         } else {
@@ -216,10 +217,15 @@ export default class Svg {
     // checks for loops, returns the correct state (changes oscillation to the oscillating state etc)
     loopGuard(propagationId, connectorId, state) {
 
+        // the connector may not exist if loopGuard was called before placing the connector on the canvas
+        // e.g. when creating a inputBox it's not an error
+        let connector = this.getConnectorById(connectorId);
+
         if(propagationId===this.propId) {
-            if(this.propagationHistory.has(connectorId)) {
-                // deepCopy is necessary, without it i am not able to add new items to stateList
-                // let stateList = Fn.deepCopy(this.propagationHistory.get(connectorId));
+            if(
+                connector && connector.isOutputConnector &&
+                this.propagationHistory.has(connectorId)
+        ) {
                 let stateList = this.propagationHistory.get(connectorId);
 
                 let thisStateFound = false;
@@ -232,22 +238,30 @@ export default class Svg {
 
                 let lastState = stateList[stateList.length - 1];
 
-                stateList[stateList.length] = state;
-                this.propagationHistory.set(connectorId, stateList);
+                let returnNow = false;
 
                 if(thisStateFound) {
                     // recursion is happening
                     if (lastState!==state) {
-                        return {
+                        state = Logic.state.oscillating;
+                        returnNow = {
                             stopPropagation: false,
-                            state: Logic.state.oscillating
+                            // stopPropagation: true,
+                            state: state
                         }
                     } else {
-                        return {
+                        returnNow = {
                             stopPropagation: true,
                             state: state
                         }
                     }
+                }
+
+                stateList[stateList.length] = state;
+                this.propagationHistory.set(connectorId, stateList);
+
+                if(returnNow) {
+                    return returnNow;
                 }
             } else {
                 this.propagationHistory.set(connectorId, [state]);

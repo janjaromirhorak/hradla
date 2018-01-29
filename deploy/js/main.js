@@ -595,6 +595,9 @@ var $__src_47_es6_47_editorElements_46_js__ = (function() {
       this.wireIds = new Set();
     }
     return ($traceurRuntime.createClass)(Connector, {
+      get isOutputConnector() {
+        return !this.isInputConnector;
+      },
       addWireId: function(wireId) {
         this.wireIds.add(wireId);
       },
@@ -646,12 +649,9 @@ var $__src_47_es6_47_editorElements_46_js__ = (function() {
     }
     return ($traceurRuntime.createClass)(InputConnector, {
       setState: function(state, propagationId) {
-        var loopGuard = this.parentSVG.loopGuard(propagationId, this.svgObj.id, state);
-        $traceurRuntime.superGet(this, InputConnector.prototype, "setState").call(this, loopGuard.state, propagationId);
-        if (loopGuard.stopPropagation === false) {
-          var gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
-          gate.refreshState(propagationId);
-        }
+        $traceurRuntime.superGet(this, InputConnector.prototype, "setState").call(this, state, propagationId);
+        var gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
+        gate.refreshState(propagationId);
       },
       removeWireIdAndUpdate: function(wireId) {
         $traceurRuntime.superGet(this, InputConnector.prototype, "removeWireIdAndUpdate").call(this, wireId);
@@ -673,9 +673,9 @@ var $__src_47_es6_47_editorElements_46_js__ = (function() {
         var $__5 = this;
         var loopGuard = this.parentSVG.loopGuard(propagationId, this.svgObj.id, state);
         $traceurRuntime.superGet(this, OutputConnector.prototype, "setState").call(this, loopGuard.state, propagationId);
-        if (loopGuard.stopPropagation === false) {
+        if (!loopGuard.stopPropagation) {
           this.wireIds.forEach(function(wireId) {
-            $__5.parentSVG.getWireById(wireId).setState(state, propagationId);
+            $__5.parentSVG.getWireById(wireId).setState(loopGuard.state, propagationId);
           });
         }
       },
@@ -1745,10 +1745,7 @@ var $__src_47_es6_47_canvas_46_js__ = (function() {
       get exportData() {
         this.exportWireIdMap = new Map();
         this.exportWireId = 0;
-        var data = {
-          boxes: [],
-          wires: []
-        };
+        var data = {boxes: []};
         for (var i = 0; i < this.boxes.length; ++i) {
           data.boxes[i] = this.boxes[i].exportData;
         }
@@ -1843,8 +1840,9 @@ var $__src_47_es6_47_canvas_46_js__ = (function() {
         return this.propId;
       },
       loopGuard: function(propagationId, connectorId, state) {
+        var connector = this.getConnectorById(connectorId);
         if (propagationId === this.propId) {
-          if (this.propagationHistory.has(connectorId)) {
+          if (connector && connector.isOutputConnector && this.propagationHistory.has(connectorId)) {
             var stateList = this.propagationHistory.get(connectorId);
             var thisStateFound = false;
             for (var i = 0; i < stateList.length; ++i) {
@@ -1854,20 +1852,25 @@ var $__src_47_es6_47_canvas_46_js__ = (function() {
               }
             }
             var lastState = stateList[stateList.length - 1];
-            stateList[stateList.length] = state;
-            this.propagationHistory.set(connectorId, stateList);
+            var returnNow = false;
             if (thisStateFound) {
               if (lastState !== state) {
-                return {
+                state = Logic.state.oscillating;
+                returnNow = {
                   stopPropagation: false,
-                  state: Logic.state.oscillating
+                  state: state
                 };
               } else {
-                return {
+                returnNow = {
                   stopPropagation: true,
                   state: state
                 };
               }
+            }
+            stateList[stateList.length] = state;
+            this.propagationHistory.set(connectorId, stateList);
+            if (returnNow) {
+              return returnNow;
             }
           } else {
             this.propagationHistory.set(connectorId, [state]);
