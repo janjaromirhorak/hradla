@@ -278,19 +278,8 @@ export class InputConnector extends Connector {
     }
 
     setState(state, propagationId) {
-        // get loopGuard info
-        /*
-        let loopGuard = this.parentSVG.loopGuard(propagationId, this.svgObj.id, state);
-
-        super.setState(loopGuard.state, propagationId);
-
-        if(loopGuard.stopPropagation===false) {
-            // process inputs in the gate this connector belongs to
-            let gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
-            gate.refreshState(propagationId);
-        }
-        */
         super.setState(state, propagationId);
+
         let gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
         gate.refreshState(propagationId);
     }
