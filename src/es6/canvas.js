@@ -216,10 +216,15 @@ export default class Svg {
     // checks for loops, returns the correct state (changes oscillation to the oscillating state etc)
     loopGuard(propagationId, connectorId, state) {
 
+        // the connector may not exist if loopGuard was called before placing the connector on the canvas
+        // e.g. when creating a inputBox it's not an error
+        let connector = this.getConnectorById(connectorId);
+
         if(propagationId===this.propId) {
-            if(this.propagationHistory.has(connectorId)) {
-                // deepCopy is necessary, without it i am not able to add new items to stateList
-                // let stateList = Fn.deepCopy(this.propagationHistory.get(connectorId));
+            if(
+                connector && connector.isOutputConnector &&
+                this.propagationHistory.has(connectorId)
+        ) {
                 let stateList = this.propagationHistory.get(connectorId);
 
                 let thisStateFound = false;
