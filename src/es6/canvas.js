@@ -205,6 +205,7 @@ export default class Svg {
 
     getNewPropagationId() {
         this.propagationHistory = new Map();
+
         if(this.propId===undefined) {
             this.propId = 1;
         } else {
