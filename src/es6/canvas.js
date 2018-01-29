@@ -237,22 +237,30 @@ export default class Svg {
 
                 let lastState = stateList[stateList.length - 1];
 
-                stateList[stateList.length] = state;
-                this.propagationHistory.set(connectorId, stateList);
+                let returnNow = false;
 
                 if(thisStateFound) {
                     // recursion is happening
                     if (lastState!==state) {
-                        return {
+                        state = Logic.state.oscillating;
+                        returnNow = {
                             stopPropagation: false,
-                            state: Logic.state.oscillating
+                            // stopPropagation: true,
+                            state: state
                         }
                     } else {
-                        return {
+                        returnNow = {
                             stopPropagation: true,
                             state: state
                         }
                     }
+                }
+
+                stateList[stateList.length] = state;
+                this.propagationHistory.set(connectorId, stateList);
+
+                if(returnNow) {
+                    return returnNow;
                 }
             } else {
                 this.propagationHistory.set(connectorId, [state]);

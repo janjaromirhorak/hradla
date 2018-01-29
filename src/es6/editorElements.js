@@ -210,6 +210,10 @@ class Connector extends NetworkElement {
         this.wireIds = new Set();
     }
 
+    get isOutputConnector() {
+        return !this.isInputConnector;
+    }
+
     static get type() {
         return {
             inputConnector: 0,
@@ -275,6 +279,7 @@ export class InputConnector extends Connector {
 
     setState(state, propagationId) {
         // get loopGuard info
+        /*
         let loopGuard = this.parentSVG.loopGuard(propagationId, this.svgObj.id, state);
 
         super.setState(loopGuard.state, propagationId);
@@ -284,6 +289,10 @@ export class InputConnector extends Connector {
             let gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
             gate.refreshState(propagationId);
         }
+        */
+        super.setState(state, propagationId);
+        let gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
+        gate.refreshState(propagationId);
     }
 
     removeWireIdAndUpdate(wireId) {
@@ -312,11 +321,11 @@ export class OutputConnector extends Connector {
 
         super.setState(loopGuard.state, propagationId);
 
-        if(loopGuard.stopPropagation===false) {
+        if(!loopGuard.stopPropagation) {
             // update the state of a wire this connector is connected to (if connected)
             this.wireIds.forEach((wireId) => {
                 this.parentSVG.getWireById(wireId)
-                    .setState(state, propagationId);
+                    .setState(loopGuard.state, propagationId);
             });
         }
     }
