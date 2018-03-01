@@ -35,7 +35,7 @@ export class Id {
     }
 }
 
-// to es5 compiler friendly implementation (calling a builtin Map constructor without new is forbidden
+// to es5 compiler friendly implementation ("calling a builtin Map constructor without new is forbidden")
 export class MapWithDefaultValue {
     constructor(defaultValue) {
         this.map = new Map();
