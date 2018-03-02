@@ -14,7 +14,7 @@ class ContextMenuItem {
 
         if(clickFunction) {
             $(this.$el).click(
-                (event) => {
+                event => {
                     clickFunction(event);
                     contextMenu.hide();
                 }
@@ -49,7 +49,7 @@ class GateMenuItem extends ContextMenuItem {
             type,
             contextMenu,
             parentSVG,
-            (event) => {
+            event => {
                 let position = {
                     left: Math.round(contextMenu.position.x / parentSVG.gridSize) * parentSVG.gridSize,
                     top: Math.round(contextMenu.position.y / parentSVG.gridSize) * parentSVG.gridSize
@@ -108,8 +108,8 @@ export default class ContextMenu {
             parentSVG.newOutput(position.left, position.top);
         }));
 
-        this.appendConditionalItem('box', 'Remove this item', (id) => {this.parentSVG.removeBox(id)});
-        this.appendConditionalItem('wire', 'Remove this wire', (id) => {this.parentSVG.removeWireById(id)});
+        this.appendConditionalItem('box', 'Remove this item', id => {this.parentSVG.removeBox(id)});
+        this.appendConditionalItem('wire', 'Remove this wire', id => {this.parentSVG.removeWireById(id)});
 
         parentSVG.$svg.before(this.$el);
     }
