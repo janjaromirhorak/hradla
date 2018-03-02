@@ -5,6 +5,7 @@ import * as editorElements from './editorElements.js'
 import Logic from './logic.js'
 import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
+import Simulator from './logicSimulator.js'
 
 export default class Svg {
     constructor(canvas, gridSize) {
@@ -14,6 +15,8 @@ export default class Svg {
 
         this.boxes = []; // stores all boxes
         this.wires = []; // stores all wires
+
+        this.simulator = new Simulator(this)
 
         // create the defs element, used for patterns
         this.$defs = $("<defs>");
@@ -43,7 +46,7 @@ export default class Svg {
 
         // ALL EVENT CALLBACKS
         let target;
-        this.$svg.on('mousedown', (event) => {
+        this.$svg.on('mousedown', event => {
             target = this.getRealTarget(event.target);
             if(target!==undefined) {
                 target.onMouseDown(event);
@@ -51,7 +54,7 @@ export default class Svg {
 
             this.hideContextMenu();
             event.preventDefault();
-        }).on('mousemove', (event) => {
+        }).on('mousemove', event => {
             if(target!==undefined) {
                 target.onMouseMove(event);
             }
@@ -64,7 +67,7 @@ export default class Svg {
 
             target = undefined;
             event.preventDefault();
-        }).on("contextmenu", (event) => {
+        }).on("contextmenu", event => {
             this.displayContextMenu(event.pageX, event.pageY, this.getRealJQueryTarget(event.target));
             event.preventDefault();
         });
@@ -178,7 +181,7 @@ export default class Svg {
         this.refresh();
 
         // with all boxes added, we can now connect them with wires
-        newWires.forEach((item) => {
+        newWires.forEach(item => {
             let connectorIds = [];
             if(item[0] && item[1]) {
                 for (let i = 0; i <= 1; ++i) {
@@ -203,77 +206,10 @@ export default class Svg {
         }
     }
 
-    getNewPropagationId() {
-        this.propagationHistory = new Map();
-
-        if(this.propId===undefined) {
-            this.propId = 1;
-        } else {
-            this.propId++;
-        }
-        return this.propId;
-    }
-
-    // checks for loops, returns the correct state (changes oscillation to the oscillating state etc)
-    loopGuard(propagationId, connectorId, state) {
-
-        // the connector may not exist if loopGuard was called before placing the connector on the canvas
-        // e.g. when creating a inputBox it's not an error
-        let connector = this.getConnectorById(connectorId);
-
-        if(propagationId===this.propId) {
-            if(
-                connector && connector.isOutputConnector &&
-                this.propagationHistory.has(connectorId)
-        ) {
-                let stateList = this.propagationHistory.get(connectorId);
-
-                let thisStateFound = false;
-                for (let i = 0 ; i < stateList.length ; ++i) {
-                    if(stateList[i]===state) {
-                        thisStateFound = true;
-                        break;
-                    }
-                }
-
-                let lastState = stateList[stateList.length - 1];
-
-                let returnNow = false;
-
-                if(thisStateFound) {
-                    // recursion is happening
-                    if (lastState!==state) {
-                        state = Logic.state.oscillating;
-                        returnNow = {
-                            stopPropagation: false,
-                            // stopPropagation: true,
-                            state: state
-                        }
-                    } else {
-                        returnNow = {
-                            stopPropagation: true,
-                            state: state
-                        }
-                    }
-                }
-
-                stateList[stateList.length] = state;
-                this.propagationHistory.set(connectorId, stateList);
-
-                if(returnNow) {
-                    return returnNow;
-                }
-            } else {
-                this.propagationHistory.set(connectorId, [state]);
-            }
-        } else {
-            this.propagationHistory = new Map();
-        }
-
-        return {
-            stopPropagation: false,
-            state: state
-        }
+    startNewSimulation(startingConnector, state) {
+        this.simulator = new Simulator
+        this.simulator.notifyChange(startingConnector, state)
+        this.simulator.run()
     }
 
     newGate(name, x, y, refresh = true) {
@@ -400,7 +336,7 @@ export default class Svg {
     removeWiresByConnectorId(connectorId) {
         let connector = this.getConnectorById(connectorId);
 
-        connector.wireIds.forEach((wireId) => {
+        connector.wireIds.forEach(wireId => {
             let wire = this.getWireById(wireId);
 
             // get the other connector that is the wire connected to
@@ -417,7 +353,7 @@ export default class Svg {
 
             // if otherConnector is an input connector, set its state to unknown
             if(otherConnector.isInputConnector) {
-                otherConnector.setState(Logic.state.unknown, this.getNewPropagationId());
+                otherConnector.setState(Logic.state.unknown);
             }
         });
 
@@ -425,7 +361,7 @@ export default class Svg {
         connector.wireIds.clear();
         // if connector is an input connector, set its state to unknown
         if(connector.isInputConnector) {
-            connector.setState(Logic.state.unknown, this.getNewPropagationId());
+            connector.setState(Logic.state.unknown);
         }
     }
 
@@ -602,7 +538,7 @@ export default class Svg {
                 // cycle through points, for each neigbours add all points that are in between them
                 // i.e.: (0,0) and (0,30) are blocking these nodes: (0,0), (0,10), (0,20), (0,30)
                 let prevPoint;
-                this.wires[i].points.forEach((point) => {
+                this.wires[i].points.forEach(point => {
                     if (prevPoint === undefined) {
                         // if the prevPoint is undefined, add the first point
                         inconvenientNodes.add({x: point.x, y: point.y});
