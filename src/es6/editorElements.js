@@ -277,16 +277,16 @@ export class InputConnector extends Connector {
         this.isInputConnector = true;
     }
 
-    setState(state, propagationId) {
-        super.setState(state, propagationId);
+    setState(state) {
+        super.setState(state);
 
         let gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
-        gate.refreshState(propagationId);
+        gate.refreshState();
     }
 
     removeWireIdAndUpdate(wireId) {
         super.removeWireIdAndUpdate(wireId);
-        this.setState(Logic.state.unknown, this.parentSVG.getNewPropagationId());
+        this.setState(Logic.state.unknown);
     }
 
     get state() {
@@ -304,19 +304,13 @@ export class OutputConnector extends Connector {
         this.type = Connector.type.outputConnector;
     }
 
-    setState(state, propagationId) {
-        // get loopGuard info
-        let loopGuard = this.parentSVG.loopGuard(propagationId, this.svgObj.id, state);
+    setState(state) {
+        super.setState(state);
 
-        super.setState(loopGuard.state, propagationId);
-
-        if(!loopGuard.stopPropagation) {
-            // update the state of a wire this connector is connected to (if connected)
-            this.wireIds.forEach(wireId => {
-                this.parentSVG.getWireById(wireId)
-                    .setState(loopGuard.state, propagationId);
-            });
-        }
+        this.wireIds.forEach(wireId => {
+            this.parentSVG.getWireById(wireId)
+                .setState(state);
+        });
     }
 
     get state() {
@@ -658,20 +652,20 @@ export class InputBox extends Box {
 
     refreshState() {
         // call the on setter again (to refresh the state of the connected wires)
-        let t = this.connectors[0].state;
-        this.connectors[0].setState(t, this.parentSVG.getNewPropagationId());
+        this.parentSVG.startNewSimulation(this.connectors[0], this.connectors[0].state)
     }
 
     set on(isOn) {
-        let newPropId = this.parentSVG.getNewPropagationId();
         if (isOn) {
             // turn on
             this.changeImage("on");
-            this.connectors[0].setState(Logic.state.on, newPropId);
+            this.connectors[0].setState(Logic.state.on);
+            this.refreshState()
         } else {
             // turn off
             this.changeImage();
-            this.connectors[0].setState(Logic.state.off, newPropId);
+            this.connectors[0].setState(Logic.state.off);
+            this.refreshState()
         }
 
         this.isOn = isOn;
@@ -748,7 +742,7 @@ export class Gate extends Box {
             });
         }
 
-        this.refreshState(this.parentSVG.getNewPropagationId());
+        this.refreshState();
     }
 
     generateBlockNodes(specialNode) {
@@ -759,34 +753,54 @@ export class Gate extends Box {
         }
     }
 
-    refreshState(propagationId) {
-        if(propagationId===undefined) {
-            console.error('refreshState error: propagationId cannot be undefined');
-        }
-
+    refreshState() {
         switch (this.name) {
             case "and":
-                this.connectors[0].setState(Logic.and(this.connectors[1].state, this.connectors[2].state), propagationId);
+
+                this.connectors[0].setState(Logic.and(this.connectors[1].state, this.connectors[2].state));
                 break;
             case "nand":
-                this.connectors[0].setState(Logic.nand(this.connectors[1].state, this.connectors[2].state), propagationId);
+                this.connectors[0].setState(Logic.nand(this.connectors[1].state, this.connectors[2].state));
                 break;
             case "nor":
-                this.connectors[0].setState(Logic.nor(this.connectors[1].state, this.connectors[2].state), propagationId);
+                this.connectors[0].setState(Logic.nor(this.connectors[1].state, this.connectors[2].state));
                 break;
             case "not":
-                this.connectors[0].setState(Logic.not(this.connectors[1].state), propagationId);
+                this.connectors[0].setState(Logic.not(this.connectors[1].state));
                 break;
             case "or":
-                this.connectors[0].setState(Logic.or(this.connectors[1].state, this.connectors[2].state), propagationId);
+                this.connectors[0].setState(Logic.or(this.connectors[1].state, this.connectors[2].state));
                 break;
             case "xnor":
-                this.connectors[0].setState(Logic.xnor(this.connectors[1].state, this.connectors[2].state), propagationId);
+                this.connectors[0].setState(Logic.xnor(this.connectors[1].state, this.connectors[2].state));
                 break;
             case "xor":
-                this.connectors[0].setState(Logic.xor(this.connectors[1].state, this.connectors[2].state), propagationId);
+                this.connectors[0].setState(Logic.xor(this.connectors[1].state, this.connectors[2].state));
                 break;
         }
+        // switch (this.name) {
+        //     case "and":
+        //         this.connectors[0].setState(Logic.and(this.connectors[1].state, this.connectors[2].state));
+        //         break;
+        //     case "nand":
+        //         this.connectors[0].setState(Logic.nand(this.connectors[1].state, this.connectors[2].state));
+        //         break;
+        //     case "nor":
+        //         this.connectors[0].setState(Logic.nor(this.connectors[1].state, this.connectors[2].state));
+        //         break;
+        //     case "not":
+        //         this.connectors[0].setState(Logic.not(this.connectors[1].state));
+        //         break;
+        //     case "or":
+        //         this.connectors[0].setState(Logic.or(this.connectors[1].state, this.connectors[2].state));
+        //         break;
+        //     case "xnor":
+        //         this.connectors[0].setState(Logic.xnor(this.connectors[1].state, this.connectors[2].state));
+        //         break;
+        //     case "xor":
+        //         this.connectors[0].setState(Logic.xor(this.connectors[1].state, this.connectors[2].state));
+        //         break;
+        // }
     }
 }
 
@@ -804,21 +818,21 @@ export class Wire extends NetworkElement {
         this.startBox = this.parentSVG.getBoxByConnectorId(fromId);
         this.endBox = this.parentSVG.getBoxByConnectorId(toId);
 
+        this.boxes = [this.startBox, this.endBox]
+
         this.startConnector = this.parentSVG.getConnectorById(fromId);
         this.endConnector = this.parentSVG.getConnectorById(toId);
+
+        this.connectors = [this.startConnector, this.endConnector]
 
         this.routeWire();
 
         this.stateAttr = Logic.state.unknown;
 
-        // cannot call updateWireState until Wire is initialized,
-        // so the initial state has to be set manually and not by calling .on setters on the connectors
-        if (this.startConnector.isOutput) {
-            this.setState(this.startConnector.state, this.parentSVG.getNewPropagationId());
-        } else if (this.endConnector.isOutput) {
-            this.setState(this.endConnector.state, this.parentSVG.getNewPropagationId());
-        } else {
-            this.svgObj.addClass(stateClasses.unknown);
+        for (let connector of this.connectors) {
+            if(connector.isOutput) {
+                this.setState(connector.state);
+            }
         }
 
         this.svgObj.$el.addClass("wire");
@@ -831,7 +845,7 @@ export class Wire extends NetworkElement {
         };
     }
 
-    setState(state, propagationId) {
+    setState(state) {
         this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
 
         switch (state) {
@@ -850,10 +864,10 @@ export class Wire extends NetworkElement {
         }
 
         if (this.startConnector.isInputConnector) {
-            this.startConnector.setState(state, propagationId);
+            this.startConnector.setState(state);
         }
         if(this.endConnector.isInputConnector) {
-            this.endConnector.setState(state, propagationId);
+            this.endConnector.setState(state);
         }
 
         this.stateAttr = state;
@@ -864,8 +878,8 @@ export class Wire extends NetworkElement {
     }
 
     updateWireState() {
-        this.startBox.refreshState(this.parentSVG.getNewPropagationId());
-        this.endBox.refreshState(this.parentSVG.getNewPropagationId());
+        this.startBox.refreshState();
+        this.endBox.refreshState();
     }
 
     get() {

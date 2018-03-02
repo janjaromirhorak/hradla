@@ -5,6 +5,7 @@ import * as editorElements from './editorElements.js'
 import Logic from './logic.js'
 import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
+import Simulator from './logicSimulator.js'
 
 export default class Svg {
     constructor(canvas, gridSize) {
@@ -14,6 +15,8 @@ export default class Svg {
 
         this.boxes = []; // stores all boxes
         this.wires = []; // stores all wires
+
+        this.simulator = new Simulator(this)
 
         // create the defs element, used for patterns
         this.$defs = $("<defs>");
@@ -203,95 +206,10 @@ export default class Svg {
         }
     }
 
-    getNewPropagationId() {
-        this.propagationHistory = new Map();
-
-        if(this.propId===undefined) {
-            this.propId = 1;
-        } else {
-            this.propId++;
-        }
-        return this.propId;
-    }
-
-    evaluateFromHere(connectorId, state) {
-        /*
-            BFS:
-                1. add all input connectors connected to the starting output connector to wave 0
-                2. while there are waves:
-                    2.1. get all input connectors in the current wave
-                        -> elements with these input connectors will be automatically evaluated
-                    2.2. add a new wave to the queue, that is defined by all input connectors
-                         connected to elements evaluated in 2.1
-
-            Cycle detection:
-                we are interested only in oriented cycles
-                ? -> have for each connector a list of its predecessors, if it's found in a list
-                     of its predecessor, there is a cycle
-         */
-
-    }
-
-    // checks for loops, returns the correct state (changes oscillation to the oscillating state etc)
-    loopGuard(propagationId, connectorId, state) {
-
-        // the connector may not exist if loopGuard was called before placing the connector on the canvas
-        // e.g. when creating a inputBox it's not an error
-        let connector = this.getConnectorById(connectorId);
-
-        if(propagationId===this.propId) {
-            if(
-                connector && connector.isOutputConnector &&
-                this.propagationHistory.has(connectorId)
-        ) {
-                let stateList = this.propagationHistory.get(connectorId);
-
-                let thisStateFound = false;
-                for (let i = 0 ; i < stateList.length ; ++i) {
-                    if(stateList[i]===state) {
-                        thisStateFound = true;
-                        break;
-                    }
-                }
-
-                let lastState = stateList[stateList.length - 1];
-
-                let returnNow = false;
-
-                if(thisStateFound) {
-                    // recursion is happening
-                    if (lastState!==state) {
-                        state = Logic.state.oscillating;
-                        returnNow = {
-                            stopPropagation: false,
-                            // stopPropagation: true,
-                            state: state
-                        }
-                    } else {
-                        returnNow = {
-                            stopPropagation: true,
-                            state: state
-                        }
-                    }
-                }
-
-                stateList[stateList.length] = state;
-                this.propagationHistory.set(connectorId, stateList);
-
-                if(returnNow) {
-                    return returnNow;
-                }
-            } else {
-                this.propagationHistory.set(connectorId, [state]);
-            }
-        } else {
-            this.propagationHistory = new Map();
-        }
-
-        return {
-            stopPropagation: false,
-            state: state
-        }
+    startNewSimulation(startingConnector, state) {
+        this.simulator = new Simulator
+        this.simulator.notifyChange(startingConnector, state)
+        this.simulator.run()
     }
 
     newGate(name, x, y, refresh = true) {
@@ -435,7 +353,7 @@ export default class Svg {
 
             // if otherConnector is an input connector, set its state to unknown
             if(otherConnector.isInputConnector) {
-                otherConnector.setState(Logic.state.unknown, this.getNewPropagationId());
+                otherConnector.setState(Logic.state.unknown);
             }
         });
 
@@ -443,7 +361,7 @@ export default class Svg {
         connector.wireIds.clear();
         // if connector is an input connector, set its state to unknown
         if(connector.isInputConnector) {
-            connector.setState(Logic.state.unknown, this.getNewPropagationId());
+            connector.setState(Logic.state.unknown);
         }
     }
 
