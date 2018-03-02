@@ -43,7 +43,7 @@ export default class Svg {
 
         // ALL EVENT CALLBACKS
         let target;
-        this.$svg.on('mousedown', (event) => {
+        this.$svg.on('mousedown', event => {
             target = this.getRealTarget(event.target);
             if(target!==undefined) {
                 target.onMouseDown(event);
@@ -51,7 +51,7 @@ export default class Svg {
 
             this.hideContextMenu();
             event.preventDefault();
-        }).on('mousemove', (event) => {
+        }).on('mousemove', event => {
             if(target!==undefined) {
                 target.onMouseMove(event);
             }
@@ -64,7 +64,7 @@ export default class Svg {
 
             target = undefined;
             event.preventDefault();
-        }).on("contextmenu", (event) => {
+        }).on("contextmenu", event => {
             this.displayContextMenu(event.pageX, event.pageY, this.getRealJQueryTarget(event.target));
             event.preventDefault();
         });
@@ -178,7 +178,7 @@ export default class Svg {
         this.refresh();
 
         // with all boxes added, we can now connect them with wires
-        newWires.forEach((item) => {
+        newWires.forEach(item => {
             let connectorIds = [];
             if(item[0] && item[1]) {
                 for (let i = 0; i <= 1; ++i) {
@@ -212,6 +212,24 @@ export default class Svg {
             this.propId++;
         }
         return this.propId;
+    }
+
+    evaluateFromHere(connectorId, state) {
+        /*
+            BFS:
+                1. add all input connectors connected to the starting output connector to wave 0
+                2. while there are waves:
+                    2.1. get all input connectors in the current wave
+                        -> elements with these input connectors will be automatically evaluated
+                    2.2. add a new wave to the queue, that is defined by all input connectors
+                         connected to elements evaluated in 2.1
+
+            Cycle detection:
+                we are interested only in oriented cycles
+                ? -> have for each connector a list of its predecessors, if it's found in a list
+                     of its predecessor, there is a cycle
+         */
+
     }
 
     // checks for loops, returns the correct state (changes oscillation to the oscillating state etc)
@@ -400,7 +418,7 @@ export default class Svg {
     removeWiresByConnectorId(connectorId) {
         let connector = this.getConnectorById(connectorId);
 
-        connector.wireIds.forEach((wireId) => {
+        connector.wireIds.forEach(wireId => {
             let wire = this.getWireById(wireId);
 
             // get the other connector that is the wire connected to
@@ -602,7 +620,7 @@ export default class Svg {
                 // cycle through points, for each neigbours add all points that are in between them
                 // i.e.: (0,0) and (0,30) are blocking these nodes: (0,0), (0,10), (0,20), (0,30)
                 let prevPoint;
-                this.wires[i].points.forEach((point) => {
+                this.wires[i].points.forEach(point => {
                     if (prevPoint === undefined) {
                         // if the prevPoint is undefined, add the first point
                         inconvenientNodes.add({x: point.x, y: point.y});

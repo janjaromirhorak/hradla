@@ -312,7 +312,7 @@ export class OutputConnector extends Connector {
 
         if(!loopGuard.stopPropagation) {
             // update the state of a wire this connector is connected to (if connected)
-            this.wireIds.forEach((wireId) => {
+            this.wireIds.forEach(wireId => {
                 this.parentSVG.getWireById(wireId)
                     .setState(loopGuard.state, propagationId);
             });
@@ -374,7 +374,7 @@ class Box extends NetworkElement {
             // for all connector that has at least one wire connected
             if(this.connectors[i].wireIds.size > 0) {
                 // go through each its wire id
-                this.connectors[i].wireIds.forEach((item) => {
+                this.connectors[i].wireIds.forEach(item => {
                     let thisWireId;
                     if(!this.parentSVG.exportWireIdMap.has(item)) {
                         // if the wire id is not in the map, add it and assign new arbitrary id
@@ -463,7 +463,7 @@ class Box extends NetworkElement {
 
         if(this.rotation === 1 || this.rotation === 3) {
             let newBlockedNodes = new Set();
-            this.blockedNodes.forEach((item) => {
+            this.blockedNodes.forEach(item => {
                 newBlockedNodes.add({
                     x: Math.abs(item.y - this.gridHeight),
                     y: item.x
@@ -472,7 +472,7 @@ class Box extends NetworkElement {
             this.blockedNodes = newBlockedNodes;
         } else if(this.rotation === 2 || this.rotation === 4) {
             let newBlockedNodes = new Set();
-            this.blockedNodes.forEach((item) => {
+            this.blockedNodes.forEach(item => {
                 newBlockedNodes.add({
                     x: Math.abs(item.y - this.gridWidth),
                     y: item.x
@@ -622,7 +622,7 @@ class Box extends NetworkElement {
     // updates all wires connected to this box
     updateWires(temporary = false) {
         for(let i = 0 ; i < this.connectors.length ; ++i) {
-            this.connectors[i].wireIds.forEach((wireId) => {
+            this.connectors[i].wireIds.forEach(wireId => {
                 let wire = this.parentSVG.getWireById(wireId);
                 if(temporary) {
                     wire.temporaryWire();
@@ -961,7 +961,7 @@ export class Wire extends NetworkElement {
 
             // find the value from openNodes that has the lowest fScore
             // (can be implemented effectively using min-heap data structure (maybe todo sometime)?)
-            openNodes.forEach((node) => {
+            openNodes.forEach(node => {
                 if(!currentNode || fScore.get(node) < currentNodeFScore) {
                     currentNode = node;
                     currentNodeFScore = fScore.get(currentNode)
