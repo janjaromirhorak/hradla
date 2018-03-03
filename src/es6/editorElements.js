@@ -615,16 +615,16 @@ class Box extends NetworkElement {
 
     // updates all wires connected to this box
     updateWires(temporary = false) {
-        for(let i = 0 ; i < this.connectors.length ; ++i) {
-            this.connectors[i].wireIds.forEach(wireId => {
+        this.connectors.forEach(conn => {
+            conn.wireIds.forEach(wireId => {
                 let wire = this.parentSVG.getWireById(wireId);
                 if(temporary) {
                     wire.temporaryWire();
                 } else {
                     wire.routeWire();
                 }
-            });
-        }
+            })
+        })
     }
 }
 
@@ -754,53 +754,34 @@ export class Gate extends Box {
     }
 
     refreshState() {
+        let state = Logic.state.unknown
         switch (this.name) {
             case "and":
-
-                this.connectors[0].setState(Logic.and(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.and(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "nand":
-                this.connectors[0].setState(Logic.nand(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.nand(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "nor":
-                this.connectors[0].setState(Logic.nor(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.nor(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "not":
-                this.connectors[0].setState(Logic.not(this.connectors[1].state));
+                state =  Logic.not(this.connectors[1].state)
                 break;
             case "or":
-                this.connectors[0].setState(Logic.or(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.or(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "xnor":
-                this.connectors[0].setState(Logic.xnor(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.xnor(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "xor":
-                this.connectors[0].setState(Logic.xor(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.xor(this.connectors[1].state, this.connectors[2].state)
                 break;
         }
-        // switch (this.name) {
-        //     case "and":
-        //         this.connectors[0].setState(Logic.and(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        //     case "nand":
-        //         this.connectors[0].setState(Logic.nand(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        //     case "nor":
-        //         this.connectors[0].setState(Logic.nor(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        //     case "not":
-        //         this.connectors[0].setState(Logic.not(this.connectors[1].state));
-        //         break;
-        //     case "or":
-        //         this.connectors[0].setState(Logic.or(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        //     case "xnor":
-        //         this.connectors[0].setState(Logic.xnor(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        //     case "xor":
-        //         this.connectors[0].setState(Logic.xor(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        // }
+        // set the connector state
+        this.connectors[0].setState(state)
+        // notify the simulator about this change
+        this.parentSVG.simulator.notifyChange(this.connectors[0].id, state)
     }
 }
 
@@ -878,8 +859,9 @@ export class Wire extends NetworkElement {
     }
 
     updateWireState() {
-        this.startBox.refreshState();
-        this.endBox.refreshState();
+        this.boxes.forEach(box => {
+            box.refreshState()
+        })
     }
 
     get() {
