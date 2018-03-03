@@ -9,7 +9,7 @@ class stateChange {
 }
 
 // all connectors mentioned here are OUTPUT CONNECTORS
-export default class Simulator {
+export default class Simulation {
     constructor(parentSVG) {
         this.parentSVG = parentSVG
 

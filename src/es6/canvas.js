@@ -5,7 +5,7 @@ import * as editorElements from './editorElements.js'
 import Logic from './logic.js'
 import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
-import Simulator from './logicSimulator.js'
+import Simulation from './simulation.js'
 
 export default class Svg {
     constructor(canvas, gridSize) {
@@ -17,7 +17,7 @@ export default class Svg {
         this.wires = []; // stores all wires
 
         this.simulationEnabled = true
-        this.simulator = new Simulator(this); // dummy, will be overwritten on startNewSimulation
+        this.simulation = new Simulation(this); // dummy, will be overwritten on startNewSimulation
 
         // create the defs element, used for patterns
         this.$defs = $("<defs>");
@@ -224,9 +224,9 @@ export default class Svg {
 
     startNewSimulation(startingConnector, state) {
         if(this.simulationEnabled) {
-            this.simulator = new Simulator(this)
-            this.simulator.notifyChange(startingConnector.id, state)
-            this.simulator.run()
+            this.simulation = new Simulation(this)
+            this.simulation.notifyChange(startingConnector.id, state)
+            this.simulation.run()
         }
     }
 

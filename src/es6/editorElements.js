@@ -359,8 +359,6 @@ class Box extends NetworkElement {
         this.svgObj.$el.addClass(category);
 
         this.generateBlockNodes();
-
-        this.triggersSimulationOnRefresh = false
     }
 
     get inputConnectors() {
@@ -648,8 +646,6 @@ export class InputBox extends Box {
         this.addConnector(width, height / 2, Connector.type.outputConnector);
 
         this.on = isOn;
-
-        this.triggersSimulationOnRefresh = true
     }
 
     get exportData() {
@@ -791,7 +787,7 @@ export class Gate extends Box {
                 break;
         }
         // notify the simulator about this change
-        this.parentSVG.simulator.notifyChange(this.connectors[0].id, state)
+        this.parentSVG.simulation.notifyChange(this.connectors[0].id, state)
     }
 }
 
