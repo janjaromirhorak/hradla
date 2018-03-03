@@ -278,6 +278,8 @@ export class InputConnector extends Connector {
     }
 
     setState(state) {
+        // console.log('setState on', this.id)
+
         super.setState(state);
 
         let gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
@@ -357,19 +359,16 @@ class Box extends NetworkElement {
         this.svgObj.$el.addClass(category);
 
         this.generateBlockNodes();
+
+        this.triggersSimulationOnRefresh = false
     }
 
     get inputConnectors() {
-        return connectors.filter(conn => conn.isInputConnector)
+        return this.connectors.filter(conn => conn.isInputConnector)
     }
 
     get outputConnectors() {
-        return connectors.filter(conn => conn.isOutputConnector)
-    }
-
-    // helper, set to true, if the element triggers simulation on refreshState
-    static get triggersSimulationOnRefresh() {
-        return false
+        return this.connectors.filter(conn => conn.isOutputConnector)
     }
 
     get exportData() {
@@ -649,6 +648,8 @@ export class InputBox extends Box {
         this.addConnector(width, height / 2, Connector.type.outputConnector);
 
         this.on = isOn;
+
+        this.triggersSimulationOnRefresh = true
     }
 
     get exportData() {
@@ -661,12 +662,8 @@ export class InputBox extends Box {
         super.generateBlockNodes(0, 1, 1, 0);
     }
 
-    static get triggersSimulationOnRefresh() {
-        return true
-    }
-
     refreshState() {
-        // call the on setter again (to refresh the state of the connected wires)
+        // start a new simulation from the output connector
         this.parentSVG.startNewSimulation(this.connectors[0], this.connectors[0].state)
     }
 

@@ -16,7 +16,8 @@ export default class Svg {
         this.boxes = []; // stores all boxes
         this.wires = []; // stores all wires
 
-        this.simulator = new Simulator(this)
+        this.simulationEnabled = true
+        this.simulator = new Simulator(this); // dummy, will be overwritten on startNewSimulation
 
         // create the defs element, used for patterns
         this.$defs = $("<defs>");
@@ -91,8 +92,7 @@ export default class Svg {
     }
 
     importData(data) {
-        // disable the simulator to prefent unnecessary simulation during inserting new elements
-        this.simulator.disable()
+        this.simulationEnabled = false
 
         // todo implement gridSize scaling
 
@@ -187,32 +187,27 @@ export default class Svg {
         newWires.forEach(item => {
             let connectorIds = [];
             if(item[0] && item[1]) {
-                for (let i = 0; i <= 1; ++i) {
+                for (const i of [0, 1]) {
                     let box = this.getBoxById(item[i].boxId);
 
                     connectorIds[i] = box.connectors[item[i].index].id;
                 }
             }
-            this.newWire(connectorIds[0], connectorIds[1], false);
+            this.newWire(connectorIds[0], connectorIds[1], true);
         });
 
         // refresh the SVG document
         this.refresh();
 
-        this.simulator = new Simulator()
-        this.simulator.disable()
-        // trigger the network simulation
-        for (const box in this.boxes) {
-            // if the box triggers new simulation on refreshState
-            if (box.triggersSimulationOnRefresh) {
-                for (const conn of box.outputConnectors) {
-                    this.simulator.notifyChange(conn.id, conn.state)
-                }
+        this.simulationEnabled = true;
+        for (let box of this.boxes) {
+            if (box instanceof editorElements.InputBox) {
+                // call the setter 'on' with the value of 'on'
+                // this causes update of the output connector and a start of a new simulation
+                // box.on = !box.on
+                // box.on = !box.on
             }
         }
-
-        this.simulator.enable()
-        this.simulator.run()
     }
 
     wireCreationHelper(connectorId) {
@@ -225,9 +220,11 @@ export default class Svg {
     }
 
     startNewSimulation(startingConnector, state) {
-        this.simulator = new Simulator(this)
-        this.simulator.notifyChange(startingConnector.id, state)
-        this.simulator.run()
+        if(this.simulationEnabled) {
+            this.simulator = new Simulator(this)
+            this.simulator.notifyChange(startingConnector.id, state)
+            this.simulator.run()
+        }
     }
 
     newGate(name, x, y, refresh = true) {

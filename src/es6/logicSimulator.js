@@ -23,21 +23,14 @@ export default class Simulator {
         this.cycledConnectors = new Map()
         this.resolvedCycledConnectors = new Set()
 
-        this.enabled = true // if simulator is not enabled, it ignores calls to the run() function
     }
 
-    enable() { this.enabled = true }
-    disable() { this.enabled = false }
-
     run() {
-        if (this.enabled) {
-            console.log('Simulator.run() has been successfully started.')
-            this.wave++;
-            while(this.waves.has(this.wave)) {
-                this.step()
-                this.waves.delete(this.wave) // clean old waves on the go
-                this.wave++
-            }
+        this.wave++;
+        while(this.waves.has(this.wave)) {
+            this.step()
+            this.waves.delete(this.wave) // clean old waves on the go
+            this.wave++
         }
     }
 
@@ -138,8 +131,6 @@ export default class Simulator {
     }
 
     notifyChange(connectorId, state) {
-        // console.log('notifyChange, connector:', connectorId, 'wave:', this.wave)
-
         let waveId = this.wave + 1
 
         if(!this.waves.has(waveId)) {
