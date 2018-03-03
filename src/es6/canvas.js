@@ -202,10 +202,13 @@ export default class Svg {
         this.simulationEnabled = true;
         for (let box of this.boxes) {
             if (box instanceof editorElements.InputBox) {
-                // call the setter 'on' with the value of 'on'
+                // switch the input box state to the oposit and back, for some reason calling box.refreshState()
+                // results in weird unfinished simulation
                 // this causes update of the output connector and a start of a new simulation
-                // box.on = !box.on
-                // box.on = !box.on
+
+                // todo find better solution instead of this workaround
+                box.on = !box.on
+                box.on = !box.on
             }
         }
     }
