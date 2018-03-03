@@ -307,10 +307,9 @@ export class OutputConnector extends Connector {
     setState(state) {
         super.setState(state);
 
-        this.wireIds.forEach(wireId => {
-            this.parentSVG.getWireById(wireId)
-                .setState(state);
-        });
+        for (const wireId of this.wireIds) {
+            this.parentSVG.getWireById(wireId).setState(state);
+        }
     }
 
     get state() {
@@ -360,35 +359,47 @@ class Box extends NetworkElement {
         this.generateBlockNodes();
     }
 
+    get inputConnectors() {
+        return connectors.filter(conn => conn.isInputConnector)
+    }
+
+    get outputConnectors() {
+        return connectors.filter(conn => conn.isOutputConnector)
+    }
+
+    // helper, set to true, if the element triggers simulation on refreshState
+    static get triggersSimulationOnRefresh() {
+        return false
+    }
+
     get exportData() {
         let connections = [];
 
         // go through all connectors
-        for (let i = 0 ; i < this.connectors.length ; ++i) {
-            // for all connector that has at least one wire connected
-            if(this.connectors[i].wireIds.size > 0) {
-                // go through each its wire id
-                this.connectors[i].wireIds.forEach(item => {
-                    let thisWireId;
-                    if(!this.parentSVG.exportWireIdMap.has(item)) {
-                        // if the wire id is not in the map, add it and assign new arbitrary id
-                        this.parentSVG.exportWireIdMap.set(item, this.parentSVG.exportWireId);
-                        thisWireId = this.parentSVG.exportWireId;
-                        this.parentSVG.exportWireId++;
-                    } else {
-                        // else get id from the map
-                        thisWireId = this.parentSVG.exportWireIdMap.get(item);
-                    }
+        let counter = 0
+        for (const conn of this.connectors) {
+            // go through each its wire id
+            for (const item of conn.wireIds) {
+                let thisWireId;
+                if(!this.parentSVG.exportWireIdMap.has(item)) {
+                    // if the wire id is not in the map, add it and assign new arbitrary id
+                    this.parentSVG.exportWireIdMap.set(item, this.parentSVG.exportWireId);
+                    thisWireId = this.parentSVG.exportWireId;
+                    this.parentSVG.exportWireId++;
+                } else {
+                    // else get id from the map
+                    thisWireId = this.parentSVG.exportWireIdMap.get(item);
+                }
 
 
-                    // add this connection to the list
-                    connections[connections.length] = {
-                        index: i,
-                        type: this.connectors[i].type,
-                        wireId: thisWireId
-                    };
-                });
+                // add this connection to the list
+                connections[connections.length] = {
+                    index: counter,
+                    type: conn.type,
+                    wireId: thisWireId
+                };
             }
+            counter++
         }
 
         return {
@@ -615,16 +626,16 @@ class Box extends NetworkElement {
 
     // updates all wires connected to this box
     updateWires(temporary = false) {
-        for(let i = 0 ; i < this.connectors.length ; ++i) {
-            this.connectors[i].wireIds.forEach(wireId => {
+        this.connectors.forEach(conn => {
+            conn.wireIds.forEach(wireId => {
                 let wire = this.parentSVG.getWireById(wireId);
                 if(temporary) {
                     wire.temporaryWire();
                 } else {
                     wire.routeWire();
                 }
-            });
-        }
+            })
+        })
     }
 }
 
@@ -648,6 +659,10 @@ export class InputBox extends Box {
 
     generateBlockNodes() {
         super.generateBlockNodes(0, 1, 1, 0);
+    }
+
+    static get triggersSimulationOnRefresh() {
+        return true
     }
 
     refreshState() {
@@ -754,58 +769,37 @@ export class Gate extends Box {
     }
 
     refreshState() {
+        let state = Logic.state.unknown
         switch (this.name) {
             case "and":
-
-                this.connectors[0].setState(Logic.and(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.and(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "nand":
-                this.connectors[0].setState(Logic.nand(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.nand(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "nor":
-                this.connectors[0].setState(Logic.nor(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.nor(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "not":
-                this.connectors[0].setState(Logic.not(this.connectors[1].state));
+                state =  Logic.not(this.connectors[1].state)
                 break;
             case "or":
-                this.connectors[0].setState(Logic.or(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.or(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "xnor":
-                this.connectors[0].setState(Logic.xnor(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.xnor(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "xor":
-                this.connectors[0].setState(Logic.xor(this.connectors[1].state, this.connectors[2].state));
+                state =  Logic.xor(this.connectors[1].state, this.connectors[2].state)
                 break;
         }
-        // switch (this.name) {
-        //     case "and":
-        //         this.connectors[0].setState(Logic.and(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        //     case "nand":
-        //         this.connectors[0].setState(Logic.nand(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        //     case "nor":
-        //         this.connectors[0].setState(Logic.nor(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        //     case "not":
-        //         this.connectors[0].setState(Logic.not(this.connectors[1].state));
-        //         break;
-        //     case "or":
-        //         this.connectors[0].setState(Logic.or(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        //     case "xnor":
-        //         this.connectors[0].setState(Logic.xnor(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        //     case "xor":
-        //         this.connectors[0].setState(Logic.xor(this.connectors[1].state, this.connectors[2].state));
-        //         break;
-        // }
+        // notify the simulator about this change
+        this.parentSVG.simulator.notifyChange(this.connectors[0].id, state)
     }
 }
 
 export class Wire extends NetworkElement {
-    constructor(parentSVG, fromId, toId, gridSize) {
+    constructor(parentSVG, fromId, toId, gridSize, refresh = true) {
         // small todo: rework start... end... to arrays? (not important)
 
         super(parentSVG);
@@ -824,8 +818,7 @@ export class Wire extends NetworkElement {
         this.endConnector = this.parentSVG.getConnectorById(toId);
 
         this.connectors = [this.startConnector, this.endConnector]
-
-        this.routeWire();
+        this.routeWire(true, refresh);
 
         this.stateAttr = Logic.state.unknown;
 
@@ -878,8 +871,14 @@ export class Wire extends NetworkElement {
     }
 
     updateWireState() {
-        this.startBox.refreshState();
-        this.endBox.refreshState();
+        for (const box of this.boxes) {
+            box.refreshState()
+        }
+        // for (const conn of this.connectors) {
+        //     if(conn.isOutputConnector) {
+        //         this.parentSVG.startNewSimulation(conn.id, conn.state)
+        //     }
+        // }
     }
 
     get() {
@@ -903,7 +902,7 @@ export class Wire extends NetworkElement {
         // this.svgObj.addClass(stateClasses.unknown);
     }
 
-    routeWire(snapToGrid = true) {
+    routeWire(snapToGrid = true, refresh = true) {
         this.wireStart = this.getCoordinates(this.startConnector, snapToGrid);
         this.wireEnd = this.getCoordinates(this.endConnector, snapToGrid);
 
@@ -919,7 +918,8 @@ export class Wire extends NetworkElement {
 
         this.setWirePath(this.points);
 
-        this.updateWireState();
+        if (refresh)
+            this.updateWireState();
     }
 
     setWirePath(points) {
@@ -975,12 +975,12 @@ export class Wire extends NetworkElement {
 
             // find the value from openNodes that has the lowest fScore
             // (can be implemented effectively using min-heap data structure (maybe todo sometime)?)
-            openNodes.forEach(node => {
+            for (const node of openNodes) {
                 if(!currentNode || fScore.get(node) < currentNodeFScore) {
                     currentNode = node;
                     currentNodeFScore = fScore.get(currentNode)
                 }
-            });
+            }
 
             if(svgObj.PolylinePoint.equals(currentNode, end)) {
                 return this.reconstructPath(cameFrom, currentNode);

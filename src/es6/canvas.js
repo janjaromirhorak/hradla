@@ -91,6 +91,9 @@ export default class Svg {
     }
 
     importData(data) {
+        // disable the simulator to prefent unnecessary simulation during inserting new elements
+        this.simulator.disable()
+
         // todo implement gridSize scaling
 
         // list of wires to be added
@@ -195,6 +198,21 @@ export default class Svg {
 
         // refresh the SVG document
         this.refresh();
+
+        this.simulator = new Simulator()
+        this.simulator.disable()
+        // trigger the network simulation
+        for (const box in this.boxes) {
+            // if the box triggers new simulation on refreshState
+            if (box.triggersSimulationOnRefresh) {
+                for (const conn of box.outputConnectors) {
+                    this.simulator.notifyChange(conn.id, conn.state)
+                }
+            }
+        }
+
+        this.simulator.enable()
+        this.simulator.run()
     }
 
     wireCreationHelper(connectorId) {
@@ -207,8 +225,8 @@ export default class Svg {
     }
 
     startNewSimulation(startingConnector, state) {
-        this.simulator = new Simulator
-        this.simulator.notifyChange(startingConnector, state)
+        this.simulator = new Simulator(this)
+        this.simulator.notifyChange(startingConnector.id, state)
         this.simulator.run()
     }
 
@@ -269,31 +287,29 @@ export default class Svg {
     }
 
     newWire(fromId, toId, refresh = true) {
-        if(fromId===toId) {
-            return false;
-        }
-        this.fromId = fromId;
-        this.toId = toId;
+        // wire must connect two distinct elements
+        if (fromId===toId)
+            return false
 
-        let fromConnector = this.getConnectorById(fromId);
-        let toConnector = this.getConnectorById(toId);
+        let connectors = [this.getConnectorById(fromId), this.getConnectorById(toId)]
 
-        if(fromConnector.isInputConnector) {
-            this.removeWiresByConnectorId(fromId);
-        }
-
-        if(toConnector.isInputConnector) {
-            this.removeWiresByConnectorId(toId);
-        }
-
+        // input connectors can be connected to one wire max
+        connectors.forEach(conn => {
+            if(conn.isInputConnector)
+                this.removeWiresByConnectorId(conn.id)
+        })
         let index = this.wires.length;
-        this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize);
+        this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize, refresh);
 
-        fromConnector.addWireId(this.wires[index].svgObj.id);
-        toConnector.addWireId(this.wires[index].svgObj.id);
+        connectors.forEach(conn => {
+            conn.addWireId(this.wires[index].svgObj.id);
+        })
 
         this.appendElement(this.wires[index], refresh);
         this.moveToBackById(this.wires[index].svgObj.id);
+
+        if(refresh)
+            this.wires[index].updateWireState()
 
         return this.wires[index];
     }
