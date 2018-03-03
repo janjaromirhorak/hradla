@@ -91,6 +91,9 @@ export default class Svg {
     }
 
     importData(data) {
+        // disable the simulator to prefent unnecessary simulation during inserting new elements
+        this.simulator.disable()
+
         // todo implement gridSize scaling
 
         // list of wires to be added
@@ -195,6 +198,21 @@ export default class Svg {
 
         // refresh the SVG document
         this.refresh();
+
+        this.simulator = new Simulator()
+        this.simulator.disable()
+        // trigger the network simulation
+        for (const box in this.boxes) {
+            // if the box triggers new simulation on refreshState
+            if (box.triggersSimulationOnRefresh) {
+                for (const conn of box.outputConnectors) {
+                    this.simulator.notifyChange(conn.id, conn.state)
+                }
+            }
+        }
+
+        this.simulator.enable()
+        this.simulator.run()
     }
 
     wireCreationHelper(connectorId) {
@@ -280,9 +298,8 @@ export default class Svg {
             if(conn.isInputConnector)
                 this.removeWiresByConnectorId(conn.id)
         })
-
         let index = this.wires.length;
-        this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize);
+        this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize, refresh);
 
         connectors.forEach(conn => {
             conn.addWireId(this.wires[index].svgObj.id);
@@ -291,7 +308,8 @@ export default class Svg {
         this.appendElement(this.wires[index], refresh);
         this.moveToBackById(this.wires[index].svgObj.id);
 
-        this.wires[index].updateWireState()
+        if(refresh)
+            this.wires[index].updateWireState()
 
         return this.wires[index];
     }
