@@ -1,6 +1,7 @@
 "use strict";
 
-const gulp = require('gulp'),
+const
+    gulp = require('gulp'),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     cssnano = require('gulp-cssnano'),
@@ -13,18 +14,13 @@ const gulp = require('gulp'),
     htmlReplace = require('gulp-html-replace'),
     runSequence = require('run-sequence'),
     watch = require('gulp-watch'),
-    imagemin = require('gulp-imagemin');
+    imagemin = require('gulp-imagemin'),
+    zip = require('gulp-zip'),
+    tar = require('gulp-tar'),
+    gzip = require('gulp-gzip');
 
-const configFile = 'config.json';
-
-// get parsed config file
-let config = false;
-function getConfig() {
-    if(!config) {
-        config = JSON.parse(fs.readFileSync('./'+configFile));
-    }
-    return config;
-}
+const config = require('./config.json')
+const packageData = require('./package.json')
 
 function getAnalyticsCode(analyticsId) {
     return "<script async src=\"https://www.googletagmanager.com/gtag/js?id=" + analyticsId +"\"></script>" +
@@ -41,6 +37,8 @@ const out = 'deploy';
 const outCss = out + '/' + 'css';
 const outJs = out + '/' + 'js';
 const outImg = out + '/' + 'img';
+
+const packaged = 'packaged';
 
 const src = 'src';
 const srcCss = src + '/' + 'scss';
@@ -66,21 +64,11 @@ gulp.task('styles', () => {
 // compile and minimize es6
 gulp.task('scripts', () => {
     return gulp.src(srcJs + '/main.js')
-        .pipe(traceur({modules: 'inline'}))
-        .pipe(gulp.dest(outJs))
-        .pipe(rename({suffix: '.min'}))
-        .pipe(uglify())
-        .pipe(gulp.dest(outJs))
-});
-
-// compile and minimize es6
-gulp.task('scripts-debug', () => {
-    return gulp.src(srcJs + '/main.js')
         .pipe(traceur({modules: 'inline', "source-maps": "inline"}))
         .pipe(gulp.dest(outJs))
-        .pipe(rename({suffix: '.min'}))
+        .pipe(rename({suffix: '.min'})) // minified production js
         .pipe(uglify())
-        .pipe(gulp.dest(outJs))
+        .pipe(gulp.dest(outJs)) // not minified development js with an inline source map
 });
 
 
@@ -112,15 +100,13 @@ gulp.task('libraries', ['lib-lity', 'lib-other-js']);
 
 // minimies the html file
 gulp.task('html', () => {
-    let conf = getConfig();
-    let analytics = conf['analytics'];
     let replace = {
-        title: conf['title'],
+        title: config.title,
         gtag: ''
-    };
+    }
 
     // inject the Google Analytics Gtag code, if the analytics id is specified in the config file
-    if(analytics) {
+    if(config.analytics) {
         replace.gtag = getAnalyticsCode(analytics)
     }
 
@@ -166,15 +152,13 @@ gulp.task('docs-backend-copy', () => {
 
 // copy doc's backend files, than inject the page title and gtag into the backend/include/head.inc file
 gulp.task('docs-backend', ['docs-backend-copy'], () => {
-    let conf = getConfig();
-    let analytics = conf['analytics'];
     let replace = {
-        title: conf['title'],
+        title: config.title,
         gtag: ''
     };
 
     // inject the Google Analytics Gtag code, if the analytics id is specified in the config file
-    if(analytics) {
+    if(config.analytics) {
         replace.gtag = getAnalyticsCode(analytics)
     }
 
@@ -194,7 +178,32 @@ gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text']);
 
 gulp.task('default', ['scripts', 'styles', 'libraries', 'html', 'images', 'docs']);
 
+gulp.task('production', () => {
+    return runSequence('default', 'package');
+})
+
 gulp.task('empty', () => {});
+
+///// packaging
+
+// create a zip archive
+gulp.task('zip', () => {
+    return gulp.src(out + '/**/*')
+        .pipe(zip('hradla-' + packageData.version + '.zip'))
+        .pipe(gulp.dest(packaged))
+})
+
+// create a tarball
+gulp.task('tarball', () => {
+    return gulp.src(out + '/**/*')
+        .pipe(tar('hradla-' + packageData.version + '.tar'))
+        .pipe(gzip())
+        .pipe(gulp.dest(packaged));
+})
+
+// create the zip archive and the tarball
+gulp.task('package', ['zip', 'tarball'])
+
 
 ///// watches
 
