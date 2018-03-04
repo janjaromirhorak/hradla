@@ -277,16 +277,18 @@ export class InputConnector extends Connector {
         this.isInputConnector = true;
     }
 
-    setState(state, propagationId) {
-        super.setState(state, propagationId);
+    setState(state) {
+        // console.log('setState on', this.id)
+
+        super.setState(state);
 
         let gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
-        gate.refreshState(propagationId);
+        gate.refreshState();
     }
 
     removeWireIdAndUpdate(wireId) {
         super.removeWireIdAndUpdate(wireId);
-        this.setState(Logic.state.unknown, this.parentSVG.getNewPropagationId());
+        this.setState(Logic.state.unknown);
     }
 
     get state() {
@@ -304,18 +306,11 @@ export class OutputConnector extends Connector {
         this.type = Connector.type.outputConnector;
     }
 
-    setState(state, propagationId) {
-        // get loopGuard info
-        let loopGuard = this.parentSVG.loopGuard(propagationId, this.svgObj.id, state);
+    setState(state) {
+        super.setState(state);
 
-        super.setState(loopGuard.state, propagationId);
-
-        if(!loopGuard.stopPropagation) {
-            // update the state of a wire this connector is connected to (if connected)
-            this.wireIds.forEach((wireId) => {
-                this.parentSVG.getWireById(wireId)
-                    .setState(loopGuard.state, propagationId);
-            });
+        for (const wireId of this.wireIds) {
+            this.parentSVG.getWireById(wireId).setState(state);
         }
     }
 
@@ -366,35 +361,42 @@ class Box extends NetworkElement {
         this.generateBlockNodes();
     }
 
+    get inputConnectors() {
+        return this.connectors.filter(conn => conn.isInputConnector)
+    }
+
+    get outputConnectors() {
+        return this.connectors.filter(conn => conn.isOutputConnector)
+    }
+
     get exportData() {
         let connections = [];
 
         // go through all connectors
-        for (let i = 0 ; i < this.connectors.length ; ++i) {
-            // for all connector that has at least one wire connected
-            if(this.connectors[i].wireIds.size > 0) {
-                // go through each its wire id
-                this.connectors[i].wireIds.forEach((item) => {
-                    let thisWireId;
-                    if(!this.parentSVG.exportWireIdMap.has(item)) {
-                        // if the wire id is not in the map, add it and assign new arbitrary id
-                        this.parentSVG.exportWireIdMap.set(item, this.parentSVG.exportWireId);
-                        thisWireId = this.parentSVG.exportWireId;
-                        this.parentSVG.exportWireId++;
-                    } else {
-                        // else get id from the map
-                        thisWireId = this.parentSVG.exportWireIdMap.get(item);
-                    }
+        let counter = 0
+        for (const conn of this.connectors) {
+            // go through each its wire id
+            for (const item of conn.wireIds) {
+                let thisWireId;
+                if(!this.parentSVG.exportWireIdMap.has(item)) {
+                    // if the wire id is not in the map, add it and assign new arbitrary id
+                    this.parentSVG.exportWireIdMap.set(item, this.parentSVG.exportWireId);
+                    thisWireId = this.parentSVG.exportWireId;
+                    this.parentSVG.exportWireId++;
+                } else {
+                    // else get id from the map
+                    thisWireId = this.parentSVG.exportWireIdMap.get(item);
+                }
 
 
-                    // add this connection to the list
-                    connections[connections.length] = {
-                        index: i,
-                        type: this.connectors[i].type,
-                        wireId: thisWireId
-                    };
-                });
+                // add this connection to the list
+                connections[connections.length] = {
+                    index: counter,
+                    type: conn.type,
+                    wireId: thisWireId
+                };
             }
+            counter++
         }
 
         return {
@@ -463,7 +465,7 @@ class Box extends NetworkElement {
 
         if(this.rotation === 1 || this.rotation === 3) {
             let newBlockedNodes = new Set();
-            this.blockedNodes.forEach((item) => {
+            this.blockedNodes.forEach(item => {
                 newBlockedNodes.add({
                     x: Math.abs(item.y - this.gridHeight),
                     y: item.x
@@ -472,7 +474,7 @@ class Box extends NetworkElement {
             this.blockedNodes = newBlockedNodes;
         } else if(this.rotation === 2 || this.rotation === 4) {
             let newBlockedNodes = new Set();
-            this.blockedNodes.forEach((item) => {
+            this.blockedNodes.forEach(item => {
                 newBlockedNodes.add({
                     x: Math.abs(item.y - this.gridWidth),
                     y: item.x
@@ -621,16 +623,16 @@ class Box extends NetworkElement {
 
     // updates all wires connected to this box
     updateWires(temporary = false) {
-        for(let i = 0 ; i < this.connectors.length ; ++i) {
-            this.connectors[i].wireIds.forEach((wireId) => {
+        this.connectors.forEach(conn => {
+            conn.wireIds.forEach(wireId => {
                 let wire = this.parentSVG.getWireById(wireId);
                 if(temporary) {
                     wire.temporaryWire();
                 } else {
                     wire.routeWire();
                 }
-            });
-        }
+            })
+        })
     }
 }
 
@@ -657,21 +659,21 @@ export class InputBox extends Box {
     }
 
     refreshState() {
-        // call the on setter again (to refresh the state of the connected wires)
-        let t = this.connectors[0].state;
-        this.connectors[0].setState(t, this.parentSVG.getNewPropagationId());
+        // start a new simulation from the output connector
+        this.parentSVG.startNewSimulation(this.connectors[0], this.connectors[0].state)
     }
 
     set on(isOn) {
-        let newPropId = this.parentSVG.getNewPropagationId();
         if (isOn) {
             // turn on
             this.changeImage("on");
-            this.connectors[0].setState(Logic.state.on, newPropId);
+            this.connectors[0].setState(Logic.state.on);
+            this.refreshState()
         } else {
             // turn off
             this.changeImage();
-            this.connectors[0].setState(Logic.state.off, newPropId);
+            this.connectors[0].setState(Logic.state.off);
+            this.refreshState()
         }
 
         this.isOn = isOn;
@@ -748,7 +750,7 @@ export class Gate extends Box {
             });
         }
 
-        this.refreshState(this.parentSVG.getNewPropagationId());
+        this.refreshState();
     }
 
     generateBlockNodes(specialNode) {
@@ -759,39 +761,38 @@ export class Gate extends Box {
         }
     }
 
-    refreshState(propagationId) {
-        if(propagationId===undefined) {
-            console.error('refreshState error: propagationId cannot be undefined');
-        }
-
+    refreshState() {
+        let state = Logic.state.unknown
         switch (this.name) {
             case "and":
-                this.connectors[0].setState(Logic.and(this.connectors[1].state, this.connectors[2].state), propagationId);
+                state =  Logic.and(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "nand":
-                this.connectors[0].setState(Logic.nand(this.connectors[1].state, this.connectors[2].state), propagationId);
+                state =  Logic.nand(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "nor":
-                this.connectors[0].setState(Logic.nor(this.connectors[1].state, this.connectors[2].state), propagationId);
+                state =  Logic.nor(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "not":
-                this.connectors[0].setState(Logic.not(this.connectors[1].state), propagationId);
+                state =  Logic.not(this.connectors[1].state)
                 break;
             case "or":
-                this.connectors[0].setState(Logic.or(this.connectors[1].state, this.connectors[2].state), propagationId);
+                state =  Logic.or(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "xnor":
-                this.connectors[0].setState(Logic.xnor(this.connectors[1].state, this.connectors[2].state), propagationId);
+                state =  Logic.xnor(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "xor":
-                this.connectors[0].setState(Logic.xor(this.connectors[1].state, this.connectors[2].state), propagationId);
+                state =  Logic.xor(this.connectors[1].state, this.connectors[2].state)
                 break;
         }
+        // notify the simulator about this change
+        this.parentSVG.simulation.notifyChange(this.connectors[0].id, state)
     }
 }
 
 export class Wire extends NetworkElement {
-    constructor(parentSVG, fromId, toId, gridSize) {
+    constructor(parentSVG, fromId, toId, gridSize, refresh = true) {
         // small todo: rework start... end... to arrays? (not important)
 
         super(parentSVG);
@@ -804,21 +805,20 @@ export class Wire extends NetworkElement {
         this.startBox = this.parentSVG.getBoxByConnectorId(fromId);
         this.endBox = this.parentSVG.getBoxByConnectorId(toId);
 
+        this.boxes = [this.startBox, this.endBox]
+
         this.startConnector = this.parentSVG.getConnectorById(fromId);
         this.endConnector = this.parentSVG.getConnectorById(toId);
 
-        this.routeWire();
+        this.connectors = [this.startConnector, this.endConnector]
+        this.routeWire(true, refresh);
 
         this.stateAttr = Logic.state.unknown;
 
-        // cannot call updateWireState until Wire is initialized,
-        // so the initial state has to be set manually and not by calling .on setters on the connectors
-        if (this.startConnector.isOutput) {
-            this.setState(this.startConnector.state, this.parentSVG.getNewPropagationId());
-        } else if (this.endConnector.isOutput) {
-            this.setState(this.endConnector.state, this.parentSVG.getNewPropagationId());
-        } else {
-            this.svgObj.addClass(stateClasses.unknown);
+        for (let connector of this.connectors) {
+            if(connector.isOutput) {
+                this.setState(connector.state);
+            }
         }
 
         this.svgObj.$el.addClass("wire");
@@ -831,7 +831,7 @@ export class Wire extends NetworkElement {
         };
     }
 
-    setState(state, propagationId) {
+    setState(state) {
         this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
 
         switch (state) {
@@ -850,10 +850,10 @@ export class Wire extends NetworkElement {
         }
 
         if (this.startConnector.isInputConnector) {
-            this.startConnector.setState(state, propagationId);
+            this.startConnector.setState(state);
         }
         if(this.endConnector.isInputConnector) {
-            this.endConnector.setState(state, propagationId);
+            this.endConnector.setState(state);
         }
 
         this.stateAttr = state;
@@ -864,8 +864,14 @@ export class Wire extends NetworkElement {
     }
 
     updateWireState() {
-        this.startBox.refreshState(this.parentSVG.getNewPropagationId());
-        this.endBox.refreshState(this.parentSVG.getNewPropagationId());
+        for (const box of this.boxes) {
+            box.refreshState()
+        }
+        // for (const conn of this.connectors) {
+        //     if(conn.isOutputConnector) {
+        //         this.parentSVG.startNewSimulation(conn.id, conn.state)
+        //     }
+        // }
     }
 
     get() {
@@ -889,7 +895,7 @@ export class Wire extends NetworkElement {
         // this.svgObj.addClass(stateClasses.unknown);
     }
 
-    routeWire(snapToGrid = true) {
+    routeWire(snapToGrid = true, refresh = true) {
         this.wireStart = this.getCoordinates(this.startConnector, snapToGrid);
         this.wireEnd = this.getCoordinates(this.endConnector, snapToGrid);
 
@@ -905,7 +911,8 @@ export class Wire extends NetworkElement {
 
         this.setWirePath(this.points);
 
-        this.updateWireState();
+        if (refresh)
+            this.updateWireState();
     }
 
     setWirePath(points) {
@@ -961,12 +968,12 @@ export class Wire extends NetworkElement {
 
             // find the value from openNodes that has the lowest fScore
             // (can be implemented effectively using min-heap data structure (maybe todo sometime)?)
-            openNodes.forEach((node) => {
+            for (const node of openNodes) {
                 if(!currentNode || fScore.get(node) < currentNodeFScore) {
                     currentNode = node;
                     currentNodeFScore = fScore.get(currentNode)
                 }
-            });
+            }
 
             if(svgObj.PolylinePoint.equals(currentNode, end)) {
                 return this.reconstructPath(cameFrom, currentNode);
