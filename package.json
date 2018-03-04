@@ -1,6 +1,11 @@
 {
     "name": "hradla",
     "version": "1.3.9",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/janjaromirhorak/hradla.git"
+    },
+    "license": "GPL-3.0",
     "devDependencies": {
         "del": "^3.0.0",
         "gulp": "^4.0.0",
