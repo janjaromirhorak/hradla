@@ -172,7 +172,7 @@ export default class floatingMenu extends jqueryElement {
         });
 
         help.$el.attr({
-            'href': './docs/',
+            'href': './docs/user.html',
             'data-lity': ''
         });
         this.append(help);
