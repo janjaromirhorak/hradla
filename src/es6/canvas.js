@@ -6,6 +6,37 @@ import Logic from './logic.js'
 import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
 import Simulation from './simulation.js'
+import Fn from './smallFunctions.js'
+
+class ViewBox {
+    constructor(left, top, width, height) {
+        this.real = { left, top, width, height }
+
+        this.zoom = 1
+        this.leftShift = 0
+        this.topShift = 0
+    }
+
+    get width() {
+        return this.real.width / this.zoom
+    }
+
+    get height() {
+        return this.real.height / this.zoom
+    }
+
+    get left() {
+        return this.real.left - (this.leftShift / this.zoom) + ((this.real.width - this.width) / 2)
+    }
+
+    get top() {
+        return this.real.top - (this.topShift / this.zoom) + ((this.real.height - this.height) / 2)
+    }
+
+    get str() {
+        return `${this.left} ${this.top} ${this.width} ${this.height}`
+    }
+}
 
 export default class Svg {
     constructor(canvas, gridSize) {
@@ -34,9 +65,14 @@ export default class Svg {
         pattern.addChild(new svgObj.PolyLine(patternPoints, "#a3a4d2", 2));
         this.addPattern(pattern.get());
 
-        this.background = new svgObj.Rectangle(0, 0, "100%", "100%", "url(#grid)", "none");
+        this.background = new svgObj.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
         this.appendJQueryObject(this.background.get());
         this.refresh();
+
+        // set the viewbox for future zooming and moving of the canvas
+        this.$svg.attr('preserveAspectRatio', 'xMinYMin slice')
+        this.viewbox = new ViewBox(0, 0, this.width, this.height)
+        this.applyViewbox()
 
         // CONSTRUCT CONTEXT MENU
         this.contextMenu = new ContextMenu(this);
@@ -50,7 +86,11 @@ export default class Svg {
         this.$svg.on('mousedown', event => {
             target = this.getRealTarget(event.target);
             if(target!==undefined) {
+                // propagate mousedown to the real target
                 target.onMouseDown(event);
+            } else {
+                // mousedown happened directly on the svg
+                this.onMouseDown(event)
             }
 
             this.hideContextMenu();
@@ -58,20 +98,105 @@ export default class Svg {
         }).on('mousemove', event => {
             if(target!==undefined) {
                 target.onMouseMove(event);
+            } else {
+                // mousemove happened directly on the svg
+                this.onMouseMove(event)
             }
 
             event.preventDefault();
         }).on('mouseup', (event) => {
             if(target!==undefined) {
                 target.onMouseUp(event);
+            } else {
+                // mouseup happened directly on the svg
+                this.onMouseUp(event)
             }
 
             target = undefined;
+
             event.preventDefault();
         }).on("contextmenu", event => {
             this.displayContextMenu(event.pageX, event.pageY, this.getRealJQueryTarget(event.target));
             event.preventDefault();
         });
+
+        Fn.addMouseScrollEventListener(canvas, event => {
+            // zoom only if the ctrl key is pressed
+            if(event.ctrlKey) {
+                switch (event.delta) {
+                    case 1:
+                        this.zoom += 0.1
+                        break
+                    case -1:
+                        this.zoom -= 0.1
+                        break
+                }
+            }
+
+            event.preventDefault()
+        })
+    }
+
+    get width() {
+        return this.$svg.width()
+    }
+
+    get height() {
+        return this.$svg.height()
+    }
+
+    onMouseDown(event) {
+        if(event.ctrlKey) {
+            this.moveCanvas = {
+                left: event.pageX,
+                top: event.pageY
+            }
+        }
+    }
+
+    onMouseMove(event) {
+        if(this.moveCanvas) {
+            let left = event.pageX - this.moveCanvas.left
+            let top = event.pageY - this.moveCanvas.top
+
+            this.viewbox.leftShift += left
+            this.viewbox.topShift += top
+            this.applyViewbox()
+
+            this.moveCanvas = {
+                left: event.pageX,
+                top: event.pageY
+            }
+        }
+    }
+
+    onMouseUp(event) {
+        if(this.moveCanvas) {
+            this.moveCanvas = undefined
+        }
+    }
+
+    applyViewbox() {
+        // adjust background
+        this.background.addAttr({
+            x: this.viewbox.left,
+            y: this.viewbox.top,
+            width: this.viewbox.width,
+            height: this.viewbox.height
+        })
+
+        // set the viewBox attribute
+        this.$svg.attr('viewBox', this.viewbox.str)
+    }
+
+    get zoom() {
+        return this.viewbox.zoom
+    }
+
+    set zoom(value) {
+        this.viewbox.zoom = value
+        this.applyViewbox()
+        // this.refresh()
     }
 
     get exportData() {
