@@ -19,7 +19,8 @@ const
     markdown = require('gulp-markdown'),
     template = require('gulp-template-html'),
     insert = require('gulp-insert'),
-    replace = require('gulp-replace');
+    replace = require('gulp-replace'),
+    changed = require('gulp-changed');
 
 const config = require('./config.json')
 const packageData = require('./package.json')
@@ -79,24 +80,33 @@ gulp.task('scripts', () => {
 });
 
 gulp.task('lib-lity-js', () => {
+    const outLoc = outJs + '/lib'
+
     return gulp.src(lib + '/lity/*.js')
+        .pipe(changed(outLoc))
         .pipe(uglify())
         .pipe(rename({suffix: '.min'}))
-        .pipe(gulp.dest(outJs + '/lib'));
+        .pipe(gulp.dest(outLoc));
 });
 
 gulp.task('lib-lity-css', () => {
+    const outLoc = outCss + '/lib'
+
     return gulp.src(lib + '/lity/*.css')
+        .pipe(changed(outLoc))
         .pipe(cssnano())
         .pipe(rename({suffix: '.min'}))
-        .pipe(gulp.dest(outCss + '/lib'));
+        .pipe(gulp.dest(outLoc));
 });
 
 gulp.task('lib-other-js', () => {
+    const outLoc = outJs + '/lib'
+
     return gulp.src(lib + '/other-js/*.js')
+        .pipe(changed(outLoc))
         .pipe(uglify())
         .pipe(rename({suffix: '.min'}))
-        .pipe(gulp.dest(outJs + '/lib'));
+        .pipe(gulp.dest(outLoc));
 });
 
 gulp.task('lib-lity', gulp.parallel('lib-lity-js', 'lib-lity-css'));
@@ -117,6 +127,7 @@ gulp.task('html', () => {
     }
 
     return gulp.src('index.html')
+        .pipe(changed(out))
         .pipe(htmlReplace(replace))
         .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
         .pipe(gulp.dest(out));
@@ -125,6 +136,7 @@ gulp.task('html', () => {
 // copies images
 gulp.task('images', () => {
     return gulp.src('img/*/*.svg')
+        .pipe(changed(outImg))
         .pipe(imagemin([
             imagemin.svgo({
                 plugins: [
@@ -143,6 +155,7 @@ gulp.task('clean', () => {
 
 gulp.task('docs-styles', () => {
     return gulp.src(docs + '/src/scss/style.scss')
+        .pipe(changed(docsCss))
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer('last 2 version'))
         .pipe(gulp.dest(docsCss))
@@ -154,6 +167,7 @@ gulp.task('docs-styles', () => {
 gulp.task('docs-md', () => {
     // convert all md files into html
     return gulp.src(srcDocs + '/md/*.md')
+        .pipe(changed(outDocsGenerated))
         .pipe(markdown())
         .pipe(rename(path => {
             path.extname = ".html"
@@ -166,6 +180,7 @@ gulp.task('docs-md', () => {
 
 gulp.task('docs-template', () => {
     return gulp.src(outDocsGenerated + '/*')
+        .pipe(changed(outDocs))
         .pipe(template(srcDocs + '/index.html'))
         .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
         .pipe(gulp.dest(outDocs))
@@ -188,6 +203,7 @@ gulp.task('empty', () => {});
 // create a zip archive
 gulp.task('zip', () => {
     return gulp.src(out + '/**/*')
+        .pipe(changed(packaged))
         .pipe(zip('hradla-' + packageData.version + '.zip'))
         .pipe(gulp.dest(packaged))
 })
@@ -195,6 +211,7 @@ gulp.task('zip', () => {
 // create a tarball
 gulp.task('tarball', () => {
     return gulp.src(out + '/**/*')
+        .pipe(changed(packaged))
         .pipe(tar('hradla-' + packageData.version + '.tar'))
         .pipe(gzip())
         .pipe(gulp.dest(packaged));
