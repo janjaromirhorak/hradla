@@ -2,16 +2,18 @@
 Logical network editor that runs in your browser.
 
 ## install
-You will need npm and gulp to build the project.
+You will need [npm](https://www.npmjs.com/) to build this project.
 
-If you have npm installed, you can install gulp using the following command:
-```bash
-npm install --global gulp-cli # you might need to run this with sudo
-```
+Use `npm install` to install dependencies, than `npm run gulp` to build the project.
 
-Use `npm install` to install dependencies, than `gulp` to build the project. 
+If you have [gulp](https://github.com/gulpjs/gulp) (version 4.0.0 or higher) installed globally on your system,
+you can run `gulp` instead of `npm run gulp`.
 
 In one command:
+```bash
+npm install && npm run gulp
+```
+or, if you have gulp (version 4.0.0 or higher) installed globally on your system
 ```bash
 npm install && gulp
 ```
