@@ -10,7 +10,6 @@ const
     rename = require('gulp-rename'),
     del = require('del'),
     htmlmin = require('gulp-html-minifier'),
-    fs = require('fs'),
     htmlReplace = require('gulp-html-replace'),
     watch = require('gulp-watch'),
     imagemin = require('gulp-imagemin'),
