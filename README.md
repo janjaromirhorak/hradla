@@ -25,4 +25,4 @@ You also can download the [already compiled version](https://github.com/janjarom
 [https://hradla.janjaromirhorak.cz/](https://hradla.janjaromirhorak.cz/)
 
 ## czech documentation
-[docs-github/developer.md](docs-github/developer.md)
+[docs-github/developer.md](docs/md/developer.md)

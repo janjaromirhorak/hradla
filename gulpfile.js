@@ -12,12 +12,15 @@ const
     htmlmin = require('gulp-html-minifier'),
     fs = require('fs'),
     htmlReplace = require('gulp-html-replace'),
-    runSequence = require('run-sequence'),
     watch = require('gulp-watch'),
     imagemin = require('gulp-imagemin'),
     zip = require('gulp-zip'),
     tar = require('gulp-tar'),
-    gzip = require('gulp-gzip');
+    gzip = require('gulp-gzip'),
+    markdown = require('gulp-markdown'),
+    template = require('gulp-template-html'),
+    insert = require('gulp-insert'),
+    grab = require('gulp-query-html');
 
 const config = require('./config.json')
 const packageData = require('./package.json')
@@ -37,12 +40,17 @@ const out = 'deploy';
 const outCss = out + '/' + 'css';
 const outJs = out + '/' + 'js';
 const outImg = out + '/' + 'img';
+const outDocs = out + '/' + 'docs';
+const outDocsGenerated = outDocs + '/html_generated'
 
 const packaged = 'packaged';
 
 const src = 'src';
 const srcCss = src + '/' + 'scss';
 const srcJs = src + '/' + 'es6';
+
+const srcDocs = 'docs';
+const srcMd = srcDocs + '/' + 'md';
 
 const lib = 'lib';
 
@@ -71,9 +79,6 @@ gulp.task('scripts', () => {
         .pipe(gulp.dest(outJs)) // not minified development js with an inline source map
 });
 
-
-gulp.task('lib-lity', ['lib-lity-js', 'lib-lity-css']);
-
 gulp.task('lib-lity-js', () => {
     return gulp.src(lib + '/lity/*.js')
         .pipe(uglify())
@@ -95,8 +100,10 @@ gulp.task('lib-other-js', () => {
         .pipe(gulp.dest(outJs + '/lib'));
 });
 
+gulp.task('lib-lity', gulp.parallel('lib-lity-js', 'lib-lity-css'));
+
 // copies all libraries
-gulp.task('libraries', ['lib-lity', 'lib-other-js']);
+gulp.task('libraries', gulp.parallel('lib-lity', 'lib-other-js'));
 
 // minimies the html file
 gulp.task('html', () => {
@@ -145,38 +152,34 @@ gulp.task('docs-styles', () => {
         .pipe(gulp.dest(docsCss));
 });
 
-gulp.task('docs-backend-copy', () => {
-    return gulp.src([docs + '/backend/**/*', docs + '/backend/.htaccess'])
-        .pipe(gulp.dest(docsOut));
-});
+gulp.task('docs-md', () => {
+    // convert all md files into html
+    return gulp.src(srcDocs + '/md/*.md')
+        .pipe(markdown())
+        .pipe(rename(path => {
+            path.extname = ".html"
+        }))
+        .pipe(insert.prepend('<!-- build:md -->'))
+        .pipe(insert.append('<!-- /build:md -->'))
+        .pipe(gulp.dest(outDocsGenerated))
+})
 
-// copy doc's backend files, than inject the page title and gtag into the backend/include/head.inc file
-gulp.task('docs-backend', ['docs-backend-copy'], () => {
-    let replace = {
-        title: config.title,
-        gtag: ''
-    };
-
-    // inject the Google Analytics Gtag code, if the analytics id is specified in the config file
-    if(config.analytics) {
-        replace.gtag = getAnalyticsCode(analytics)
-    }
-
-    return gulp.src(docs + '/backend/include/head.inc')
-        .pipe(htmlReplace(replace))
+gulp.task('docs-template', () => {
+    return gulp.src(outDocsGenerated + '/*')
+        .pipe(template(srcDocs + '/index.html'))
         .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
-        .pipe(gulp.dest(docsOut  + '/include'));
-});
+        .pipe(gulp.dest(outDocs))
+})
 
-gulp.task('docs-text', () => {
-    return gulp.src(docs + '/text/**/*')
-        .pipe(gulp.dest(docsOut + '/text'));
-});
+gulp.task('docs-clean', () => {
+    return del(outDocsGenerated)
+})
 
-// generate docs in the docs/deploy folder, then copy it into the deploy/docs folder
-gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text']);
+gulp.task('docs-html', gulp.series('docs-md', 'docs-template', 'docs-clean'))
 
-gulp.task('default', ['scripts', 'styles', 'libraries', 'html', 'images', 'docs']);
+gulp.task('docs', gulp.parallel('docs-html', 'docs-styles'));
+
+gulp.task('default', gulp.parallel('scripts', 'styles', 'libraries', 'html', 'images', 'docs'));
 
 gulp.task('empty', () => {});
 
@@ -198,21 +201,17 @@ gulp.task('tarball', () => {
 })
 
 // create the zip archive and the tarball
-gulp.task('package', ['zip', 'tarball'])
+gulp.task('package', gulp.parallel('zip', 'tarball'))
 
 
 ///// watches
 
 gulp.task('watch-scripts', () => {
-    return watch(srcJs + '/**', function () {
-        runSequence('scripts');
-    });
+    return watch(srcJs + '/**', gulp.series('scripts'))
 });
 
 gulp.task('watch-styles', () => {
-   return watch(srcCss + '/**', function () {
-      runSequence('styles');
-   });
+   return watch(srcCss + '/**', gulp.series('styles'))
 });
 
-gulp.task('watch', ['watch-scripts', 'watch-styles']);
+gulp.task('watch', gulp.parallel('watch-scripts', 'watch-styles'));
