@@ -14,6 +14,7 @@
     "gulp-markdown": "^2.0.1",
     "gulp-query-html": "0.0.2",
     "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.6.1",
     "gulp-sass": "^3.1.0",
     "gulp-tar": "^2.1.0",
     "gulp-template-html": "^0.2.0",
@@ -24,7 +25,7 @@
     "run-sequence": "^2.2.0"
   },
   "scripts": {
-      "gulp": "./node_modules/gulp/bin/gulp.js"
+    "gulp": "./node_modules/gulp/bin/gulp.js"
   },
   "dependencies": {}
 }

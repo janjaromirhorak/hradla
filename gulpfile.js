@@ -20,7 +20,7 @@ const
     markdown = require('gulp-markdown'),
     template = require('gulp-template-html'),
     insert = require('gulp-insert'),
-    grab = require('gulp-query-html');
+    replace = require('gulp-replace');
 
 const config = require('./config.json')
 const packageData = require('./package.json')
@@ -159,6 +159,7 @@ gulp.task('docs-md', () => {
         .pipe(rename(path => {
             path.extname = ".html"
         }))
+        .pipe(replace('.md', '.html'))
         .pipe(insert.prepend('<!-- build:md -->'))
         .pipe(insert.append('<!-- /build:md -->'))
         .pipe(gulp.dest(outDocsGenerated))
