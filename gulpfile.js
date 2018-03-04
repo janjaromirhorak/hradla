@@ -178,10 +178,6 @@ gulp.task('docs', ['docs-styles', 'docs-backend', 'docs-text']);
 
 gulp.task('default', ['scripts', 'styles', 'libraries', 'html', 'images', 'docs']);
 
-gulp.task('production', () => {
-    return runSequence('default', 'package');
-})
-
 gulp.task('empty', () => {});
 
 ///// packaging
