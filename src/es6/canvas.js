@@ -315,11 +315,9 @@ export default class Svg {
     }
 
     getWireById(wireId) {
-        let wireCount = this.wires.length;
-
-        for(let i = 0 ; i < wireCount ; i++) {
-            if(this.wires[i].svgObj.id===wireId) {
-                return this.wires[i];
+        for (const wire of this.wires) {
+            if(wire.svgObj.id === wireId) {
+                return wire
             }
         }
 
@@ -406,22 +404,23 @@ export default class Svg {
 
         if(wire!==undefined) {
             // we know the wire -- we can check only gates at the ends of this wire
-            let connector = wire.startBox.getConnectorById(connectorId);
+            let connector = wire.startBox.getConnectorById(connectorId)
             if (!connector) {
-                connector = wire.endBox.getConnectorById(connectorId);
+                connector = wire.endBox.getConnectorById(connectorId)
             }
-            return connector;
+            return connector
 
         } else {
             // we do not know the wire -- we have to check all gates
-            let gateCount = this.boxes.length;
-            for (let i = 0 ; i < gateCount ; i++) {
-                let connector = this.boxes[i].getConnectorById(connectorId);
+            for (const box of this.boxes) {
+                const connector = box.getConnectorById(connectorId)
                 if(connector) {
-                    return connector;
+                    return connector
                 }
             }
         }
+
+        return false
     }
 
     // if the object, that user interacted with, is not a connector and is in a group
