@@ -19,5 +19,8 @@
     "gulp-zip": "^4.1.0",
     "run-sequence": "^2.2.0"
   },
+  "scripts": {
+      "gulp": "./node_modules/gulp/bin/gulp.js"
+  },
   "dependencies": {}
 }
