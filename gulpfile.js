@@ -5,7 +5,6 @@ const
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     cssnano = require('gulp-cssnano'),
-    traceur = require('gulp-traceur-cmdline'),
     uglify = require('gulp-uglify'),
     rename = require('gulp-rename'),
     del = require('del'),
@@ -20,7 +19,14 @@ const
     template = require('gulp-template-html'),
     insert = require('gulp-insert'),
     replace = require('gulp-replace'),
-    changed = require('gulp-changed');
+    changed = require('gulp-changed'),
+    sourcemaps = require('gulp-sourcemaps'),
+    source = require('vinyl-source-stream'),
+    buffer = require('vinyl-buffer'),
+    browserify = require('browserify'),
+    babel = require('babelify'),
+    filter = require('gulp-filter'),
+    gulpif = require('gulp-if');
 
 const config = require('./config.json')
 const packageData = require('./package.json')
@@ -36,47 +42,66 @@ function getAnalyticsCode(analyticsId) {
         "</script>";
 }
 
-const out = 'deploy';
-const outCss = out + '/' + 'css';
-const outJs = out + '/' + 'js';
-const outImg = out + '/' + 'img';
-const outDocs = out + '/' + 'docs';
-const outDocsGenerated = outDocs + '/html_generated'
+const
+    out = 'dist',
+    outCss = out + '/css',
+    outJs = out + '/js',
+    outImg = out + '/img',
+    outDocs = out + '/docs',
 
-const packaged = 'packaged';
+    packaged = out + '/archives',
 
-const src = 'src';
-const srcCss = src + '/' + 'scss';
-const srcJs = src + '/' + 'es6';
+    src = 'src',
+    srcCss = src + '/scss',
+    srcJs = src + '/es6',
 
-const srcDocs = 'docs';
-const srcMd = srcDocs + '/' + 'md';
+    srcDocs = 'docs',
+    srcMd = srcDocs + '/md',
 
-const lib = 'lib';
+    lib = 'lib',
 
-const docs = 'docs';
-const docsOut = out + '/' + 'docs';
-const docsCss = docsOut + '/' + 'css';
+    docs = 'docs',
+    docsOut = out + '/docs',
+    docsCss = docsOut + '/css'
+
+let production = false
+
+gulp.task('production', (done) => {
+        production = true
+        done() // required to signal async completion
+})
 
 // compile and minimize sass
 gulp.task('styles', () => {
     return gulp.src(srcCss + '/style.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer('last 2 version'))
+        .pipe(gulpif(production, rename({suffix: '.min'})))
+        .pipe(gulpif(production, cssnano()))
         .pipe(gulp.dest(outCss))
-        .pipe(rename({suffix: '.min'}))
-        .pipe(cssnano())
-        .pipe(gulp.dest(outCss));
 });
 
 // compile and minimize es6
 gulp.task('scripts', () => {
-    return gulp.src(srcJs + '/main.js')
-        .pipe(traceur({modules: 'inline', "source-maps": "inline"}))
+    const jsFilter = filter('**/*.js', {restore: true});
+
+    const startpoint = 'main.js'
+    const startpointPath = srcJs + '/' + startpoint
+
+    return browserify(startpointPath, { debug: true })
+        .transform(babel.configure({
+            presets: ['babel-preset-env'].map(require.resolve)
+        }))
+        .bundle()
+        .on('error', function(err) { console.error(err); this.emit('end'); })
+        .pipe(source(startpoint))
+        .pipe(buffer())
+        .pipe(sourcemaps.init({ loadMaps: true }))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulpif(production, jsFilter))
+        .pipe(gulpif(production, rename({suffix: '.min'})))
+        .pipe(gulpif(production, uglify()))
         .pipe(gulp.dest(outJs))
-        .pipe(rename({suffix: '.min'})) // minified production js
-        .pipe(uglify())
-        .pipe(gulp.dest(outJs)) // not minified development js with an inline source map
 });
 
 gulp.task('lib-lity-js', () => {
@@ -116,20 +141,27 @@ gulp.task('libraries', gulp.parallel('lib-lity', 'lib-other-js'));
 
 // minimies the html file
 gulp.task('html', () => {
-    let replace = {
-        title: config.title,
-        gtag: ''
+    let entryPoint = 'main.js'
+    let styleSheet = 'style.css'
+
+    if (production) {
+        entryPoint = 'main.min.js'
+        styleSheet = 'style.min.css'
     }
 
-    // inject the Google Analytics Gtag code, if the analytics id is specified in the config file
-    if(config.analytics) {
-        replace.gtag = getAnalyticsCode(analytics)
+    let replace = {
+        title: config.title,
+        // inject the Google Analytics Gtag code, if the analytics id is specified in the config file
+        gtag: config.analytics ? getAnalyticsCode(analytics) : '',
+        // set the correct css and js file names
+        entryPoint: `<script src="js/${entryPoint}"></script>`,
+        styleSheet: `<link href="css/${styleSheet}" rel="stylesheet">`
     }
 
     return gulp.src('index.html')
         .pipe(changed(out))
         .pipe(htmlReplace(replace))
-        .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
+        .pipe(gulpif(production, htmlmin({collapseWhitespace: true, removeComments: true})))
         .pipe(gulp.dest(out));
 });
 
@@ -158,48 +190,31 @@ gulp.task('docs-styles', () => {
         .pipe(changed(docsCss))
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer('last 2 version'))
-        .pipe(gulp.dest(docsCss))
-        .pipe(rename({suffix: '.min'}))
-        .pipe(cssnano())
+        .pipe(gulpif(production, rename({suffix: '.min'})))
+        .pipe(gulpif(production, cssnano()))
         .pipe(gulp.dest(docsCss));
 });
 
-gulp.task('docs-md', () => {
-    // convert all md files into html
+// compile the html pages for docs from the md files
+gulp.task('docs-html', () => {
     return gulp.src(srcDocs + '/md/*.md')
-        .pipe(changed(outDocsGenerated))
         .pipe(markdown())
         .pipe(rename(path => {
             path.extname = ".html"
         }))
         .pipe(replace('.md', '.html'))
+        // wrap the generated html between <!-- build:md --> tags to mark it for the template plugin
         .pipe(insert.prepend('<!-- build:md -->'))
         .pipe(insert.append('<!-- /build:md -->'))
-        .pipe(gulp.dest(outDocsGenerated))
-})
-
-gulp.task('docs-template', () => {
-    return gulp.src(outDocsGenerated + '/*')
-        .pipe(changed(outDocs))
+        // put the generated file into a predefined template
         .pipe(template(srcDocs + '/index.html'))
-        .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
+        .pipe(gulpif(production, htmlmin({collapseWhitespace: true, removeComments: true})))
         .pipe(gulp.dest(outDocs))
 })
 
-gulp.task('docs-clean', () => {
-    return del(outDocsGenerated)
-})
-
-gulp.task('docs-html', gulp.series('docs-md', 'docs-template', 'docs-clean'))
-
 gulp.task('docs', gulp.parallel('docs-html', 'docs-styles'));
 
-gulp.task('default', gulp.parallel('scripts', 'styles', 'libraries', 'html', 'images', 'docs'));
-
-gulp.task('empty', () => {});
-
-///// packaging
-
+///// create archives
 // create a zip archive
 gulp.task('zip', () => {
     return gulp.src(out + '/**/*')
@@ -220,6 +235,16 @@ gulp.task('tarball', () => {
 // create the zip archive and the tarball
 gulp.task('package', gulp.parallel('zip', 'tarball'))
 
+
+///// main scripts
+// build the whole project
+
+gulp.task('build-all', gulp.series('clean', gulp.parallel('scripts', 'styles', 'libraries', 'html', 'images', 'docs')))
+gulp.task('build-prod', gulp.series('production', 'build-all', 'package'))
+
+gulp.task('build-dev', gulp.series('build-all'))
+
+gulp.task('default', gulp.series('build-prod'));
 
 ///// watches
 
