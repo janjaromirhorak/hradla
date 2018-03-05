@@ -525,6 +525,13 @@ class Box extends NetworkElement {
         this.svgObj.addAttr({"transform": transform.get()});
     }
 
+    transformEvent(event) {
+        event.pageX = this.parentSVG.viewbox.transformX(event.pageX)
+        event.pageY = this.parentSVG.viewbox.transformY(event.pageY)
+
+        return event
+    }
+
     onMouseDown(event) {
         this.mouseLeft = false;
         if(event.which === 1) {
@@ -544,10 +551,12 @@ class Box extends NetworkElement {
         // save the current item position into a variable
         let currentPosition = transform.getTranslate();
 
+        let {pageX, pageY} = this.transformEvent(event)
+
         // calculate mouse offset from the object origin
         this.offset = {
-            x: event.pageX - currentPosition.x,
-            y: event.pageY - currentPosition.y
+            x: pageX - currentPosition.x,
+            y: pageY - currentPosition.y
         };
     }
 
@@ -555,8 +564,10 @@ class Box extends NetworkElement {
         if(this.mouseLeft) {
             this.mouseMoved = true;
 
-            let left = event.pageX - this.offset.x;
-            let top = event.pageY - this.offset.y;
+            let {pageX, pageY} = this.transformEvent(event)
+
+            const left = pageX - this.offset.x;
+            const top = pageY - this.offset.y;
 
             let transform = this.getTransform();
             transform.setTranslate(left, top);
@@ -580,8 +591,10 @@ class Box extends NetworkElement {
     }
 
     onDrop(event) {
-        let left = event.pageX - this.offset.x;
-        let top = event.pageY - this.offset.y;
+        let {pageX, pageY} = this.transformEvent(event)
+
+        let left = pageX - this.offset.x;
+        let top = pageY - this.offset.y;
 
         left = this.parentSVG.snapToGrid(left);
         top = this.parentSVG.snapToGrid(top);
