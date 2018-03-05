@@ -149,7 +149,7 @@ gulp.task('html', () => {
         styleSheet = 'style.min.css'
     }
 
-    let replace = {
+    const snippets = {
         title: config.title,
         // inject the Google Analytics Gtag code, if the analytics id is specified in the config file
         gtag: config.analytics ? getAnalyticsCode(analytics) : '',
@@ -160,7 +160,7 @@ gulp.task('html', () => {
 
     return gulp.src('index.html')
         .pipe(changed(out))
-        .pipe(htmlReplace(replace))
+        .pipe(htmlReplace(snippets))
         .pipe(gulpif(production, htmlmin({collapseWhitespace: true, removeComments: true})))
         .pipe(gulp.dest(out));
 });
@@ -197,6 +197,15 @@ gulp.task('docs-styles', () => {
 
 // compile the html pages for docs from the md files
 gulp.task('docs-html', () => {
+    let styleSheet = 'style.css'
+    if (production) {
+        styleSheet = 'style.min.css'
+    }
+
+    const snippets = {
+        styleSheet: `<link href="css/${styleSheet}" rel="stylesheet">`
+    }
+
     return gulp.src(srcDocs + '/md/*.md')
         .pipe(markdown())
         .pipe(rename(path => {
@@ -206,6 +215,9 @@ gulp.task('docs-html', () => {
         // wrap the generated html between <!-- build:md --> tags to mark it for the template plugin
         .pipe(insert.prepend('<!-- build:md -->'))
         .pipe(insert.append('<!-- /build:md -->'))
+        .pipe(insert.append('<!-- build:styleSheet -->'))
+        .pipe(insert.append(snippets.styleSheet))
+        .pipe(insert.append('<!-- /build:styleSheet -->'))
         // put the generated file into a predefined template
         .pipe(template(srcDocs + '/index.html'))
         .pipe(gulpif(production, htmlmin({collapseWhitespace: true, removeComments: true})))
