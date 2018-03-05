@@ -36,6 +36,16 @@ class ViewBox {
     get str() {
         return `${this.left} ${this.top} ${this.width} ${this.height}`
     }
+
+    // transforms horizontal units to the scale and shift of the editor
+    transformX(x) {
+        return this.left + (x / this.zoom)
+    }
+
+    // transforms vertical units to the scale and shift of the editor
+    transformY(y) {
+        return this.top + (y / this.zoom)
+    }
 }
 
 export default class Svg {
