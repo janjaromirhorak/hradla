@@ -1856,6 +1856,14 @@ var Box = function (_NetworkElement2) {
             this.svgObj.addAttr({ "transform": transform.get() });
         }
     }, {
+        key: 'transformEvent',
+        value: function transformEvent(event) {
+            event.pageX = this.parentSVG.viewbox.transformX(event.pageX);
+            event.pageY = this.parentSVG.viewbox.transformY(event.pageY);
+
+            return event;
+        }
+    }, {
         key: 'onMouseDown',
         value: function onMouseDown(event) {
             this.mouseLeft = false;
@@ -1877,10 +1885,16 @@ var Box = function (_NetworkElement2) {
             // save the current item position into a variable
             var currentPosition = transform.getTranslate();
 
+            var _transformEvent = this.transformEvent(event),
+                pageX = _transformEvent.pageX,
+                pageY = _transformEvent.pageY;
+
             // calculate mouse offset from the object origin
+
+
             this.offset = {
-                x: event.pageX - currentPosition.x,
-                y: event.pageY - currentPosition.y
+                x: pageX - currentPosition.x,
+                y: pageY - currentPosition.y
             };
         }
     }, {
@@ -1889,8 +1903,12 @@ var Box = function (_NetworkElement2) {
             if (this.mouseLeft) {
                 this.mouseMoved = true;
 
-                var left = event.pageX - this.offset.x;
-                var top = event.pageY - this.offset.y;
+                var _transformEvent2 = this.transformEvent(event),
+                    pageX = _transformEvent2.pageX,
+                    pageY = _transformEvent2.pageY;
+
+                var left = pageX - this.offset.x;
+                var top = pageY - this.offset.y;
 
                 var transform = this.getTransform();
                 transform.setTranslate(left, top);
@@ -1916,8 +1934,12 @@ var Box = function (_NetworkElement2) {
     }, {
         key: 'onDrop',
         value: function onDrop(event) {
-            var left = event.pageX - this.offset.x;
-            var top = event.pageY - this.offset.y;
+            var _transformEvent3 = this.transformEvent(event),
+                pageX = _transformEvent3.pageX,
+                pageY = _transformEvent3.pageY;
+
+            var left = pageX - this.offset.x;
+            var top = pageY - this.offset.y;
 
             left = this.parentSVG.snapToGrid(left);
             top = this.parentSVG.snapToGrid(top);
