@@ -1,5 +1,5 @@
 # hradla
-Logical network editor that runs in your browser.
+Logic network simulator that runs in your browser.
 
 ## install
 You will need [npm](https://www.npmjs.com/) to build this project.

@@ -1107,6 +1107,10 @@ export class Wire extends NetworkElement {
         let $connector = connector.svgObj.$el;
 
         let position = $connector.position();
+
+        position.left = this.parentSVG.viewbox.transformX(position.left)
+        position.top = this.parentSVG.viewbox.transformY(position.top)
+
         let width = $connector.attr("width");
         let height = $connector.attr("height");
 
