@@ -70,8 +70,8 @@ var GateMenuItem = function (_ContextMenuItem) {
         return _possibleConstructorReturn(this, (GateMenuItem.__proto__ || Object.getPrototypeOf(GateMenuItem)).call(this, type, // name is the type
         type, contextMenu, parentSVG, function (event) {
             var position = {
-                left: Math.round(contextMenu.position.x / parentSVG.gridSize) * parentSVG.gridSize,
-                top: Math.round(contextMenu.position.y / parentSVG.gridSize) * parentSVG.gridSize
+                left: parentSVG.snapToGrid(parentSVG.viewbox.transformX(contextMenu.position.x)),
+                top: parentSVG.snapToGrid(parentSVG.viewbox.transformY(contextMenu.position.y))
             };
 
             parentSVG.newGate(type, position.left, // x coordinate
@@ -108,8 +108,8 @@ var ContextMenu = function () {
 
         this.appendItem(new ContextMenuItem("Input box", '', this, parentSVG, function () {
             var position = {
-                left: _this2.parentSVG.snapToGrid(_this2.position.x),
-                top: _this2.parentSVG.snapToGrid(_this2.position.y)
+                left: _this2.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this2.position.x)),
+                top: _this2.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this2.position.y))
             };
 
             parentSVG.newInput(position.left, position.top);
@@ -117,8 +117,8 @@ var ContextMenu = function () {
 
         this.appendItem(new ContextMenuItem("Output box", '', this, parentSVG, function () {
             var position = {
-                left: _this2.parentSVG.snapToGrid(_this2.position.x),
-                top: _this2.parentSVG.snapToGrid(_this2.position.y)
+                left: _this2.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this2.position.x)),
+                top: _this2.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this2.position.y))
             };
 
             parentSVG.newOutput(position.left, position.top);
@@ -914,14 +914,6 @@ var Box = function (_NetworkElement2) {
             this.svgObj.addAttr({ "transform": transform.get() });
         }
     }, {
-        key: 'transformEvent',
-        value: function transformEvent(event) {
-            event.pageX = this.parentSVG.viewbox.transformX(event.pageX);
-            event.pageY = this.parentSVG.viewbox.transformY(event.pageY);
-
-            return event;
-        }
-    }, {
         key: 'onMouseDown',
         value: function onMouseDown(event) {
             this.mouseLeft = false;
@@ -943,9 +935,9 @@ var Box = function (_NetworkElement2) {
             // save the current item position into a variable
             var currentPosition = transform.getTranslate();
 
-            var _transformEvent = this.transformEvent(event),
-                pageX = _transformEvent.pageX,
-                pageY = _transformEvent.pageY;
+            var _parentSVG$viewbox$tr = this.parentSVG.viewbox.transformEvent(event),
+                pageX = _parentSVG$viewbox$tr.pageX,
+                pageY = _parentSVG$viewbox$tr.pageY;
 
             // calculate mouse offset from the object origin
 
@@ -961,9 +953,9 @@ var Box = function (_NetworkElement2) {
             if (this.mouseLeft) {
                 this.mouseMoved = true;
 
-                var _transformEvent2 = this.transformEvent(event),
-                    pageX = _transformEvent2.pageX,
-                    pageY = _transformEvent2.pageY;
+                var _parentSVG$viewbox$tr2 = this.parentSVG.viewbox.transformEvent(event),
+                    pageX = _parentSVG$viewbox$tr2.pageX,
+                    pageY = _parentSVG$viewbox$tr2.pageY;
 
                 var left = pageX - this.offset.x;
                 var top = pageY - this.offset.y;
@@ -992,9 +984,9 @@ var Box = function (_NetworkElement2) {
     }, {
         key: 'onDrop',
         value: function onDrop(event) {
-            var _transformEvent3 = this.transformEvent(event),
-                pageX = _transformEvent3.pageX,
-                pageY = _transformEvent3.pageY;
+            var _parentSVG$viewbox$tr3 = this.parentSVG.viewbox.transformEvent(event),
+                pageX = _parentSVG$viewbox$tr3.pageX,
+                pageY = _parentSVG$viewbox$tr3.pageY;
 
             var left = pageX - this.offset.x;
             var top = pageY - this.offset.y;
@@ -2636,7 +2628,10 @@ var ViewBox = function () {
 
         this.real = { left: left, top: top, width: width, height: height };
 
-        this.zoom = 1;
+        this.maxZoom = 8;
+        this.minZoom = 0.1;
+
+        this.realZoom = 1;
         this.leftShift = 0;
         this.topShift = 0;
     }
@@ -2656,6 +2651,23 @@ var ViewBox = function () {
         key: 'transformY',
         value: function transformY(y) {
             return this.top + y / this.zoom;
+        }
+    }, {
+        key: 'transformEvent',
+        value: function transformEvent(event) {
+            event.pageX = this.transformX(event.pageX);
+            event.pageY = this.transformY(event.pageY);
+
+            return event;
+        }
+    }, {
+        key: 'zoom',
+        get: function get() {
+            return this.realZoom;
+        },
+        set: function set(value) {
+            this.realZoom = Math.max(Math.min(value, this.maxZoom), this.minZoom);
+            console.log('zoom:', value, '/', this.realZoom);
         }
     }, {
         key: 'width',
@@ -3497,7 +3509,6 @@ var Svg = function () {
         set: function set(value) {
             this.viewbox.zoom = value;
             this.applyViewbox();
-            // this.refresh()
         }
     }, {
         key: 'exportData',

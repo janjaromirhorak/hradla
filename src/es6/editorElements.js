@@ -525,13 +525,6 @@ class Box extends NetworkElement {
         this.svgObj.addAttr({"transform": transform.get()});
     }
 
-    transformEvent(event) {
-        event.pageX = this.parentSVG.viewbox.transformX(event.pageX)
-        event.pageY = this.parentSVG.viewbox.transformY(event.pageY)
-
-        return event
-    }
-
     onMouseDown(event) {
         this.mouseLeft = false;
         if(event.which === 1) {
@@ -551,7 +544,7 @@ class Box extends NetworkElement {
         // save the current item position into a variable
         let currentPosition = transform.getTranslate();
 
-        let {pageX, pageY} = this.transformEvent(event)
+        let {pageX, pageY} = this.parentSVG.viewbox.transformEvent(event)
 
         // calculate mouse offset from the object origin
         this.offset = {
@@ -564,7 +557,7 @@ class Box extends NetworkElement {
         if(this.mouseLeft) {
             this.mouseMoved = true;
 
-            let {pageX, pageY} = this.transformEvent(event)
+            let {pageX, pageY} = this.parentSVG.viewbox.transformEvent(event)
 
             const left = pageX - this.offset.x;
             const top = pageY - this.offset.y;
@@ -591,7 +584,7 @@ class Box extends NetworkElement {
     }
 
     onDrop(event) {
-        let {pageX, pageY} = this.transformEvent(event)
+        let {pageX, pageY} = this.parentSVG.viewbox.transformEvent(event)
 
         let left = pageX - this.offset.x;
         let top = pageY - this.offset.y;

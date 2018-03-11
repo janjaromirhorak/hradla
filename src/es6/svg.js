@@ -57,6 +57,13 @@ class ViewBox {
     transformY(y) {
         return this.top + (y / this.zoom)
     }
+
+    transformEvent(event) {
+        event.pageX = this.transformX(event.pageX)
+        event.pageY = this.transformY(event.pageY)
+
+        return event
+    }
 }
 
 export default class Svg {

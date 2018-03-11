@@ -51,8 +51,8 @@ class GateMenuItem extends ContextMenuItem {
             parentSVG,
             event => {
                 let position = {
-                    left: Math.round(contextMenu.position.x / parentSVG.gridSize) * parentSVG.gridSize,
-                    top: Math.round(contextMenu.position.y / parentSVG.gridSize) * parentSVG.gridSize
+                    left: parentSVG.snapToGrid(parentSVG.viewbox.transformX(contextMenu.position.x)),
+                    top: parentSVG.snapToGrid(parentSVG.viewbox.transformY(contextMenu.position.y))
                 };
 
                 parentSVG.newGate(
@@ -90,8 +90,8 @@ export default class ContextMenu {
             new ContextMenuItem("Input box", '', this, parentSVG,
                 () => {
                     let position = {
-                        left: this.parentSVG.snapToGrid(this.position.x),
-                        top: this.parentSVG.snapToGrid(this.position.y)
+                        left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
+                        top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
                     };
 
                     parentSVG.newInput(position.left, position.top);
@@ -101,8 +101,8 @@ export default class ContextMenu {
 
         this.appendItem(new ContextMenuItem("Output box", '', this, parentSVG, () => {
             let position = {
-                left: this.parentSVG.snapToGrid(this.position.x),
-                top: this.parentSVG.snapToGrid(this.position.y)
+                left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
+                top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
             };
 
             parentSVG.newOutput(position.left, position.top);
