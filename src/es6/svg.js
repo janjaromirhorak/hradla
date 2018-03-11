@@ -6,7 +6,7 @@ import Logic from './logic.js'
 import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
 import Simulation from './simulation.js'
-import Fn from './smallFunctions.js'
+import Fn from './fn.js'
 
 class ViewBox {
     constructor(left, top, width, height) {

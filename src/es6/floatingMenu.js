@@ -1,4 +1,4 @@
-import {exportNetwork, importNetwok} from "./importExport.js";
+import {exportNetwork, importNetwork} from "./importExport.js";
 
 class jqueryElement {
     constructor(specificTag) {
@@ -107,7 +107,7 @@ export default class floatingMenu extends jqueryElement {
                         lityInstanceImport.close();
 
                         // proccess the imported data
-                        new importNetwok(parentSVG, importString);
+                        new importNetwork(parentSVG, importString);
                     })
             );
 

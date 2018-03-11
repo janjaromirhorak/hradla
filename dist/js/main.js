@@ -7,948 +7,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _svgObjects = require('./svgObjects.js');
-
-var svgObj = _interopRequireWildcard(_svgObjects);
-
-var _editorElements = require('./editorElements.js');
-
-var editorElements = _interopRequireWildcard(_editorElements);
-
-var _logic = require('./logic.js');
-
-var _logic2 = _interopRequireDefault(_logic);
-
-var _contextMenu = require('./contextMenu.js');
-
-var _contextMenu2 = _interopRequireDefault(_contextMenu);
-
-var _floatingMenu = require('./floatingMenu.js');
-
-var _floatingMenu2 = _interopRequireDefault(_floatingMenu);
-
-var _simulation = require('./simulation.js');
-
-var _simulation2 = _interopRequireDefault(_simulation);
-
-var _smallFunctions = require('./smallFunctions.js');
-
-var _smallFunctions2 = _interopRequireDefault(_smallFunctions);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var ViewBox = function () {
-    function ViewBox(left, top, width, height) {
-        _classCallCheck(this, ViewBox);
-
-        this.real = { left: left, top: top, width: width, height: height };
-
-        this.zoom = 1;
-        this.leftShift = 0;
-        this.topShift = 0;
-    }
-
-    _createClass(ViewBox, [{
-        key: 'transformX',
-
-
-        // transforms horizontal units to the scale and shift of the editor
-        value: function transformX(x) {
-            return this.left + x / this.zoom;
-        }
-
-        // transforms vertical units to the scale and shift of the editor
-
-    }, {
-        key: 'transformY',
-        value: function transformY(y) {
-            return this.top + y / this.zoom;
-        }
-    }, {
-        key: 'width',
-        get: function get() {
-            return this.real.width / this.zoom;
-        }
-    }, {
-        key: 'height',
-        get: function get() {
-            return this.real.height / this.zoom;
-        }
-    }, {
-        key: 'left',
-        get: function get() {
-            return this.real.left - this.leftShift / this.zoom + (this.real.width - this.width) / 2;
-        }
-    }, {
-        key: 'top',
-        get: function get() {
-            return this.real.top - this.topShift / this.zoom + (this.real.height - this.height) / 2;
-        }
-    }, {
-        key: 'str',
-        get: function get() {
-            return this.left + ' ' + this.top + ' ' + this.width + ' ' + this.height;
-        }
-    }]);
-
-    return ViewBox;
-}();
-
-var Svg = function () {
-    function Svg(canvas, gridSize) {
-        var _this = this;
-
-        _classCallCheck(this, Svg);
-
-        this.$svg = $(canvas);
-
-        this.gridSize = gridSize;
-
-        this.boxes = []; // stores all boxes
-        this.wires = []; // stores all wires
-
-        this.simulationEnabled = true;
-        this.simulation = new _simulation2.default(this); // dummy, will be overwritten on startNewSimulation
-
-        // create the defs element, used for patterns
-        this.$defs = $("<defs>");
-        this.$svg.prepend(this.$defs);
-
-        // BACKGROUND PATTERN
-        var pattern = new svgObj.Pattern("grid", this.gridSize, this.gridSize);
-
-        var patternPoints = new svgObj.PolylinePoints().append(new svgObj.PolylinePoint(0, 0)).append(new svgObj.PolylinePoint(this.gridSize, 0)).append(new svgObj.PolylinePoint(this.gridSize, this.gridSize));
-
-        pattern.addChild(new svgObj.PolyLine(patternPoints, "#a3a4d2", 2));
-        this.addPattern(pattern.get());
-
-        this.background = new svgObj.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
-        this.appendJQueryObject(this.background.get());
-        this.refresh();
-
-        // set the viewbox for future zooming and moving of the canvas
-        this.$svg.attr('preserveAspectRatio', 'xMinYMin slice');
-        this.viewbox = new ViewBox(0, 0, this.width, this.height);
-        this.applyViewbox();
-
-        // CONSTRUCT CONTEXT MENU
-        this.contextMenu = new _contextMenu2.default(this);
-
-        // CONSTRUCT FLOATING MENU
-        // this.floatingMenu = new FloatingMenu(this);
-        this.floatingMenu = new _floatingMenu2.default(this);
-
-        // ALL EVENT CALLBACKS
-        var target = void 0;
-        this.$svg.on('mousedown', function (event) {
-            target = _this.getRealTarget(event.target);
-            if (target !== undefined) {
-                // propagate mousedown to the real target
-                target.onMouseDown(event);
-            } else {
-                // mousedown happened directly on the svg
-                _this.onMouseDown(event);
-            }
-
-            _this.hideContextMenu();
-            event.preventDefault();
-        }).on('mousemove', function (event) {
-            if (target !== undefined) {
-                target.onMouseMove(event);
-            } else {
-                // mousemove happened directly on the svg
-                _this.onMouseMove(event);
-            }
-
-            event.preventDefault();
-        }).on('mouseup', function (event) {
-            if (target !== undefined) {
-                target.onMouseUp(event);
-            } else {
-                // mouseup happened directly on the svg
-                _this.onMouseUp(event);
-            }
-
-            target = undefined;
-
-            event.preventDefault();
-        }).on("contextmenu", function (event) {
-            _this.displayContextMenu(event.pageX, event.pageY, _this.getRealJQueryTarget(event.target));
-            event.preventDefault();
-        });
-
-        _smallFunctions2.default.addMouseScrollEventListener(canvas, function (event) {
-            // zoom only if the ctrl key is pressed
-            if (event.ctrlKey) {
-                switch (event.delta) {
-                    case 1:
-                        _this.zoom += 0.1;
-                        break;
-                    case -1:
-                        _this.zoom -= 0.1;
-                        break;
-                }
-            }
-
-            event.preventDefault();
-        });
-    }
-
-    _createClass(Svg, [{
-        key: 'onMouseDown',
-        value: function onMouseDown(event) {
-            if (event.ctrlKey) {
-                this.moveCanvas = {
-                    left: event.pageX,
-                    top: event.pageY
-                };
-            }
-        }
-    }, {
-        key: 'onMouseMove',
-        value: function onMouseMove(event) {
-            if (this.moveCanvas) {
-                var left = event.pageX - this.moveCanvas.left;
-                var top = event.pageY - this.moveCanvas.top;
-
-                this.viewbox.leftShift += left;
-                this.viewbox.topShift += top;
-                this.applyViewbox();
-
-                this.moveCanvas = {
-                    left: event.pageX,
-                    top: event.pageY
-                };
-            }
-        }
-    }, {
-        key: 'onMouseUp',
-        value: function onMouseUp(event) {
-            if (this.moveCanvas) {
-                this.moveCanvas = undefined;
-            }
-        }
-    }, {
-        key: 'applyViewbox',
-        value: function applyViewbox() {
-            // adjust background
-            this.background.addAttr({
-                x: this.viewbox.left,
-                y: this.viewbox.top,
-                width: this.viewbox.width,
-                height: this.viewbox.height
-            });
-
-            // set the viewBox attribute
-            this.$svg.attr('viewBox', this.viewbox.str);
-        }
-    }, {
-        key: 'importData',
-        value: function importData(data) {
-            var _this2 = this;
-
-            this.simulationEnabled = false;
-
-            // TODO implement gridSize scaling
-
-            // list of wires to be added
-            var newWires = new Map();
-
-            for (var i = 0; i < data.boxes.length; ++i) {
-                // add box
-                var box = void 0;
-                switch (data.boxes[i].category) {
-                    case "gate":
-                        // add new gate (without reloading the SVG, we will reload it once after the import)
-                        box = this.newGate(data.boxes[i].name, 0, 0, false);
-                        break;
-                    case "io":
-                        switch (data.boxes[i].name) {
-                            case "input":
-                                // add new input (without reloading the SVG, we will reload it once after the import)
-                                box = this.newInput(0, 0, data.boxes[i].isOn, false);
-                                break;
-                            case "output":
-                                // add new output (without reloading the SVG, we will reload it once after the import)
-                                box = this.newOutput(0, 0, false);
-                                break;
-                            default:
-                                console.error("Unknown io box name '" + data.boxes[i].name + "'.");
-                                break;
-                        }
-                        break;
-                    default:
-                        console.error("Unknown box category '" + data.boxes[i].category + "'.");
-                }
-
-                if (box) {
-                    // proccess box transforms (translation and rotation)
-                    var transform = new editorElements.Transform();
-                    for (var j = 0; j < data.boxes[i].transform.items.length; ++j) {
-                        switch (data.boxes[i].transform.items[j].name) {
-                            case "translate":
-                                transform.setTranslate(data.boxes[i].transform.items[j].args[0], data.boxes[i].transform.items[j].args[1]);
-                                break;
-                            case "rotate":
-                                transform.setRotate(data.boxes[i].transform.items[j].args[0], data.boxes[i].transform.items[j].args[1], data.boxes[i].transform.items[j].args[2]);
-                                break;
-                            default:
-                                console.error("Unknown transform property '" + data.boxes[i].transform.items[j].name + "'.");
-                                break;
-                        }
-                    }
-
-                    box.setTransform(transform);
-
-                    // add all wires to the list of wires to be added
-                    for (var _j = 0; _j < data.boxes[i].connections.length; ++_j) {
-                        // get the artificial wire id
-                        var wireId = data.boxes[i].connections[_j].wireId;
-
-                        // pass the values got from json into a variable that will be added into the map
-                        var value = {
-                            index: data.boxes[i].connections[_j].index,
-                            type: data.boxes[i].connections[_j].type,
-                            boxId: box.id
-                        };
-
-                        // add the value to the map
-                        if (newWires.has(wireId)) {
-                            // if there already is a wire with this id in the map,
-                            // add the value to the end of the array of values
-                            var mapValue = newWires.get(wireId);
-                            mapValue[mapValue.length] = value;
-                            newWires.set(wireId, mapValue);
-                        } else {
-                            // if there is no wire with this id in the map
-                            // add the wire and set the value to be the first element in the array
-                            newWires.set(wireId, [value]);
-                        }
-                    }
-                }
-            }
-
-            // refresh the SVG document (needed for wiring)
-            this.refresh();
-
-            // with all boxes added, we can now connect them with wires
-            newWires.forEach(function (item) {
-                var connectorIds = [];
-                if (item[0] && item[1]) {
-                    var _arr = [0, 1];
-
-                    for (var _i2 = 0; _i2 < _arr.length; _i2++) {
-                        var _i = _arr[_i2];
-                        var _box = _this2.getBoxById(item[_i].boxId);
-
-                        connectorIds[_i] = _box.connectors[item[_i].index].id;
-                    }
-                }
-                _this2.newWire(connectorIds[0], connectorIds[1], true);
-            });
-
-            // refresh the SVG document
-            this.refresh();
-
-            this.simulationEnabled = true;
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = this.boxes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var _box2 = _step.value;
-
-                    if (_box2 instanceof editorElements.InputBox) {
-                        // switch the input box state to the oposit and back, for some reason calling box.refreshState()
-                        // results in weird unfinished simulation
-                        // this causes update of the output connector and a start of a new simulation
-
-                        // TODO find better solution instead of this workaround
-                        _box2.on = !_box2.on;
-                        _box2.on = !_box2.on;
-                    }
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
-            }
-        }
-    }, {
-        key: 'wireCreationHelper',
-        value: function wireCreationHelper(connectorId) {
-            if (!this.firstConnectorId) {
-                this.firstConnectorId = connectorId;
-            } else {
-                this.newWire(this.firstConnectorId, connectorId);
-                this.firstConnectorId = undefined;
-            }
-        }
-    }, {
-        key: 'startNewSimulation',
-        value: function startNewSimulation(startingConnector, state) {
-            if (this.simulationEnabled) {
-                this.simulation = new _simulation2.default(this);
-                this.simulation.notifyChange(startingConnector.id, state);
-                this.simulation.run();
-            }
-        }
-    }, {
-        key: 'newGate',
-        value: function newGate(name, x, y) {
-            var refresh = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-
-            return this.newBox(x, y, new editorElements.Gate(this, name, x, y), refresh);
-        }
-    }, {
-        key: 'newInput',
-        value: function newInput(x, y) {
-            var isOn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-            var refresh = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-
-            return this.newBox(x, y, new editorElements.InputBox(this, isOn), refresh);
-        }
-    }, {
-        key: 'newOutput',
-        value: function newOutput(x, y) {
-            var refresh = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-
-            return this.newBox(x, y, new editorElements.OutputBox(this), refresh);
-        }
-    }, {
-        key: 'newBox',
-        value: function newBox(x, y, object) {
-            var refresh = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-
-            var index = this.boxes.length;
-
-            this.boxes[index] = object;
-
-            // translate the gate if x and y has been specified
-            if (x && y) {
-                var tr = new editorElements.Transform();
-                tr.setTranslate(x, y);
-
-                this.boxes[index].svgObj.addAttr({ "transform": tr.get() });
-            }
-
-            this.appendElement(this.boxes[index], refresh);
-
-            return this.boxes[index];
-        }
-    }, {
-        key: 'removeBox',
-        value: function removeBox(gateId) {
-            var $gate = $("#" + gateId);
-
-            // find the gate in svg's list of gates
-            var gateIndex = -1;
-            for (var i = 0; i < this.boxes.length; i++) {
-                if (this.boxes[i].svgObj.id === gateId) {
-                    gateIndex = i;
-                    break;
-                }
-            }
-
-            if (gateIndex > -1) {
-                // remove all wires connected to this gate
-                for (var _i3 = 0; _i3 < this.boxes[gateIndex].connectors.length; _i3++) {
-                    this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[_i3].svgObj.id);
-                }
-
-                // remove the gate
-                this.boxes.splice(gateIndex, 1);
-                $gate.remove();
-            } else {
-                console.error("Trying to remove an nonexisting gate. (Gate id: " + gateId + ")");
-            }
-        }
-    }, {
-        key: 'newWire',
-        value: function newWire(fromId, toId) {
-            var _this3 = this;
-
-            var refresh = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-
-            // wire must connect two distinct elements
-            if (fromId === toId) return false;
-
-            var connectors = [this.getConnectorById(fromId), this.getConnectorById(toId)];
-
-            // input connectors can be connected to one wire max
-            connectors.forEach(function (conn) {
-                if (conn.isInputConnector) _this3.removeWiresByConnectorId(conn.id);
-            });
-            var index = this.wires.length;
-            this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize, refresh);
-
-            connectors.forEach(function (conn) {
-                conn.addWireId(_this3.wires[index].svgObj.id);
-            });
-
-            this.appendElement(this.wires[index], refresh);
-            this.moveToBackById(this.wires[index].svgObj.id);
-
-            if (refresh) this.wires[index].updateWireState();
-
-            return this.wires[index];
-        }
-    }, {
-        key: 'getWireById',
-        value: function getWireById(wireId) {
-            var _iteratorNormalCompletion2 = true;
-            var _didIteratorError2 = false;
-            var _iteratorError2 = undefined;
-
-            try {
-                for (var _iterator2 = this.wires[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                    var wire = _step2.value;
-
-                    if (wire.svgObj.id === wireId) {
-                        return wire;
-                    }
-                }
-            } catch (err) {
-                _didIteratorError2 = true;
-                _iteratorError2 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                        _iterator2.return();
-                    }
-                } finally {
-                    if (_didIteratorError2) {
-                        throw _iteratorError2;
-                    }
-                }
-            }
-
-            return false;
-        }
-    }, {
-        key: 'getWiresByConnectorId',
-        value: function getWiresByConnectorId(connectorId) {
-            var connector = this.getConnectorById(connectorId);
-            return connector.wireIds;
-        }
-    }, {
-        key: 'removeWireById',
-        value: function removeWireById(wireId) {
-            for (var i = 0; i < this.wires.length; ++i) {
-                if (this.wires[i].svgObj.id === wireId) {
-
-                    var connector1 = this.wires[i].startConnector;
-                    var connector2 = this.wires[i].endConnector;
-
-                    connector1.removeWireIdAndUpdate(wireId);
-                    connector2.removeWireIdAndUpdate(wireId);
-
-                    this.wires[i].svgObj.$el.remove();
-                    this.wires.splice(i, 1);
-
-                    break;
-                }
-            }
-        }
-    }, {
-        key: 'removeWiresByConnectorId',
-        value: function removeWiresByConnectorId(connectorId) {
-            var _this4 = this;
-
-            var connector = this.getConnectorById(connectorId);
-
-            connector.wireIds.forEach(function (wireId) {
-                var wire = _this4.getWireById(wireId);
-
-                // get the other connector that is the wire connected to
-                var otherConnector = _this4.getConnectorById(wire.fromId, wire);
-                if (otherConnector.svgObj.id === connectorId) {
-                    otherConnector = _this4.getConnectorById(wire.toId, wire);
-                }
-
-                // delete the wire record from the other connector
-                otherConnector.wireIds.delete(wireId);
-
-                // remove the wire representation using jQuery
-                $("#" + wireId).remove();
-
-                // if otherConnector is an input connector, set its state to unknown
-                if (otherConnector.isInputConnector) {
-                    otherConnector.setState(_logic2.default.state.unknown);
-                }
-            });
-
-            // clear the list of wire Ids
-            connector.wireIds.clear();
-            // if connector is an input connector, set its state to unknown
-            if (connector.isInputConnector) {
-                connector.setState(_logic2.default.state.unknown);
-            }
-        }
-    }, {
-        key: 'getBoxById',
-        value: function getBoxById(gateId) {
-            for (var i = 0; i < this.boxes.length; i++) {
-                if (this.boxes[i].svgObj.id === gateId) {
-                    return this.boxes[i];
-                }
-            }
-            return false;
-        }
-    }, {
-        key: 'getBoxByConnectorId',
-        value: function getBoxByConnectorId(connectorId) {
-            for (var i = 0; i < this.boxes.length; i++) {
-                if (this.boxes[i].getConnectorById(connectorId) !== undefined) {
-                    return this.boxes[i];
-                }
-            }
-            return false;
-        }
-    }, {
-        key: 'getConnectorById',
-        value: function getConnectorById(connectorId, wire) {
-            // the wire variable is used as heuristic,
-            // when we know the wire, we have to check only
-            // two gates instead of all of them
-
-            if (wire !== undefined) {
-                // we know the wire -- we can check only gates at the ends of this wire
-                var connector = wire.startBox.getConnectorById(connectorId);
-                if (!connector) {
-                    connector = wire.endBox.getConnectorById(connectorId);
-                }
-                return connector;
-            } else {
-                // we do not know the wire -- we have to check all gates
-                var _iteratorNormalCompletion3 = true;
-                var _didIteratorError3 = false;
-                var _iteratorError3 = undefined;
-
-                try {
-                    for (var _iterator3 = this.boxes[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                        var box = _step3.value;
-
-                        var _connector = box.getConnectorById(connectorId);
-                        if (_connector) {
-                            return _connector;
-                        }
-                    }
-                } catch (err) {
-                    _didIteratorError3 = true;
-                    _iteratorError3 = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                            _iterator3.return();
-                        }
-                    } finally {
-                        if (_didIteratorError3) {
-                            throw _iteratorError3;
-                        }
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        // if the object, that user interacted with, is not a connector and is in a group
-        // return the group jQuery object instead of the original jQuery object
-
-    }, {
-        key: 'getRealJQueryTarget',
-        value: function getRealJQueryTarget(target) {
-            var $target = $(target);
-            if (!$target.hasClass("connector") && $target.parents('g').length > 0) {
-                $target = $target.parent();
-                while ($target.prop("tagName") !== "G" && $target.prop("tagName") !== "g") {
-                    $target = $target.parent();
-                }
-            }
-            return $target;
-        }
-
-        // returns the editorElement that user interacted with, the "target" argument is a jQuery element
-
-    }, {
-        key: 'getRealTarget',
-        value: function getRealTarget(target) {
-            // eventy se museji zpracovat tady, protoze v SVG se eventy nepropaguji
-            var $target = $(target);
-
-            if ($target.hasClass("connector")) {
-                // this is a connector, don't traverse groups
-                return this.getConnectorById($target.attr('id'));
-            } else if ($target.parents('g').length > 0) {
-                // this element is in a group and it is not a connector
-
-                // traversing up the DOM tree until we find the closest group
-                var $parentGroup = $target.parent();
-                while ($parentGroup.prop("tagName") !== "G" && $parentGroup.prop("tagName") !== "g") {
-                    $parentGroup = $parentGroup.parent();
-                }
-
-                return this.getBoxById($parentGroup.attr('id'));
-            } else if ($target.hasClass("wire")) {
-                return this.getWireById($target.attr('id'));
-            } else {
-                return undefined;
-            }
-        }
-    }, {
-        key: 'appendElement',
-        value: function appendElement(element) {
-            var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-            this.appendJQueryObject(element.get(), refresh);
-        }
-    }, {
-        key: 'appendJQueryObject',
-        value: function appendJQueryObject(object) {
-            var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-            this.$svg.append(object);
-            if (refresh) {
-                this.refresh();
-            }
-        }
-    }, {
-        key: 'addPattern',
-        value: function addPattern(pattern) {
-            this.$defs.append(pattern);
-            this.refresh();
-        }
-
-        // reload the SVG document (needed to display newly appended jQuery object)
-
-    }, {
-        key: 'refresh',
-        value: function refresh() {
-            this.$svg.html(this.$svg.html());
-            console.log("SVG document has been reloaded.");
-        }
-    }, {
-        key: 'displayContextMenu',
-        value: function displayContextMenu(x, y, $target) {
-            this.contextMenu.display(x, y, $target);
-        }
-    }, {
-        key: 'hideContextMenu',
-        value: function hideContextMenu() {
-            this.contextMenu.hide();
-        }
-
-        // snap a value to a grid
-
-    }, {
-        key: 'snapToGrid',
-        value: function snapToGrid(value) {
-            return Math.round(value / this.gridSize) * this.gridSize;
-        }
-
-        // static function for snapping a value to a grid
-
-    }, {
-        key: 'getNonRoutableNodes',
-
-
-        // get set of nodes, that cannot be used for wiring at any circumstances
-        value: function getNonRoutableNodes() {
-            var blockedNodes = new Set();
-            // for each box
-            for (var i = 0; i < this.boxes.length; ++i) {
-                // get the jQuery child with class .rect ("hitbox")
-                var rect = $('#' + this.boxes[i].svgObj.id).children(".rect")[0];
-                // get the position of the rectangle
-                var position = $(rect).position();
-
-                // snap the position to the grid
-                position.left = this.snapToGrid(position.left);
-                position.top = this.snapToGrid(position.top);
-
-                // for each item in blockedNodes (set of blocked nodes with coordinates relative
-                // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
-                // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-                var _iteratorNormalCompletion4 = true;
-                var _didIteratorError4 = false;
-                var _iteratorError4 = undefined;
-
-                try {
-                    for (var _iterator4 = this.boxes[i].blockedNodes[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                        var item = _step4.value;
-
-                        var absoluteX = position.left + item.x * this.gridSize;
-                        var absoluteY = position.top + item.y * this.gridSize;
-
-                        blockedNodes.add({
-                            x: absoluteX,
-                            y: absoluteY
-                        });
-                    }
-                } catch (err) {
-                    _didIteratorError4 = true;
-                    _iteratorError4 = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                            _iterator4.return();
-                        }
-                    } finally {
-                        if (_didIteratorError4) {
-                            throw _iteratorError4;
-                        }
-                    }
-                }
-            }
-            // TODO ensure that this.refresh() is really unnecessary
-            // this.refresh();
-            // return the set
-            return blockedNodes;
-        }
-    }, {
-        key: 'moveToFrontById',
-        value: function moveToFrontById(objId) {
-            this.$svg.append($("#" + objId));
-        }
-    }, {
-        key: 'moveToBackById',
-        value: function moveToBackById(objId) {
-            $("#" + this.background.id).after($("#" + objId));
-        }
-
-        // get set of nodes, that is better not to use for wiring
-
-    }, {
-        key: 'getInconvenientNodes',
-        value: function getInconvenientNodes(ignoreWireId) {
-            var _this5 = this;
-
-            var inconvenientNodes = new Set();
-            // for each wire
-            for (var i = 0; i < this.wires.length; ++i) {
-                // (ignore the wire that is specified in the ignoreWireId argument (if any))
-                if (ignoreWireId === undefined || ignoreWireId !== this.wires[i].svgObj.id) {
-                    (function () {
-                        // cycle through points, for each neigbours add all points that are in between them
-                        // i.e.: (0,0) and (0,30) are blocking these nodes: (0,0), (0,10), (0,20), (0,30)
-                        var prevPoint = void 0;
-                        _this5.wires[i].points.forEach(function (point) {
-                            if (prevPoint === undefined) {
-                                // if the prevPoint is undefined, add the first point
-                                inconvenientNodes.add({ x: point.x, y: point.y });
-                            } else {
-                                // else add all the point between the prevPoint (excluded) and point (included)
-
-                                if (prevPoint.x === point.x) {
-                                    // if the line is horizontal
-                                    var from = Math.min(prevPoint.y, point.y);
-                                    var to = Math.max(prevPoint.y, point.y);
-
-                                    while (from <= to) {
-                                        inconvenientNodes.add({ x: point.x, y: from });
-                                        from += _this5.gridSize;
-                                    }
-                                } else if (prevPoint.y === point.y) {
-                                    // if the line is vertical
-                                    var _from = Math.min(prevPoint.x, point.x);
-                                    var _to = Math.max(prevPoint.x, point.x);
-
-                                    while (_from <= _to) {
-                                        inconvenientNodes.add({ x: _from, y: point.y });
-                                        _from += _this5.gridSize;
-                                    }
-                                } else {
-                                    // line is neither horizontal nor vertical, throw an error for better future debugging
-                                    console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
-                                }
-                            }
-
-                            // set new prevPoint
-                            prevPoint = {
-                                x: point.x,
-                                y: point.y
-                            };
-                        });
-                    })();
-                }
-            }
-            // return the set
-            return inconvenientNodes;
-        }
-    }, {
-        key: 'width',
-        get: function get() {
-            return this.$svg.width();
-        }
-    }, {
-        key: 'height',
-        get: function get() {
-            return this.$svg.height();
-        }
-    }, {
-        key: 'zoom',
-        get: function get() {
-            return this.viewbox.zoom;
-        },
-        set: function set(value) {
-            this.viewbox.zoom = value;
-            this.applyViewbox();
-            // this.refresh()
-        }
-    }, {
-        key: 'exportData',
-        get: function get() {
-            this.exportWireIdMap = new Map();
-            this.exportWireId = 0;
-
-            var data = {
-                // TODO implement gridSize scaling
-                // gridSize: this.gridSize,
-                boxes: []
-            };
-
-            for (var i = 0; i < this.boxes.length; ++i) {
-                data.boxes[i] = this.boxes[i].exportData;
-            }
-
-            return data;
-        }
-    }], [{
-        key: 'snapToGrid',
-        value: function snapToGrid(value, gridSize) {
-            return Math.round(value / gridSize) * gridSize;
-        }
-    }]);
-
-    return Svg;
-}();
-
-exports.default = Svg;
-
-},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./logic.js":6,"./simulation.js":8,"./smallFunctions.js":9,"./svgObjects.js":11}],2:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -1163,7 +221,7 @@ var ContextMenu = function () {
 
 exports.default = ContextMenu;
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2748,7 +1806,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     return Wire;
 }(NetworkElement);
 
-},{"./logic.js":6,"./structuresAndClasses.js":10,"./svgObjects.js":11}],4:[function(require,module,exports){
+},{"./logic.js":6,"./structuresAndClasses.js":9,"./svgObjects.js":11}],3:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2883,7 +1941,7 @@ var floatingMenu = function (_jqueryElement4) {
                 lityInstanceImport.close();
 
                 // proccess the imported data
-                new _importExport.importNetwok(parentSVG, importString);
+                new _importExport.importNetwork(parentSVG, importString);
             }));
 
             lityInstanceImport = lity($popup);
@@ -2952,7 +2010,63 @@ var floatingMenu = function (_jqueryElement4) {
 
 exports.default = floatingMenu;
 
-},{"./importExport.js":5}],5:[function(require,module,exports){
+},{"./importExport.js":5}],4:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Fn = function () {
+    function Fn() {
+        _classCallCheck(this, Fn);
+    }
+
+    _createClass(Fn, null, [{
+        key: "deepCopy",
+        value: function deepCopy(arr) {
+            return $.extend(true, [], arr);
+        }
+    }, {
+        key: "addMouseScrollEventListener",
+        value: function addMouseScrollEventListener(query, func) {
+            var MouseWheelHandler = function MouseWheelHandler(event) {
+                var event = window.event || event; // old IE support
+                event.delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
+
+                func(event);
+
+                return false;
+            };
+
+            // TODO add more backwards compatibility somehow
+            var svgelement = document.querySelector(query);
+
+            if (svgelement.addEventListener) {
+                // IE9, Chrome, Safari, Opera
+                svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
+                // Firefox
+                svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+            } else {
+                // IE 6/7/8
+                svgelement.attachEvent("onmousewheel", MouseWheelHandler);
+            }
+            svgelement.addEventListener('mousewheel', function (e) {
+                console.log('event', e);
+            }, false);
+        }
+    }]);
+
+    return Fn;
+}();
+
+exports.default = Fn;
+
+},{}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3005,8 +2119,8 @@ var exportNetwork = exports.exportNetwork = function () {
     return exportNetwork;
 }();
 
-var importNetwok = exports.importNetwok = function importNetwok(parentSVG, string) {
-    _classCallCheck(this, importNetwok);
+var importNetwork = exports.importNetwork = function importNetwork(parentSVG, string) {
+    _classCallCheck(this, importNetwork);
 
     parentSVG.importData(JSON.parse(string));
 };
@@ -3099,17 +2213,17 @@ exports.default = Logic;
 },{}],7:[function(require,module,exports){
 "use strict";
 
-var _canvas = require("./canvas.js");
+var _svg = require("./svg.js");
 
-var _canvas2 = _interopRequireDefault(_canvas);
+var _svg2 = _interopRequireDefault(_svg);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 $(function () {
-    var svg = new _canvas2.default("#canvas", 10);
+    var svg = new _svg2.default("#canvas", 10);
 });
 
-},{"./canvas.js":1}],8:[function(require,module,exports){
+},{"./svg.js":10}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3333,62 +2447,6 @@ exports.default = Simulation;
 },{"./logic.js":6}],9:[function(require,module,exports){
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Fn = function () {
-    function Fn() {
-        _classCallCheck(this, Fn);
-    }
-
-    _createClass(Fn, null, [{
-        key: "deepCopy",
-        value: function deepCopy(arr) {
-            return $.extend(true, [], arr);
-        }
-    }, {
-        key: "addMouseScrollEventListener",
-        value: function addMouseScrollEventListener(query, func) {
-            var MouseWheelHandler = function MouseWheelHandler(event) {
-                var event = window.event || event; // old IE support
-                event.delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
-
-                func(event);
-
-                return false;
-            };
-
-            // TODO add more backwards compatibility somehow
-            var svgelement = document.querySelector(query);
-
-            if (svgelement.addEventListener) {
-                // IE9, Chrome, Safari, Opera
-                svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
-                // Firefox
-                svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
-            } else {
-                // IE 6/7/8
-                svgelement.attachEvent("onmousewheel", MouseWheelHandler);
-            }
-            svgelement.addEventListener('mousewheel', function (e) {
-                console.log('event', e);
-            }, false);
-        }
-    }]);
-
-    return Fn;
-}();
-
-exports.default = Fn;
-
-},{}],10:[function(require,module,exports){
-"use strict";
-
 // singleton to generate unique id's
 
 Object.defineProperty(exports, "__esModule", {
@@ -3529,7 +2587,949 @@ export class MapWithDefaultValue extends Map {
 }
 */
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _svgObjects = require('./svgObjects.js');
+
+var svgObj = _interopRequireWildcard(_svgObjects);
+
+var _editorElements = require('./editorElements.js');
+
+var editorElements = _interopRequireWildcard(_editorElements);
+
+var _logic = require('./logic.js');
+
+var _logic2 = _interopRequireDefault(_logic);
+
+var _contextMenu = require('./contextMenu.js');
+
+var _contextMenu2 = _interopRequireDefault(_contextMenu);
+
+var _floatingMenu = require('./floatingMenu.js');
+
+var _floatingMenu2 = _interopRequireDefault(_floatingMenu);
+
+var _simulation = require('./simulation.js');
+
+var _simulation2 = _interopRequireDefault(_simulation);
+
+var _fn = require('./fn.js');
+
+var _fn2 = _interopRequireDefault(_fn);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ViewBox = function () {
+    function ViewBox(left, top, width, height) {
+        _classCallCheck(this, ViewBox);
+
+        this.real = { left: left, top: top, width: width, height: height };
+
+        this.zoom = 1;
+        this.leftShift = 0;
+        this.topShift = 0;
+    }
+
+    _createClass(ViewBox, [{
+        key: 'transformX',
+
+
+        // transforms horizontal units to the scale and shift of the editor
+        value: function transformX(x) {
+            return this.left + x / this.zoom;
+        }
+
+        // transforms vertical units to the scale and shift of the editor
+
+    }, {
+        key: 'transformY',
+        value: function transformY(y) {
+            return this.top + y / this.zoom;
+        }
+    }, {
+        key: 'width',
+        get: function get() {
+            return this.real.width / this.zoom;
+        }
+    }, {
+        key: 'height',
+        get: function get() {
+            return this.real.height / this.zoom;
+        }
+    }, {
+        key: 'left',
+        get: function get() {
+            return this.real.left - this.leftShift / this.zoom + (this.real.width - this.width) / 2;
+        }
+    }, {
+        key: 'top',
+        get: function get() {
+            return this.real.top - this.topShift / this.zoom + (this.real.height - this.height) / 2;
+        }
+    }, {
+        key: 'str',
+        get: function get() {
+            return this.left + ' ' + this.top + ' ' + this.width + ' ' + this.height;
+        }
+    }]);
+
+    return ViewBox;
+}();
+
+var Svg = function () {
+    function Svg(canvas, gridSize) {
+        var _this = this;
+
+        _classCallCheck(this, Svg);
+
+        this.$svg = $(canvas);
+
+        this.gridSize = gridSize;
+
+        this.boxes = []; // stores all boxes
+        this.wires = []; // stores all wires
+
+        this.simulationEnabled = true;
+        this.simulation = new _simulation2.default(this); // dummy, will be overwritten on startNewSimulation
+
+        // create the defs element, used for patterns
+        this.$defs = $("<defs>");
+        this.$svg.prepend(this.$defs);
+
+        // BACKGROUND PATTERN
+        var pattern = new svgObj.Pattern("grid", this.gridSize, this.gridSize);
+
+        var patternPoints = new svgObj.PolylinePoints().append(new svgObj.PolylinePoint(0, 0)).append(new svgObj.PolylinePoint(this.gridSize, 0)).append(new svgObj.PolylinePoint(this.gridSize, this.gridSize));
+
+        pattern.addChild(new svgObj.PolyLine(patternPoints, "#a3a4d2", 2));
+        this.addPattern(pattern.get());
+
+        this.background = new svgObj.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
+        this.appendJQueryObject(this.background.get());
+        this.refresh();
+
+        // set the viewbox for future zooming and moving of the canvas
+        this.$svg.attr('preserveAspectRatio', 'xMinYMin slice');
+        this.viewbox = new ViewBox(0, 0, this.width, this.height);
+        this.applyViewbox();
+
+        // CONSTRUCT CONTEXT MENU
+        this.contextMenu = new _contextMenu2.default(this);
+
+        // CONSTRUCT FLOATING MENU
+        // this.floatingMenu = new FloatingMenu(this);
+        this.floatingMenu = new _floatingMenu2.default(this);
+
+        // ALL EVENT CALLBACKS
+        var target = void 0;
+        this.$svg.on('mousedown', function (event) {
+            target = _this.getRealTarget(event.target);
+            if (target !== undefined) {
+                // propagate mousedown to the real target
+                target.onMouseDown(event);
+            } else {
+                // mousedown happened directly on the svg
+                _this.onMouseDown(event);
+            }
+
+            _this.hideContextMenu();
+            event.preventDefault();
+        }).on('mousemove', function (event) {
+            if (target !== undefined) {
+                target.onMouseMove(event);
+            } else {
+                // mousemove happened directly on the svg
+                _this.onMouseMove(event);
+            }
+
+            event.preventDefault();
+        }).on('mouseup', function (event) {
+            if (target !== undefined) {
+                target.onMouseUp(event);
+            } else {
+                // mouseup happened directly on the svg
+                _this.onMouseUp(event);
+            }
+
+            target = undefined;
+
+            event.preventDefault();
+        }).on("contextmenu", function (event) {
+            _this.displayContextMenu(event.pageX, event.pageY, _this.getRealJQueryTarget(event.target));
+            event.preventDefault();
+        });
+
+        _fn2.default.addMouseScrollEventListener(canvas, function (event) {
+            // zoom only if the ctrl key is pressed
+            if (event.ctrlKey) {
+                switch (event.delta) {
+                    case 1:
+                        _this.zoom += 0.1;
+                        break;
+                    case -1:
+                        _this.zoom -= 0.1;
+                        break;
+                }
+            }
+
+            event.preventDefault();
+        });
+    }
+
+    _createClass(Svg, [{
+        key: 'onMouseDown',
+        value: function onMouseDown(event) {
+            if (event.ctrlKey) {
+                this.moveCanvas = {
+                    left: event.pageX,
+                    top: event.pageY
+                };
+            }
+        }
+    }, {
+        key: 'onMouseMove',
+        value: function onMouseMove(event) {
+            if (this.moveCanvas) {
+                var left = event.pageX - this.moveCanvas.left;
+                var top = event.pageY - this.moveCanvas.top;
+
+                this.viewbox.leftShift += left;
+                this.viewbox.topShift += top;
+                this.applyViewbox();
+
+                this.moveCanvas = {
+                    left: event.pageX,
+                    top: event.pageY
+                };
+            }
+        }
+    }, {
+        key: 'onMouseUp',
+        value: function onMouseUp(event) {
+            if (this.moveCanvas) {
+                this.moveCanvas = undefined;
+            }
+        }
+    }, {
+        key: 'applyViewbox',
+        value: function applyViewbox() {
+            // adjust background
+            this.background.addAttr({
+                x: this.viewbox.left,
+                y: this.viewbox.top,
+                width: this.viewbox.width,
+                height: this.viewbox.height
+            });
+
+            // set the viewBox attribute
+            this.$svg.attr('viewBox', this.viewbox.str);
+        }
+    }, {
+        key: 'importData',
+        value: function importData(data) {
+            var _this2 = this;
+
+            this.simulationEnabled = false;
+
+            // TODO implement gridSize scaling
+
+            // list of wires to be added
+            var newWires = new Map();
+
+            for (var i = 0; i < data.boxes.length; ++i) {
+                // add box
+                var box = void 0;
+                switch (data.boxes[i].category) {
+                    case "gate":
+                        // add new gate (without reloading the SVG, we will reload it once after the import)
+                        box = this.newGate(data.boxes[i].name, 0, 0, false);
+                        break;
+                    case "io":
+                        switch (data.boxes[i].name) {
+                            case "input":
+                                // add new input (without reloading the SVG, we will reload it once after the import)
+                                box = this.newInput(0, 0, data.boxes[i].isOn, false);
+                                break;
+                            case "output":
+                                // add new output (without reloading the SVG, we will reload it once after the import)
+                                box = this.newOutput(0, 0, false);
+                                break;
+                            default:
+                                console.error("Unknown io box name '" + data.boxes[i].name + "'.");
+                                break;
+                        }
+                        break;
+                    default:
+                        console.error("Unknown box category '" + data.boxes[i].category + "'.");
+                }
+
+                if (box) {
+                    // proccess box transforms (translation and rotation)
+                    var transform = new editorElements.Transform();
+                    for (var j = 0; j < data.boxes[i].transform.items.length; ++j) {
+                        switch (data.boxes[i].transform.items[j].name) {
+                            case "translate":
+                                transform.setTranslate(data.boxes[i].transform.items[j].args[0], data.boxes[i].transform.items[j].args[1]);
+                                break;
+                            case "rotate":
+                                transform.setRotate(data.boxes[i].transform.items[j].args[0], data.boxes[i].transform.items[j].args[1], data.boxes[i].transform.items[j].args[2]);
+                                break;
+                            default:
+                                console.error("Unknown transform property '" + data.boxes[i].transform.items[j].name + "'.");
+                                break;
+                        }
+                    }
+
+                    box.setTransform(transform);
+
+                    // add all wires to the list of wires to be added
+                    for (var _j = 0; _j < data.boxes[i].connections.length; ++_j) {
+                        // get the artificial wire id
+                        var wireId = data.boxes[i].connections[_j].wireId;
+
+                        // pass the values got from json into a variable that will be added into the map
+                        var value = {
+                            index: data.boxes[i].connections[_j].index,
+                            type: data.boxes[i].connections[_j].type,
+                            boxId: box.id
+                        };
+
+                        // add the value to the map
+                        if (newWires.has(wireId)) {
+                            // if there already is a wire with this id in the map,
+                            // add the value to the end of the array of values
+                            var mapValue = newWires.get(wireId);
+                            mapValue[mapValue.length] = value;
+                            newWires.set(wireId, mapValue);
+                        } else {
+                            // if there is no wire with this id in the map
+                            // add the wire and set the value to be the first element in the array
+                            newWires.set(wireId, [value]);
+                        }
+                    }
+                }
+            }
+
+            // refresh the SVG document (needed for wiring)
+            this.refresh();
+
+            // with all boxes added, we can now connect them with wires
+            newWires.forEach(function (item) {
+                var connectorIds = [];
+                if (item[0] && item[1]) {
+                    var _arr = [0, 1];
+
+                    for (var _i2 = 0; _i2 < _arr.length; _i2++) {
+                        var _i = _arr[_i2];
+                        var _box = _this2.getBoxById(item[_i].boxId);
+
+                        connectorIds[_i] = _box.connectors[item[_i].index].id;
+                    }
+                }
+                _this2.newWire(connectorIds[0], connectorIds[1], true);
+            });
+
+            // refresh the SVG document
+            this.refresh();
+
+            this.simulationEnabled = true;
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = this.boxes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var _box2 = _step.value;
+
+                    if (_box2 instanceof editorElements.InputBox) {
+                        // switch the input box state to the oposit and back, for some reason calling box.refreshState()
+                        // results in weird unfinished simulation
+                        // this causes update of the output connector and a start of a new simulation
+
+                        // TODO find better solution instead of this workaround
+                        _box2.on = !_box2.on;
+                        _box2.on = !_box2.on;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    }, {
+        key: 'wireCreationHelper',
+        value: function wireCreationHelper(connectorId) {
+            if (!this.firstConnectorId) {
+                this.firstConnectorId = connectorId;
+            } else {
+                this.newWire(this.firstConnectorId, connectorId);
+                this.firstConnectorId = undefined;
+            }
+        }
+    }, {
+        key: 'startNewSimulation',
+        value: function startNewSimulation(startingConnector, state) {
+            if (this.simulationEnabled) {
+                this.simulation = new _simulation2.default(this);
+                this.simulation.notifyChange(startingConnector.id, state);
+                this.simulation.run();
+            }
+        }
+    }, {
+        key: 'newGate',
+        value: function newGate(name, x, y) {
+            var refresh = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+
+            return this.newBox(x, y, new editorElements.Gate(this, name, x, y), refresh);
+        }
+    }, {
+        key: 'newInput',
+        value: function newInput(x, y) {
+            var isOn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+            var refresh = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+
+            return this.newBox(x, y, new editorElements.InputBox(this, isOn), refresh);
+        }
+    }, {
+        key: 'newOutput',
+        value: function newOutput(x, y) {
+            var refresh = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
+            return this.newBox(x, y, new editorElements.OutputBox(this), refresh);
+        }
+    }, {
+        key: 'newBox',
+        value: function newBox(x, y, object) {
+            var refresh = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+
+            var index = this.boxes.length;
+
+            this.boxes[index] = object;
+
+            // translate the gate if x and y has been specified
+            if (x && y) {
+                var tr = new editorElements.Transform();
+                tr.setTranslate(x, y);
+
+                this.boxes[index].svgObj.addAttr({ "transform": tr.get() });
+            }
+
+            this.appendElement(this.boxes[index], refresh);
+
+            return this.boxes[index];
+        }
+    }, {
+        key: 'removeBox',
+        value: function removeBox(gateId) {
+            var $gate = $("#" + gateId);
+
+            // find the gate in svg's list of gates
+            var gateIndex = -1;
+            for (var i = 0; i < this.boxes.length; i++) {
+                if (this.boxes[i].svgObj.id === gateId) {
+                    gateIndex = i;
+                    break;
+                }
+            }
+
+            if (gateIndex > -1) {
+                // remove all wires connected to this gate
+                for (var _i3 = 0; _i3 < this.boxes[gateIndex].connectors.length; _i3++) {
+                    this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[_i3].svgObj.id);
+                }
+
+                // remove the gate
+                this.boxes.splice(gateIndex, 1);
+                $gate.remove();
+            } else {
+                console.error("Trying to remove an nonexisting gate. (Gate id: " + gateId + ")");
+            }
+        }
+    }, {
+        key: 'newWire',
+        value: function newWire(fromId, toId) {
+            var _this3 = this;
+
+            var refresh = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
+            // wire must connect two distinct elements
+            if (fromId === toId) return false;
+
+            var connectors = [this.getConnectorById(fromId), this.getConnectorById(toId)];
+
+            // input connectors can be connected to one wire max
+            connectors.forEach(function (conn) {
+                if (conn.isInputConnector) _this3.removeWiresByConnectorId(conn.id);
+            });
+            var index = this.wires.length;
+            this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize, refresh);
+
+            connectors.forEach(function (conn) {
+                conn.addWireId(_this3.wires[index].svgObj.id);
+            });
+
+            this.appendElement(this.wires[index], refresh);
+            this.moveToBackById(this.wires[index].svgObj.id);
+
+            if (refresh) this.wires[index].updateWireState();
+
+            return this.wires[index];
+        }
+    }, {
+        key: 'getWireById',
+        value: function getWireById(wireId) {
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = this.wires[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var wire = _step2.value;
+
+                    if (wire.svgObj.id === wireId) {
+                        return wire;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+
+            return false;
+        }
+    }, {
+        key: 'getWiresByConnectorId',
+        value: function getWiresByConnectorId(connectorId) {
+            var connector = this.getConnectorById(connectorId);
+            return connector.wireIds;
+        }
+    }, {
+        key: 'removeWireById',
+        value: function removeWireById(wireId) {
+            for (var i = 0; i < this.wires.length; ++i) {
+                if (this.wires[i].svgObj.id === wireId) {
+
+                    var connector1 = this.wires[i].startConnector;
+                    var connector2 = this.wires[i].endConnector;
+
+                    connector1.removeWireIdAndUpdate(wireId);
+                    connector2.removeWireIdAndUpdate(wireId);
+
+                    this.wires[i].svgObj.$el.remove();
+                    this.wires.splice(i, 1);
+
+                    break;
+                }
+            }
+        }
+    }, {
+        key: 'removeWiresByConnectorId',
+        value: function removeWiresByConnectorId(connectorId) {
+            var _this4 = this;
+
+            var connector = this.getConnectorById(connectorId);
+
+            connector.wireIds.forEach(function (wireId) {
+                var wire = _this4.getWireById(wireId);
+
+                // get the other connector that is the wire connected to
+                var otherConnector = _this4.getConnectorById(wire.fromId, wire);
+                if (otherConnector.svgObj.id === connectorId) {
+                    otherConnector = _this4.getConnectorById(wire.toId, wire);
+                }
+
+                // delete the wire record from the other connector
+                otherConnector.wireIds.delete(wireId);
+
+                // remove the wire representation using jQuery
+                $("#" + wireId).remove();
+
+                // if otherConnector is an input connector, set its state to unknown
+                if (otherConnector.isInputConnector) {
+                    otherConnector.setState(_logic2.default.state.unknown);
+                }
+            });
+
+            // clear the list of wire Ids
+            connector.wireIds.clear();
+            // if connector is an input connector, set its state to unknown
+            if (connector.isInputConnector) {
+                connector.setState(_logic2.default.state.unknown);
+            }
+        }
+    }, {
+        key: 'getBoxById',
+        value: function getBoxById(gateId) {
+            for (var i = 0; i < this.boxes.length; i++) {
+                if (this.boxes[i].svgObj.id === gateId) {
+                    return this.boxes[i];
+                }
+            }
+            return false;
+        }
+    }, {
+        key: 'getBoxByConnectorId',
+        value: function getBoxByConnectorId(connectorId) {
+            for (var i = 0; i < this.boxes.length; i++) {
+                if (this.boxes[i].getConnectorById(connectorId) !== undefined) {
+                    return this.boxes[i];
+                }
+            }
+            return false;
+        }
+    }, {
+        key: 'getConnectorById',
+        value: function getConnectorById(connectorId, wire) {
+            // the wire variable is used as heuristic,
+            // when we know the wire, we have to check only
+            // two gates instead of all of them
+
+            if (wire !== undefined) {
+                // we know the wire -- we can check only gates at the ends of this wire
+                var connector = wire.startBox.getConnectorById(connectorId);
+                if (!connector) {
+                    connector = wire.endBox.getConnectorById(connectorId);
+                }
+                return connector;
+            } else {
+                // we do not know the wire -- we have to check all gates
+                var _iteratorNormalCompletion3 = true;
+                var _didIteratorError3 = false;
+                var _iteratorError3 = undefined;
+
+                try {
+                    for (var _iterator3 = this.boxes[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                        var box = _step3.value;
+
+                        var _connector = box.getConnectorById(connectorId);
+                        if (_connector) {
+                            return _connector;
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError3 = true;
+                    _iteratorError3 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                            _iterator3.return();
+                        }
+                    } finally {
+                        if (_didIteratorError3) {
+                            throw _iteratorError3;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        // if the object, that user interacted with, is not a connector and is in a group
+        // return the group jQuery object instead of the original jQuery object
+
+    }, {
+        key: 'getRealJQueryTarget',
+        value: function getRealJQueryTarget(target) {
+            var $target = $(target);
+            if (!$target.hasClass("connector") && $target.parents('g').length > 0) {
+                $target = $target.parent();
+                while ($target.prop("tagName") !== "G" && $target.prop("tagName") !== "g") {
+                    $target = $target.parent();
+                }
+            }
+            return $target;
+        }
+
+        // returns the editorElement that user interacted with, the "target" argument is a jQuery element
+
+    }, {
+        key: 'getRealTarget',
+        value: function getRealTarget(target) {
+            // eventy se museji zpracovat tady, protoze v SVG se eventy nepropaguji
+            var $target = $(target);
+
+            if ($target.hasClass("connector")) {
+                // this is a connector, don't traverse groups
+                return this.getConnectorById($target.attr('id'));
+            } else if ($target.parents('g').length > 0) {
+                // this element is in a group and it is not a connector
+
+                // traversing up the DOM tree until we find the closest group
+                var $parentGroup = $target.parent();
+                while ($parentGroup.prop("tagName") !== "G" && $parentGroup.prop("tagName") !== "g") {
+                    $parentGroup = $parentGroup.parent();
+                }
+
+                return this.getBoxById($parentGroup.attr('id'));
+            } else if ($target.hasClass("wire")) {
+                return this.getWireById($target.attr('id'));
+            } else {
+                return undefined;
+            }
+        }
+    }, {
+        key: 'appendElement',
+        value: function appendElement(element) {
+            var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+            this.appendJQueryObject(element.get(), refresh);
+        }
+    }, {
+        key: 'appendJQueryObject',
+        value: function appendJQueryObject(object) {
+            var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+            this.$svg.append(object);
+            if (refresh) {
+                this.refresh();
+            }
+        }
+    }, {
+        key: 'addPattern',
+        value: function addPattern(pattern) {
+            this.$defs.append(pattern);
+            this.refresh();
+        }
+
+        // reload the SVG document (needed to display newly appended jQuery object)
+
+    }, {
+        key: 'refresh',
+        value: function refresh() {
+            this.$svg.html(this.$svg.html());
+            console.log("SVG document has been reloaded.");
+        }
+    }, {
+        key: 'displayContextMenu',
+        value: function displayContextMenu(x, y, $target) {
+            this.contextMenu.display(x, y, $target);
+        }
+    }, {
+        key: 'hideContextMenu',
+        value: function hideContextMenu() {
+            this.contextMenu.hide();
+        }
+
+        // snap a value to a grid
+
+    }, {
+        key: 'snapToGrid',
+        value: function snapToGrid(value) {
+            return Math.round(value / this.gridSize) * this.gridSize;
+        }
+
+        // static function for snapping a value to a grid
+
+    }, {
+        key: 'getNonRoutableNodes',
+
+
+        // get set of nodes, that cannot be used for wiring at any circumstances
+        value: function getNonRoutableNodes() {
+            var blockedNodes = new Set();
+            // for each box
+            for (var i = 0; i < this.boxes.length; ++i) {
+                // get the jQuery child with class .rect ("hitbox")
+                var rect = $('#' + this.boxes[i].svgObj.id).children(".rect")[0];
+                // get the position of the rectangle
+                var position = $(rect).position();
+
+                // snap the position to the grid
+                position.left = this.snapToGrid(position.left);
+                position.top = this.snapToGrid(position.top);
+
+                // for each item in blockedNodes (set of blocked nodes with coordinates relative
+                // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
+                // to absolute (multiple with gridSize and add position of rect) and add the result to the set
+                var _iteratorNormalCompletion4 = true;
+                var _didIteratorError4 = false;
+                var _iteratorError4 = undefined;
+
+                try {
+                    for (var _iterator4 = this.boxes[i].blockedNodes[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                        var item = _step4.value;
+
+                        var absoluteX = position.left + item.x * this.gridSize;
+                        var absoluteY = position.top + item.y * this.gridSize;
+
+                        blockedNodes.add({
+                            x: absoluteX,
+                            y: absoluteY
+                        });
+                    }
+                } catch (err) {
+                    _didIteratorError4 = true;
+                    _iteratorError4 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                            _iterator4.return();
+                        }
+                    } finally {
+                        if (_didIteratorError4) {
+                            throw _iteratorError4;
+                        }
+                    }
+                }
+            }
+            // TODO ensure that this.refresh() is really unnecessary
+            // this.refresh();
+            // return the set
+            return blockedNodes;
+        }
+    }, {
+        key: 'moveToFrontById',
+        value: function moveToFrontById(objId) {
+            this.$svg.append($("#" + objId));
+        }
+    }, {
+        key: 'moveToBackById',
+        value: function moveToBackById(objId) {
+            $("#" + this.background.id).after($("#" + objId));
+        }
+
+        // get set of nodes, that is better not to use for wiring
+
+    }, {
+        key: 'getInconvenientNodes',
+        value: function getInconvenientNodes(ignoreWireId) {
+            var _this5 = this;
+
+            var inconvenientNodes = new Set();
+            // for each wire
+            for (var i = 0; i < this.wires.length; ++i) {
+                // (ignore the wire that is specified in the ignoreWireId argument (if any))
+                if (ignoreWireId === undefined || ignoreWireId !== this.wires[i].svgObj.id) {
+                    (function () {
+                        // cycle through points, for each neigbours add all points that are in between them
+                        // i.e.: (0,0) and (0,30) are blocking these nodes: (0,0), (0,10), (0,20), (0,30)
+                        var prevPoint = void 0;
+                        _this5.wires[i].points.forEach(function (point) {
+                            if (prevPoint === undefined) {
+                                // if the prevPoint is undefined, add the first point
+                                inconvenientNodes.add({ x: point.x, y: point.y });
+                            } else {
+                                // else add all the point between the prevPoint (excluded) and point (included)
+
+                                if (prevPoint.x === point.x) {
+                                    // if the line is horizontal
+                                    var from = Math.min(prevPoint.y, point.y);
+                                    var to = Math.max(prevPoint.y, point.y);
+
+                                    while (from <= to) {
+                                        inconvenientNodes.add({ x: point.x, y: from });
+                                        from += _this5.gridSize;
+                                    }
+                                } else if (prevPoint.y === point.y) {
+                                    // if the line is vertical
+                                    var _from = Math.min(prevPoint.x, point.x);
+                                    var _to = Math.max(prevPoint.x, point.x);
+
+                                    while (_from <= _to) {
+                                        inconvenientNodes.add({ x: _from, y: point.y });
+                                        _from += _this5.gridSize;
+                                    }
+                                } else {
+                                    // line is neither horizontal nor vertical, throw an error for better future debugging
+                                    console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
+                                }
+                            }
+
+                            // set new prevPoint
+                            prevPoint = {
+                                x: point.x,
+                                y: point.y
+                            };
+                        });
+                    })();
+                }
+            }
+            // return the set
+            return inconvenientNodes;
+        }
+    }, {
+        key: 'width',
+        get: function get() {
+            return this.$svg.width();
+        }
+    }, {
+        key: 'height',
+        get: function get() {
+            return this.$svg.height();
+        }
+    }, {
+        key: 'zoom',
+        get: function get() {
+            return this.viewbox.zoom;
+        },
+        set: function set(value) {
+            this.viewbox.zoom = value;
+            this.applyViewbox();
+            // this.refresh()
+        }
+    }, {
+        key: 'exportData',
+        get: function get() {
+            this.exportWireIdMap = new Map();
+            this.exportWireId = 0;
+
+            var data = {
+                // TODO implement gridSize scaling
+                // gridSize: this.gridSize,
+                boxes: []
+            };
+
+            for (var i = 0; i < this.boxes.length; ++i) {
+                data.boxes[i] = this.boxes[i].exportData;
+            }
+
+            return data;
+        }
+    }], [{
+        key: 'snapToGrid',
+        value: function snapToGrid(value, gridSize) {
+            return Math.round(value / gridSize) * gridSize;
+        }
+    }]);
+
+    return Svg;
+}();
+
+exports.default = Svg;
+
+},{"./contextMenu.js":1,"./editorElements.js":2,"./floatingMenu.js":3,"./fn.js":4,"./logic.js":6,"./simulation.js":8,"./svgObjects.js":11}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4047,6 +4047,6 @@ var Pattern = exports.Pattern = function (_Tag4) {
     return Pattern;
 }(Tag);
 
-},{"./structuresAndClasses.js":10}]},{},[7])
+},{"./structuresAndClasses.js":9}]},{},[7])
 
 //# sourceMappingURL=main.js.map
