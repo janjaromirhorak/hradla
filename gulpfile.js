@@ -8,8 +8,8 @@ const
     uglify = require('gulp-uglify'),
     rename = require('gulp-rename'),
     del = require('del'),
+    file = require('gulp-file'),
     htmlmin = require('gulp-html-minifier'),
-    htmlReplace = require('gulp-html-replace'),
     watch = require('gulp-watch'),
     imagemin = require('gulp-imagemin'),
     zip = require('gulp-zip'),
@@ -31,15 +31,19 @@ const
 const config = require('./config.json')
 const packageData = require('./package.json')
 
-function getAnalyticsCode(analyticsId) {
-    return "<script async src=\"https://www.googletagmanager.com/gtag/js?id=" + analyticsId +"\"></script>" +
-        "<script>\n" +
-        "    window.dataLayer = window.dataLayer || [];\n" +
-        "    function gtag(){dataLayer.push(arguments)};\n" +
-        "    gtag('js', new Date());\n" +
-        "\n" +
-        "    gtag('config', '" + analyticsId + "');\n" +
-        "</script>";
+let getAnalyticsCode = (analyticsId) => {
+    let str = `<script async src="https://www.googletagmanager.com/gtag/js?id=${analyticsId}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments)};
+        gtag('js', new Date());
+        gtag('config', '${analyticsId}');
+    </script>`;
+    if (production) {
+        str = str.replace(/(?:\r\n|\r|\n)/g, ' '); // replace line breaks with spaces
+        str = str.replace(/ +/g, ' '); // concatenate multiple spaces into one
+    }
+    return str;
 }
 
 const
@@ -93,7 +97,7 @@ gulp.task('scripts', () => {
             presets: ['babel-preset-env'].map(require.resolve)
         }))
         .bundle()
-        .on('error', function(err) { console.error(err); this.emit('end'); })
+        .on('error', (err) => { console.error(err); this.emit('end'); })
         .pipe(source(startpoint))
         .pipe(buffer())
         .pipe(sourcemaps.init({ loadMaps: true }))
@@ -139,29 +143,32 @@ gulp.task('lib-lity', gulp.parallel('lib-lity-js', 'lib-lity-css'));
 // copies all libraries
 gulp.task('libraries', gulp.parallel('lib-lity', 'lib-other-js'));
 
-// minimies the html file
+// generates the html file
 gulp.task('html', () => {
-    let entryPoint = 'main.js'
-    let styleSheet = 'style.css'
+    let entryPoint = production ? "main.min.js" : "main.js";
+    let styleSheet = production ? "style.min.css" : "style.css";
 
-    if (production) {
-        entryPoint = 'main.min.js'
-        styleSheet = 'style.min.css'
-    }
+    return file('index.html', '', {src: true})
+        .pipe(insert.append('<!-- build:title -->'))
+        .pipe(insert.append(config.title))
+        .pipe(insert.append('<!-- /build:title -->'))
 
-    const snippets = {
-        title: config.title,
-        // inject the Google Analytics Gtag code, if the analytics id is specified in the config file
-        gtag: config.analytics ? getAnalyticsCode(analytics) : '',
-        // set the correct css and js file names
-        entryPoint: `<script src="js/${entryPoint}"></script>`,
-        styleSheet: `<link href="css/${styleSheet}" rel="stylesheet">`
-    }
+        .pipe(insert.append('<!-- build:styles -->'))
+        .pipe(insert.append(`<link href="css/${styleSheet}" rel="stylesheet">`))
+        .pipe(insert.append('<!-- /build:styles -->'))
 
-    return gulp.src('index.html')
-        .pipe(changed(out))
-        .pipe(htmlReplace(snippets))
+        .pipe(insert.append('<!-- build:scripts -->'))
+        .pipe(insert.append(`<script src="js/${entryPoint}"></script>`))
+        .pipe(insert.append('<!-- /build:scripts -->'))
+
+        .pipe(insert.append('<!-- build:analytics -->'))
+        .pipe(gulpif(config.analytics !== false, insert.append(getAnalyticsCode(config.analytics))))
+        .pipe(gulpif(config.analytics === false, insert.append(' ')))
+        .pipe(insert.append('<!-- /build:analytics -->'))
+
+        .pipe(template('index-template.html'))
         .pipe(gulpif(production, htmlmin({collapseWhitespace: true, removeComments: true})))
+
         .pipe(gulp.dest(out));
 });
 
