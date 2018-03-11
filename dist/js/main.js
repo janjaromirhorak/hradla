@@ -253,7 +253,7 @@ var Svg = function () {
 
             this.simulationEnabled = false;
 
-            // todo implement gridSize scaling
+            // TODO implement gridSize scaling
 
             // list of wires to be added
             var newWires = new Map();
@@ -368,7 +368,7 @@ var Svg = function () {
                         // results in weird unfinished simulation
                         // this causes update of the output connector and a start of a new simulation
 
-                        // todo find better solution instead of this workaround
+                        // TODO find better solution instead of this workaround
                         _box2.on = !_box2.on;
                         _box2.on = !_box2.on;
                     }
@@ -815,7 +815,7 @@ var Svg = function () {
                     }
                 }
             }
-            // todo ensure that this.refresh() is really unnecessary
+            // TODO ensure that this.refresh() is really unnecessary
             // this.refresh();
             // return the set
             return blockedNodes;
@@ -917,7 +917,7 @@ var Svg = function () {
             this.exportWireId = 0;
 
             var data = {
-                // todo implement gridSize scaling
+                // TODO implement gridSize scaling
                 // gridSize: this.gridSize,
                 boxes: []
             };
@@ -2301,7 +2301,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
         _classCallCheck(this, Wire);
 
         var _this10 = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this, parentSVG));
-        // small todo: rework start... end... to arrays? (not important)
+        // small TODO: rework start... end... to arrays? (not important)
 
         _this10.gridSize = gridSize;
 
@@ -2514,7 +2514,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                 var currentNodeFScore = void 0;
 
                 // find the value from openNodes that has the lowest fScore
-                // (can be implemented effectively using min-heap data structure (maybe todo sometime)?)
+                // (can be implemented effectively using min-heap data structure (maybe TODO sometime)?)
                 var _iteratorNormalCompletion8 = true;
                 var _didIteratorError8 = false;
                 var _iteratorError8 = undefined;
@@ -3106,60 +3106,7 @@ var _canvas2 = _interopRequireDefault(_canvas);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 $(function () {
-    var svg = new _canvas2.default("svg#canvas", 10);
-
-    /* DEMO */
-    // ONE BIT COMPARATOR
-    /*
-    let i1 = svg.newInput(100, 100);
-    let i2 = svg.newInput(100, 200);
-     let n1 = svg.newGate("not", 200, 100);
-    let n2 = svg.newGate("not", 200, 200);
-     let a1 = svg.newGate("and", 360, 90);
-    let a2 = svg.newGate("and", 360, 210);
-     let nor = svg.newGate("nor", 540, 150);
-     let o1 = svg.newOutput(680, 90);
-    let o2 = svg.newOutput(680, 150);
-    let o3 = svg.newOutput(680, 210);
-     svg.newWire(i1.outputs[0].svgObj.id, n1.inputs[0].svgObj.id);
-    svg.newWire(i2.outputs[0].svgObj.id, n2.inputs[0].svgObj.id);
-     svg.newWire(i1.outputs[0].svgObj.id, a2.inputs[1].svgObj.id);
-    svg.newWire(i2.outputs[0].svgObj.id, a1.inputs[0].svgObj.id);
-     svg.newWire(n1.outputs[0].svgObj.id, a1.inputs[1].svgObj.id);
-    svg.newWire(n2.outputs[0].svgObj.id, a2.inputs[0].svgObj.id);
-     svg.newWire(a1.outputs[0].svgObj.id, nor.inputs[0].svgObj.id);
-    svg.newWire(a2.outputs[0].svgObj.id, nor.inputs[1].svgObj.id);
-     svg.newWire(a1.outputs[0].svgObj.id, o1.inputs[0].svgObj.id);
-    svg.newWire(nor.outputs[0].svgObj.id, o2.inputs[0].svgObj.id);
-    svg.newWire(a2.outputs[0].svgObj.id, o3.inputs[0].svgObj.id);
-    */
-
-    // BINARY ADDER
-    /*
-    let i1 = svg.newInput(80, 90);
-    let i2 = svg.newInput(80, 130);
-    let i3 = svg.newInput(80, 180);
-     let x1 = svg.newGate("xor", 360, 100);
-    let x2 = svg.newGate("xor", 360, 170);
-     let a1 = svg.newGate("and", 250, 220);
-    a1.onClickMiddle();// a jednou rotovany
-    let a2 = svg.newGate("and", 500, 320);
-     let or = svg.newGate("or", 620, 310);
-     let o1 = svg.newOutput(750, 270);
-    let o2 = svg.newOutput(750, 310);
-     svg.newWire(i1.outputs[0].svgObj.id, x1.inputs[0].svgObj.id);
-    svg.newWire(i2.outputs[0].svgObj.id, x1.inputs[1].svgObj.id);
-    svg.newWire(i3.outputs[0].svgObj.id, x2.inputs[1].svgObj.id);
-     svg.newWire(i1.outputs[0].svgObj.id, a1.inputs[1].svgObj.id);
-     svg.newWire(i2.outputs[0].svgObj.id, a1.inputs[0].svgObj.id);
-     svg.newWire(i3.outputs[0].svgObj.id, a2.inputs[1].svgObj.id);
-     svg.newWire(x1.outputs[0].svgObj.id, x2.inputs[0].svgObj.id);
-    svg.newWire(x1.outputs[0].svgObj.id, a2.inputs[0].svgObj.id);
-     svg.newWire(a1.outputs[0].svgObj.id, or.inputs[0].svgObj.id);
-     svg.newWire(x2.outputs[0].svgObj.id, o1.inputs[0].svgObj.id);
-    svg.newWire(a2.outputs[0].svgObj.id, or.inputs[1].svgObj.id);
-     svg.newWire(or.outputs[0].svgObj.id, o2.inputs[0].svgObj.id);
-    */
+    var svg = new _canvas2.default("#canvas", 10);
 });
 
 },{"./canvas.js":1}],8:[function(require,module,exports){
