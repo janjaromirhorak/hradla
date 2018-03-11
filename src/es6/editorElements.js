@@ -806,7 +806,7 @@ export class Gate extends Box {
 
 export class Wire extends NetworkElement {
     constructor(parentSVG, fromId, toId, gridSize, refresh = true) {
-        // small todo: rework start... end... to arrays? (not important)
+        // small TODO: rework start... end... to arrays? (not important)
 
         super(parentSVG);
 
@@ -980,7 +980,7 @@ export class Wire extends NetworkElement {
             let currentNodeFScore;
 
             // find the value from openNodes that has the lowest fScore
-            // (can be implemented effectively using min-heap data structure (maybe todo sometime)?)
+            // (can be implemented effectively using min-heap data structure (maybe TODO sometime)?)
             for (const node of openNodes) {
                 if(!currentNode || fScore.get(node) < currentNodeFScore) {
                     currentNode = node;

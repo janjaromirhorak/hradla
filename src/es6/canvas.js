@@ -214,7 +214,7 @@ export default class Svg {
         this.exportWireId = 0;
 
         let data = {
-            // todo implement gridSize scaling
+            // TODO implement gridSize scaling
             // gridSize: this.gridSize,
             boxes: []
         };
@@ -229,7 +229,7 @@ export default class Svg {
     importData(data) {
         this.simulationEnabled = false
 
-        // todo implement gridSize scaling
+        // TODO implement gridSize scaling
 
         // list of wires to be added
         let newWires = new Map();
@@ -341,7 +341,7 @@ export default class Svg {
                 // results in weird unfinished simulation
                 // this causes update of the output connector and a start of a new simulation
 
-                // todo find better solution instead of this workaround
+                // TODO find better solution instead of this workaround
                 box.on = !box.on
                 box.on = !box.on
             }
@@ -662,7 +662,7 @@ export default class Svg {
                 });
             }
         }
-        // todo ensure that this.refresh() is really unnecessary
+        // TODO ensure that this.refresh() is really unnecessary
         // this.refresh();
         // return the set
         return blockedNodes;
