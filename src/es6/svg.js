@@ -12,9 +12,20 @@ class ViewBox {
     constructor(left, top, width, height) {
         this.real = { left, top, width, height }
 
-        this.zoom = 1
+        this.maxZoom = 8;
+        this.minZoom = 0.1;
+
+        this.realZoom = 1
         this.leftShift = 0
         this.topShift = 0
+    }
+
+    get zoom() {
+        return this.realZoom;
+    }
+
+    set zoom(value) {
+        this.realZoom = Math.max(Math.min(value, this.maxZoom), this.minZoom);
     }
 
     get width() {
@@ -206,7 +217,6 @@ export default class Svg {
     set zoom(value) {
         this.viewbox.zoom = value
         this.applyViewbox()
-        // this.refresh()
     }
 
     get exportData() {
