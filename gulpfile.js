@@ -1,32 +1,74 @@
 "use strict";
 
-const
-    gulp = require('gulp'),
-    sass = require('gulp-sass'),
-    autoprefixer = require('gulp-autoprefixer'),
-    cssnano = require('gulp-cssnano'),
-    uglify = require('gulp-uglify'),
-    rename = require('gulp-rename'),
-    del = require('del'),
-    file = require('gulp-file'),
-    htmlmin = require('gulp-html-minifier'),
-    watch = require('gulp-watch'),
-    imagemin = require('gulp-imagemin'),
-    zip = require('gulp-zip'),
-    tar = require('gulp-tar'),
-    gzip = require('gulp-gzip'),
-    markdown = require('gulp-markdown'),
-    template = require('gulp-template-html'),
-    insert = require('gulp-insert'),
-    replace = require('gulp-replace'),
-    changed = require('gulp-changed'),
-    sourcemaps = require('gulp-sourcemaps'),
-    source = require('vinyl-source-stream'),
-    buffer = require('vinyl-buffer'),
-    browserify = require('browserify'),
-    babel = require('babelify'),
-    filter = require('gulp-filter'),
-    gulpif = require('gulp-if');
+const gulp = require('gulp');
+
+// system for lazy loading modules, because the gulp starting time has become quite slow with all the modules
+class Modules {
+    constructor() {
+        this.loaded = {};
+
+        this.moduleNames = new Map();
+
+        this.get = (module) => {
+            if (!(module in this.loaded)) {
+                const packageName = this.moduleNames.get(module);
+                if(!packageName) {
+                    console.error(`Module ${module} is not registered in modules.`);
+                } else {
+                    try {
+                        this.loaded[module] = require(packageName);
+                    } catch (error) {
+                        if (error.code === 'MODULE_NOT_FOUND') {
+                            console.error(`Package ${packageName} for module ${module} has not been found. Is it installed?`);
+                        } else {
+                            throw error;
+                        }
+                    }
+                }
+            }
+            return this.loaded[module];
+        }
+    }
+
+    addModule(moduleName, packageName) {
+        this.moduleNames.set(moduleName, packageName);
+    }
+
+    addModules(obj) {
+        for (const module in obj) {
+            this.addModule(module, obj[module]);
+        }
+    }
+}
+
+let modules = new Modules();
+modules.addModules({
+    autoprefixer: 'gulp-autoprefixer',
+    cssnano: 'gulp-cssnano',
+    uglify: 'gulp-uglify',
+    rename: 'gulp-rename',
+    del: 'del',
+    file: 'gulp-file',
+    htmlmin: 'gulp-html-minifier',
+    watch: 'gulp-watch',
+    imagemin: 'gulp-imagemin',
+    zip: 'gulp-zip',
+    tar: 'gulp-tar',
+    gzip: 'gulp-gzip',
+    markdown: 'gulp-markdown',
+    template: 'gulp-template-html',
+    insert: 'gulp-insert',
+    replace: 'gulp-replace',
+    changed: 'gulp-changed',
+    sourcemaps: 'gulp-sourcemaps',
+    source: 'vinyl-source-stream',
+    buffer: 'vinyl-buffer',
+    browserify: 'browserify',
+    babel: 'babelify',
+    filter: 'gulp-filter',
+    gulpif: 'gulp-if',
+    sass: 'gulp-sass'
+});
 
 const config = require('./config.json')
 const packageData = require('./package.json')
@@ -77,7 +119,14 @@ gulp.task('production', (done) => {
 
 // compile and minimize sass
 gulp.task('styles', () => {
-    return gulp.src(srcCss + '/style.scss')
+    const
+        sass = modules.get('sass'),
+        autoprefixer = modules.get('autoprefixer'),
+        gulpif = modules.get('gulpif'),
+        rename = modules.get('rename'),
+        cssnano = modules.get('cssnano');
+
+    return gulp.src(srcCss + '/*.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer('last 2 version'))
         .pipe(gulpif(production, rename({suffix: '.min'})))
@@ -87,6 +136,17 @@ gulp.task('styles', () => {
 
 // compile and minimize es6
 gulp.task('scripts', () => {
+    const
+        filter = modules.get('filter'),
+        browserify = modules.get('browserify'),
+        babel = modules.get('babel'),
+        source = modules.get('source'),
+        buffer = modules.get('buffer'),
+        sourcemaps = modules.get('sourcemaps'),
+        gulpif = modules.get('gulpif'),
+        rename = modules.get('rename'),
+        uglify = modules.get('uglify');
+
     const jsFilter = filter('**/*.js', {restore: true});
 
     const startpoint = 'main.js'
@@ -109,6 +169,11 @@ gulp.task('scripts', () => {
 });
 
 gulp.task('lib-lity-js', () => {
+    const
+        changed = modules.get('changed'),
+        uglify = modules.get('uglify'),
+        rename = modules.get('rename');
+
     const outLoc = outJs + '/lib'
 
     return gulp.src(lib + '/lity/*.js')
@@ -119,6 +184,11 @@ gulp.task('lib-lity-js', () => {
 });
 
 gulp.task('lib-lity-css', () => {
+    const
+        changed = modules.get('changed'),
+        cssnano = modules.get('cssnano'),
+        rename = modules.get('rename');
+
     const outLoc = outCss + '/lib'
 
     return gulp.src(lib + '/lity/*.css')
@@ -129,6 +199,11 @@ gulp.task('lib-lity-css', () => {
 });
 
 gulp.task('lib-other-js', () => {
+    const
+        changed = modules.get('changed'),
+        uglify = modules.get('uglify'),
+        rename = modules.get('rename');
+
     const outLoc = outJs + '/lib'
 
     return gulp.src(lib + '/other-js/*.js')
@@ -145,8 +220,15 @@ gulp.task('libraries', gulp.parallel('lib-lity', 'lib-other-js'));
 
 // generates the html file
 gulp.task('html', () => {
-    let entryPoint = production ? "main.min.js" : "main.js";
-    let styleSheet = production ? "style.min.css" : "style.css";
+    const
+        file = modules.get('file'),
+        insert = modules.get('insert'),
+        gulpif = modules.get('gulpif'),
+        template = modules.get('template'),
+        htmlmin = modules.get('htmlmin');
+
+    const entryPoint = production ? "main.min.js" : "main.js";
+    const styleSheet = production ? "style.min.css" : "style.css";
 
     return file('index.html', '', {src: true})
         .pipe(insert.append('<!-- build:title -->'))
@@ -174,6 +256,10 @@ gulp.task('html', () => {
 
 // copies images
 gulp.task('images', () => {
+    const
+        changed = modules.get('changed'),
+        imagemin = modules.get('imagemin');
+
     return gulp.src('img/*/*.svg')
         .pipe(changed(outImg))
         .pipe(imagemin([
@@ -189,6 +275,7 @@ gulp.task('images', () => {
 
 // removes the deploy directory
 gulp.task('clean', () => {
+    const del = modules.get('del');
     return del(out);
 });
 
@@ -204,7 +291,16 @@ gulp.task('docs-styles', () => {
 
 // compile the html pages for docs from the md files
 gulp.task('docs-html', () => {
-    let styleSheet = 'style.css'
+    const
+        markdown = modules.get('markdown'),
+        rename = modules.get('rename'),
+        replace = modules.get('replace'),
+        insert = modules.get('insert'),
+        template = modules.get('template'),
+        gulpif = modules.get('gulpif'),
+        htmlmin = modules.get('htmlmin');
+
+    let styleSheet = 'docs.css'
     if (production) {
         styleSheet = 'style.min.css'
     }
@@ -236,6 +332,10 @@ gulp.task('docs', gulp.parallel('docs-html', 'docs-styles'));
 ///// create archives
 // create a zip archive
 gulp.task('zip', () => {
+    const
+        changed = modules.get('changed'),
+        zip = modules.get('zip');
+
     return gulp.src(out + '/**/*')
         .pipe(changed(packaged))
         .pipe(zip('hradla-' + packageData.version + '.zip'))
@@ -244,6 +344,11 @@ gulp.task('zip', () => {
 
 // create a tarball
 gulp.task('tarball', () => {
+    const
+        changed = modules.get('changed'),
+        tar = modules.get('tar'),
+        gzip = modules.get('gzip');
+
     return gulp.src(out + '/**/*')
         .pipe(changed(packaged))
         .pipe(tar('hradla-' + packageData.version + '.tar'))
@@ -268,11 +373,15 @@ gulp.task('default', gulp.series('build-prod'));
 ///// watches
 
 gulp.task('watch-scripts', () => {
+    const watch = modules.get('watch');
+
     return watch(srcJs + '/**', gulp.series('scripts'))
 });
 
 gulp.task('watch-styles', () => {
-   return watch(srcCss + '/**', gulp.series('styles'))
+    const watch = modules.get('watch');
+    
+    return watch(srcCss + '/**', gulp.series('styles'))
 });
 
 gulp.task('watch', gulp.parallel('watch-scripts', 'watch-styles'));
