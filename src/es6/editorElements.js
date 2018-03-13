@@ -343,6 +343,7 @@ class Box extends NetworkElement {
         // transparent background rectangle
         let rectangle = new svgObj.Rectangle(0, 0, this.width, this.height, "none", "none");
         rectangle.$el.addClass('rect');
+
         this.svgObj.addChild(rectangle);
         // image of the element
         this.image = new svgObj.SvgImage(0, 0, this.width, this.height, this.url);
@@ -555,6 +556,8 @@ class Box extends NetworkElement {
 
     onMouseMove(event) {
         if(this.mouseLeft) {
+            this.svgObj.$el.addClass('grabbed');
+
             this.mouseMoved = true;
 
             let {pageX, pageY} = this.parentSVG.viewbox.transformEvent(event)
@@ -581,6 +584,8 @@ class Box extends NetworkElement {
         } else if (event.which === 2 ) {
             this.onClickMiddle();
         }
+
+        this.svgObj.$el.removeClass('grabbed');
     }
 
     onDrop(event) {

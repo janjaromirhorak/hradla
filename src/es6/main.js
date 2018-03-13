@@ -1,5 +1,8 @@
-import Svg from './svg.js';
+import Canvas from './canvas.js';
 
+/**
+ * When the document is ready, initialize the application
+ */
 $(() => {
-    let svg = new Svg("#canvas", 10);
+    new Canvas("#canvas", 10);
 });
