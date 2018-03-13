@@ -406,8 +406,6 @@ template {
 [hidden] {
   display: none; }
 
-/*//////////////////////////////////////*/
-/*//////////////////////////////////////*/
 body {
   font-family: 'Open Sans', sans-serif;
   display: -webkit-box;
@@ -550,7 +548,7 @@ body {
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1; }
-  #canvas .gate {
+  #canvas .box {
     cursor: pointer;
     cursor: hand; }
   #canvas .connector {
@@ -574,3 +572,11 @@ body {
     stroke: #8b8b8b; }
   #canvas .wire.stateOscillating {
     stroke: #0000ff; }
+
+.grabbable {
+  cursor: -webkit-grab !important;
+  cursor: grab !important; }
+
+.grabbed {
+  cursor: -webkit-grabbing !important;
+  cursor: grabbing !important; }

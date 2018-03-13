@@ -7,48 +7,78 @@
         Hradla
     </title>
     <link href="https://fonts.googleapis.com/css?family=Inconsolata|Open+Sans:400,400i,700&amp;subset=latin-ext" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
 </head>
 
 <body>
-    <h1 id="u-ivatelsk-dokumentace">Uživatelská dokumentace</h1>
-<p>Uživatelská část dokumentace k programu Hradla. Můžete si také <a href="developer.html">zobrazit vývojářskou dokumentaci</a>.</p>
-<h2 id="z-kladn-ovl-d-n-">Základní ovládání</h2>
-<p>Pravým kliknutím myší na editační plochu zobrazíte
-uživatelské menu. To umožňuje práci s objekty. Menu nabízí
-možnost přidávat prvky do hradlové sítě
-(hradla a vstupní a výstupní prvek).</p>
-<p>Při pravém kliknutí na nějaký konkrétní prvek se v nabídce také
-zobrazí volba pro odstranění tohoto prvku. </p>
-<h2 id="interaktivn-prvky">Interaktivní prvky</h2>
-<p>Pomocí uživatelského menu je možno přidávat na síť různé
-interaktivní prvky - hradla (<code>not</code>, <code>and</code>, <code>or</code>, <code>xor</code>, <code>nand</code>, <code>not</code> a <code>xnor</code>)
-a vstupní a výstupní prvek.</p>
-<p>Po přidání prvku na pole je možno jej propojit s ostatními
-prvky pomocí vstupních a výstupních konektorů. Pomocí spojů.
-Po kliknutí na dva různé konektory se mezi nimi zobrazí spoj,
-který indikuje jejich propojení.</p>
-<p><em>Výstupní konektory mohou být připojeny k více vstupním
-konektorům, ke vstupnímu konektoru však může být připojen
-jen jeden výstupní. Pro sjednocení více vstupů lze použít
-například hradla <code>or</code>.</em></p>
-<p>Interaktivní prvky je možno přesouvat levým stisknutím
-a tažením, také možno prvkem rotovat klikáním prostředním
-tlačítkem myši.</p>
-<h2 id="stavy-spoj-a-konektor-">Stavy spojů a konektorů</h2>
-<p>Spoj a konektory se mohou nacházet ve čtyřech různých stavech
-znázorněných barvou:</p>
-<ul>
-<li>1 (znázorněný zeleně)</li>
-<li>0 (znázorněný červeně)</li>
-<li>neznámý (znázorněný šedě)</li>
-<li>oscilující (znázorněný modře)</li>
-</ul>
-<p>Vstupní prvek (říkejme mu <em>spínač</em>) se může nacházet ve dvou
-stavech (1 a 0), stavy lze přepínat levým kliknutím
-na spínač.</p>
-<p>Stav z výstupního konektoru spínače odpovídá stavu spínače
-a je pak propagován do dalších prvků v hradlové síti pomocí spojů.</p>
+    <h1 id="hradla">Hradla</h1>
+<p>Logic network simulator</p>
+<h2 id="controls">Controls</h2>
+<table>
+<thead>
+<tr>
+<th>action</th>
+<th>controls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>move the canvas</td>
+<td>drag with <code>middle mouse</code> or <code>ctrl + left mouse</code></td>
+</tr>
+<tr>
+<td>zoom the canvas</td>
+<td><code>ctrl + middle wheel</code> or <code>ctrl + + / ctrl + -</code></td>
+</tr>
+<tr>
+<td>open the context menu (add elements)</td>
+<td><code>right click</code></td>
+</tr>
+<tr>
+<td>open the context menu for an element (add/remove elements)</td>
+<td><code>right click</code> on the element</td>
+</tr>
+<tr>
+<td>rotate an element</td>
+<td><code>middle click</code></td>
+</tr>
+<tr>
+<td>set element state (enable / disable input on an input box)</td>
+<td><code>left click</code> on the element</td>
+</tr>
+<tr>
+<td>add a wire</td>
+<td><code>left click</code> on the first connector, than <code>left click</code> on the second connector</td>
+</tr>
+</tbody>
+</table>
+<h2 id="connector-states">Connector states</h2>
+<table>
+<thead>
+<tr>
+<th>state</th>
+<th>color</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unknown</td>
+<td><i class="color unknown"></i> grey</td>
+</tr>
+<tr>
+<td>1</td>
+<td><i class="color on"></i> green</td>
+</tr>
+<tr>
+<td>0</td>
+<td><i class="color off"></i> red</td>
+</tr>
+<tr>
+<td>oscillating</td>
+<td><i class="color oscillating"></i> blue</td>
+</tr>
+</tbody>
+</table>
 
     <!-- endbuild -->
 </body>

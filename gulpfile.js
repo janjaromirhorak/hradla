@@ -67,6 +67,7 @@ modules.addModules({
     babel: 'babelify',
     filter: 'gulp-filter',
     gulpif: 'gulp-if',
+    jsdoc: 'gulp-jsdoc3',
     sass: 'gulp-sass'
 });
 
@@ -94,6 +95,7 @@ const
     outJs = out + '/js',
     outImg = out + '/img',
     outDocs = out + '/docs',
+    outJsDoc = outDocs + '/gen',
 
     packaged = out + '/archives',
 
@@ -279,18 +281,8 @@ gulp.task('clean', () => {
     return del(out);
 });
 
-gulp.task('docs-styles', () => {
-    return gulp.src(docs + '/src/scss/style.scss')
-        .pipe(changed(docsCss))
-        .pipe(sass().on('error', sass.logError))
-        .pipe(autoprefixer('last 2 version'))
-        .pipe(gulpif(production, rename({suffix: '.min'})))
-        .pipe(gulpif(production, cssnano()))
-        .pipe(gulp.dest(docsCss));
-});
-
 // compile the html pages for docs from the md files
-gulp.task('docs-html', () => {
+gulp.task('docs', () => {
     const
         markdown = modules.get('markdown'),
         rename = modules.get('rename'),
@@ -302,11 +294,11 @@ gulp.task('docs-html', () => {
 
     let styleSheet = 'docs.css'
     if (production) {
-        styleSheet = 'style.min.css'
+        styleSheet = 'docs.min.css'
     }
 
     const snippets = {
-        styleSheet: `<link href="css/${styleSheet}" rel="stylesheet">`
+        styleSheet: `<link href="../css/${styleSheet}" rel="stylesheet">`
     }
 
     return gulp.src(srcDocs + '/md/*.md')
@@ -318,6 +310,12 @@ gulp.task('docs-html', () => {
         // wrap the generated html between <!-- build:md --> tags to mark it for the template plugin
         .pipe(insert.prepend('<!-- build:md -->'))
         .pipe(insert.append('<!-- /build:md -->'))
+        // add color examples after the colors described in the markdown
+        .pipe(replace(/<!-- color (.*) -->/g, (match) => {
+            const colorName = match.replace(/<!-- color | -->/g, '')
+            return `<i class="color ${colorName}"></i>`
+        }))
+        // add links to the stylesheets
         .pipe(insert.append('<!-- build:styleSheet -->'))
         .pipe(insert.append(snippets.styleSheet))
         .pipe(insert.append('<!-- /build:styleSheet -->'))
@@ -327,7 +325,38 @@ gulp.task('docs-html', () => {
         .pipe(gulp.dest(outDocs))
 })
 
-gulp.task('docs', gulp.parallel('docs-html', 'docs-styles'));
+gulp.task('doc', () => {
+    const jsdoc = modules.get('jsdoc');
+
+    const customCss = production ? "jsdoc.min.css" : "jsdoc.css";
+    const jsdocConfig = {
+        opts: {
+            destination: outJsDoc,
+            encoding: "utf8",
+            private: true,
+            recurse: true,
+            plugins: [
+                "plugins/markdown"
+            ],
+            template: "node_modules/tui-jsdoc-template",
+        },
+        templates: {
+            name: "Hradla",
+            footerText: config.title,
+            logo: {
+                url: "../../img/gate/xor.svg",
+                width: "40px",
+                height: "20px"
+                // link: "../../"
+            },
+            css: [
+                `../../css/${customCss}`,
+            ]
+        }
+    }
+    return gulp.src(['README.md', './' + srcJs + '/**/*.js'], {read: false})
+        .pipe(jsdoc(jsdocConfig));
+});
 
 ///// create archives
 // create a zip archive
