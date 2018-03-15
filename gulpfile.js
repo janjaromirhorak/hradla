@@ -95,7 +95,10 @@ const
     outJs = out + '/js',
     outImg = out + '/img',
     outDocs = out + '/docs',
-    outJsDoc = outDocs + '/gen',
+
+    outJsDocRelative = 'gen',
+
+    outJsDoc = outDocs + '/' + outJsDocRelative,
 
     packaged = out + '/archives',
 
@@ -282,7 +285,7 @@ gulp.task('clean', () => {
 });
 
 // compile the html pages for docs from the md files
-gulp.task('docs', () => {
+gulp.task('help', () => {
     const
         markdown = modules.get('markdown'),
         rename = modules.get('rename'),
@@ -309,6 +312,7 @@ gulp.task('docs', () => {
         .pipe(replace('.md', '.html'))
         // wrap the generated html between <!-- build:md --> tags to mark it for the template plugin
         .pipe(insert.prepend('<!-- build:md -->'))
+        .pipe(insert.append(`<p>For technical documentation please visit <a href="./${outJsDocRelative}/index.html" target="_blank">the docs</a>.</p>`))
         .pipe(insert.append('<!-- /build:md -->'))
         // add color examples after the colors described in the markdown
         .pipe(replace(/<!-- color (.*) -->/g, (match) => {
@@ -325,7 +329,7 @@ gulp.task('docs', () => {
         .pipe(gulp.dest(outDocs))
 })
 
-gulp.task('doc', () => {
+gulp.task('jsdoc:generate', () => {
     const jsdoc = modules.get('jsdoc');
 
     const customCss = production ? "jsdoc.min.css" : "jsdoc.css";
@@ -357,6 +361,15 @@ gulp.task('doc', () => {
     return gulp.src(['README.md', './' + srcJs + '/**/*.js'], {read: false})
         .pipe(jsdoc(jsdocConfig));
 });
+
+gulp.task('jsdoc:clean', () => {
+    const del = modules.get('del')
+    return del(outJsDoc)
+})
+
+gulp.task('jsdoc', gulp.series('jsdoc:clean', 'jsdoc:generate'));
+
+gulp.task('docs', gulp.parallel('help', 'jsdoc'));
 
 ///// create archives
 // create a zip archive

@@ -35,10 +35,7 @@ class helpWindow extends jqueryElement {
 
         this.$el.attr("id", "help");
 
-        this.append(new helpWindowItem("<strong>main menu</strong>: right click"));
-        this.append(new helpWindowItem("drag and drop to <strong>move elements</strong>"));
-        this.append(new helpWindowItem("<strong>middle click</strong> to rotate elements"));
-        this.append(new helpWindowItem("<strong>click <img src='img/gui/help.svg' class='helpicon' alt='help icon'></strong> to display documentation (in czech)"));
+        this.append(new helpWindowItem("<strong>click <img src='img/gui/help.svg' class='helpicon' alt='help icon'></strong> to display help"));
     }
 
     append(item) {
