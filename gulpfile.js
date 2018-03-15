@@ -335,10 +335,7 @@ gulp.task('doc', () => {
             encoding: "utf8",
             private: true,
             recurse: true,
-            plugins: [
-                "plugins/markdown"
-            ],
-            template: "node_modules/tui-jsdoc-template",
+            template: "node_modules/tui-jsdoc-template"
         },
         templates: {
             name: "Hradla",
@@ -352,7 +349,10 @@ gulp.task('doc', () => {
             css: [
                 `../../css/${customCss}`,
             ]
-        }
+        },
+        plugins: [
+            "plugins/markdown"
+        ]
     }
     return gulp.src(['README.md', './' + srcJs + '/**/*.js'], {read: false})
         .pipe(jsdoc(jsdocConfig));
@@ -409,7 +409,7 @@ gulp.task('watch-scripts', () => {
 
 gulp.task('watch-styles', () => {
     const watch = modules.get('watch');
-    
+
     return watch(srcCss + '/**', gulp.series('styles'))
 });
 

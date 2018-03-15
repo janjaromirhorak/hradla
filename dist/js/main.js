@@ -42,38 +42,91 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * TODO better docs
+ * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
  */
 var ViewBox = function () {
+    /**
+     * Initialize viewBox
+     * @param {number} left   distance of the left edge of the viewbox from document's y axis in SVG pixels
+     * @param {number} top    distance of the top edge of the viewbox from the document's x axis in SVG pixels
+     * @param {number} width  width of the viewbox in SVG pixels
+     * @param {number} height height of the viewbox in SVG pixels
+     */
     function ViewBox(left, top, width, height) {
         _classCallCheck(this, ViewBox);
 
-        this.real = { left: left, top: top, width: width, height: height };
+        /**
+         * ViewBox attributes before applying zoom and shift
+         * @type {object}
+         */
+        this.real = { left: left, top: top, width: width, height: height
 
-        this.maxZoom = 8;
+            /**
+             * The maximum amount of zoom on the viewbox
+             * @type {number}
+             */
+        };this.maxZoom = 8;
+        /**
+         * The minimum amount of zoom on the viewbox
+         * @type {number}
+         */
         this.minZoom = 0.1;
 
+        /**
+         * Amount of zoom on the viewbox, always between this.minZoom and this.maxZoom
+         * @type {number}
+         */
         this.realZoom = 1;
+
+        /**
+         * amount of horizontal shift of the document
+         * @type {number}
+         */
         this.leftShift = 0;
+        /**
+         * amount of vertical shift of the document
+         * @type {number}
+         */
         this.topShift = 0;
     }
+
+    /**
+     * get the amount of zoom on the viewbox
+     * @return {number}
+     */
+
 
     _createClass(ViewBox, [{
         key: 'transformX',
 
 
-        // transforms horizontal units to the scale and shift of the editor
+        /**
+         * transform horizontal units to the scale and shift of the editor
+         * @param  {number} x original horizontal value
+         * @return {number}   transformed horizontal value
+         */
         value: function transformX(x) {
             return this.left + x / this.zoom;
         }
 
-        // transforms vertical units to the scale and shift of the editor
+        /**
+         * transform vertical units to the scale and shift of the editor
+         * @param  {number} y original vertical value
+         * @return {number}   transformed vertical value
+         */
 
     }, {
         key: 'transformY',
         value: function transformY(y) {
             return this.top + y / this.zoom;
         }
+
+        /**
+         * transform pageX and pageY parameters of the jquery event to match the zoom and shift of the viewbox
+         * @param  {jquery.MouseEvent} event original event
+         * @return {jquery.MouseEvent}       the same event but with transformed pageX and pageY members
+         */
+
     }, {
         key: 'transformEvent',
         value: function transformEvent(event) {
@@ -86,30 +139,67 @@ var ViewBox = function () {
         key: 'zoom',
         get: function get() {
             return this.realZoom;
-        },
+        }
+
+        /**
+         * set the amount of zoom on the viewbox
+         * @param {number} value the new amount of zoom
+         */
+        ,
         set: function set(value) {
+            // fit this.realZoom to fit between this.minZoom and this.maxZoom
             this.realZoom = Math.max(Math.min(value, this.maxZoom), this.minZoom);
         }
+
+        /**
+         * get the width of the viewbox with the current zoom applied
+         * @return {number} the final width of the viewbox
+         */
+
     }, {
         key: 'width',
         get: function get() {
             return this.real.width / this.zoom;
         }
+
+        /**
+         * get the height of the viewbox with the current zoom applied
+         * @return {number} the final height of the viewbox
+         */
+
     }, {
         key: 'height',
         get: function get() {
             return this.real.height / this.zoom;
         }
+
+        /**
+         * get the horizontal distance from the y axis of the document with zoom and shift value applied
+         * @return {number}
+         */
+
     }, {
         key: 'left',
         get: function get() {
             return this.real.left - this.leftShift / this.zoom + (this.real.width - this.width) / 2;
         }
+
+        /**
+         * get the vertical distance from the x axis of the document with zoom and shift value applied
+         * @return {number}
+         */
+
     }, {
         key: 'top',
         get: function get() {
             return this.real.top - this.topShift / this.zoom + (this.real.height - this.height) / 2;
         }
+
+        /**
+         * get the computed viewbox values as a string in the correct format that can be used in the viewBox attribute of the SVG element
+         * @return {string} string in format "left top width height"
+         */
+
     }, {
         key: 'str',
         get: function get() {
@@ -125,7 +215,8 @@ var ctrlKey = 17,
 
 /** @module Canvas */
 /**
- * TODO better docs for this class
+ * Main class of the application. It represents an instance of the whole editor and holds
+ * references to all its elements.
  */
 
 var Canvas = function () {
@@ -267,7 +358,7 @@ var Canvas = function () {
 
         /**
          * Process all keydown events that are connected to Canvas
-         * @param  {KeyboardEvent} event KeyboardEvent generated by a listener
+         * @param  {jquery.KeyboardEvent} event KeyboardEvent generated by a listener
          */
         value: function onKeyDown(event) {
             if (event.keyCode === ctrlKey || event.keyCode === cmdKey) {
@@ -277,7 +368,7 @@ var Canvas = function () {
 
         /**
          * Process all keyup events that are connected to Canvas
-         * @param  {KeyboardEvent} event KeyboardEvent generated by a listener
+         * @param  {jquery.KeyboardEvent} event KeyboardEvent generated by a listener
          */
 
     }, {
@@ -290,7 +381,7 @@ var Canvas = function () {
 
         /**
          * Process all mousedown events that are happening directly on the Canvas
-         * @param  {MouseEvent} event MouseEvent generated by a listener
+         * @param  {jquery.MouseEvent} event MouseEvent generated by a listener
          */
 
     }, {
@@ -308,7 +399,7 @@ var Canvas = function () {
 
         /**
          * Process all mousemove events that are happening directly on the Canvas
-         * @param  {MouseEvent} event MouseEvent generated by a listener
+         * @param  {jquery.MouseEvent} event MouseEvent generated by a listener
          */
 
     }, {
@@ -331,7 +422,7 @@ var Canvas = function () {
 
         /**
          * Process all mouseup events that are happening directly on the Canvas
-         * @param  {MouseEvent} event MouseEvent generated by a listener
+         * @param  {jquery.MouseEvent} event MouseEvent generated by a listener
          */
 
     }, {
@@ -1496,7 +1587,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-// mapping logical states to css classes
+/**
+ * mapping of logical states to css classes
+ * @type {Object}
+ */
 var stateClasses = {
     on: "stateOn",
     off: "stateOff",
@@ -1504,9 +1598,18 @@ var stateClasses = {
     oscillating: "stateOscillating"
 };
 
-// helper class used by Transform
+/**
+ * Helper class used by {@link Transform}.
+ *
+ * Represents one single property of the transform argument, for example `translate(360 150)`
+ * that may be a part of longer transform argument like `transform="translate(360 150) rotate(90 30 20)"`
+ */
 
 var Property = function () {
+    /**
+     * Initialize the Property object
+     * @param {string} [string] string in the property format `propertyname(list of space separated values)`
+     */
     function Property(string) {
         _classCallCheck(this, Property);
 
@@ -1516,16 +1619,34 @@ var Property = function () {
         }
     }
 
+    /**
+     * set or replace the name of this property
+     * @param {string} name new name for this property
+     */
+
+
     _createClass(Property, [{
         key: 'setName',
         value: function setName(name) {
             this.name = name;
         }
+
+        /**
+         * set arguments of this property
+         * @param {array} args array of arguments
+         */
+
     }, {
         key: 'setArguments',
         value: function setArguments(args) {
             this.args = args;
         }
+
+        /**
+         * get string representation of the property
+         * @return {string} property in the property format `name(arg1 arg2)`
+         */
+
     }, {
         key: 'get',
         value: function get() {
@@ -1536,13 +1657,23 @@ var Property = function () {
     return Property;
 }();
 
-// used to manipulate the transform argument used in SVG
+/**
+ * API for manipulating the transform argument used in SVG
+ */
 
 
 var Transform = exports.Transform = function () {
+    /**
+     * Initialize the Transform object
+     * @param {string} [string] string in the format of the `transform` argument in SVG, for example `translate(360 150) rotate(90 30 20)`
+     */
     function Transform(string) {
         _classCallCheck(this, Transform);
 
+        /**
+         * array of {@link Property} instances
+         * @type {Array}
+         */
         this.items = [];
 
         if (string !== undefined) {
@@ -1557,7 +1688,11 @@ var Transform = exports.Transform = function () {
         }
     }
 
-    // returns index or -1
+    /**
+     * find a transform property by name and get its index in the [items](#items) array
+     * @param  {string} name name of the property
+     * @return {number}      index of the property in the array of properties or `-1` if not found
+     */
 
 
     _createClass(Transform, [{
@@ -1571,6 +1706,12 @@ var Transform = exports.Transform = function () {
 
             return -1;
         }
+
+        /**
+         * get the translate property
+         * @return {Object} object containing parameters of the translate attribute
+         */
+
     }, {
         key: 'getTranslate',
         value: function getTranslate() {
@@ -1581,6 +1722,12 @@ var Transform = exports.Transform = function () {
                 y: args[1]
             };
         }
+
+        /**
+         * get the rotate property
+         * @return {Object} object containing parameters of the rotate attribute
+         */
+
     }, {
         key: 'getRotate',
         value: function getRotate() {
@@ -1593,7 +1740,11 @@ var Transform = exports.Transform = function () {
             };
         }
 
-        // sets the translation
+        /**
+         * set translate to the specified values
+         * @param {number} x horizontal translation
+         * @param {number} y vertical translation
+         */
 
     }, {
         key: 'setTranslate',
@@ -1601,7 +1752,12 @@ var Transform = exports.Transform = function () {
             this.setParameter("translate", [x, y]);
         }
 
-        // sets the rotation
+        /**
+         * set rotate to the specified values
+         * @param {number} deg     angle of the rotation in degrees
+         * @param {number} centreX horizontal position of the centre of the rotation
+         * @param {number} centreY vertical position of the centre of the rotation
+         */
 
     }, {
         key: 'setRotate',
@@ -1609,7 +1765,11 @@ var Transform = exports.Transform = function () {
             this.setParameter("rotate", [deg, centreX, centreY]);
         }
 
-        // add the rotation
+        /**
+         * rotate by 90 degrees to the right
+         * @param  {number} centreX horizontal position of the centre of the rotation
+         * @param  {number} centreY vertical position of the centre of the rotation
+         */
 
     }, {
         key: 'rotateRight',
@@ -1631,7 +1791,10 @@ var Transform = exports.Transform = function () {
             }
         }
 
-        // returns the transform properties concatenated
+        /**
+         * get the transform values in a string
+         * @return {string} string that can be used as a value for the transform property of a SVG element
+         */
 
     }, {
         key: 'get',
@@ -1645,11 +1808,25 @@ var Transform = exports.Transform = function () {
             }
             return retVal;
         }
+
+        /**
+         * get arguments of a property specified by index
+         * @param  {number} index index of the property
+         * @return {array}       array of arguments of the specified property
+         */
+
     }, {
         key: 'getArguments',
         value: function getArguments(index) {
             return this.items[index].args;
         }
+
+        /**
+         * set argumets of a property specified by name
+         * @param {string} name name of the property
+         * @param {array} args array of arguments of the specified property
+         */
+
     }, {
         key: 'setParameter',
         value: function setParameter(name, args) {
@@ -1672,15 +1849,21 @@ var Transform = exports.Transform = function () {
     return Transform;
 }();
 
-// parent class for all network elements
+/**
+ * parent class for all network elements
+ */
 
 
 var NetworkElement = function () {
+    /**
+     * Basic constructor for NetworkElement
+     * @param {Canvas} parentSVG reference to the instance of {@link Canvas} that this element belongs to
+     */
     function NetworkElement(parentSVG) {
         _classCallCheck(this, NetworkElement);
 
         if (!parentSVG) {
-            console.error("Parent SVG element has not been defined.");
+            console.error("Parent SVG element has to be defined.");
         }
         this.parentSVG = parentSVG;
 
@@ -1688,21 +1871,41 @@ var NetworkElement = function () {
         this.svgObj = undefined;
     }
 
+    /**
+     * Get the unique ID of the SVG element tied to this logical element
+     * @return {string} ID of the SVG element
+     */
+
+
     _createClass(NetworkElement, [{
         key: 'onMouseDown',
-        value: function onMouseDown() {
-            // empty function to prevent error messages, function is implemented later in the Box class
-        }
+
+
+        /**
+         * empty callback function to prevent error messages, function is implemented later in the {@link Box} class
+         */
+        value: function onMouseDown() {}
+
+        /**
+         * empty function to prevent error messages, function is implemented later in the {@link Box} and {@link Connector} classes
+         */
+
     }, {
         key: 'onMouseUp',
-        value: function onMouseUp() {
-            // empty function to prevent error messages, function is implemented later in the Box and Connector classes
-        }
+        value: function onMouseUp() {}
+
+        /**
+         * empty function to prevent error messages, function is implemented later in the {@link Box} class
+         */
+
     }, {
         key: 'onMouseMove',
-        value: function onMouseMove() {
-            // empty function to prevent error messages, function is implemented later in the Box class
-        }
+        value: function onMouseMove() {}
+
+        /**
+         * "virtual" getter for json data, prints an error that it has to be redefined in the derived classes
+         */
+
     }, {
         key: 'id',
         get: function get() {
@@ -1719,23 +1922,46 @@ var NetworkElement = function () {
     return NetworkElement;
 }();
 
-// parent class for input and output connectors (the things you click on
-// when you want to connect elements)
+/**
+ * parent class for input and output connectors
+ * @extends NetworkElement
+ */
 
 
 var Connector = function (_NetworkElement) {
     _inherits(Connector, _NetworkElement);
 
+    /**
+     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {number} gridSize  size of the grid in SVG pixels
+     * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
+     * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
+     */
     function Connector(parentSVG, gridSize, left, top) {
         _classCallCheck(this, Connector);
 
-        var _this = _possibleConstructorReturn(this, (Connector.__proto__ || Object.getPrototypeOf(Connector)).call(this, parentSVG)); // unit of left / top is the size of the grid
-
+        /**
+         * size of the grid in SVG pixels
+         * @type {number}
+         */
+        var _this = _possibleConstructorReturn(this, (Connector.__proto__ || Object.getPrototypeOf(Connector)).call(this, parentSVG));
 
         _this.gridSize = gridSize;
+        /**
+         * size of the connector in SVG pixels
+         * @type {number}
+         */
         _this.connectorSize = gridSize;
+        /**
+         * offset of the connector from the grid in SVG pixels
+         * @type {number}
+         */
         _this.connectorOffset = _this.connectorSize / 2;
 
+        /**
+         * instance of {@link svgObjects.svgObj} that holds all SVG information about this connector
+         * @type {svgObj}
+         */
         _this.svgObj = new svgObj.Rectangle(left * _this.gridSize - _this.connectorOffset, top * _this.gridSize - _this.connectorOffset, _this.connectorSize, _this.connectorSize, "none", "black");
 
         _this.svgObj.$el.addClass("connector");
@@ -1825,6 +2051,12 @@ var Connector = function (_NetworkElement) {
     return Connector;
 }(NetworkElement);
 
+/**
+ * Connector that takes gets its state from a connected value and passes it through to the {@link Box} this connector belongs to.
+ * @extends Connector
+ */
+
+
 var InputConnector = exports.InputConnector = function (_Connector) {
     _inherits(InputConnector, _Connector);
 
@@ -1863,6 +2095,12 @@ var InputConnector = exports.InputConnector = function (_Connector) {
 
     return InputConnector;
 }(Connector);
+
+/**
+ * Connector that takes a state defined by the {@link Box} it belongs to and passes it to all connected wire
+ * @extends Connector
+ */
+
 
 var OutputConnector = exports.OutputConnector = function (_Connector2) {
     _inherits(OutputConnector, _Connector2);
@@ -1919,7 +2157,10 @@ var OutputConnector = exports.OutputConnector = function (_Connector2) {
     return OutputConnector;
 }(Connector);
 
-// parent class for gates and input and output boxes
+/**
+ * parent class for gates and input and output boxes
+ * @extends NetworkElement
+ */
 
 
 var Box = function (_NetworkElement2) {
@@ -2395,6 +2636,12 @@ var Box = function (_NetworkElement2) {
     return Box;
 }(NetworkElement);
 
+/**
+ * InputBox has only output connectors and is used to set the input states for the logic network.
+ * @extends Box
+ */
+
+
 var InputBox = exports.InputBox = function (_Box) {
     _inherits(InputBox, _Box);
 
@@ -2462,6 +2709,12 @@ var InputBox = exports.InputBox = function (_Box) {
     return InputBox;
 }(Box);
 
+/**
+ * OutputBox has only input connectors and is used to visualize the output states of the logic network.
+ * @extends Box
+ */
+
+
 var OutputBox = exports.OutputBox = function (_Box2) {
     _inherits(OutputBox, _Box2);
 
@@ -2509,6 +2762,12 @@ var OutputBox = exports.OutputBox = function (_Box2) {
 
     return OutputBox;
 }(Box);
+
+/**
+ * Gate is a box that processes the states of its input connectors and returns the result in its output connectors.
+ * @extends Box
+ */
+
 
 var Gate = exports.Gate = function (_Box3) {
     _inherits(Gate, _Box3);
@@ -2587,6 +2846,12 @@ var Gate = exports.Gate = function (_Box3) {
 
     return Gate;
 }(Box);
+
+/**
+ * Wire represents connection of two {@link Connector}s.
+ * @extends NetworkElement
+ */
+
 
 var Wire = exports.Wire = function (_NetworkElement3) {
     _inherits(Wire, _NetworkElement3);

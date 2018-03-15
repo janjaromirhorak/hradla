@@ -2,7 +2,10 @@ import * as svgObj from './svgObjects.js'
 import * as Structures from './structuresAndClasses.js'
 import Logic from './logic.js'
 
-// mapping logical states to css classes
+/**
+ * mapping of logical states to css classes
+ * @type {Object}
+ */
 const stateClasses = {
     on: "stateOn",
     off: "stateOff",
@@ -10,8 +13,17 @@ const stateClasses = {
     oscillating: "stateOscillating"
 };
 
-// helper class used by Transform
+/**
+ * Helper class used by {@link Transform}.
+ *
+ * Represents one single property of the transform argument, for example `translate(360 150)`
+ * that may be a part of longer transform argument like `transform="translate(360 150) rotate(90 30 20)"`
+ */
 class Property {
+    /**
+     * Initialize the Property object
+     * @param {string} [string] string in the property format `propertyname(list of space separated values)`
+     */
     constructor(string) {
         if(string!==undefined) {
             this.name = string.replace(/^[ ]*([^(]+).*/, "$1");
@@ -19,22 +31,44 @@ class Property {
         }
     }
 
+    /**
+     * set or replace the name of this property
+     * @param {string} name new name for this property
+     */
     setName(name) {
         this.name = name;
     }
 
+    /**
+     * set arguments of this property
+     * @param {array} args array of arguments
+     */
     setArguments(args) {
         this.args = args;
     }
 
+    /**
+     * get string representation of the property
+     * @return {string} property in the property format `name(arg1 arg2)`
+     */
     get() {
         return this.name + "(" + this.args.join(" ") + ")";
     }
 }
 
-// used to manipulate the transform argument used in SVG
+/**
+ * API for manipulating the transform argument used in SVG
+ */
 export class Transform {
+    /**
+     * Initialize the Transform object
+     * @param {string} [string] string in the format of the `transform` argument in SVG, for example `translate(360 150) rotate(90 30 20)`
+     */
     constructor(string) {
+        /**
+         * array of {@link Property} instances
+         * @type {Array}
+         */
         this.items = [];
 
         if(string!==undefined) {
@@ -48,7 +82,11 @@ export class Transform {
         }
     }
 
-    // returns index or -1
+    /**
+     * find a transform property by name and get its index in the [items](#items) array
+     * @param  {string} name name of the property
+     * @return {number}      index of the property in the array of properties or `-1` if not found
+     */
     getIndex(name) {
         for(let i = 0 ; i < this.items.length; i++) {
             if(name === this.items[i].name) {
@@ -59,6 +97,10 @@ export class Transform {
         return -1;
     }
 
+    /**
+     * get the translate property
+     * @return {Object} object containing parameters of the translate attribute
+     */
     getTranslate() {
         let args = this.getArguments(this.getIndex("translate"));
 
@@ -68,6 +110,10 @@ export class Transform {
         }
     }
 
+    /**
+     * get the rotate property
+     * @return {Object} object containing parameters of the rotate attribute
+     */
     getRotate() {
         let args = this.getArguments(this.getIndex("rotate"));
 
@@ -78,17 +124,30 @@ export class Transform {
         }
     }
 
-    // sets the translation
+    /**
+     * set translate to the specified values
+     * @param {number} x horizontal translation
+     * @param {number} y vertical translation
+     */
     setTranslate(x, y) {
         this.setParameter("translate", [x, y]);
     }
 
-    // sets the rotation
+    /**
+     * set rotate to the specified values
+     * @param {number} deg     angle of the rotation in degrees
+     * @param {number} centreX horizontal position of the centre of the rotation
+     * @param {number} centreY vertical position of the centre of the rotation
+     */
     setRotate(deg, centreX, centreY) {
         this.setParameter("rotate", [deg, centreX, centreY]);
     }
 
-    // add the rotation
+    /**
+     * rotate by 90 degrees to the right
+     * @param  {number} centreX horizontal position of the centre of the rotation
+     * @param  {number} centreY vertical position of the centre of the rotation
+     */
     rotateRight(centreX, centreY) {
         if(this.getIndex("rotate")===-1) {
             this.setRotate(90, centreX, centreY);
@@ -111,7 +170,10 @@ export class Transform {
         }
     }
 
-    // returns the transform properties concatenated
+    /**
+     * get the transform values in a string
+     * @return {string} string that can be used as a value for the transform property of a SVG element
+     */
     get() {
         let retVal = "";
         for(let i = 0 ; i < this.items.length ; i++) {
@@ -123,10 +185,20 @@ export class Transform {
         return retVal;
     }
 
+    /**
+     * get arguments of a property specified by index
+     * @param  {number} index index of the property
+     * @return {array}       array of arguments of the specified property
+     */
     getArguments(index) {
         return this.items[index].args;
     }
 
+    /**
+     * set argumets of a property specified by name
+     * @param {string} name name of the property
+     * @param {array} args array of arguments of the specified property
+     */
     setParameter(name, args) {
         // determine index of the parameter (if set), else index == -1
         let index = this.getIndex(name);
@@ -144,11 +216,17 @@ export class Transform {
     }
 }
 
-// parent class for all network elements
+/**
+ * parent class for all network elements
+ */
 class NetworkElement {
+    /**
+     * Basic constructor for NetworkElement
+     * @param {Canvas} parentSVG reference to the instance of {@link Canvas} that this element belongs to
+     */
     constructor(parentSVG) {
         if(!parentSVG) {
-            console.error("Parent SVG element has not been defined.");
+            console.error("Parent SVG element has to be defined.");
         }
         this.parentSVG = parentSVG;
 
@@ -156,38 +234,72 @@ class NetworkElement {
         this.svgObj = undefined;
     }
 
+    /**
+     * Get the unique ID of the SVG element tied to this logical element
+     * @return {string} ID of the SVG element
+     */
     get id() {
         return this.svgObj.id;
     }
 
-    onMouseDown() {
-        // empty function to prevent error messages, function is implemented later in the Box class
-    }
+    /**
+     * empty callback function to prevent error messages, function is implemented later in the {@link Box} class
+     */
+    onMouseDown() {}
 
-    onMouseUp() {
-        // empty function to prevent error messages, function is implemented later in the Box and Connector classes
-    }
+    /**
+     * empty function to prevent error messages, function is implemented later in the {@link Box} and {@link Connector} classes
+     */
+    onMouseUp() {}
 
-    onMouseMove() {
-        // empty function to prevent error messages, function is implemented later in the Box class
-    }
+    /**
+     * empty function to prevent error messages, function is implemented later in the {@link Box} class
+     */
+    onMouseMove() {}
 
+    /**
+     * "virtual" getter for json data, prints an error that it has to be redefined in the derived classes
+     */
     get exportData() {
         console.error("'json' getter has not been defined for this element", this);
         return undefined;
     }
 }
 
-// parent class for input and output connectors (the things you click on
-// when you want to connect elements)
+/**
+ * parent class for input and output connectors
+ * @extends NetworkElement
+ */
 class Connector extends NetworkElement {
-    constructor(parentSVG, gridSize, left, top) { // unit of left / top is the size of the grid
+    /**
+     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {number} gridSize  size of the grid in SVG pixels
+     * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
+     * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
+     */
+    constructor(parentSVG, gridSize, left, top) {
         super(parentSVG);
 
+        /**
+         * size of the grid in SVG pixels
+         * @type {number}
+         */
         this.gridSize = gridSize;
+        /**
+         * size of the connector in SVG pixels
+         * @type {number}
+         */
         this.connectorSize = gridSize;
+        /**
+         * offset of the connector from the grid in SVG pixels
+         * @type {number}
+         */
         this.connectorOffset = this.connectorSize / 2;
 
+        /**
+         * instance of {@link svgObjects.svgObj} that holds all SVG information about this connector
+         * @type {svgObj}
+         */
         this.svgObj = new svgObj.Rectangle(
             left * this.gridSize - this.connectorOffset,
             top * this.gridSize - this.connectorOffset,
@@ -268,6 +380,10 @@ class Connector extends NetworkElement {
     }
 }
 
+/**
+ * Connector that takes gets its state from a connected value and passes it through to the {@link Box} this connector belongs to.
+ * @extends Connector
+ */
 export class InputConnector extends Connector {
     constructor(parentSVG, gridSize, left, top) {
         super(parentSVG, gridSize, left, top);
@@ -296,6 +412,10 @@ export class InputConnector extends Connector {
     }
 }
 
+/**
+ * Connector that takes a state defined by the {@link Box} it belongs to and passes it to all connected wire
+ * @extends Connector
+ */
 export class OutputConnector extends Connector {
     constructor(parentSVG, gridSize, left, top) {
         super(parentSVG, gridSize, left, top);
@@ -319,7 +439,10 @@ export class OutputConnector extends Connector {
     }
 }
 
-// parent class for gates and input and output boxes
+/**
+ * parent class for gates and input and output boxes
+ * @extends NetworkElement
+ */
 class Box extends NetworkElement {
     constructor(parentSVG, name, category, gridWidth, gridHeight) {
         super(parentSVG);
@@ -647,6 +770,10 @@ class Box extends NetworkElement {
     }
 }
 
+/**
+ * InputBox has only output connectors and is used to set the input states for the logic network.
+ * @extends Box
+ */
 export class InputBox extends Box {
     constructor(parentSVG, isOn = false) {
         const width = 7;
@@ -699,6 +826,10 @@ export class InputBox extends Box {
     }
 }
 
+/**
+ * OutputBox has only input connectors and is used to visualize the output states of the logic network.
+ * @extends Box
+ */
 export class OutputBox extends Box {
     constructor(parentSVG) {
         const height = 4;
@@ -735,6 +866,10 @@ export class OutputBox extends Box {
     }
 }
 
+/**
+ * Gate is a box that processes the states of its input connectors and returns the result in its output connectors.
+ * @extends Box
+ */
 export class Gate extends Box {
     constructor(parentSVG, name) {
         const width = 9;
@@ -802,6 +937,10 @@ export class Gate extends Box {
     }
 }
 
+/**
+ * Wire represents connection of two {@link Connector}s.
+ * @extends NetworkElement
+ */
 export class Wire extends NetworkElement {
     constructor(parentSVG, fromId, toId, gridSize, refresh = true) {
         // small TODO: rework start... end... to arrays? (not important)
