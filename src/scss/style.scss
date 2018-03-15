@@ -1,15 +1,7 @@
 @import "lib/normalize";
-
 @include normalize();
 
-/*//////////////////////////////////////*/
-
-$onColor: #00ff00;
-$offColor: #ff0000;
-$unknownColor: #8b8b8b;
-$oscillatingColor: #0000ff;
-
-/*//////////////////////////////////////*/
+@import "colors";
 
 body {
     font-family: 'Open Sans', sans-serif;
@@ -24,3 +16,11 @@ body {
 
 @import "ui";
 @import "svg";
+
+.grabbable {
+    cursor: grab !important;
+}
+
+.grabbed {
+    cursor: grabbing !important;
+}

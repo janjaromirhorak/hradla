@@ -1,0 +1,80 @@
+@import "colors";
+$accentPrimary: $red;
+$accentSecondary: $yellow;
+
+/* TODO make fonts slightly bigger */
+
+/* change colors */
+#resizer {
+    background-color: $accentPrimary;
+}
+
+a, .readme p a {
+    color: $accentPrimary;
+}
+
+.lnb {
+    h3 {
+        color: $accentPrimary;
+    }
+
+    .lnb-api a, .lnb-examples a {
+        color: $accentSecondary;
+
+        &:hover, &:focus {
+            color: lighten($accentSecondary, 10%);
+        }
+    }
+
+    .member-type {
+        color: $accentPrimary;
+    }
+}
+
+.btn-link {
+    color: $accentSecondary;
+    opacity: 0.8;
+
+    &:focus, &:hover {
+        color: $accentSecondary;
+
+        opacity: 0.6;
+    }
+}
+
+.main section article h3.subsection-title {
+    color: $accentPrimary;
+}
+
+/* format tables */
+table.params {
+    width: 100%;
+
+    tr {
+        border: 1px solid #eee;
+    }
+}
+
+.main section article table {
+    td, th {
+        padding: 3px;
+    }
+}
+
+/* format headings */
+.main section article dl dt .name {
+    padding: 4px 10px;
+}
+
+/* hide the footer */
+footer {
+    display: none;
+}
+
+.lnb {
+    bottom: 0;
+}
+
+#main {
+    margin-bottom: 0;
+}

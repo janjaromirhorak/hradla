@@ -31,7 +31,7 @@ export class exportNetwork {
     };
 }
 
-export class importNetwok {
+export class importNetwork {
     constructor(parentSVG, string) {
         parentSVG.importData(
             JSON.parse(string)

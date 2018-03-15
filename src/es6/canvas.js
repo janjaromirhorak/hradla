@@ -6,55 +6,180 @@ import Logic from './logic.js'
 import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
 import Simulation from './simulation.js'
-import Fn from './smallFunctions.js'
+import Fn from './fn.js'
 
+/**
+ * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
+ */
 class ViewBox {
+    /**
+     * Initialize viewBox
+     * @param {number} left   distance of the left edge of the viewbox from document's y axis in SVG pixels
+     * @param {number} top    distance of the top edge of the viewbox from the document's x axis in SVG pixels
+     * @param {number} width  width of the viewbox in SVG pixels
+     * @param {number} height height of the viewbox in SVG pixels
+     */
     constructor(left, top, width, height) {
+        /**
+         * ViewBox attributes before applying zoom and shift
+         * @type {object}
+         */
         this.real = { left, top, width, height }
 
-        this.zoom = 1
+        /**
+         * The maximum amount of zoom on the viewbox
+         * @type {number}
+         */
+        this.maxZoom = 8;
+        /**
+         * The minimum amount of zoom on the viewbox
+         * @type {number}
+         */
+        this.minZoom = 0.1;
+
+        /**
+         * Amount of zoom on the viewbox, always between this.minZoom and this.maxZoom
+         * @type {number}
+         */
+        this.realZoom = 1
+
+        /**
+         * amount of horizontal shift of the document
+         * @type {number}
+         */
         this.leftShift = 0
+        /**
+         * amount of vertical shift of the document
+         * @type {number}
+         */
         this.topShift = 0
     }
 
+    /**
+     * get the amount of zoom on the viewbox
+     * @return {number}
+     */
+    get zoom() {
+        return this.realZoom;
+    }
+
+    /**
+     * set the amount of zoom on the viewbox
+     * @param {number} value the new amount of zoom
+     */
+    set zoom(value) {
+        // fit this.realZoom to fit between this.minZoom and this.maxZoom
+        this.realZoom = Math.max(Math.min(value, this.maxZoom), this.minZoom);
+    }
+
+    /**
+     * get the width of the viewbox with the current zoom applied
+     * @return {number} the final width of the viewbox
+     */
     get width() {
         return this.real.width / this.zoom
     }
 
+    /**
+     * get the height of the viewbox with the current zoom applied
+     * @return {number} the final height of the viewbox
+     */
     get height() {
         return this.real.height / this.zoom
     }
 
+    /**
+     * get the horizontal distance from the y axis of the document with zoom and shift value applied
+     * @return {number}
+     */
     get left() {
         return this.real.left - (this.leftShift / this.zoom) + ((this.real.width - this.width) / 2)
     }
 
+    /**
+     * get the vertical distance from the x axis of the document with zoom and shift value applied
+     * @return {number}
+     */
     get top() {
         return this.real.top - (this.topShift / this.zoom) + ((this.real.height - this.height) / 2)
     }
 
+    /**
+     * get the computed viewbox values as a string in the correct format that can be used in the viewBox attribute of the SVG element
+     * @return {string} string in format "left top width height"
+     */
     get str() {
         return `${this.left} ${this.top} ${this.width} ${this.height}`
     }
 
-    // transforms horizontal units to the scale and shift of the editor
+    /**
+     * transform horizontal units to the scale and shift of the editor
+     * @param  {number} x original horizontal value
+     * @return {number}   transformed horizontal value
+     */
     transformX(x) {
         return this.left + (x / this.zoom)
     }
 
-    // transforms vertical units to the scale and shift of the editor
+    /**
+     * transform vertical units to the scale and shift of the editor
+     * @param  {number} y original vertical value
+     * @return {number}   transformed vertical value
+     */
     transformY(y) {
         return this.top + (y / this.zoom)
     }
+
+    /**
+     * transform pageX and pageY parameters of the jquery event to match the zoom and shift of the viewbox
+     * @param  {jquery.MouseEvent} event original event
+     * @return {jquery.MouseEvent}       the same event but with transformed pageX and pageY members
+     */
+    transformEvent(event) {
+        event.pageX = this.transformX(event.pageX)
+        event.pageY = this.transformY(event.pageY)
+
+        return event
+    }
 }
 
-export default class Svg {
+const
+    ctrlKey = 17,
+    cmdKey = 91;
+
+/** @module Canvas */
+/**
+ * Main class of the application. It represents an instance of the whole editor and holds
+ * references to all its elements.
+ */
+export default class Canvas {
+    /**
+     * Initialize the Svg class
+     * @param {string} canvas   query selector of the SVG element, that will contain all SVG content of the application
+     * @param {number} gridSize initial size of the grid in SVG pixels
+     */
     constructor(canvas, gridSize) {
+        /**
+         * jQuery element for the SVG document
+         */
         this.$svg = $(canvas);
 
+        /**
+         * space between grid lines in SVG pixels
+         * @type {number}
+         */
         this.gridSize = gridSize;
 
+        /**
+         * Array of all boxes (instances of objects derived from editorElements.Box) used on Canvas
+         * @type {Array}
+         */
         this.boxes = []; // stores all boxes
+
+        /**
+         * Array of all wires (instances of editorElements.Wire) used on Canvas
+         * @type {Array}
+         */
         this.wires = []; // stores all wires
 
         this.simulationEnabled = true
@@ -128,6 +253,12 @@ export default class Svg {
         }).on("contextmenu", event => {
             this.displayContextMenu(event.pageX, event.pageY, this.getRealJQueryTarget(event.target));
             event.preventDefault();
+        })
+
+        $(document).on('keydown', event => {
+            this.onKeyDown(event);
+        }).on("keyup", event => {
+            this.onKeyUp(event);
         });
 
         Fn.addMouseScrollEventListener(canvas, event => {
@@ -147,16 +278,50 @@ export default class Svg {
         })
     }
 
+    /**
+     * Get the width of the main SVG element
+     * @return {number} width of the SVG element in pixels
+     */
     get width() {
         return this.$svg.width()
     }
 
+    /**
+     * Get the height of the main SVG element
+     * @return {number} height of the SVG element in pixels
+     */
     get height() {
         return this.$svg.height()
     }
 
+    /**
+     * Process all keydown events that are connected to Canvas
+     * @param  {jquery.KeyboardEvent} event KeyboardEvent generated by a listener
+     */
+    onKeyDown(event) {
+        if(event.keyCode === ctrlKey || event.keyCode === cmdKey) {
+            this.$svg.addClass('grabbable');
+        }
+    }
+
+    /**
+     * Process all keyup events that are connected to Canvas
+     * @param  {jquery.KeyboardEvent} event KeyboardEvent generated by a listener
+     */
+    onKeyUp(event) {
+        if(event.keyCode === ctrlKey || event.keyCode === cmdKey) {
+            this.$svg.removeClass('grabbable');
+        }
+    }
+
+    /**
+     * Process all mousedown events that are happening directly on the Canvas
+     * @param  {jquery.MouseEvent} event MouseEvent generated by a listener
+     */
     onMouseDown(event) {
-        if(event.ctrlKey) {
+        // middle mouse or left mouse + ctrl moves the canvas
+        if(event.which === 2 || (event.which === 1 && event.ctrlKey)) {
+            this.$svg.addClass('grabbed');
             this.moveCanvas = {
                 left: event.pageX,
                 top: event.pageY
@@ -164,6 +329,10 @@ export default class Svg {
         }
     }
 
+    /**
+     * Process all mousemove events that are happening directly on the Canvas
+     * @param  {jquery.MouseEvent} event MouseEvent generated by a listener
+     */
     onMouseMove(event) {
         if(this.moveCanvas) {
             let left = event.pageX - this.moveCanvas.left
@@ -180,12 +349,21 @@ export default class Svg {
         }
     }
 
+    /**
+     * Process all mouseup events that are happening directly on the Canvas
+     * @param  {jquery.MouseEvent} event MouseEvent generated by a listener
+     */
     onMouseUp(event) {
         if(this.moveCanvas) {
+            this.$svg.removeClass('grabbed');
             this.moveCanvas = undefined
         }
     }
 
+    /**
+     * Set the viewBox attribute of the SVG element and size and position attributes
+     * of the rectangle with the background grid to match the values in this.viewbox
+     */
     applyViewbox() {
         // adjust background
         this.background.addAttr({
@@ -199,22 +377,36 @@ export default class Svg {
         this.$svg.attr('viewBox', this.viewbox.str)
     }
 
+    /**
+     * Get the current zoom multiplier of the canvas
+     * @return {number}
+     */
     get zoom() {
         return this.viewbox.zoom
     }
 
+    /**
+     * Set the zoom multiplier of the canvas.
+     * I sets the viewbox zoom and then applies the new value by calling this.applyViewbox()
+     * @param  {number} value set the zoom to this value
+     */
     set zoom(value) {
         this.viewbox.zoom = value
         this.applyViewbox()
-        // this.refresh()
     }
 
+    /**
+     * Generate an object containing export data for the Canvas and all elements.
+     * Data from this function should cover all important information needed to import the
+     * network in a different session.
+     * @return {object} object containing infomration about the network
+     */
     get exportData() {
         this.exportWireIdMap = new Map();
         this.exportWireId = 0;
 
         let data = {
-            // todo implement gridSize scaling
+            // TODO implement gridSize scaling
             // gridSize: this.gridSize,
             boxes: []
         };
@@ -226,10 +418,14 @@ export default class Svg {
         return data;
     }
 
+    /**
+     * Recreate a logic network from the data provided
+     * @param  {object} data object containing information about the imported network
+     */
     importData(data) {
         this.simulationEnabled = false
 
-        // todo implement gridSize scaling
+        // TODO implement gridSize scaling
 
         // list of wires to be added
         let newWires = new Map();
@@ -341,13 +537,18 @@ export default class Svg {
                 // results in weird unfinished simulation
                 // this causes update of the output connector and a start of a new simulation
 
-                // todo find better solution instead of this workaround
+                // TODO find better solution instead of this workaround
                 box.on = !box.on
                 box.on = !box.on
             }
         }
     }
 
+    /**
+     * When user clicks on a connector, remember it until they click on some other connector.
+     * Than call newWire with the last two connectors ids as arguments.
+     * @param  {string} connectorId id of the connector that the user clicked on
+     */
     wireCreationHelper(connectorId) {
         if(!this.firstConnectorId) {
             this.firstConnectorId = connectorId;
@@ -357,6 +558,13 @@ export default class Svg {
         }
     }
 
+    /**
+     * Run a logic simulation from the startingConnector.
+     * This refreshes the states of all elements in the network whose inputs are
+     * directly (or by transition) connected to startingConnector's output
+     * @param  {OutputConnector} startingConnector run simulation from this output connector
+     * @param  {Logic.state} state new state of the startingConnector
+     */
     startNewSimulation(startingConnector, state) {
         if(this.simulationEnabled) {
             this.simulation = new Simulation(this)
@@ -365,18 +573,49 @@ export default class Svg {
         }
     }
 
+    /**
+     * Create a new gate on the specified position
+     * @param  {string}  name           type of the gate (and, or ...)
+     * @param  {number}  x              horizontal position of the gate in SVG pixels
+     * @param  {number}  y              vertical position of the gate in SVG pixels
+     * @param  {boolean} [refresh=true] if true, this.refresh() will be called after adding the gate
+     * @return {editorElements.Gate}    instance of Gate that has been newly added
+     */
     newGate(name, x, y, refresh = true) {
         return this.newBox(x, y, new editorElements.Gate(this, name, x, y), refresh);
     }
 
+    /**
+     * Create an input box on the specified position
+     * @param  {number}  x              horizontal position of the gate in SVG pixels
+     * @param  {number}  y              vertical position of the gate in SVG pixels
+     * @param  {boolean} [isOn=false]   state of the input box (default is false (off))
+     * @param  {boolean} [refresh=true] if true, this.refresh() will be called after adding the input box
+     * @return {editorElements.InputBox}    instance of the InputBox that has been newly added
+     */
     newInput(x, y, isOn = false, refresh = true) {
         return this.newBox(x, y, new editorElements.InputBox(this, isOn), refresh);
     }
 
+    /**
+     * Create an output box on the specified position
+     * @param  {number}  x              horizontal position of the gate in SVG pixels
+     * @param  {number}  y              vertical position of the gate in SVG pixels
+     * @param  {boolean} [refresh=true] if true, this.refresh() will be called after adding the output box
+     * @return {editorElements.InputBox}    instance of the OutputBox that has been newly added
+     */
     newOutput(x, y, refresh = true) {
         return this.newBox(x, y, new editorElements.OutputBox(this), refresh);
     }
 
+    /**
+     * Add a new Box to the Canvas
+     * @param  {number}  x              horizontal position of the box in SVG pixels
+     * @param  {number}  y              vertical position of the box in SVG pixels
+     * @param  {editorElements.Box}  object         instance of an object derived from the editorElements.Box class
+     * @param  {Boolean} [refresh=true] if true, this.refresh() will be called after adding the box
+     * @return {editorElements.Box}                 return the instance of the newly added object
+     */
     newBox(x, y, object, refresh = true) {
         let index = this.boxes.length;
 
@@ -395,13 +634,17 @@ export default class Svg {
         return this.boxes[index];
     }
 
-    removeBox(gateId) {
-        let $gate = $("#"+gateId);
+    /**
+     * Remove a box from Canvas based on the provided ID
+     * @param {string} boxId id of the box that should be removed
+     */
+    removeBox(boxId) {
+        let $gate = $("#"+boxId);
 
         // find the gate in svg's list of gates
         let gateIndex = -1;
         for(let i = 0 ; i < this.boxes.length ; i++) {
-            if(this.boxes[i].svgObj.id===gateId) {
+            if(this.boxes[i].svgObj.id===boxId) {
                 gateIndex = i;
                 break;
             }
@@ -417,12 +660,19 @@ export default class Svg {
             this.boxes.splice(gateIndex, 1);
             $gate.remove();
         } else {
-            console.error("Trying to remove an nonexisting gate. (Gate id: "+gateId+")");
+            console.error("Trying to remove an nonexisting box. Box id:", boxId);
         }
     }
 
+    /**
+     * Create a new wire connecting the provided connectors
+     * @param  {string}  fromId         id of the connector that the wire is attached to
+     * @param  {string}  toId           id of the connector that the wire is attached to
+     * @param  {Boolean} [refresh=true] if refresh is set to true, the SVG document will be reloaded after adding the wire
+     * @return {editorElements.Wire}    instance of editorElements.Wire that has been added to the Canvas
+     */
     newWire(fromId, toId, refresh = true) {
-        // wire must connect two distinct elements
+        // wire must connect two distinct connectors
         if (fromId===toId)
             return false
 
@@ -449,6 +699,11 @@ export default class Svg {
         return this.wires[index];
     }
 
+    /**
+     * Find the correct instance of editorElements.Wire in the Canvas' wires by the provided id
+     * @param  {string} wireId id of the wire
+     * @return {editorElements.Wire} instance of the wire
+     */
     getWireById(wireId) {
         for (const wire of this.wires) {
             if(wire.svgObj.id === wireId) {
@@ -459,11 +714,20 @@ export default class Svg {
         return false;
     }
 
+    /**
+     * Find all wires that are connected to the specified connector
+     * @param  {string} connectorId id of the connector
+     * @return {Set} set of ID's of the wires connected to this connector
+     */
     getWiresByConnectorId(connectorId) {
         let connector = this.getConnectorById(connectorId);
         return connector.wireIds;
     }
 
+    /**
+     * Remove wire that has the provided ID
+     * @param  {string} wireId ID of the wire that should be removed
+     */
     removeWireById(wireId) {
         for(let i = 0 ; i < this.wires.length ; ++i) {
             if (this.wires[i].svgObj.id === wireId) {
@@ -482,6 +746,10 @@ export default class Svg {
         }
     }
 
+    /**
+     * Remove all wires that are connected to the connector provided by its ID
+     * @param  {string} connectorId ID of the connector
+     */
     removeWiresByConnectorId(connectorId) {
         let connector = this.getConnectorById(connectorId);
 
@@ -514,15 +782,25 @@ export default class Svg {
         }
     }
 
-    getBoxById(gateId) {
+    /**
+     * Find the correct instance of editorElements.Box in the Canvas' boxes by the provided id
+     * @param  {string} boxId id of the box
+     * @return {editorElements.Box} instance of the box
+     */
+    getBoxById(boxId) {
         for(let i = 0 ; i < this.boxes.length ; i++) {
-            if(this.boxes[i].svgObj.id===gateId) {
+            if(this.boxes[i].svgObj.id===boxId) {
                 return this.boxes[i];
             }
         }
         return false;
     }
 
+    /**
+     * Find the correct instance of editorElements.Box in the Canvas' boxes by ID of a connector that belongs to this box
+     * @param  {string} boxId id of the connector
+     * @return {editorElements.Box} instance of the box
+     */
     getBoxByConnectorId(connectorId) {
         for(let i = 0 ; i < this.boxes.length ; i++) {
             if (this.boxes[i].getConnectorById(connectorId) !== undefined) {
@@ -532,10 +810,16 @@ export default class Svg {
         return false;
     }
 
-    getConnectorById(connectorId, wire) {
-        // the wire variable is used as heuristic,
-        // when we know the wire, we have to check only
-        // two gates instead of all of them
+    /**
+     * Get instance of a connector based on it's ID (and also on an instance of editorElements.Wire if provided)
+     *
+     * The wire variable is used as heuristic: When we know the wire, we have to check only
+     * two gates instead of all of them
+     * @param  {string} connectorId id of the connector
+     * @param  {editorElements.Wire} [wire]      instance of the Wire that is connected to this connector
+     * @return {editorElements.Connector}        instance of the connector
+     */
+    getConnectorById(connectorId, wire=undefined) {
 
         if(wire!==undefined) {
             // we know the wire -- we can check only gates at the ends of this wire
@@ -558,8 +842,14 @@ export default class Svg {
         return false
     }
 
-    // if the object, that user interacted with, is not a connector and is in a group
-    // return the group jQuery object instead of the original jQuery object
+    /**
+     * Get the logical jQuery target based on the factual jQuery target.
+     *
+     * If the object, that user interacted with, is not a connector and is in a group,
+     * return the group jQuery object instead of the original jQuery object.
+     * @param  {target} target jQuery target of the object user interacted with
+     * @return {target}        jQuery target of the object user wanted to interact with
+     */
     getRealJQueryTarget(target) {
         let $target = $(target);
         if(!$target.hasClass("connector") && $target.parents('g').length > 0) {
@@ -572,6 +862,11 @@ export default class Svg {
     }
 
     // returns the editorElement that user interacted with, the "target" argument is a jQuery element
+    /**
+     * Get instance of some object from editorElement based on the jQuery target
+     * @param  {target} target jQuery target that user interacted with
+     * @return {editorElements.NetworkElement} instance of an object derived from editorElements.NetworkElement that the user interacted with
+     */
     getRealTarget(target) {
         // eventy se museji zpracovat tady, protoze v SVG se eventy nepropaguji
         let $target = $(target);
@@ -596,23 +891,38 @@ export default class Svg {
         }
     }
 
+    /**
+     * Add an element to the Canvas
+     * @param  {editorElements.NetworkElement}  element Element that will be added on the Canvas
+     * @param  {Boolean} [refresh=true] if true, the SVG document will be reloaded after adding this element
+     */
     appendElement(element, refresh = true) {
         this.appendJQueryObject(element.get(), refresh);
     }
 
+    /**
+     * Append a jQuery element to the SVG document (helper for this.appendElement)
+     * @param  {object}  object         jQuery element that will be added to the SVG document
+     * @param  {Boolean} [refresh=true] if true, the SVG document will be reloaded after adding this element
+     */
     appendJQueryObject(object, refresh = true) {
         this.$svg.append(object);
-        if(refresh) {
+        if(refresh)
             this.refresh();
-        }
     }
 
+    /**
+     * Add a new pattern to the definitions element in the SVG document
+     * @param {svgObj.Pattern} pattern pattern that will be added to the <devs> element in the SVG document
+     */
     addPattern(pattern) {
         this.$defs.append(pattern);
         this.refresh();
     }
 
-    // reload the SVG document (needed to display newly appended jQuery object)
+    /**
+     * Reload the SVG document (needed to display a newly appended jQuery object)
+     */
     refresh() {
         this.$svg.html(this.$svg.html());
         console.log("SVG document has been reloaded.")
@@ -662,7 +972,7 @@ export default class Svg {
                 });
             }
         }
-        // todo ensure that this.refresh() is really unnecessary
+        // TODO ensure that this.refresh() is really unnecessary
         // this.refresh();
         // return the set
         return blockedNodes;
