@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Class: ViewBox | Hradla</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-jsdoc.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/tui-doc.css">
+
+    
+        
+            <link type="text/css" rel="stylesheet" href="../../css/jsdoc.min.css">
+        
+    
+</head>
+<body>
+<nav class="lnb" id="lnb">
+    <div class="logo" style="width: 40px; height: 20px">
+        
+            <img src="../../img/gate/xor.svg" width="100%" height="100%">
+        
+    </div>
+    <div class="title">
+        <h1><a href="index.html" class="link">Hradla</a></h1>
+        
+    </div>
+    <div class="search-container" id="search-container">
+        <input type="text" placeholder="Search">
+        <ul></ul>
+    </div>
+    
+    <div class="lnb-api hidden"><h3>Modules</h3><ul><li><a href="module-Canvas.html">Canvas</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:Canvas_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-Canvas.html#$svg">$svg</a></li><li><a href="module-Canvas.html#boxes">boxes</a></li><li><a href="module-Canvas.html#exportData">exportData</a></li><li><a href="module-Canvas.html#gridSize">gridSize</a></li><li><a href="module-Canvas.html#height">height</a></li><li><a href="module-Canvas.html#width">width</a></li><li><a href="module-Canvas.html#wires">wires</a></li><li><a href="module-Canvas.html#zoom">zoom</a></li><li><a href="module-Canvas.html#zoom">zoom</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-Canvas.html#addPattern">addPattern</a></li><li><a href="module-Canvas.html#appendElement">appendElement</a></li><li><a href="module-Canvas.html#appendJQueryObject">appendJQueryObject</a></li><li><a href="module-Canvas.html#applyViewbox">applyViewbox</a></li><li><a href="module-Canvas.html#getBoxByConnectorId">getBoxByConnectorId</a></li><li><a href="module-Canvas.html#getBoxById">getBoxById</a></li><li><a href="module-Canvas.html#getConnectorById">getConnectorById</a></li><li><a href="module-Canvas.html#getRealJQueryTarget">getRealJQueryTarget</a></li><li><a href="module-Canvas.html#getRealTarget">getRealTarget</a></li><li><a href="module-Canvas.html#getWireById">getWireById</a></li><li><a href="module-Canvas.html#getWiresByConnectorId">getWiresByConnectorId</a></li><li><a href="module-Canvas.html#importData">importData</a></li><li><a href="module-Canvas.html#newBox">newBox</a></li><li><a href="module-Canvas.html#newGate">newGate</a></li><li><a href="module-Canvas.html#newInput">newInput</a></li><li><a href="module-Canvas.html#newOutput">newOutput</a></li><li><a href="module-Canvas.html#newWire">newWire</a></li><li><a href="module-Canvas.html#onKeyDown">onKeyDown</a></li><li><a href="module-Canvas.html#onKeyUp">onKeyUp</a></li><li><a href="module-Canvas.html#onMouseDown">onMouseDown</a></li><li><a href="module-Canvas.html#onMouseMove">onMouseMove</a></li><li><a href="module-Canvas.html#onMouseUp">onMouseUp</a></li><li><a href="module-Canvas.html#refresh">refresh</a></li><li><a href="module-Canvas.html#removeBox">removeBox</a></li><li><a href="module-Canvas.html#removeWireById">removeWireById</a></li><li><a href="module-Canvas.html#removeWiresByConnectorId">removeWiresByConnectorId</a></li><li><a href="module-Canvas.html#startNewSimulation">startNewSimulation</a></li><li><a href="module-Canvas.html#wireCreationHelper">wireCreationHelper</a></li></ul></div></li></ul></div><div class="lnb-api hidden"><h3>Classes</h3><ul><li><a href="Box.html">Box</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="Box_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="Box.html#exportData">exportData</a></li><li><a href="Box.html#id">id</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="Box.html#onMouseDown">onMouseDown</a></li><li><a href="Box.html#onMouseMove">onMouseMove</a></li><li><a href="Box.html#onMouseUp">onMouseUp</a></li></ul></div></li><li><a href="Connector.html">Connector</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="Connector_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="Connector.html#connectorOffset">connectorOffset</a></li><li><a href="Connector.html#connectorSize">connectorSize</a></li><li><a href="Connector.html#exportData">exportData</a></li><li><a href="Connector.html#gridSize">gridSize</a></li><li><a href="Connector.html#id">id</a></li><li><a href="Connector.html#svgObj">svgObj</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="Connector.html#onMouseDown">onMouseDown</a></li><li><a href="Connector.html#onMouseMove">onMouseMove</a></li><li><a href="Connector.html#onMouseUp">onMouseUp</a></li></ul></div></li><li><a href="Gate.html">Gate</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="Gate_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="Gate.html#exportData">exportData</a></li><li><a href="Gate.html#id">id</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="Gate.html#onMouseDown">onMouseDown</a></li><li><a href="Gate.html#onMouseMove">onMouseMove</a></li><li><a href="Gate.html#onMouseUp">onMouseUp</a></li></ul></div></li><li><a href="InputBox.html">InputBox</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="InputBox_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="InputBox.html#exportData">exportData</a></li><li><a href="InputBox.html#id">id</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="InputBox.html#onMouseDown">onMouseDown</a></li><li><a href="InputBox.html#onMouseMove">onMouseMove</a></li><li><a href="InputBox.html#onMouseUp">onMouseUp</a></li></ul></div></li><li><a href="InputConnector.html">InputConnector</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="InputConnector_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="InputConnector.html#connectorOffset">connectorOffset</a></li><li><a href="InputConnector.html#connectorSize">connectorSize</a></li><li><a href="InputConnector.html#exportData">exportData</a></li><li><a href="InputConnector.html#gridSize">gridSize</a></li><li><a href="InputConnector.html#id">id</a></li><li><a href="InputConnector.html#svgObj">svgObj</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="InputConnector.html#onMouseDown">onMouseDown</a></li><li><a href="InputConnector.html#onMouseMove">onMouseMove</a></li><li><a href="InputConnector.html#onMouseUp">onMouseUp</a></li></ul></div></li><li><a href="module-Canvas.html">Canvas</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:Canvas_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-Canvas.html#$svg">$svg</a></li><li><a href="module-Canvas.html#boxes">boxes</a></li><li><a href="module-Canvas.html#exportData">exportData</a></li><li><a href="module-Canvas.html#gridSize">gridSize</a></li><li><a href="module-Canvas.html#height">height</a></li><li><a href="module-Canvas.html#width">width</a></li><li><a href="module-Canvas.html#wires">wires</a></li><li><a href="module-Canvas.html#zoom">zoom</a></li><li><a href="module-Canvas.html#zoom">zoom</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-Canvas.html#addPattern">addPattern</a></li><li><a href="module-Canvas.html#appendElement">appendElement</a></li><li><a href="module-Canvas.html#appendJQueryObject">appendJQueryObject</a></li><li><a href="module-Canvas.html#applyViewbox">applyViewbox</a></li><li><a href="module-Canvas.html#getBoxByConnectorId">getBoxByConnectorId</a></li><li><a href="module-Canvas.html#getBoxById">getBoxById</a></li><li><a href="module-Canvas.html#getConnectorById">getConnectorById</a></li><li><a href="module-Canvas.html#getRealJQueryTarget">getRealJQueryTarget</a></li><li><a href="module-Canvas.html#getRealTarget">getRealTarget</a></li><li><a href="module-Canvas.html#getWireById">getWireById</a></li><li><a href="module-Canvas.html#getWiresByConnectorId">getWiresByConnectorId</a></li><li><a href="module-Canvas.html#importData">importData</a></li><li><a href="module-Canvas.html#newBox">newBox</a></li><li><a href="module-Canvas.html#newGate">newGate</a></li><li><a href="module-Canvas.html#newInput">newInput</a></li><li><a href="module-Canvas.html#newOutput">newOutput</a></li><li><a href="module-Canvas.html#newWire">newWire</a></li><li><a href="module-Canvas.html#onKeyDown">onKeyDown</a></li><li><a href="module-Canvas.html#onKeyUp">onKeyUp</a></li><li><a href="module-Canvas.html#onMouseDown">onMouseDown</a></li><li><a href="module-Canvas.html#onMouseMove">onMouseMove</a></li><li><a href="module-Canvas.html#onMouseUp">onMouseUp</a></li><li><a href="module-Canvas.html#refresh">refresh</a></li><li><a href="module-Canvas.html#removeBox">removeBox</a></li><li><a href="module-Canvas.html#removeWireById">removeWireById</a></li><li><a href="module-Canvas.html#removeWiresByConnectorId">removeWiresByConnectorId</a></li><li><a href="module-Canvas.html#startNewSimulation">startNewSimulation</a></li><li><a href="module-Canvas.html#wireCreationHelper">wireCreationHelper</a></li></ul></div></li><li><a href="NetworkElement.html">NetworkElement</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="NetworkElement_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="NetworkElement.html#exportData">exportData</a></li><li><a href="NetworkElement.html#id">id</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="NetworkElement.html#onMouseDown">onMouseDown</a></li><li><a href="NetworkElement.html#onMouseMove">onMouseMove</a></li><li><a href="NetworkElement.html#onMouseUp">onMouseUp</a></li></ul></div></li><li><a href="OutputBox.html">OutputBox</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="OutputBox_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="OutputBox.html#exportData">exportData</a></li><li><a href="OutputBox.html#id">id</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="OutputBox.html#onMouseDown">onMouseDown</a></li><li><a href="OutputBox.html#onMouseMove">onMouseMove</a></li><li><a href="OutputBox.html#onMouseUp">onMouseUp</a></li></ul></div></li><li><a href="OutputConnector.html">OutputConnector</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="OutputConnector_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="OutputConnector.html#connectorOffset">connectorOffset</a></li><li><a href="OutputConnector.html#connectorSize">connectorSize</a></li><li><a href="OutputConnector.html#exportData">exportData</a></li><li><a href="OutputConnector.html#gridSize">gridSize</a></li><li><a href="OutputConnector.html#id">id</a></li><li><a href="OutputConnector.html#svgObj">svgObj</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="OutputConnector.html#onMouseDown">onMouseDown</a></li><li><a href="OutputConnector.html#onMouseMove">onMouseMove</a></li><li><a href="OutputConnector.html#onMouseUp">onMouseUp</a></li></ul></div></li><li><a href="Property.html">Property</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="Property_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="Property.html#get">get</a></li><li><a href="Property.html#setArguments">setArguments</a></li><li><a href="Property.html#setName">setName</a></li></ul></div></li><li><a href="Transform.html">Transform</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="Transform_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="Transform.html#items">items</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="Transform.html#get">get</a></li><li><a href="Transform.html#getArguments">getArguments</a></li><li><a href="Transform.html#getIndex">getIndex</a></li><li><a href="Transform.html#getRotate">getRotate</a></li><li><a href="Transform.html#getTranslate">getTranslate</a></li><li><a href="Transform.html#rotateRight">rotateRight</a></li><li><a href="Transform.html#setParameter">setParameter</a></li><li><a href="Transform.html#setRotate">setRotate</a></li><li><a href="Transform.html#setTranslate">setTranslate</a></li></ul></div></li><li><a href="ViewBox.html">ViewBox</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="ViewBox_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="ViewBox.html#height">height</a></li><li><a href="ViewBox.html#left">left</a></li><li><a href="ViewBox.html#leftShift">leftShift</a></li><li><a href="ViewBox.html#maxZoom">maxZoom</a></li><li><a href="ViewBox.html#minZoom">minZoom</a></li><li><a href="ViewBox.html#real">real</a></li><li><a href="ViewBox.html#realZoom">realZoom</a></li><li><a href="ViewBox.html#str">str</a></li><li><a href="ViewBox.html#top">top</a></li><li><a href="ViewBox.html#topShift">topShift</a></li><li><a href="ViewBox.html#width">width</a></li><li><a href="ViewBox.html#zoom">zoom</a></li><li><a href="ViewBox.html#zoom">zoom</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="ViewBox.html#transformEvent">transformEvent</a></li><li><a href="ViewBox.html#transformX">transformX</a></li><li><a href="ViewBox.html#transformY">transformY</a></li></ul></div></li><li><a href="Wire.html">Wire</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="Wire_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="Wire.html#exportData">exportData</a></li><li><a href="Wire.html#id">id</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="Wire.html#onMouseDown">onMouseDown</a></li><li><a href="Wire.html#onMouseMove">onMouseMove</a></li><li><a href="Wire.html#onMouseUp">onMouseUp</a></li></ul></div></li></ul></div><div class="lnb-api hidden"><h3>Global</h3><ul><li><a href="global.html#stateClasses">stateClasses</a></li></ul></div>
+</nav>
+<div id="resizer"></div>
+
+<div class="main" id="main">
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>ViewBox<span class="signature">(left, top, width, height)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.</p></div>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+<dt>
+    
+        <h4 class="name" id="ViewBox">
+            
+                new <span class="type-signature"></span>ViewBox<span class="signature">(left, top, width, height)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="canvas.js.html">canvas.js</a></code>,
+                <code><a href="canvas.js.html#line14">line 14</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Initialize viewBox</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>left</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>distance of the left edge of the viewbox from document's y axis in SVG pixels</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>top</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>distance of the top edge of the viewbox from the document's x axis in SVG pixels</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>width of the viewbox in SVG pixels</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>height of the viewbox in SVG pixels</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+        
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+
+<dt>
+<h4 class="name" id="height">
+    <span class="type-signature"></span>height<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line87">line 87</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>get the height of the viewbox with the current zoom applied</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="left">
+    <span class="type-signature"></span>left<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line95">line 95</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>get the horizontal distance from the y axis of the document with zoom and shift value applied</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="leftShift">
+    <span class="type-signature"></span>leftShift<span class="type-signature"> :number</span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line50">line 50</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>amount of horizontal shift of the document</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="maxZoom">
+    <span class="type-signature"></span>maxZoom<span class="type-signature"> :number</span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line33">line 33</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>The maximum amount of zoom on the viewbox</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="minZoom">
+    <span class="type-signature"></span>minZoom<span class="type-signature"> :number</span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line38">line 38</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>The minimum amount of zoom on the viewbox</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="real">
+    <span class="type-signature"></span>real<span class="type-signature"> :object</span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line27">line 27</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>ViewBox attributes before applying zoom and shift</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">object</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="realZoom">
+    <span class="type-signature"></span>realZoom<span class="type-signature"> :number</span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line44">line 44</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>Amount of zoom on the viewbox, always between this.minZoom and this.maxZoom</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="str">
+    <span class="type-signature"></span>str<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line111">line 111</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>get the computed viewbox values as a string in the correct format that can be used in the viewBox attribute of the SVG element</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="top">
+    <span class="type-signature"></span>top<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line103">line 103</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>get the vertical distance from the x axis of the document with zoom and shift value applied</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="topShift">
+    <span class="type-signature"></span>topShift<span class="type-signature"> :number</span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line55">line 55</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>amount of vertical shift of the document</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="width">
+    <span class="type-signature"></span>width<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line79">line 79</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>get the width of the viewbox with the current zoom applied</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="zoom">
+    <span class="type-signature"></span>zoom<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line70">line 70</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>set the amount of zoom on the viewbox</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="zoom">
+    <span class="type-signature"></span>zoom<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="canvas.js.html">canvas.js</a></code>,
+        <code><a href="canvas.js.html#line62">line 62</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>get the amount of zoom on the viewbox</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+                
+
+<dt>
+    
+        <h4 class="name" id="transformEvent">
+            
+                <span class="type-signature"></span>transformEvent<span class="signature">(event)</span><span class="type-signature"> &rarr; {jquery.MouseEvent}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="canvas.js.html">canvas.js</a></code>,
+                <code><a href="canvas.js.html#line138">line 138</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>transform pageX and pageY parameters of the jquery event to match the zoom and shift of the viewbox</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">jquery.MouseEvent</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>original event</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">jquery.MouseEvent</span>
+
+
+
+
+
+- <p>the same event but with transformed pageX and pageY members</p>
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="transformX">
+            
+                <span class="type-signature"></span>transformX<span class="signature">(x)</span><span class="type-signature"> &rarr; {number}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="canvas.js.html">canvas.js</a></code>,
+                <code><a href="canvas.js.html#line120">line 120</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>transform horizontal units to the scale and shift of the editor</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>original horizontal value</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">number</span>
+
+
+
+
+
+- <p>transformed horizontal value</p>
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="transformY">
+            
+                <span class="type-signature"></span>transformY<span class="signature">(y)</span><span class="type-signature"> &rarr; {number}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="canvas.js.html">canvas.js</a></code>,
+                <code><a href="canvas.js.html#line129">line 129</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>transform vertical units to the scale and shift of the editor</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>original vertical value</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">number</span>
+
+
+
+
+
+- <p>transformed vertical value</p>
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<footer>
+    <img class="logo" src="../../img/gate/xor.svg" style="width: 40px; height: 20px">
+    <div class="footer-text">Hradla — Logic Network Simulator</div>
+</footer>
+<script>prettyPrint();</script>
+<script src="scripts/jquery.min.js"></script>
+<script src="scripts/tui-doc.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+    <script>
+        var id = 'ViewBox_sub'.replace(/"/g, '_');
+        var selectedApi = document.getElementById(id); // do not use jquery selector
+        var $selectedApi = $(selectedApi);
+
+        $selectedApi.removeClass('hidden');
+        $selectedApi.parent().find('.glyphicon').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+        showLnbApi();
+    </script>
+
+</body>
+</html>
