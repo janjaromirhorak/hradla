@@ -158,7 +158,7 @@ $menuItemWidth: 10em;
     background:white;
     color:black;
 
-    &.export pre, &.import textarea {
+    &.export textarea, &.import textarea {
         background: white;
         color: black;
         border: thin solid #aeaeae;
@@ -171,21 +171,11 @@ $menuItemWidth: 10em;
 
         width: 40em;
         max-width: 90vw;
-    }
 
-    &.export {
-        pre {
-            max-height: 50vh;
-        }
-    }
+        resize: none;
+        display: block;
 
-    &.import {
-        textarea {
-            resize: none;
-            display: block;
-
-            height: 50vh;
-        }
+        height: 50vh;
     }
 
     a.download, a.upload {

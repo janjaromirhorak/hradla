@@ -81,9 +81,10 @@ export default class floatingMenu extends jqueryElement {
                 .addClass("import");
 
             let textareaId = "importJSON";
+            let $textblock = $("<textarea>").attr('id', textareaId);
 
             $popup.append(
-                $("<textarea></textarea>").attr('id', textareaId)
+                $textblock
             ).append(
                 $("<a>")
                     .attr({
@@ -109,6 +110,9 @@ export default class floatingMenu extends jqueryElement {
             );
 
             lityInstanceImport = lity($popup);
+
+            // focus on the textblock
+            $textblock.focus();
         });
 
         this.append(importButton);
@@ -125,14 +129,9 @@ export default class floatingMenu extends jqueryElement {
                 .addClass("export");
 
             // generate the block with code to be displayed and append it to the popup element
-            $popup.append(
-                $("<pre>").append(
-                    $("<code>")
-                        .text(
-                            data.json(exportNetwork.style.pretty)
-                        )
-                )
-            );
+            let $textblock = $("<textarea>").text(data.json(exportNetwork.style.pretty))
+
+            $popup.append($textblock);
 
             // generate the links
             $popup.append(
@@ -155,6 +154,9 @@ export default class floatingMenu extends jqueryElement {
             );
 
             lity($popup);
+
+            // highlight the text in the textblock
+            $textblock.select();
         });
 
         this.append(exportButton);

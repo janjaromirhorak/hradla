@@ -509,7 +509,7 @@ body {
   padding: 1em;
   background: white;
   color: black; }
-  .importExport.export pre, .importExport.import textarea {
+  .importExport.export textarea, .importExport.import textarea {
     background: white;
     color: black;
     border: thin solid #aeaeae;
@@ -518,10 +518,7 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     width: 40em;
-    max-width: 90vw; }
-  .importExport.export pre {
-    max-height: 50vh; }
-  .importExport.import textarea {
+    max-width: 90vw;
     resize: none;
     display: block;
     height: 50vh; }

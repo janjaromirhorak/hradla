@@ -3452,8 +3452,9 @@ var floatingMenu = function (_jqueryElement4) {
             var $popup = $("<div>").addClass("importExport").addClass("import");
 
             var textareaId = "importJSON";
+            var $textblock = $("<textarea>").attr('id', textareaId);
 
-            $popup.append($("<textarea></textarea>").attr('id', textareaId)).append($("<a>").attr({
+            $popup.append($textblock).append($("<a>").attr({
                 "href": "#",
                 "class": "upload"
             }).append($("<img>").attr('src', "img/gui/import.svg")).append(" import from JSON").on('click', function () {
@@ -3470,6 +3471,9 @@ var floatingMenu = function (_jqueryElement4) {
             }));
 
             lityInstanceImport = lity($popup);
+
+            // focus on the textblock
+            $textblock.focus();
         });
 
         _this4.append(importButton);
@@ -3484,7 +3488,9 @@ var floatingMenu = function (_jqueryElement4) {
             var $popup = $("<div>").addClass("importExport").addClass("export");
 
             // generate the block with code to be displayed and append it to the popup element
-            $popup.append($("<pre>").append($("<code>").text(data.json(_importExport.exportNetwork.style.pretty))));
+            var $textblock = $("<textarea>").text(data.json(_importExport.exportNetwork.style.pretty));
+
+            $popup.append($textblock);
 
             // generate the links
             $popup.append($("<a>").attr({
@@ -3499,6 +3505,9 @@ var floatingMenu = function (_jqueryElement4) {
             }).append($("<img>").attr('src', "img/gui/export.svg")).append(" compact JSON"));
 
             lity($popup);
+
+            // highlight the text in the textblock
+            $textblock.select();
         });
 
         _this4.append(exportButton);
