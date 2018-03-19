@@ -1966,17 +1966,32 @@ var Connector = function (_NetworkElement) {
 
         _this.svgObj.$el.addClass("connector");
 
-        _this.stateAttr = false;
-
-        // if a wire can set connector's state
+        /**
+         * this flag describes whether this connector is an input connector
+         * @type {Boolean}
+         */
         _this.isInputConnector = false;
 
-        _this.stateAttr = _logic2.default.state.unknown;
+        /**
+         * current logical state of this connector
+         * @type {Logic.state}
+         */
+        _this.elementState = _logic2.default.state.unknown;
         _this.svgObj.addClass(stateClasses.unknown);
 
+        /**
+         * set of ids of all wires connected to this connector
+         * @type {Set}
+         */
         _this.wireIds = new Set();
         return _this;
     }
+
+    /**
+     * whether this connector is an output connector
+     * @return {Boolean}
+     */
+
 
     _createClass(Connector, [{
         key: 'addWireId',
@@ -2016,7 +2031,7 @@ var Connector = function (_NetworkElement) {
                     break;
             }
 
-            this.stateAttr = state;
+            this.elementState = state;
         }
     }, {
         key: 'get',
@@ -2033,18 +2048,19 @@ var Connector = function (_NetworkElement) {
         get: function get() {
             return !this.isInputConnector;
         }
+
+        /**
+         * whether this connector is an output connector
+         * @return {Boolean}
+         */
+        ,
+        set: function set(value) {
+            this.isInputConnector = !value;
+        }
     }, {
         key: 'state',
         get: function get() {
-            return this.stateAttr;
-        }
-    }], [{
-        key: 'type',
-        get: function get() {
-            return {
-                inputConnector: 0,
-                outputConnector: 1
-            };
+            return this.elementState;
         }
     }]);
 
@@ -2052,7 +2068,7 @@ var Connector = function (_NetworkElement) {
 }(NetworkElement);
 
 /**
- * Connector that takes gets its state from a connected value and passes it through to the {@link Box} this connector belongs to.
+ * Connector that gets its state from a connected value and passes it through to the {@link Box} this connector belongs to.
  * @extends Connector
  */
 
@@ -2065,7 +2081,6 @@ var InputConnector = exports.InputConnector = function (_Connector) {
 
         var _this2 = _possibleConstructorReturn(this, (InputConnector.__proto__ || Object.getPrototypeOf(InputConnector)).call(this, parentSVG, gridSize, left, top));
 
-        _this2.type = Connector.type.inputConnector;
         _this2.isInputConnector = true;
         return _this2;
     }
@@ -2113,7 +2128,7 @@ var OutputConnector = exports.OutputConnector = function (_Connector2) {
 
         _this3.isOutput = true;
 
-        _this3.type = Connector.type.outputConnector;
+        _this3.isOutputConnector = true;
         return _this3;
     }
 
@@ -2351,9 +2366,9 @@ var Box = function (_NetworkElement2) {
         }
     }, {
         key: 'addConnector',
-        value: function addConnector(left, top, connectorType) {
+        value: function addConnector(left, top, isInputConnector) {
             var index = this.connectors.length;
-            if (connectorType === Connector.type.inputConnector) {
+            if (isInputConnector) {
                 this.connectors[index] = new InputConnector(this.parentSVG, this.gridSize, left, top);
             } else {
                 this.connectors[index] = new OutputConnector(this.parentSVG, this.gridSize, left, top);
@@ -2361,6 +2376,16 @@ var Box = function (_NetworkElement2) {
             this.svgObj.addChild(this.connectors[index].get());
 
             this.removeBlockedNode(left, top);
+        }
+    }, {
+        key: 'addInputConnector',
+        value: function addInputConnector(left, top) {
+            return this.addConnector(left, top, true);
+        }
+    }, {
+        key: 'addOutputConnector',
+        value: function addOutputConnector(left, top) {
+            return this.addConnector(left, top, false);
         }
 
         // returns the connector object based on its id
@@ -2655,7 +2680,7 @@ var InputBox = exports.InputBox = function (_Box) {
 
         var _this7 = _possibleConstructorReturn(this, (InputBox.__proto__ || Object.getPrototypeOf(InputBox)).call(this, parentSVG, "input", "io", width, height));
 
-        _this7.addConnector(width, height / 2, Connector.type.outputConnector);
+        _this7.addConnector(width, height / 2, false);
 
         _this7.on = isOn;
         return _this7;
@@ -2726,7 +2751,7 @@ var OutputBox = exports.OutputBox = function (_Box2) {
 
         var _this8 = _possibleConstructorReturn(this, (OutputBox.__proto__ || Object.getPrototypeOf(OutputBox)).call(this, parentSVG, "output", "io", width, height));
 
-        _this8.addConnector(0, height / 2, Connector.type.inputConnector);
+        _this8.addConnector(0, height / 2, true);
         return _this8;
     }
 
@@ -2781,15 +2806,15 @@ var Gate = exports.Gate = function (_Box3) {
         // output
         var _this9 = _possibleConstructorReturn(this, (Gate.__proto__ || Object.getPrototypeOf(Gate)).call(this, parentSVG, name, "gate", width, height));
 
-        _this9.addConnector(width, height / 2, Connector.type.outputConnector);
+        _this9.addConnector(width, height / 2, false);
 
         if (_this9.name === "not") {
             // input
-            _this9.addConnector(0, height / 2, Connector.type.inputConnector);
+            _this9.addConnector(0, height / 2, true);
         } else {
             // input
-            _this9.addConnector(0, height / 4, Connector.type.inputConnector);
-            _this9.addConnector(0, height / (4 / 3), Connector.type.inputConnector);
+            _this9.addConnector(0, height / 4, true);
+            _this9.addConnector(0, height / (4 / 3), true);
 
             // add one blockedNode between the inputs (for better looking wiring)
             // and regenerate blocked nodes
@@ -2880,7 +2905,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
         _this10.connectors = [_this10.startConnector, _this10.endConnector];
         _this10.routeWire(true, refresh);
 
-        _this10.stateAttr = _logic2.default.state.unknown;
+        _this10.elementState = _logic2.default.state.unknown;
 
         var _iteratorNormalCompletion6 = true;
         var _didIteratorError6 = false;
@@ -2940,7 +2965,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                 this.endConnector.setState(state);
             }
 
-            this.stateAttr = state;
+            this.elementState = state;
         }
     }, {
         key: 'updateWireState',
@@ -3234,7 +3259,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     }, {
         key: 'state',
         get: function get() {
-            return this.stateAttr;
+            return this.elementState;
         }
     }], [{
         key: 'movePoint',
