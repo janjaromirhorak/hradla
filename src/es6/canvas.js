@@ -213,7 +213,6 @@ export default class Canvas {
         this.contextMenu = new ContextMenu(this);
 
         // CONSTRUCT FLOATING MENU
-        // this.floatingMenu = new FloatingMenu(this);
         this.floatingMenu = new FloatingMenu(this);
 
         // ALL EVENT CALLBACKS

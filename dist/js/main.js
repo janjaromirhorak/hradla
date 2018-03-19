@@ -281,7 +281,6 @@ var Canvas = function () {
         this.contextMenu = new _contextMenu2.default(this);
 
         // CONSTRUCT FLOATING MENU
-        // this.floatingMenu = new FloatingMenu(this);
         this.floatingMenu = new _floatingMenu2.default(this);
 
         // ALL EVENT CALLBACKS
@@ -3345,101 +3344,49 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _importExport = require("./importExport.js");
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var jqueryElement = function jqueryElement(specificTag) {
-    _classCallCheck(this, jqueryElement);
+var FloatingButton = function FloatingButton(buttonClass, title, tooltip, clickEvent, parentSVG) {
+    var _this = this;
 
-    if (!specificTag) {
-        this.$el = $("<div>");
-    } else {
-        this.$el = $("<" + specificTag + ">");
+    _classCallCheck(this, FloatingButton);
+
+    this.$el = $('<a>');
+
+    this.$el.addClass("button");
+    this.$el.addClass(buttonClass);
+
+    this.$el.append($("<img>").attr("src", "img/gui/" + buttonClass + ".svg").attr("alt", title).attr("title", title));
+
+    if (tooltip) {
+        this.$tooltip = $("<div>");
+        this.$tooltip.addClass("tooltip").addClass("hidden").html(tooltip);
+
+        parentSVG.$svg.after(this.$tooltip);
+
+        this.$el.hover(function () {
+            _this.$tooltip.fadeIn(200);
+            console.log('display tooltip for', title);
+        }, function () {
+            _this.$tooltip.fadeOut(200);
+            console.log('hide tooltip for', title);
+        });
+    }
+
+    if (clickEvent) {
+        this.$el.on("click", clickEvent);
     }
 };
 
-// const mouseIcon =
-//     "<svg class=\"mouseIcon\" xmlns=\"http://www.w3.org/2000/svg\" height=\"121.77131mm\" width=\"82.327583mm\" version=\"1.1\" viewBox=\"0 0 291.71191 431.47314\">" +
-//     "<g transform=\"translate(-202.70908,-260.9232)\">\n" +
-//     "            <path d=\"m202.81108 443.50667c-0.1257 11.05683 0.0651 12.12915 0.0528 23.09375 1.0404 39.29165-4.03281 79.5842 8.81441 117.56836 17.52602 58.00742 70.7612 107.07793 133.12907 108.11719 60.80448 2.61247 115.80638-41.48912 136.65249-96.93555 15.21942-34.70561 12.7447-72.82638 12.834-109.72266-0.40356-17.24905 0.27452-24.7329 0.0879-42.12109h-291.57066z\"/>\n" +
-//     "            <path class=\"left\" d=\"m335.67788 260.93032c-58.6525 0.65566-99.6319 43.51386-120.0821 96.99219-10.5505 24.06012-12.5935 41.77797-12.8867 67.58203h135.7832v-164.57226c-0.006 0.00008-0.0117-0.00008-0.0176 0-0.9347-0.011-1.8658-0.0124-2.7968-0.002z\"/>\n" +
-//     "            <path class=\"right\" d=\"m361.46787 260.92993c-0.94207-0.01-1.8864-0.009-2.83203 0.004v164.57226h135.78516c-0.26257-24.46948-2.2521-40.74823-11.50391-63.90243-19.34709-55.03225-61.73043-100.04525-121.44922-100.67383z\"/>\n" +
-//     "            <path class=\"middle\" d=\"m348.56504 294.93365c15.03714 0 27.14286 12.10572 27.14286 27.14286v40c0 15.03714-12.10572 27.14286-27.14286 27.14286s-27.14286-12.10572-27.14286-27.14286v-40c0-15.03714 12.10572-27.14286 27.14286-27.14286z\" stroke=\"#fff\" stroke-linecap=\"round\" stroke-width=\"20\"/>\n" +
-//     "        </g>" +
-//     "</svg>";
+var FloatingMenu = function () {
+    function FloatingMenu(parentSVG) {
+        _classCallCheck(this, FloatingMenu);
 
-var helpWindowItem = function (_jqueryElement) {
-    _inherits(helpWindowItem, _jqueryElement);
-
-    function helpWindowItem(text) {
-        _classCallCheck(this, helpWindowItem);
-
-        var _this = _possibleConstructorReturn(this, (helpWindowItem.__proto__ || Object.getPrototypeOf(helpWindowItem)).call(this));
-
-        _this.$el.addClass("helpWindowItem");
-        _this.$el.html(text);
-        return _this;
-    }
-
-    return helpWindowItem;
-}(jqueryElement);
-
-var helpWindow = function (_jqueryElement2) {
-    _inherits(helpWindow, _jqueryElement2);
-
-    function helpWindow() {
-        _classCallCheck(this, helpWindow);
-
-        var _this2 = _possibleConstructorReturn(this, (helpWindow.__proto__ || Object.getPrototypeOf(helpWindow)).call(this));
-
-        _this2.$el.attr("id", "help");
-
-        _this2.append(new helpWindowItem("<strong>click <img src='img/gui/help.svg' class='helpicon' alt='help icon'></strong> to display help"));
-        return _this2;
-    }
-
-    _createClass(helpWindow, [{
-        key: "append",
-        value: function append(item) {
-            this.$el.append(item.$el);
-        }
-    }]);
-
-    return helpWindow;
-}(jqueryElement);
-
-var floatingMenuItem = function (_jqueryElement3) {
-    _inherits(floatingMenuItem, _jqueryElement3);
-
-    function floatingMenuItem(specificClass, icon, title, specificTag) {
-        _classCallCheck(this, floatingMenuItem);
-
-        var _this3 = _possibleConstructorReturn(this, (floatingMenuItem.__proto__ || Object.getPrototypeOf(floatingMenuItem)).call(this, specificTag));
-
-        _this3.$el.addClass("button");
-        _this3.$el.addClass(specificClass);
-
-        _this3.$el.append($("<img>").attr("src", "img/gui/" + icon + ".svg").attr("alt", title).attr("title", title));
-        return _this3;
-    }
-
-    return floatingMenuItem;
-}(jqueryElement);
-
-var floatingMenu = function (_jqueryElement4) {
-    _inherits(floatingMenu, _jqueryElement4);
-
-    function floatingMenu(parentSVG) {
-        _classCallCheck(this, floatingMenu);
-
-        var _this4 = _possibleConstructorReturn(this, (floatingMenu.__proto__ || Object.getPrototypeOf(floatingMenu)).call(this));
+        this.$el = $('<div>');
 
         var id = 'floatingMenu';
 
-        _this4.$el.attr("id", id);
+        this.$el.attr("id", id);
 
         /* IMPORT */
 
@@ -3447,8 +3394,7 @@ var floatingMenu = function (_jqueryElement4) {
         // (we need to store it, because the "import" button also closes Lity)
         var lityInstanceImport = void 0;
 
-        var importButton = new floatingMenuItem("import", "import", "Import a network", "a");
-        importButton.$el.on("click", function () {
+        this.append(new FloatingButton("import", "Import a network", "Import a network", function () {
             var $popup = $("<div>").addClass("importExport").addClass("import");
 
             var textareaId = "importJSON";
@@ -3474,14 +3420,10 @@ var floatingMenu = function (_jqueryElement4) {
 
             // focus on the textblock
             $textblock.focus();
-        });
-
-        _this4.append(importButton);
+        }, parentSVG));
 
         /* EXPORT */
-
-        var exportButton = new floatingMenuItem("export", "export", "Export this network", "a");
-        exportButton.$el.on("click", function () {
+        this.append(new FloatingButton("export", "Export this network", "Get code for this network", function () {
             var data = new _importExport.exportNetwork(parentSVG);
 
             // create the popup container holding all popup content (that will be passed to lity)
@@ -3508,41 +3450,31 @@ var floatingMenu = function (_jqueryElement4) {
 
             // highlight the text in the textblock
             $textblock.select();
-        });
-
-        _this4.append(exportButton);
+        }, parentSVG));
 
         /* HELP */
 
-        var help = new floatingMenuItem("help", "help", "Display help", "a");
-        help.$el.on("mouseover", function () {
-            $("#help").addClass("visible");
-        }).on("mouseout", function () {
-            $("#help").removeClass("visible");
-        });
-
+        var help = new FloatingButton("help", "Display help", "Display a help page", false, parentSVG);
         help.$el.attr({
             'href': './docs/user.html',
             'data-lity': ''
         });
-        _this4.append(help);
+        this.append(help);
 
-        parentSVG.$svg.after(_this4.$el);
-        parentSVG.$svg.after(new helpWindow().$el);
-        return _this4;
+        parentSVG.$svg.after(this.$el);
     }
 
-    _createClass(floatingMenu, [{
+    _createClass(FloatingMenu, [{
         key: "append",
         value: function append(menuItem) {
             this.$el.append(menuItem.$el);
         }
     }]);
 
-    return floatingMenu;
-}(jqueryElement);
+    return FloatingMenu;
+}();
 
-exports.default = floatingMenu;
+exports.default = FloatingMenu;
 
 },{"./importExport.js":6}],5:[function(require,module,exports){
 "use strict";

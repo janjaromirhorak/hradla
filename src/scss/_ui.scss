@@ -1,41 +1,8 @@
-$uiItemHeight: 1.3em;
 $transitionTime: 200ms;
 $transitionAll: all $transitionTime;
 
-#help {
-    position: absolute;
-    z-index: 1500;
-
-    right: 3em;
-    bottom: 3em;
-
-    padding: 1em;
-
-    background: $light;
-
-    color: $dark;
-
-    display:none;
-    opacity:0;
-
-    transition: opacity 1s;
-
-    .helpWindowItem {
-        line-height: 1.2em;
-
-        img.helpicon {
-            height: 1.3em;
-            margin: -0.3em;
-        }
-    }
-
-    &.visible {
-        display: block;
-        opacity: 1;
-    }
-}
-
-
+$floatingButtonSize: 1.8em;
+$floatingMenuDistance: 0.5em;
 /// FLOATING MENU
 #floatingMenu {
     z-index:900;
@@ -48,10 +15,11 @@ $transitionAll: all $transitionTime;
         display:inline-block;
         background: $light;
 
-        width: $uiItemHeight;
-        height: $uiItemHeight;
+        width: $floatingButtonSize;
+        height: $floatingButtonSize;
+        padding: 0.2em;
 
-        margin: 0 0.5em 0.5em 0;
+        margin: 0 $floatingMenuDistance $floatingMenuDistance 0;
         transition: $transitionAll;
 
         cursor: pointer;
@@ -72,20 +40,78 @@ $transitionAll: all $transitionTime;
             background: $darkColor;
         }
     }
+}
 
-    &.fulscreenMode .button {
-        &.closefullscreen {
-            display: inline-block;
+.tooltip {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    bottom: 2 * $floatingMenuDistance + $floatingButtonSize;
+    right: $floatingMenuDistance;
+    background: $light;
+    padding: 1em;
+}
+
+// popup windows
+
+.importExport {
+    padding: 1em;
+
+    background:white;
+    color:black;
+
+    &.export textarea, &.import textarea {
+        background: white;
+        color: black;
+        border: thin solid #aeaeae;
+
+        font-family: 'Overpass Mono', monospace;
+        font-size: 0.9em;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        width: 40em;
+        max-width: 90vw;
+
+        resize: none;
+        display: block;
+
+        max-height: 50vh;
+    }
+
+    a.download, a.upload {
+        transition: $transitionAll;
+
+        font-weight: bold;
+        display:inline-block;
+
+        margin:0.5em 0.5em 0 0;
+        padding: 0.4em;
+
+        text-decoration: none;
+        color: $dark;
+        background: $light;
+
+        img {
+            height: 1.2em;
+            width: auto;
+            vertical-align: bottom;
         }
-        &.fullscreen {
-            display:none;
+
+        &:hover {
+            background: $lightColor;
+        }
+
+        &:active {
+            background: $darkColor;
         }
     }
 }
 
 /// CONTEXT MENU
 $contextMenuPadding: 0.3em;
-$menuItemHeight: $uiItemHeight;
+$menuItemHeight: 1.7em;
 $menuItemWidth: 10em;
 
 #contextMenu, #contextMenu ul {
@@ -93,10 +119,6 @@ $menuItemWidth: 10em;
     position: absolute;
 
     background: $light;
-
-    //border: 1px solid #424655;
-    //background: lightgoldenrodyellow;
-    //border-radius: 2px;
 }
 #contextMenu {
     display: none;
@@ -112,7 +134,7 @@ $menuItemWidth: 10em;
         list-style-type: none;
 
         margin: 0;
-        padding: 0.1em $contextMenuPadding;
+        padding: 0.2em $contextMenuPadding 0.1em $contextMenuPadding;
 
         cursor: pointer;
         cursor: hand;
@@ -142,63 +164,6 @@ $menuItemWidth: 10em;
             > ul {
                 display:block;
             }
-        }
-
-        &:active {
-            background: $darkColor;
-        }
-    }
-}
-
-// popup windows
-
-.importExport {
-    padding: 1em;
-
-    background:white;
-    color:black;
-
-    &.export textarea, &.import textarea {
-        background: white;
-        color: black;
-        border: thin solid #aeaeae;
-
-        font-family: 'Overpass Mono', monospace;
-        font-size: 0.9em;
-
-        overflow-x: hidden;
-        overflow-y: auto;
-
-        width: 40em;
-        max-width: 90vw;
-
-        resize: none;
-        display: block;
-
-        height: 50vh;
-    }
-
-    a.download, a.upload {
-        transition: $transitionAll;
-
-        font-weight: bold;
-        display:inline-block;
-
-        margin:0.5em 0.5em 0 0;
-        padding: 0.4em;
-
-        text-decoration: none;
-        color: $dark;
-        background: $light;
-
-        img {
-            height: 1.2em;
-            width: auto;
-            vertical-align: bottom;
-        }
-
-        &:hover {
-            background: $lightColor;
         }
 
         &:active {

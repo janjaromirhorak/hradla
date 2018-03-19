@@ -406,6 +406,14 @@ template {
 [hidden] {
   display: none; }
 
+html {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box; }
+
+*, *:before, *:after {
+  -webkit-box-sizing: inherit;
+          box-sizing: inherit; }
+
 body {
   font-family: 'Open Sans', sans-serif;
   display: -webkit-box;
@@ -419,27 +427,6 @@ body {
       -ms-flex: 1;
           flex: 1; }
 
-#help {
-  position: absolute;
-  z-index: 1500;
-  right: 3em;
-  bottom: 3em;
-  padding: 1em;
-  background: #c2eabd;
-  color: #011936;
-  display: none;
-  opacity: 0;
-  -webkit-transition: opacity 1s;
-  transition: opacity 1s; }
-  #help .helpWindowItem {
-    line-height: 1.2em; }
-    #help .helpWindowItem img.helpicon {
-      height: 1.3em;
-      margin: -0.3em; }
-  #help.visible {
-    display: block;
-    opacity: 1; }
-
 #floatingMenu {
   z-index: 900;
   position: absolute;
@@ -449,8 +436,9 @@ body {
   #floatingMenu .button {
     display: inline-block;
     background: #c2eabd;
-    width: 1.3em;
-    height: 1.3em;
+    width: 1.8em;
+    height: 1.8em;
+    padding: 0.2em;
     margin: 0 0.5em 0.5em 0;
     -webkit-transition: all 200ms;
     transition: all 200ms;
@@ -464,46 +452,15 @@ body {
       background: #f9dc5c; }
     #floatingMenu .button:active {
       background: #ed254e; }
-  #floatingMenu.fulscreenMode .button.closefullscreen {
-    display: inline-block; }
-  #floatingMenu.fulscreenMode .button.fullscreen {
-    display: none; }
 
-#contextMenu, #contextMenu ul {
-  z-index: 1000;
-  position: absolute;
-  background: #c2eabd; }
-
-#contextMenu {
+.tooltip {
   display: none;
-  width: 10em;
-  margin: 0;
-  padding: 0.3em 0;
-  color: #011936; }
-  #contextMenu li {
-    list-style-type: none;
-    margin: 0;
-    padding: 0.1em 0.3em;
-    cursor: pointer;
-    cursor: hand;
-    display: block;
-    height: 1.3em;
-    -webkit-transition: all 200ms;
-    transition: all 200ms; }
-    #contextMenu li > ul {
-      display: none;
-      position: relative;
-      left: 9.7em;
-      margin: -1.6em 0 0 0;
-      padding: 0.3em 0; }
-    #contextMenu li.gateOnly {
-      display: none; }
-    #contextMenu li:hover {
-      background: #f9dc5c; }
-      #contextMenu li:hover > ul {
-        display: block; }
-    #contextMenu li:active {
-      background: #ed254e; }
+  position: absolute;
+  z-index: 1000;
+  bottom: 2.8em;
+  right: 0.5em;
+  background: #c2eabd;
+  padding: 1em; }
 
 .importExport {
   padding: 1em;
@@ -521,7 +478,7 @@ body {
     max-width: 90vw;
     resize: none;
     display: block;
-    height: 50vh; }
+    max-height: 50vh; }
   .importExport a.download, .importExport a.upload {
     -webkit-transition: all 200ms;
     transition: all 200ms;
@@ -539,6 +496,42 @@ body {
     .importExport a.download:hover, .importExport a.upload:hover {
       background: #f9dc5c; }
     .importExport a.download:active, .importExport a.upload:active {
+      background: #ed254e; }
+
+#contextMenu, #contextMenu ul {
+  z-index: 1000;
+  position: absolute;
+  background: #c2eabd; }
+
+#contextMenu {
+  display: none;
+  width: 10em;
+  margin: 0;
+  padding: 0.3em 0;
+  color: #011936; }
+  #contextMenu li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0.2em 0.3em 0.1em 0.3em;
+    cursor: pointer;
+    cursor: hand;
+    display: block;
+    height: 1.7em;
+    -webkit-transition: all 200ms;
+    transition: all 200ms; }
+    #contextMenu li > ul {
+      display: none;
+      position: relative;
+      left: 9.7em;
+      margin: -1.6em 0 0 0;
+      padding: 0.3em 0; }
+    #contextMenu li.gateOnly {
+      display: none; }
+    #contextMenu li:hover {
+      background: #f9dc5c; }
+      #contextMenu li:hover > ul {
+        display: block; }
+    #contextMenu li:active {
       background: #ed254e; }
 
 #canvas {
