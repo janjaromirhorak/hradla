@@ -769,7 +769,7 @@ export default class Canvas {
 
             // if otherConnector is an input connector, set its state to unknown
             if(otherConnector.isInputConnector) {
-                otherConnector.setState(Logic.state.unknown);
+                this.startNewSimulation(otherConnector, Logic.state.unknown)
             }
         });
 

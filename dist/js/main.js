@@ -902,7 +902,7 @@ var Canvas = function () {
 
                 // if otherConnector is an input connector, set its state to unknown
                 if (otherConnector.isInputConnector) {
-                    otherConnector.setState(_logic2.default.state.unknown);
+                    _this4.startNewSimulation(otherConnector, _logic2.default.state.unknown);
                 }
             });
 
