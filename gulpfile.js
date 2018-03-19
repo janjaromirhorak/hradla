@@ -109,8 +109,6 @@ const
     srcDocs = 'docs',
     srcMd = srcDocs + '/md',
 
-    lib = 'lib',
-
     docs = 'docs',
     docsOut = out + '/docs',
     docsCss = docsOut + '/css'
@@ -174,54 +172,43 @@ gulp.task('scripts', () => {
 });
 
 gulp.task('lib-lity-js', () => {
-    const
-        changed = modules.get('changed'),
-        uglify = modules.get('uglify'),
-        rename = modules.get('rename');
+    const changed = modules.get('changed');
 
     const outLoc = outJs + '/lib'
 
-    return gulp.src(lib + '/lity/*.js')
+    const src = production ? 'lity.min.js' : 'lity.js';
+
+    return gulp.src(`./node_modules/lity/dist/${src}`)
         .pipe(changed(outLoc))
-        .pipe(uglify())
-        .pipe(rename({suffix: '.min'}))
         .pipe(gulp.dest(outLoc));
 });
 
 gulp.task('lib-lity-css', () => {
-    const
-        changed = modules.get('changed'),
-        cssnano = modules.get('cssnano'),
-        rename = modules.get('rename');
-
+    const changed = modules.get('changed');
     const outLoc = outCss + '/lib'
 
-    return gulp.src(lib + '/lity/*.css')
+    const src = production ? 'lity.min.css' : 'lity.css';
+
+    return gulp.src(`./node_modules/lity/dist/${src}`)
         .pipe(changed(outLoc))
-        .pipe(cssnano())
-        .pipe(rename({suffix: '.min'}))
-        .pipe(gulp.dest(outLoc));
-});
-
-gulp.task('lib-other-js', () => {
-    const
-        changed = modules.get('changed'),
-        uglify = modules.get('uglify'),
-        rename = modules.get('rename');
-
-    const outLoc = outJs + '/lib'
-
-    return gulp.src(lib + '/other-js/*.js')
-        .pipe(changed(outLoc))
-        .pipe(uglify())
-        .pipe(rename({suffix: '.min'}))
         .pipe(gulp.dest(outLoc));
 });
 
 gulp.task('lib-lity', gulp.parallel('lib-lity-js', 'lib-lity-css'));
 
+gulp.task('lib-jquery', () => {
+    const changed = modules.get('changed');
+    const outLoc = outJs + '/lib'
+
+    const src = production ? 'jquery.min.js' : 'jquery.js';
+
+    return gulp.src(`./node_modules/jquery/dist/${src}`)
+        .pipe(changed(outLoc))
+        .pipe(gulp.dest(outLoc));
+});
+
 // copies all libraries
-gulp.task('libraries', gulp.parallel('lib-lity', 'lib-other-js'));
+gulp.task('libraries', gulp.parallel('lib-lity', 'lib-jquery'));
 
 // generates the html file
 gulp.task('html', () => {
@@ -232,8 +219,7 @@ gulp.task('html', () => {
         template = modules.get('template'),
         htmlmin = modules.get('htmlmin');
 
-    const entryPoint = production ? "main.min.js" : "main.js";
-    const styleSheet = production ? "style.min.css" : "style.css";
+    const p = production ? ".min" : "";
 
     return file('index.html', '', {src: true})
         .pipe(insert.append('<!-- build:title -->'))
@@ -241,11 +227,14 @@ gulp.task('html', () => {
         .pipe(insert.append('<!-- /build:title -->'))
 
         .pipe(insert.append('<!-- build:styles -->'))
-        .pipe(insert.append(`<link href="css/${styleSheet}" rel="stylesheet">`))
+        .pipe(insert.append(`<link href="css/lib/lity${p}.css" rel="stylesheet">`))
+        .pipe(insert.append(`<link href="css/style${p}.css" rel="stylesheet">`))
         .pipe(insert.append('<!-- /build:styles -->'))
 
         .pipe(insert.append('<!-- build:scripts -->'))
-        .pipe(insert.append(`<script src="js/${entryPoint}"></script>`))
+        .pipe(insert.append(`<script src="js/lib/jquery${p}.js"></script>`))
+        .pipe(insert.append(`<script src="js/lib/lity${p}.js"></script>`))
+        .pipe(insert.append(`<script src="js/main${p}.js"></script>`))
         .pipe(insert.append('<!-- /build:scripts -->'))
 
         .pipe(insert.append('<!-- build:analytics -->'))
