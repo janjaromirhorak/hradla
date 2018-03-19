@@ -86,27 +86,26 @@ export default class floatingMenu extends jqueryElement {
             $popup.append(
                 $textblock
             ).append(
-                $("<a>")
-                    .attr({
-                        "href": "#",
-                        "class": "upload"
-                    })
-                    .append(
-                        $("<img>").attr('src', "img/gui/import.svg")
-                    )
-                    .append(" import from JSON")
-                    .on('click', () => {
-                        let $textarea = $('#'+textareaId);
+                $("<a>").attr({
+                    "href": "#",
+                    "class": "upload"
+                })
+                .append(
+                    $("<img>").attr('src', "img/gui/import.svg")
+                )
+                .append(" import from JSON")
+                .on('click', () => {
+                    let $textarea = $('#'+textareaId);
 
-                        // get textarea contents
-                        let importString = $textarea.val();
+                    // get textarea contents
+                    let importString = $textarea.val();
 
-                        // close Lity
-                        lityInstanceImport.close();
+                    // close Lity
+                    lityInstanceImport.close();
 
-                        // proccess the imported data
-                        new importNetwork(parentSVG, importString);
-                    })
+                    // proccess the imported data
+                    new importNetwork(parentSVG, importString);
+                })
             );
 
             lityInstanceImport = lity($popup);
