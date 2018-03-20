@@ -3,13 +3,30 @@ import {
     importNetwork
 } from "./importExport.js";
 
+/**
+ * FloatingButton represents a button that is used in the floating menu in the right bottom corner
+ * of the application. It may have a custom tooltip and callback on the click event
+ */
 class FloatingButton {
+    /**
+     * @param {string} buttonClass Custom string that identifies the SVG icon used on this button. This string is also added as a CSS class to the button.
+     * @param {string} title       alternative title for the button
+     * @param {string} tooltip     tooltip for the button, that will be displayed on hover
+     * @param {Function} clickEvent  custom callback when user clicks the button
+     * @param {Canvas} parentSVG   reference to the parent SVG element
+     */
     constructor(buttonClass, title, tooltip, clickEvent, parentSVG) {
+        /**
+         * jQuery element representing the button
+         * @type {jQuery.element}
+         */
         this.$el = $('<a>')
 
+        // add classes to the element
         this.$el.addClass("button");
         this.$el.addClass(buttonClass);
 
+        // add the icon
         this.$el.append(
             $("<img>")
             .attr("src", `img/gui/${buttonClass}.svg`)
@@ -17,7 +34,12 @@ class FloatingButton {
             .attr("title", title)
         );
 
+        // add the tooltip element and an event listener if tooltip is defined
         if (tooltip) {
+            /**
+             * jQuery element representing the tooltip
+             * @type {jQuery.element}
+             */
             this.$tooltip = $("<div>");
             this.$tooltip
                 .addClass("tooltip")
@@ -34,14 +56,27 @@ class FloatingButton {
             });
         }
 
+        // add an event listener on click, if the callback function is defined
         if (clickEvent) {
             this.$el.on("click", clickEvent);
         }
     }
 }
 
+/** @module FloatingMenu */
+/**
+ * Class to represent the floating menu in the right bottom corner of the page.
+ * It instantiates all the buttons and their callbacks.
+ */
 export default class FloatingMenu {
+    /**
+     * @param {Canvas} parentSVG reference to the Canvas element this menu is associated with
+     */
     constructor(parentSVG) {
+        /**
+         * the jQuery element containing all buttons
+         * @type {jQuery.element}
+         */
         this.$el = $('<div>')
 
         const id = 'floatingMenu';
@@ -151,6 +186,10 @@ export default class FloatingMenu {
         parentSVG.$svg.after(this.$el);
     }
 
+    /**
+     * append a FloatingButton to this menu
+     * @param  {FloatingButton} menuItem append an instance of  {@link FloatingButton} to this menu
+     */
     append(menuItem) {
         this.$el.append(menuItem.$el);
     }

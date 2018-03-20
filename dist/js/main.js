@@ -1332,6 +1332,10 @@ exports.default = Canvas;
 },{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./fn.js":5,"./logic.js":7,"./simulation.js":9,"./svgObjects.js":11}],2:[function(require,module,exports){
 "use strict";
 
+/**
+ * Item in the [ContextMenu](./module-ContextMenu.html). ContextMenuItems can be nested using the appendItem function.
+ */
+
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
@@ -1345,17 +1349,40 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var ContextMenuItem = function () {
-    function ContextMenuItem(name, type, contextMenu, parentSVG, clickFunction) {
+    /**
+     * @param {string} text          text on the button
+     * @param {ContextMenu} contextMenu instance of the [ContextMenu](./module-ContextMenu.html) this item belongs to
+     * @param {Canvas} parentSVG     instance of [Canvas](./module-Canvas.html) this menu belongs to
+     * @param {Function} clickFunction callback function that will be called when user clicks this item
+     */
+    function ContextMenuItem(text, contextMenu, parentSVG, clickFunction) {
         _classCallCheck(this, ContextMenuItem);
 
-        this.name = name;
-        this.type = type;
+        /**
+         * text on the button
+         * @type {string}
+         */
+        this.text = text;
+
+        /**
+         * instance of the [ContextMenu](./module-ContextMenu.html) this item belongs to
+         * @type {ContextMenu}
+         */
         this.contextMenu = contextMenu;
+
+        /**
+         * instance of [Canvas](./module-Canvas.html) this menu belongs to
+         * @type {Canvas}
+         */
         this.parentSVG = parentSVG;
 
-        this.$el = $("<li>");
-        $(this.$el).text(name).attr("type", type);
+        /**
+         * jQuery element representing DOM content of this menu item
+         * @type {jQuery.element}
+         */
+        this.$el = $("<li>").text(text);
 
+        // set up click callback if clickFunction is defined
         if (clickFunction) {
             $(this.$el).click(function (event) {
                 clickFunction(event);
@@ -1364,12 +1391,24 @@ var ContextMenuItem = function () {
         }
     }
 
+    /**
+     * add a CSS class to this item
+     * @param {string} cls [description]
+     */
+
+
     _createClass(ContextMenuItem, [{
         key: "addClass",
         value: function addClass(cls) {
             this.$el.addClass(cls);
             return this;
         }
+
+        /**
+         * append a nested {@link ContextMenuItem} to this item
+         * @param  {ContextMenuItem} item item that will be appended
+         */
+
     }, {
         key: "appendItem",
         value: function appendItem(item) {
@@ -1382,6 +1421,12 @@ var ContextMenuItem = function () {
 
             return item;
         }
+
+        /**
+         * get jQuery element of this menu item
+         * @return {jQuery.element} jQuery element containing all DOM content for this menu item
+         */
+
     }, {
         key: "jQuery",
         get: function get() {
@@ -1392,14 +1437,24 @@ var ContextMenuItem = function () {
     return ContextMenuItem;
 }();
 
+/**
+ * Menu item that has a custom click callback function that adds a {@link Gate} of the specified type to the [Canvas](./module-Canvas.html)
+ * @extends ContextMenuItem
+ */
+
+
 var GateMenuItem = function (_ContextMenuItem) {
     _inherits(GateMenuItem, _ContextMenuItem);
 
+    /**
+     * @param {string} type        type of the gate {@link Gate} (and, or, ...)
+     * @param {ContextMenu} contextMenu instance of the [ContextMenu](./module-ContextMenu.html) that this item belongs to
+     * @param {Canvas} parentSVG   instance of [Canvas](./module-Canvas.html) this menu belongs to
+     */
     function GateMenuItem(type, contextMenu, parentSVG) {
         _classCallCheck(this, GateMenuItem);
 
-        return _possibleConstructorReturn(this, (GateMenuItem.__proto__ || Object.getPrototypeOf(GateMenuItem)).call(this, type, // name is the type
-        type, contextMenu, parentSVG, function (event) {
+        return _possibleConstructorReturn(this, (GateMenuItem.__proto__ || Object.getPrototypeOf(GateMenuItem)).call(this, type + " gate", contextMenu, parentSVG, function (event) {
             var position = {
                 left: parentSVG.snapToGrid(parentSVG.viewbox.transformX(contextMenu.position.x)),
                 top: parentSVG.snapToGrid(parentSVG.viewbox.transformY(contextMenu.position.y))
@@ -1414,7 +1469,18 @@ var GateMenuItem = function (_ContextMenuItem) {
     return GateMenuItem;
 }(ContextMenuItem);
 
+/** @module ContextMenu */
+/**
+ * ContextMenu represents the menu that is displayed to the user when they right click on a canvas.
+ * This menu allows user to add elements to the Canvas and in the case that user rightclicked
+ * on a specific element, this menu allows them to remove this element.
+ */
+
+
 var ContextMenu = function () {
+    /**
+     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html) this menu belongs to
+     */
     function ContextMenu(parentSVG) {
         var _this2 = this;
 
@@ -1431,13 +1497,13 @@ var ContextMenu = function () {
         this.$el = $("<ul>");
         this.$el.attr('id', 'contextMenu');
 
-        var gateList = new ContextMenuItem("New gate", '', this, parentSVG);
+        var gateList = new ContextMenuItem("New gate", this, parentSVG);
         for (var i = 0; i < gates.length; ++i) {
             gateList.appendItem(new GateMenuItem(gates[i], this, parentSVG));
         }
         this.appendItem(gateList);
 
-        this.appendItem(new ContextMenuItem("Input box", '', this, parentSVG, function () {
+        this.appendItem(new ContextMenuItem("Input box", this, parentSVG, function () {
             var position = {
                 left: _this2.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this2.position.x)),
                 top: _this2.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this2.position.y))
@@ -1446,7 +1512,7 @@ var ContextMenu = function () {
             parentSVG.newInput(position.left, position.top);
         }));
 
-        this.appendItem(new ContextMenuItem("Output box", '', this, parentSVG, function () {
+        this.appendItem(new ContextMenuItem("Output box", this, parentSVG, function () {
             var position = {
                 left: _this2.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this2.position.x)),
                 top: _this2.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this2.position.y))
@@ -1499,7 +1565,7 @@ var ContextMenu = function () {
 
             var _loop = function _loop(i) {
                 if ($target.hasClass(_this3.conditionalItems[i].itemClass)) {
-                    _this3.appendItem(new ContextMenuItem(_this3.conditionalItems[i].text, '', _this3, _this3.parentSVG, function () {
+                    _this3.appendItem(new ContextMenuItem(_this3.conditionalItems[i].text, _this3, _this3.parentSVG, function () {
                         _this3.conditionalItems[i].clickFunction($target.attr('id'));
                     })).addClass('conditional');
                 }
@@ -3346,19 +3412,42 @@ var _importExport = require("./importExport.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var FloatingButton = function FloatingButton(buttonClass, title, tooltip, clickEvent, parentSVG) {
+/**
+ * FloatingButton represents a button that is used in the floating menu in the right bottom corner
+ * of the application. It may have a custom tooltip and callback on the click event
+ */
+var FloatingButton =
+/**
+ * @param {string} buttonClass Custom string that identifies the SVG icon used on this button. This string is also added as a CSS class to the button.
+ * @param {string} title       alternative title for the button
+ * @param {string} tooltip     tooltip for the button, that will be displayed on hover
+ * @param {Function} clickEvent  custom callback when user clicks the button
+ * @param {Canvas} parentSVG   reference to the parent SVG element
+ */
+function FloatingButton(buttonClass, title, tooltip, clickEvent, parentSVG) {
     var _this = this;
 
     _classCallCheck(this, FloatingButton);
 
+    /**
+     * jQuery element representing the button
+     * @type {jQuery.element}
+     */
     this.$el = $('<a>');
 
+    // add classes to the element
     this.$el.addClass("button");
     this.$el.addClass(buttonClass);
 
+    // add the icon
     this.$el.append($("<img>").attr("src", "img/gui/" + buttonClass + ".svg").attr("alt", title).attr("title", title));
 
+    // add the tooltip element and an event listener if tooltip is defined
     if (tooltip) {
+        /**
+         * jQuery element representing the tooltip
+         * @type {jQuery.element}
+         */
         this.$tooltip = $("<div>");
         this.$tooltip.addClass("tooltip").html(tooltip);
 
@@ -3373,15 +3462,30 @@ var FloatingButton = function FloatingButton(buttonClass, title, tooltip, clickE
         });
     }
 
+    // add an event listener on click, if the callback function is defined
     if (clickEvent) {
         this.$el.on("click", clickEvent);
     }
 };
 
+/** @module FloatingMenu */
+/**
+ * Class to represent the floating menu in the right bottom corner of the page.
+ * It instantiates all the buttons and their callbacks.
+ */
+
+
 var FloatingMenu = function () {
+    /**
+     * @param {Canvas} parentSVG reference to the Canvas element this menu is associated with
+     */
     function FloatingMenu(parentSVG) {
         _classCallCheck(this, FloatingMenu);
 
+        /**
+         * the jQuery element containing all buttons
+         * @type {jQuery.element}
+         */
         this.$el = $('<div>');
 
         var id = 'floatingMenu';
@@ -3463,6 +3567,12 @@ var FloatingMenu = function () {
 
         parentSVG.$svg.after(this.$el);
     }
+
+    /**
+     * append a FloatingButton to this menu
+     * @param  {FloatingButton} menuItem append an instance of  {@link FloatingButton} to this menu
+     */
+
 
     _createClass(FloatingMenu, [{
         key: "append",
