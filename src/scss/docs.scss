@@ -4,8 +4,8 @@
 @import "colors";
 
 html {
-    background: $lightBackground;
-    color: $darkText;
+    background: white;
+    color: $help_darkCasual;
 }
 
 body {
@@ -24,55 +24,57 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-    color: $darkText;
+    color: $help_darkCasual;
     border-style: none none dashed none;
-    border-color: $darkText;
+    border-color: $help_darkCasual;
     border-width: 1px;
     text-decoration: none;
     transition: all 200ms;
 }
 
 a:hover {
-    color: $red;
-    border-color: $red;
+    color: $help_darkAccent;
+    border-color: $help_darkAccent;
 }
 
 h1 {
     display: block;
-    color: $darkBlue;
+    color: $help_darkCasual;
     border-style: none none solid none;
-    border-color: $red;
+    border-color: $help_darkAccent;
     border-width: 2px;
     padding-bottom: 0.2em;
 }
 
 h2 {
-    color: $red;
+    color: $help_darkAccent;
     border-style: none none solid none;
-    border-color: $darkBlue;
+    border-color: $help_darkCasual;
     border-width: 1px;
     padding-bottom: 0.2em;
 }
 
 h3 {
-    color: $red;
+    color: $help_darkAccent;
     font-style: italic;
     border-style: none none solid none;
-    border-color: $yellow;
+    border-color: $help_lightAccent;
     border-width: 1px;
     padding-bottom: 0.2em;
 }
 
 h4 {
-    color: $red;
+    color: $help_darkAccent;
     font-style: italic;
 }
 
 code {
     font-family: 'Inconsolata', monospace;
     display: inline-block;
-    background: $green;
+    background: $help_codeBackground;
+    color: $help_codeColor;
     padding: 2px 4px;
+    border: 1px solid lighten($help_codeColor, 20%);
     border-radius: 2px;
     font-weight: 400;
 }

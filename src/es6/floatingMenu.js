@@ -21,7 +21,6 @@ class FloatingButton {
             this.$tooltip = $("<div>");
             this.$tooltip
                 .addClass("tooltip")
-                .addClass("hidden")
                 .html(tooltip);
 
             parentSVG.$svg.after(this.$tooltip);

@@ -406,6 +406,8 @@ template {
 [hidden] {
   display: none; }
 
+/* COLOR PALETTE */
+/* COLOR VARIABLES */
 html {
   -webkit-box-sizing: border-box;
           box-sizing: border-box; }
@@ -435,7 +437,7 @@ body {
   display: block; }
   #floatingMenu .button {
     display: inline-block;
-    background: #c2eabd;
+    background: #edf2f4;
     width: 1.8em;
     height: 1.8em;
     padding: 0.2em;
@@ -444,7 +446,7 @@ body {
     transition: all 200ms;
     cursor: pointer;
     cursor: hand;
-    color: black; }
+    color: #2b2d42; }
     #floatingMenu .button img {
       width: 100%;
       height: 100%; }
@@ -459,16 +461,16 @@ body {
   z-index: 1000;
   bottom: 2.8em;
   right: 0.5em;
-  background: #c2eabd;
+  background: #edf2f4;
   padding: 1em; }
 
 .importExport {
   padding: 1em;
   background: white;
-  color: black; }
+  color: #2b2d42; }
   .importExport.export textarea, .importExport.import textarea {
     background: white;
-    color: black;
+    color: #2b2d42;
     border: thin solid #aeaeae;
     font-family: 'Overpass Mono', monospace;
     font-size: 0.9em;
@@ -487,8 +489,8 @@ body {
     margin: 0.5em 0.5em 0 0;
     padding: 0.4em;
     text-decoration: none;
-    color: #011936;
-    background: #c2eabd; }
+    color: #2b2d42;
+    background: #edf2f4; }
     .importExport a.download img, .importExport a.upload img {
       height: 1.2em;
       width: auto;
@@ -501,14 +503,14 @@ body {
 #contextMenu, #contextMenu ul {
   z-index: 1000;
   position: absolute;
-  background: #c2eabd; }
+  background: #edf2f4; }
 
 #contextMenu {
   display: none;
   width: 10em;
   margin: 0;
   padding: 0.3em 0;
-  color: #011936; }
+  color: #2b2d42; }
   #contextMenu li {
     list-style-type: none;
     margin: 0;

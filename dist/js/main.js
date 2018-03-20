@@ -3360,7 +3360,7 @@ var FloatingButton = function FloatingButton(buttonClass, title, tooltip, clickE
 
     if (tooltip) {
         this.$tooltip = $("<div>");
-        this.$tooltip.addClass("tooltip").addClass("hidden").html(tooltip);
+        this.$tooltip.addClass("tooltip").html(tooltip);
 
         parentSVG.$svg.after(this.$tooltip);
 

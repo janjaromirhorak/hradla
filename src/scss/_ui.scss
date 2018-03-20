@@ -13,7 +13,7 @@ $floatingMenuDistance: 0.5em;
 
     .button {
         display:inline-block;
-        background: $light;
+        background: $ui_lightCasual;
 
         width: $floatingButtonSize;
         height: $floatingButtonSize;
@@ -25,7 +25,7 @@ $floatingMenuDistance: 0.5em;
         cursor: pointer;
         cursor: hand;
 
-        color: black;
+        color: $ui_darkCasual;
 
         img {
             width: 100%;
@@ -33,11 +33,11 @@ $floatingMenuDistance: 0.5em;
         }
 
         &:hover {
-            background: $lightColor;
+            background: $ui_lightAccent;
         }
 
         &:active {
-            background: $darkColor;
+            background: $ui_darkAccent;
         }
     }
 }
@@ -48,7 +48,7 @@ $floatingMenuDistance: 0.5em;
     z-index: 1000;
     bottom: 2 * $floatingMenuDistance + $floatingButtonSize;
     right: $floatingMenuDistance;
-    background: $light;
+    background: $ui_lightCasual;
     padding: 1em;
 }
 
@@ -58,11 +58,11 @@ $floatingMenuDistance: 0.5em;
     padding: 1em;
 
     background:white;
-    color:black;
+    color: $ui_darkCasual;
 
     &.export textarea, &.import textarea {
         background: white;
-        color: black;
+        color: $ui_darkCasual;
         border: thin solid #aeaeae;
 
         font-family: 'Overpass Mono', monospace;
@@ -90,8 +90,8 @@ $floatingMenuDistance: 0.5em;
         padding: 0.4em;
 
         text-decoration: none;
-        color: $dark;
-        background: $light;
+        color: $ui_darkCasual;
+        background: $ui_lightCasual;
 
         img {
             height: 1.2em;
@@ -100,11 +100,11 @@ $floatingMenuDistance: 0.5em;
         }
 
         &:hover {
-            background: $lightColor;
+            background: $ui_lightAccent;
         }
 
         &:active {
-            background: $darkColor;
+            background: $ui_darkAccent;
         }
     }
 }
@@ -118,7 +118,7 @@ $menuItemWidth: 10em;
     z-index: 1000;
     position: absolute;
 
-    background: $light;
+    background: $ui_lightCasual;
 }
 #contextMenu {
     display: none;
@@ -128,7 +128,7 @@ $menuItemWidth: 10em;
     margin: 0;
     padding: $contextMenuPadding 0;
 
-    color: $dark;
+    color: $ui_darkCasual;
 
     li {
         list-style-type: none;
@@ -159,7 +159,7 @@ $menuItemWidth: 10em;
         }
 
         &:hover {
-            background: $lightColor;
+            background: $ui_lightAccent;
 
             > ul {
                 display:block;
@@ -167,7 +167,7 @@ $menuItemWidth: 10em;
         }
 
         &:active {
-            background: $darkColor;
+            background: $ui_darkAccent;
         }
     }
 }
