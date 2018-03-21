@@ -318,7 +318,7 @@ gulp.task('help', () => {
         .pipe(gulp.dest(outDocs))
 })
 
-gulp.task('jsdoc:generate', () => {
+gulp.task('jsdoc:generate', (done) => {
     const jsdoc = modules.get('jsdoc');
 
     const customCss = production ? "jsdoc.min.css" : "jsdoc.css";
@@ -348,7 +348,7 @@ gulp.task('jsdoc:generate', () => {
         ]
     }
     return gulp.src(['README.md', './' + srcJs + '/**/*.js'], {read: false})
-        .pipe(jsdoc(jsdocConfig));
+        .pipe(jsdoc(jsdocConfig, done));
 });
 
 gulp.task('jsdoc:clean', () => {
