@@ -358,7 +358,7 @@ gulp.task('jsdoc:clean', () => {
 
 gulp.task('jsdoc', gulp.series('jsdoc:clean', 'jsdoc:generate'));
 
-gulp.task('docs', gulp.parallel('help', 'jsdoc'));
+gulp.task('docs', gulp.parallel('help', 'jsdoc', 'styles'));
 
 ///// create archives
 // create a zip archive
