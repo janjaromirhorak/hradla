@@ -311,42 +311,71 @@ class Connector extends NetworkElement {
 
         this.svgObj.$el.addClass("connector");
 
-        this.stateAttr = false;
-
-        // if a wire can set connector's state
+        /**
+         * this flag describes whether this connector is an input connector
+         * @type {Boolean}
+         */
         this.isInputConnector = false;
 
-        this.stateAttr = Logic.state.unknown;
+        /**
+         * current logical state of this connector
+         * @type {Logic.state}
+         */
+        this.elementState = Logic.state.unknown;
         this.svgObj.addClass(stateClasses.unknown);
 
+        /**
+         * set of ids of all wires connected to this connector
+         * @type {Set}
+         */
         this.wireIds = new Set();
     }
 
+    /**
+     * whether this connector is an output connector
+     * @return {Boolean}
+     */
     get isOutputConnector() {
         return !this.isInputConnector;
     }
 
-    static get type() {
-        return {
-            inputConnector: 0,
-            outputConnector: 1
-        }
+    /**
+     * whether this connector is an output connector
+     * @return {Boolean}
+     */
+    set isOutputConnector(value) {
+        this.isInputConnector = !value;
     }
 
+    /**
+     * add a wire id to the list of wire ids
+     * @param {string} wireId
+     */
     addWireId(wireId) {
         this.wireIds.add(wireId);
     }
 
+    /**
+     * remove a wire id from the list of wire ids
+     * @param {string} wireId
+     */
     removeWireId(wireId) {
         this.wireIds.delete(wireId);
     }
 
-    // removes the wire and updates the connector
+    /**
+     * remove a wire specified by ID and update the connector
+     * @param  {string} wireId ID of the wire to be removed
+     */
     removeWireIdAndUpdate(wireId) {
         this.removeWireId(wireId);
     }
 
-    setState(state, propagationId) {
+    /**
+     * set logical state of the connector
+     * @param {Logic.state} state new state of the connector
+     */
+    setState(state) {
         this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
 
         switch (state) {
@@ -364,44 +393,60 @@ class Connector extends NetworkElement {
                 break;
         }
 
-        this.stateAttr = state;
+        this.elementState = state;
     }
 
+    /**
+     * get state of this connector
+     * @return {Logic.state}
+     */
     get state() {
-        return this.stateAttr;
+        return this.elementState;
     }
 
+    /**
+     * get svgObj instance content of this connector
+     * @return {svgObjects.Rectangle}
+     */
     get() {
         return this.svgObj;
     }
 
+    /**
+     * call [wireCreationHelper](./module-Canvas.html#wireCreationHelper) on mouse up
+     */
     onMouseUp() {
         this.parentSVG.wireCreationHelper(this.svgObj.id);
     }
 }
 
 /**
- * Connector that takes gets its state from a connected value and passes it through to the {@link Box} this connector belongs to.
+ * Connector that gets its state from a connected value and passes it through to the {@link Box} this connector belongs to.
  * @extends Connector
  */
 export class InputConnector extends Connector {
     constructor(parentSVG, gridSize, left, top) {
         super(parentSVG, gridSize, left, top);
 
-
-        this.type = Connector.type.inputConnector;
         this.isInputConnector = true;
     }
 
+    /**
+     * Call the setState method of {@link Connector} and than refresh the state of the connected {@link Box}
+     * @param {Logic.state} state new {@link Logic.state} of the connector
+     */
     setState(state) {
-        // console.log('setState on', this.id)
-
         super.setState(state);
 
         let gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
         gate.refreshState();
     }
 
+    /**
+     * remove the wire (by calling the removeWireIdAndUpdate of {@link Connector})
+     * and update state of this connector by setting it to undefined using the setState method
+     * @param  {string} wireId ID of the {@link Wire}
+     */
     removeWireIdAndUpdate(wireId) {
         super.removeWireIdAndUpdate(wireId);
         this.setState(Logic.state.unknown);
@@ -420,12 +465,13 @@ export class OutputConnector extends Connector {
     constructor(parentSVG, gridSize, left, top) {
         super(parentSVG, gridSize, left, top);
 
-        // used to set the wire state during wire initialization based on the output connector state
-        this.isOutput = true;
-
-        this.type = Connector.type.outputConnector;
+        this.isOutputConnector = true;
     }
 
+    /**
+     * Call the setState method of {@link Connector} and than set the state of the connected {@link Wire}s
+     * @param {Logic.state} state new {@link Logic.state} of the connector
+     */
     setState(state) {
         super.setState(state);
 
@@ -440,7 +486,8 @@ export class OutputConnector extends Connector {
 }
 
 /**
- * parent class for gates and input and output boxes
+ * Parent class for gates and input and output boxes. Defines all the factors
+ * that the boxes have in common (svgObj structure, draggability and rotatability...)
  * @extends NetworkElement
  */
 class Box extends NetworkElement {
@@ -608,9 +655,9 @@ class Box extends NetworkElement {
         }
     }
 
-    addConnector(left, top, connectorType) {
+    addConnector(left, top, isInputConnector) {
         let index = this.connectors.length;
-        if(connectorType===Connector.type.inputConnector) {
+        if(isInputConnector) {
             this.connectors[index] = new InputConnector(this.parentSVG, this.gridSize, left, top);
         } else {
             this.connectors[index] = new OutputConnector(this.parentSVG, this.gridSize, left, top);
@@ -618,6 +665,14 @@ class Box extends NetworkElement {
         this.svgObj.addChild(this.connectors[index].get());
 
         this.removeBlockedNode(left, top);
+    }
+
+    addInputConnector(left, top) {
+        return this.addConnector(left, top, true)
+    }
+
+    addOutputConnector(left, top) {
+        return this.addConnector(left, top, false)
     }
 
     // returns the connector object based on its id
@@ -781,7 +836,7 @@ export class InputBox extends Box {
 
         super(parentSVG, "input", "io", width, height);
 
-        this.addConnector(width, height / 2, Connector.type.outputConnector);
+        this.addConnector(width, height / 2, false);
 
         this.on = isOn;
     }
@@ -837,7 +892,7 @@ export class OutputBox extends Box {
 
         super(parentSVG, "output", "io", width, height);
 
-        this.addConnector(0, height / 2, Connector.type.inputConnector);
+        this.addConnector(0, height / 2, true);
     }
 
     refreshState() {
@@ -878,15 +933,15 @@ export class Gate extends Box {
         super(parentSVG, name, "gate", width, height);
 
         // output
-        this.addConnector(width, height / 2, Connector.type.outputConnector);
+        this.addConnector(width, height / 2, false);
 
         if(this.name==="not") {
             // input
-            this.addConnector(0, height / 2, Connector.type.inputConnector);
+            this.addConnector(0, height / 2, true);
         } else {
             // input
-            this.addConnector(0, height / 4, Connector.type.inputConnector);
-            this.addConnector(0, height / (4/3), Connector.type.inputConnector);
+            this.addConnector(0, height / 4, true);
+            this.addConnector(0, height / (4/3), true);
 
             // add one blockedNode between the inputs (for better looking wiring)
             // and regenerate blocked nodes
@@ -963,10 +1018,10 @@ export class Wire extends NetworkElement {
         this.connectors = [this.startConnector, this.endConnector]
         this.routeWire(true, refresh);
 
-        this.stateAttr = Logic.state.unknown;
+        this.elementState = Logic.state.unknown;
 
         for (let connector of this.connectors) {
-            if(connector.isOutput) {
+            if(connector.isOutputConnector) {
                 this.setState(connector.state);
             }
         }
@@ -1006,22 +1061,17 @@ export class Wire extends NetworkElement {
             this.endConnector.setState(state);
         }
 
-        this.stateAttr = state;
+        this.elementState = state;
     }
 
     get state() {
-        return this.stateAttr;
+        return this.elementState;
     }
 
     updateWireState() {
         for (const box of this.boxes) {
             box.refreshState()
         }
-        // for (const conn of this.connectors) {
-        //     if(conn.isOutputConnector) {
-        //         this.parentSVG.startNewSimulation(conn.id, conn.state)
-        //     }
-        // }
     }
 
     get() {

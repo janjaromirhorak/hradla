@@ -1,19 +1,33 @@
+/* COLOR PALETTE */
+// interface colors
+$lightGrey: #edf2f4;
+$darkGrey: #2b2d42;
+$darkBlue: #011936;
+$yellow: #f9dc5c;
+$red: #ed254e;
+
 // editor colors
 $onColor: #00ff00;
 $offColor: #ff0000;
 $unknownColor: #8b8b8b;
 $oscillatingColor: #0000ff;
 
-// ui colors
-$light: #c2eabd;
-$dark: #011936;
-$lightColor: #f9dc5c;
-$darkColor: #ed254e;
+/* COLOR VARIABLES */
 
-// docs colors
-$green: #c2eabd;
-$darkBlue: #011936;
-$yellow: #f9dc5c;
-$red: #ed254e;
+// ui
+$ui_lightCasual: $lightGrey;
+$ui_darkCasual: $darkGrey;
+$ui_lightAccent: $yellow;
+$ui_darkAccent: $red;
+
+// help page
+$help_codeBackground: $lightGrey;
+$help_codeColor: $darkGrey;
+$help_darkAccent: $red;
+$help_lightAccent: $yellow;
+$help_darkCasual: $darkGrey;
 $lightBackground: white;
-$darkText: $darkBlue;
+
+// jsdoc
+$jsdoc_darkAccent: $red;
+$jsdoc_lightAccent: $yellow;

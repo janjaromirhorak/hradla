@@ -1,4 +1,4 @@
-/*! Lity - v3.0.0-dev - 2017-07-17
+/*! Lity - v2.2.2 - 2017-07-17
 * http://sorgalla.com/lity/
 * Copyright (c) 2015-2017 Jan Sorgalla; Licensed MIT */
 (function(window, factory) {
@@ -43,7 +43,7 @@
 
     var _imageRegexp = /(^data:image\/)|(\.(png|jpe?g|gif|svg|webp|bmp|ico|tiff?)(\?\S*)?$)/i;
     var _youtubeRegex = /(youtube(-nocookie)?\.com|youtu\.be)\/(watch\?v=|v\/|u\/|embed\/?)?([\w-]{11})(.*)?/i;
-    var _vimeoRegex =  /(vimeo(pro)?\.com)\/(?:[^\d]+)?(\d+)\??(.*)?$/;
+    var _vimeoRegex =  /(vimeo(pro)?.com)\/(?:[^\d]+)?(\d+)\??(.*)?$/;
     var _googlemapsRegex = /((maps|www)\.)?google\.([^\/\?]+)\/?((maps\/?)?\?)(.*)/i;
     var _facebookvideoRegex = /(facebook\.com)\/([a-z0-9_-]*)\/videos\/([0-9]*)(.*)?$/i;
 
@@ -100,12 +100,6 @@
     }
 
     function parseQueryParams(params) {
-        var pos = params.indexOf('?');
-
-        if (pos > -1) {
-            params = params.substr(pos + 1);
-        }
-
         var pairs = decodeURI(params.split('#')[0]).split('&');
         var obj = {}, p;
 
@@ -122,26 +116,7 @@
     }
 
     function appendQueryParams(url, params) {
-        if (!params) {
-            return url;
-        }
-
-        if ('string' === $.type(params)) {
-            params = parseQueryParams(params);
-        }
-
-        if (url.indexOf('?') > -1) {
-            var split = url.split('?');
-            url = split.shift();
-
-            params = $.extend(
-                {},
-                parseQueryParams(split[0]),
-                params
-            )
-        }
-
-        return url + '?' + $.param(params);
+        return url + (url.indexOf('?') > -1 ? '&' : '?') + $.param(params);
     }
 
     function transferHash(originalUrl, newUrl) {
@@ -156,20 +131,6 @@
         }
 
         return newUrl + originalUrl;
-    }
-
-    function iframe(iframeUrl, instance, queryParams, hashUrl) {
-        instance && instance.element().addClass('lity-iframe');
-
-        if (queryParams) {
-            iframeUrl = appendQueryParams(iframeUrl, queryParams);
-        }
-
-        if (hashUrl) {
-            iframeUrl = transferHash(hashUrl, iframeUrl);
-        }
-
-        return '<div class="lity-iframe-container"><iframe frameborder="0" allowfullscreen src="' + iframeUrl + '"/></div>';
     }
 
     function error(msg) {
@@ -238,37 +199,53 @@
         ;
     }
 
-    function youtubeHandler(target, instance) {
+    function youtubeHandler(target) {
         var matches = _youtubeRegex.exec(target);
 
         if (!matches) {
             return false;
         }
 
-        return iframe(
-            'https://www.youtube' + (matches[2] || '') + '.com/embed/' + matches[4] + '?autoplay=1',
-            instance,
-            matches[5],
-            target
+        return iframeHandler(
+            transferHash(
+                target,
+                appendQueryParams(
+                    'https://www.youtube' + (matches[2] || '') + '.com/embed/' + matches[4],
+                    $.extend(
+                        {
+                            autoplay: 1
+                        },
+                        parseQueryParams(matches[5] || '')
+                    )
+                )
+            )
         );
     }
 
-    function vimeoHandler(target, instance) {
+    function vimeoHandler(target) {
         var matches = _vimeoRegex.exec(target);
 
         if (!matches) {
             return false;
         }
 
-        return iframe(
-            'https://player.vimeo.com/video/' + matches[3] + '?autoplay=1',
-            instance,
-            matches[4],
-            target
+        return iframeHandler(
+            transferHash(
+                target,
+                appendQueryParams(
+                    'https://player.vimeo.com/video/' + matches[3],
+                    $.extend(
+                        {
+                            autoplay: 1
+                        },
+                        parseQueryParams(matches[4] || '')
+                    )
+                )
+            )
         );
     }
 
-    function facebookvideoHandler(target, instance) {
+    function facebookvideoHandler(target) {
         var matches = _facebookvideoRegex.exec(target);
 
         if (!matches) {
@@ -279,33 +256,44 @@
             target = 'https:' + target;
         }
 
-        return iframe(
-            'https://www.facebook.com/plugins/video.php?href=' + target + '&autoplay=1',
-            instance,
-            matches[4],
-            target
+        return iframeHandler(
+            transferHash(
+                target,
+                appendQueryParams(
+                    'https://www.facebook.com/plugins/video.php?href=' + target,
+                    $.extend(
+                        {
+                            autoplay: 1
+                        },
+                        parseQueryParams(matches[4] || '')
+                    )
+                )
+            )
         );
     }
 
-    function googlemapsHandler(target, instance) {
+    function googlemapsHandler(target) {
         var matches = _googlemapsRegex.exec(target);
 
         if (!matches) {
             return false;
         }
 
-        return iframe(
-            'https://www.google.' + matches[3] + '/maps?' + matches[6],
-            instance,
-            {
-                output: matches[6].indexOf('layer=c') > 0 ? 'svembed' : 'embed'
-            },
-            target
+        return iframeHandler(
+            transferHash(
+                target,
+                appendQueryParams(
+                    'https://www.google.' + matches[3] + '/maps?' + matches[6],
+                    {
+                        output: matches[6].indexOf('layer=c') > 0 ? 'svembed' : 'embed'
+                    }
+                )
+            )
         );
     }
 
-    function iframeHandler(target, instance) {
-        return iframe(target, instance);
+    function iframeHandler(target) {
+        return '<div class="lity-iframe-container"><iframe frameborder="0" allowfullscreen src="' + target + '"/></div>';
     }
 
     function winHeight() {
@@ -498,10 +486,6 @@
             return opener;
         };
 
-        self.content = function() {
-            return content;
-        };
-
         self.options  = $.proxy(settings, self, options);
         self.handlers = $.proxy(settings, self, options.handlers);
 
@@ -643,11 +627,10 @@
         }
     }
 
-    lity.version  = '3.0.0-dev';
+    lity.version  = '2.2.2';
     lity.options  = $.proxy(settings, lity, _defaultOptions);
     lity.handlers = $.proxy(settings, lity, _defaultOptions.handlers);
     lity.current  = currentInstance;
-    lity.iframe   = iframe;
 
     $(document).on('click.lity', '[data-lity]', lity);
 

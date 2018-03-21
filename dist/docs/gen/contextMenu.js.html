@@ -1,8 +1,10 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: Transform | Hradla</title>
+    <title>Source: contextMenu.js | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -16,7 +18,7 @@
 
     
         
-            <link type="text/css" rel="stylesheet" href="../../css/jsdoc.min.css">
+            <link type="text/css" rel="stylesheet" href="../../css/jsdoc.css">
         
     
 </head>
@@ -45,1606 +47,282 @@
 
 
 
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>Transform<span class="signature">(string<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><p>API for manipulating the transform argument used in SVG</p></div>
-        
-    
-</header>
-
-<article>
-    
-        <div class="container-overview">
-        
-            
-
-<dt>
-    
-        <h4 class="name" id="Transform">
-            
-                new <span class="type-signature"></span>Transform<span class="signature">(string<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line62">line 62</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>Initialize the Transform object</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>string</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>string in the format of the <code>transform</code> argument in SVG, for example <code>translate(360 150) rotate(90 30 20)</code></p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-        
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        <dl>
-            
-
-<dt>
-<h4 class="name" id="items">
-    <span class="type-signature"></span>items<span class="type-signature"> :Array</span>
-    
-    <div class="container-source members">
-        <code><a href="editorElements.js.html">editorElements.js</a></code>,
-        <code><a href="editorElements.js.html#line72">line 72</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>array of <a href="Property.html">Property</a> instances</p>
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">Array</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        </dl>
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
-                
-
-<dt>
-    
-        <h4 class="name" id="get">
-            
-                <span class="type-signature"></span>get<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line177">line 177</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get the transform values in a string</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">string</span>
-
-
-
-
-
-- <p>string that can be used as a value for the transform property of a SVG element</p>
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="getArguments">
-            
-                <span class="type-signature"></span>getArguments<span class="signature">(index)</span><span class="type-signature"> &rarr; {array}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line193">line 193</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get arguments of a property specified by index</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>index</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>index of the property</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">array</span>
-
-
-
-
-
-- <p>array of arguments of the specified property</p>
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="getIndex">
-            
-                <span class="type-signature"></span>getIndex<span class="signature">(name)</span><span class="type-signature"> &rarr; {number}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line90">line 90</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>find a transform property by name and get its index in the <a href="#items">items</a> array</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>name of the property</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">number</span>
-
-
-
-
-
-- <p>index of the property in the array of properties or <code>-1</code> if not found</p>
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="getRotate">
-            
-                <span class="type-signature"></span>getRotate<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line117">line 117</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get the rotate property</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">Object</span>
-
-
-
-
-
-- <p>object containing parameters of the rotate attribute</p>
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="getTranslate">
-            
-                <span class="type-signature"></span>getTranslate<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line104">line 104</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get the translate property</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">Object</span>
-
-
-
-
-
-- <p>object containing parameters of the translate attribute</p>
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="rotateRight">
-            
-                <span class="type-signature"></span>rotateRight<span class="signature">(centreX, centreY)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line151">line 151</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>rotate by 90 degrees to the right</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>centreX</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>horizontal position of the centre of the rotation</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>centreY</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>vertical position of the centre of the rotation</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="setParameter">
-            
-                <span class="type-signature"></span>setParameter<span class="signature">(name, args)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line202">line 202</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>set argumets of a property specified by name</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>name of the property</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>args</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>array of arguments of the specified property</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="setRotate">
-            
-                <span class="type-signature"></span>setRotate<span class="signature">(deg, centreX, centreY)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line142">line 142</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>set rotate to the specified values</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>deg</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>angle of the rotation in degrees</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>centreX</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>horizontal position of the centre of the rotation</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>centreY</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>vertical position of the centre of the rotation</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
     
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="setTranslate">
-            
-                <span class="type-signature"></span>setTranslate<span class="signature">(x, y)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line132">line 132</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>set translate to the specified values</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>x</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>horizontal translation</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>y</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>vertical translation</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            </dl>
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+/**
+ * Item in the [ContextMenu](./module-ContextMenu.html). ContextMenuItems can be nested using the appendItem function.
+ */
+class ContextMenuItem {
+    /**
+     * @param {string} text          text on the button
+     * @param {ContextMenu} contextMenu instance of the [ContextMenu](./module-ContextMenu.html) this item belongs to
+     * @param {Canvas} parentSVG     instance of [Canvas](./module-Canvas.html) this menu belongs to
+     * @param {Function} clickFunction callback function that will be called when user clicks this item
+     */
+    constructor(text, contextMenu, parentSVG, clickFunction) {
+        /**
+         * text on the button
+         * @type {string}
+         */
+        this.text = text;
+
+        /**
+         * instance of the [ContextMenu](./module-ContextMenu.html) this item belongs to
+         * @type {ContextMenu}
+         */
+        this.contextMenu = contextMenu;
+
+        /**
+         * instance of [Canvas](./module-Canvas.html) this menu belongs to
+         * @type {Canvas}
+         */
+        this.parentSVG = parentSVG;
+
+        /**
+         * jQuery element representing DOM content of this menu item
+         * @type {jQuery.element}
+         */
+        this.$el = $("&lt;li>").text(text);
+
+        // set up click callback if clickFunction is defined
+        if(clickFunction) {
+            $(this.$el).click(
+                event => {
+                    clickFunction(event);
+                    contextMenu.hide();
+                }
+            );
+        }
+    }
+
+    /**
+     * add a CSS class to this item
+     * @param {string} cls [description]
+     */
+    addClass(cls) {
+        this.$el.addClass(cls);
+        return this;
+    }
+
+    /**
+     * append a nested {@link ContextMenuItem} to this item
+     * @param  {ContextMenuItem} item item that will be appended
+     */
+    appendItem(item) {
+        if(!this.subList) {
+            this.subList = $("&lt;ul>");
+            this.$el.append(this.subList);
+        }
+
+        this.subList.append(item.jQuery);
+
+        return item;
+    }
+
+    /**
+     * get jQuery element of this menu item
+     * @return {jQuery.element} jQuery element containing all DOM content for this menu item
+     */
+    get jQuery() {
+        return this.$el;
+    }
+}
+
+/**
+ * Menu item that has a custom click callback function that adds a {@link Gate} of the specified type to the [Canvas](./module-Canvas.html)
+ * @extends ContextMenuItem
+ */
+class GateMenuItem extends ContextMenuItem {
+    /**
+     * @param {string} type        type of the gate {@link Gate} (and, or, ...)
+     * @param {ContextMenu} contextMenu instance of the [ContextMenu](./module-ContextMenu.html) that this item belongs to
+     * @param {Canvas} parentSVG   instance of [Canvas](./module-Canvas.html) this menu belongs to
+     */
+    constructor(type, contextMenu, parentSVG) {
+        super(
+            `${type} gate`,
+            contextMenu,
+            parentSVG,
+            event => {
+                let position = {
+                    left: parentSVG.snapToGrid(parentSVG.viewbox.transformX(contextMenu.position.x)),
+                    top: parentSVG.snapToGrid(parentSVG.viewbox.transformY(contextMenu.position.y))
+                };
+
+                parentSVG.newGate(
+                    type,
+                    position.left, // x coordinate
+                    position.top // y coordinate
+                );
+            }
+        );
+    }
+}
+
+/** @module ContextMenu */
+/**
+ * ContextMenu represents the menu that is displayed to the user when they right click on a canvas.
+ * This menu allows user to add elements to the Canvas and in the case that user rightclicked
+ * on a specific element, this menu allows them to remove this element.
+ */
+export default class ContextMenu {
+    /**
+     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html) this menu belongs to
+     */
+    constructor(parentSVG) {
+        /**
+         * instance of [Canvas](./module-Canvas.html) this menu belongs to
+         * @type {Canvas}
+         */
+        this.parentSVG = parentSVG;
+
+        // list of gates that can be added
+        const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
+
+        /**
+         * Position of the context menu. It is used to add the new elements to the correct position on the Canvas.
+         * @type {Object}
+         */
+        this.position = {
+            x: 0, y: 0
+        };
+
+        /**
+         * jQuery element containing the context menu
+         * @type {jQuery.element}
+         */
+        this.$el = $("&lt;ul>");
+        this.$el.attr('id', 'contextMenu');
+
+        // add all gates
+        let gateList = new ContextMenuItem("New gate", this, parentSVG);
+        for (let i = 0 ; i &lt; gates.length ; ++i) {
+            gateList.appendItem(
+                new GateMenuItem(gates[i], this, parentSVG)
+            );
+        }
+        this.appendItem(gateList);
+
+        // add input box
+        this.appendItem(
+            new ContextMenuItem("Input box", this, parentSVG,
+                () => {
+                    let position = {
+                        left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
+                        top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
+                    };
+
+                    parentSVG.newInput(position.left, position.top);
+                }
+            )
+        );
+
+        // add output box
+        this.appendItem(new ContextMenuItem("Output box", this, parentSVG, () => {
+            let position = {
+                left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
+                top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
+            };
+
+            parentSVG.newOutput(position.left, position.top);
+        }));
+
+        // add conditional items for box and wire removal
+        this.appendConditionalItem('box', 'Remove this item', id => {this.parentSVG.removeBox(id)});
+        this.appendConditionalItem('wire', 'Remove this wire', id => {this.parentSVG.removeWireById(id)});
+
+        // add the context menu to the DOM
+        parentSVG.$svg.before(this.$el);
+    }
+
+    /**
+     * append a context menu item to the context menu
+     * @param  {ContextMenuItem} item instance of {@link ContextMenuItem} that will be added to this menu
+     */
+    appendItem(item) {
+        this.$el.append(item.jQuery);
+        return item;
+    }
+
+    /**
+     * appends an connditional item (that is shown only if the target has the class itemClass)
+     * @param  {string} itemClass     show the item only if the target has this class
+     * @param  {string} text          text of this menu item
+     * @param  {Function} clickFunction function with one argument (ID of the target) that will be called on click
+     */
+    appendConditionalItem(itemClass, text, clickFunction) {
+        if(!this.conditionalItems) {
+            this.conditionalItems = [];
+        }
+
+        this.conditionalItems[this.conditionalItems.length] = {
+            itemClass: itemClass,
+            text: text,
+            clickFunction: clickFunction
+        }
+    }
+
+    /**
+     * decide whether or not to display specific conditional items
+     * @param  {jQuery.element} $target jQuery target of a MouseEvent (element that user clicked on)
+     */
+    resolveConditionalItems($target) {
+        for(let i = 0; i &lt; this.conditionalItems.length; ++i) {
+            if($target.hasClass(this.conditionalItems[i].itemClass)) {
+                this.appendItem(
+                    new ContextMenuItem(
+                        this.conditionalItems[i].text, this, this.parentSVG,
+                        () => {
+                            this.conditionalItems[i].clickFunction($target.attr('id'));
+                        }
+                    )
+                ).addClass('conditional');
+            }
+        }
+    }
+
+    /**
+     * hide all conditional items
+     */
+    hideAllConditionalItems() {
+        this.$el.children('.conditional').remove();
+    }
+
+    /**
+     * displays the context menu with the right set of conditional items
+     * @param  {number} x       horizontal position of the context menu in CSS pixels
+     * @param  {number} y       vertical position of the context menu in CSS pixels
+     * @param  {jQuery.element} $target jQuery target of a MouseEvent (element that user clicked on)
+     */
+    display(x, y, $target) {
+        this.position = {
+            x: x,
+            y: y
+        };
+
+        this.$el.css({
+            display: 'block',
+            top: y + "px",
+            left: x + "px"
+        });
+
+        this.resolveConditionalItems($target);
+    }
+
+    /**
+     * hide the context menu
+     */
+    hide() {
+        this.$el.css({display: 'none'});
+        this.hideAllConditionalItems();
+    }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
@@ -1661,7 +339,7 @@
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'Transform_sub'.replace(/"/g, '_');
+        var id = '_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

@@ -213,7 +213,6 @@ export default class Canvas {
         this.contextMenu = new ContextMenu(this);
 
         // CONSTRUCT FLOATING MENU
-        // this.floatingMenu = new FloatingMenu(this);
         this.floatingMenu = new FloatingMenu(this);
 
         // ALL EVENT CALLBACKS
@@ -770,7 +769,7 @@ export default class Canvas {
 
             // if otherConnector is an input connector, set its state to unknown
             if(otherConnector.isInputConnector) {
-                otherConnector.setState(Logic.state.unknown);
+                this.startNewSimulation(otherConnector, Logic.state.unknown)
             }
         });
 

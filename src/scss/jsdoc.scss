@@ -1,49 +1,47 @@
 @import "colors";
-$accentPrimary: $red;
-$accentSecondary: $yellow;
 
 /* TODO make fonts slightly bigger */
 
 /* change colors */
 #resizer {
-    background-color: $accentPrimary;
+    background-color: $jsdoc_darkAccent;
 }
 
 a, .readme p a {
-    color: $accentPrimary;
+    color: $jsdoc_darkAccent;
 }
 
 .lnb {
     h3 {
-        color: $accentPrimary;
+        color: $jsdoc_darkAccent;
     }
 
     .lnb-api a, .lnb-examples a {
-        color: $accentSecondary;
+        color: $jsdoc_lightAccent;
 
         &:hover, &:focus {
-            color: lighten($accentSecondary, 10%);
+            color: lighten($jsdoc_lightAccent, 10%);
         }
     }
 
     .member-type {
-        color: $accentPrimary;
+        color: $jsdoc_darkAccent;
     }
 }
 
 .btn-link {
-    color: $accentSecondary;
+    color: $jsdoc_lightAccent;
     opacity: 0.8;
 
     &:focus, &:hover {
-        color: $accentSecondary;
+        color: $jsdoc_lightAccent;
 
         opacity: 0.6;
     }
 }
 
 .main section article h3.subsection-title {
-    color: $accentPrimary;
+    color: $jsdoc_darkAccent;
 }
 
 /* format tables */

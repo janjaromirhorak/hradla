@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="6.7746121"
-     inkscape:cy="47.584408"
+     inkscape:zoom="4"
+     inkscape:cx="-2.240959"
+     inkscape:cy="30.212514"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -60,7 +60,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -71,35 +71,8 @@
      transform="translate(0,-992.3622)">
     <path
        style="opacity:1;fill:#011936;fill-opacity:1;stroke:none;stroke-width:2.53408957;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 5.6972656,1035.9755 v 10.6074 H 54.302734 v -10.6074 z"
-       id="path895"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccc" />
-    <path
-       sodipodi:type="star"
-       style="opacity:1;fill:#011936;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="path969"
-       sodipodi:sides="3"
-       sodipodi:cx="15.535714"
-       sodipodi:cy="1023.4336"
-       sodipodi:r1="16.293114"
-       sodipodi:r2="8.1465569"
-       sodipodi:arg1="-0.52359878"
-       sodipodi:arg2="0.52359878"
-       inkscape:flatsided="true"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="M 29.645964,1015.287 15.535714,1039.7267 1.4254637,1015.287 Z"
-       inkscape:transform-center-y="3.5673307"
-       transform="matrix(-1.4124335,0,0,-0.87578743,51.943163,1907.5133)" />
-    <rect
-       style="opacity:1;fill:#011936;fill-opacity:1;stroke:none;stroke-width:1.95494962;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect967-3-6"
-       width="24.053467"
-       height="10.607178"
-       x="1008.641"
-       y="-35.303589"
-       ry="0"
-       transform="rotate(90)" />
+       d="M 24.697266 5.6972656 L 24.697266 24.697266 L 5.6972656 24.697266 L 5.6972656 35.302734 L 24.697266 35.302734 L 24.697266 54.302734 L 35.302734 54.302734 L 35.302734 35.302734 L 54.302734 35.302734 L 54.302734 24.697266 L 35.302734 24.697266 L 35.302734 5.6972656 L 24.697266 5.6972656 z "
+       transform="translate(0,992.3622)"
+       id="path895" />
   </g>
 </svg>
