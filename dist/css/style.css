@@ -480,6 +480,7 @@ body {
     max-width: 90vw;
     resize: none;
     display: block;
+    height: 20em;
     max-height: 50vh; }
   .importExport a.download, .importExport a.upload {
     -webkit-transition: all 200ms;

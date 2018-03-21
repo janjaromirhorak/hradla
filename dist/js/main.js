@@ -1486,23 +1486,38 @@ var ContextMenu = function () {
 
         _classCallCheck(this, ContextMenu);
 
+        /**
+         * instance of [Canvas](./module-Canvas.html) this menu belongs to
+         * @type {Canvas}
+         */
         this.parentSVG = parentSVG;
 
+        // list of gates that can be added
         var gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
 
+        /**
+         * Position of the context menu. It is used to add the new elements to the correct position on the Canvas.
+         * @type {Object}
+         */
         this.position = {
             x: 0, y: 0
         };
 
+        /**
+         * jQuery element containing the context menu
+         * @type {jQuery.element}
+         */
         this.$el = $("<ul>");
         this.$el.attr('id', 'contextMenu');
 
+        // add all gates
         var gateList = new ContextMenuItem("New gate", this, parentSVG);
         for (var i = 0; i < gates.length; ++i) {
             gateList.appendItem(new GateMenuItem(gates[i], this, parentSVG));
         }
         this.appendItem(gateList);
 
+        // add input box
         this.appendItem(new ContextMenuItem("Input box", this, parentSVG, function () {
             var position = {
                 left: _this2.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this2.position.x)),
@@ -1512,6 +1527,7 @@ var ContextMenu = function () {
             parentSVG.newInput(position.left, position.top);
         }));
 
+        // add output box
         this.appendItem(new ContextMenuItem("Output box", this, parentSVG, function () {
             var position = {
                 left: _this2.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this2.position.x)),
@@ -1521,6 +1537,7 @@ var ContextMenu = function () {
             parentSVG.newOutput(position.left, position.top);
         }));
 
+        // add conditional items for box and wire removal
         this.appendConditionalItem('box', 'Remove this item', function (id) {
             _this2.parentSVG.removeBox(id);
         });
@@ -1528,8 +1545,15 @@ var ContextMenu = function () {
             _this2.parentSVG.removeWireById(id);
         });
 
+        // add the context menu to the DOM
         parentSVG.$svg.before(this.$el);
     }
+
+    /**
+     * append a context menu item to the context menu
+     * @param  {ContextMenuItem} item instance of {@link ContextMenuItem} that will be added to this menu
+     */
+
 
     _createClass(ContextMenu, [{
         key: "appendItem",
@@ -1538,9 +1562,12 @@ var ContextMenu = function () {
             return item;
         }
 
-        // appends an connditional item (that is shown only if the target
-        // has the class itemClass)
-        // clickFunction takes one argument: ID of the target
+        /**
+         * appends an connditional item (that is shown only if the target has the class itemClass)
+         * @param  {string} itemClass     show the item only if the target has this class
+         * @param  {string} text          text of this menu item
+         * @param  {Function} clickFunction function with one argument (ID of the target) that will be called on click
+         */
 
     }, {
         key: "appendConditionalItem",
@@ -1556,7 +1583,10 @@ var ContextMenu = function () {
             };
         }
 
-        // decides whether or not to display specific conditional items
+        /**
+         * decide whether or not to display specific conditional items
+         * @param  {jQuery.element} $target jQuery target of a MouseEvent (element that user clicked on)
+         */
 
     }, {
         key: "resolveConditionalItems",
@@ -1576,7 +1606,9 @@ var ContextMenu = function () {
             }
         }
 
-        // hides all conditional items
+        /**
+         * hide all conditional items
+         */
 
     }, {
         key: "hideAllConditionalItems",
@@ -1584,7 +1616,12 @@ var ContextMenu = function () {
             this.$el.children('.conditional').remove();
         }
 
-        // displays the context menu with the right set of conditional items
+        /**
+         * displays the context menu with the right set of conditional items
+         * @param  {number} x       horizontal position of the context menu in CSS pixels
+         * @param  {number} y       vertical position of the context menu in CSS pixels
+         * @param  {jQuery.element} $target jQuery target of a MouseEvent (element that user clicked on)
+         */
 
     }, {
         key: "display",
@@ -1603,7 +1640,9 @@ var ContextMenu = function () {
             this.resolveConditionalItems($target);
         }
 
-        // hides the context menu
+        /**
+         * hide the context menu
+         */
 
     }, {
         key: "hide",
@@ -2060,25 +2099,46 @@ var Connector = function (_NetworkElement) {
 
     _createClass(Connector, [{
         key: 'addWireId',
+
+
+        /**
+         * add a wire id to the list of wire ids
+         * @param {string} wireId
+         */
         value: function addWireId(wireId) {
             this.wireIds.add(wireId);
         }
+
+        /**
+         * remove a wire id from the list of wire ids
+         * @param {string} wireId
+         */
+
     }, {
         key: 'removeWireId',
         value: function removeWireId(wireId) {
             this.wireIds.delete(wireId);
         }
 
-        // removes the wire and updates the connector
+        /**
+         * remove a wire specified by ID and update the connector
+         * @param  {string} wireId ID of the wire to be removed
+         */
 
     }, {
         key: 'removeWireIdAndUpdate',
         value: function removeWireIdAndUpdate(wireId) {
             this.removeWireId(wireId);
         }
+
+        /**
+         * set logical state of the connector
+         * @param {Logic.state} state new state of the connector
+         */
+
     }, {
         key: 'setState',
-        value: function setState(state, propagationId) {
+        value: function setState(state) {
             this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
 
             switch (state) {
@@ -2098,11 +2158,28 @@ var Connector = function (_NetworkElement) {
 
             this.elementState = state;
         }
+
+        /**
+         * get state of this connector
+         * @return {Logic.state}
+         */
+
     }, {
         key: 'get',
+
+
+        /**
+         * get svgObj instance content of this connector
+         * @return {svgObjects.Rectangle}
+         */
         value: function get() {
             return this.svgObj;
         }
+
+        /**
+         * call [wireCreationHelper](./module-Canvas.html#wireCreationHelper) on mouse up
+         */
+
     }, {
         key: 'onMouseUp',
         value: function onMouseUp() {
@@ -2150,16 +2227,27 @@ var InputConnector = exports.InputConnector = function (_Connector) {
         return _this2;
     }
 
+    /**
+     * Call the setState method of {@link Connector} and than refresh the state of the connected {@link Box}
+     * @param {Logic.state} state new {@link Logic.state} of the connector
+     */
+
+
     _createClass(InputConnector, [{
         key: 'setState',
         value: function setState(state) {
-            // console.log('setState on', this.id)
-
             _get(InputConnector.prototype.__proto__ || Object.getPrototypeOf(InputConnector.prototype), 'setState', this).call(this, state);
 
             var gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
             gate.refreshState();
         }
+
+        /**
+         * remove the wire (by calling the removeWireIdAndUpdate of {@link Connector})
+         * and update state of this connector by setting it to undefined using the setState method
+         * @param  {string} wireId ID of the {@link Wire}
+         */
+
     }, {
         key: 'removeWireIdAndUpdate',
         value: function removeWireIdAndUpdate(wireId) {
@@ -2188,14 +2276,17 @@ var OutputConnector = exports.OutputConnector = function (_Connector2) {
     function OutputConnector(parentSVG, gridSize, left, top) {
         _classCallCheck(this, OutputConnector);
 
-        // used to set the wire state during wire initialization based on the output connector state
         var _this3 = _possibleConstructorReturn(this, (OutputConnector.__proto__ || Object.getPrototypeOf(OutputConnector)).call(this, parentSVG, gridSize, left, top));
-
-        _this3.isOutput = true;
 
         _this3.isOutputConnector = true;
         return _this3;
     }
+
+    /**
+     * Call the setState method of {@link Connector} and than set the state of the connected {@link Wire}s
+     * @param {Logic.state} state new {@link Logic.state} of the connector
+     */
+
 
     _createClass(OutputConnector, [{
         key: 'setState',
@@ -2238,7 +2329,8 @@ var OutputConnector = exports.OutputConnector = function (_Connector2) {
 }(Connector);
 
 /**
- * parent class for gates and input and output boxes
+ * Parent class for gates and input and output boxes. Defines all the factors
+ * that the boxes have in common (svgObj structure, draggability and rotatability...)
  * @extends NetworkElement
  */
 
@@ -2980,7 +3072,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             for (var _iterator6 = _this10.connectors[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
                 var connector = _step6.value;
 
-                if (connector.isOutput) {
+                if (connector.isOutputConnector) {
                     _this10.setState(connector.state);
                 }
             }
@@ -3045,11 +3137,6 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
                     box.refreshState();
                 }
-                // for (const conn of this.connectors) {
-                //     if(conn.isOutputConnector) {
-                //         this.parentSVG.startNewSimulation(conn.id, conn.state)
-                //     }
-                // }
             } catch (err) {
                 _didIteratorError7 = true;
                 _iteratorError7 = err;
