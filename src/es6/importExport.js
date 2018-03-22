@@ -30,12 +30,3 @@ export class exportNetwork {
         }
     };
 }
-
-export class importNetwork {
-    constructor(parentSVG, string) {
-        parentSVG.importData(
-            JSON.parse(string)
-        );
-    }
-
-}

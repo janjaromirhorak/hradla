@@ -422,125 +422,129 @@ export default class Canvas {
      * @param  {object} data object containing information about the imported network
      */
     importData(data) {
-        this.simulationEnabled = false
+        return new Promise((resolve, reject) => {
+            this.simulationEnabled = false
 
-        // TODO implement gridSize scaling
+            // TODO implement gridSize scaling
 
-        // list of wires to be added
-        let newWires = new Map();
+            // list of wires to be added
+            let newWires = new Map();
 
-        for(let i = 0 ; i < data.boxes.length; ++i) {
-            // add box
-            let box;
-            switch (data.boxes[i].category) {
-                case "gate":
-                    // add new gate (without reloading the SVG, we will reload it once after the import)
-                    box = this.newGate(data.boxes[i].name, 0, 0, false);
-                    break;
-                case "io":
-                    switch (data.boxes[i].name) {
-                        case "input":
-                            // add new input (without reloading the SVG, we will reload it once after the import)
-                            box = this.newInput(0, 0, data.boxes[i].isOn, false);
-                            break;
-                        case "output":
-                            // add new output (without reloading the SVG, we will reload it once after the import)
-                            box = this.newOutput(0, 0, false);
-                            break;
-                        default:
-                            console.error("Unknown io box name '"+data.boxes[i].name+"'.");
-                            break;
-                    }
-                    break;
-                default:
-                    console.error("Unknown box category '"+data.boxes[i].category+"'.");
-            }
-
-            if (box) {
-                // proccess box transforms (translation and rotation)
-                let transform = new editorElements.Transform();
-                for(let j = 0 ; j < data.boxes[i].transform.items.length ; ++j) {
-                    switch (data.boxes[i].transform.items[j].name) {
-                        case "translate":
-                            transform.setTranslate(
-                                data.boxes[i].transform.items[j].args[0],
-                                data.boxes[i].transform.items[j].args[1]
-                            );
-                            break;
-                        case "rotate":
-                            transform.setRotate(
-                                data.boxes[i].transform.items[j].args[0],
-                                data.boxes[i].transform.items[j].args[1],
-                                data.boxes[i].transform.items[j].args[2]
-                            );
-                            break;
-                        default:
-                            console.error("Unknown transform property '"+data.boxes[i].transform.items[j].name+"'.");
-                            break;
-                    }
+            for(let i = 0 ; i < data.boxes.length; ++i) {
+                // add box
+                let box;
+                switch (data.boxes[i].category) {
+                    case "gate":
+                        // add new gate (without reloading the SVG, we will reload it once after the import)
+                        box = this.newGate(data.boxes[i].name, 0, 0, false);
+                        break;
+                    case "io":
+                        switch (data.boxes[i].name) {
+                            case "input":
+                                // add new input (without reloading the SVG, we will reload it once after the import)
+                                box = this.newInput(0, 0, data.boxes[i].isOn, false);
+                                break;
+                            case "output":
+                                // add new output (without reloading the SVG, we will reload it once after the import)
+                                box = this.newOutput(0, 0, false);
+                                break;
+                            default:
+                                console.error("Unknown io box name '"+data.boxes[i].name+"'.");
+                                break;
+                        }
+                        break;
+                    default:
+                        console.error("Unknown box category '"+data.boxes[i].category+"'.");
                 }
 
-                box.setTransform(transform);
+                if (box) {
+                    // proccess box transforms (translation and rotation)
+                    let transform = new editorElements.Transform();
+                    for(let j = 0 ; j < data.boxes[i].transform.items.length ; ++j) {
+                        switch (data.boxes[i].transform.items[j].name) {
+                            case "translate":
+                                transform.setTranslate(
+                                    data.boxes[i].transform.items[j].args[0],
+                                    data.boxes[i].transform.items[j].args[1]
+                                );
+                                break;
+                            case "rotate":
+                                transform.setRotate(
+                                    data.boxes[i].transform.items[j].args[0],
+                                    data.boxes[i].transform.items[j].args[1],
+                                    data.boxes[i].transform.items[j].args[2]
+                                );
+                                break;
+                            default:
+                                console.error("Unknown transform property '"+data.boxes[i].transform.items[j].name+"'.");
+                                break;
+                        }
+                    }
 
-                // add all wires to the list of wires to be added
-                for(let j = 0 ; j < data.boxes[i].connections.length ; ++j) {
-                    // get the artificial wire id
-                    let wireId = data.boxes[i].connections[j].wireId;
+                    box.setTransform(transform);
 
-                    // pass the values got from json into a variable that will be added into the map
-                    let value = {
-                        index: data.boxes[i].connections[j].index,
-                        type: data.boxes[i].connections[j].type,
-                        boxId: box.id
-                    };
+                    // add all wires to the list of wires to be added
+                    for(let j = 0 ; j < data.boxes[i].connections.length ; ++j) {
+                        // get the artificial wire id
+                        let wireId = data.boxes[i].connections[j].wireId;
 
-                    // add the value to the map
-                    if(newWires.has(wireId)) {
-                        // if there already is a wire with this id in the map,
-                        // add the value to the end of the array of values
-                        let mapValue = newWires.get(wireId);
-                        mapValue[mapValue.length] = value;
-                        newWires.set(wireId, mapValue);
-                    } else {
-                        // if there is no wire with this id in the map
-                        // add the wire and set the value to be the first element in the array
-                        newWires.set(wireId, [value]);
+                        // pass the values got from json into a variable that will be added into the map
+                        let value = {
+                            index: data.boxes[i].connections[j].index,
+                            type: data.boxes[i].connections[j].type,
+                            boxId: box.id
+                        };
+
+                        // add the value to the map
+                        if(newWires.has(wireId)) {
+                            // if there already is a wire with this id in the map,
+                            // add the value to the end of the array of values
+                            let mapValue = newWires.get(wireId);
+                            mapValue[mapValue.length] = value;
+                            newWires.set(wireId, mapValue);
+                        } else {
+                            // if there is no wire with this id in the map
+                            // add the wire and set the value to be the first element in the array
+                            newWires.set(wireId, [value]);
+                        }
                     }
                 }
             }
-        }
 
-        // refresh the SVG document (needed for wiring)
-        this.refresh();
+            // refresh the SVG document (needed for wiring)
+            this.refresh();
 
-        // with all boxes added, we can now connect them with wires
-        newWires.forEach(item => {
-            let connectorIds = [];
-            if(item[0] && item[1]) {
-                for (const i of [0, 1]) {
-                    let box = this.getBoxById(item[i].boxId);
+            // with all boxes added, we can now connect them with wires
+            newWires.forEach(item => {
+                let connectorIds = [];
+                if(item[0] && item[1]) {
+                    for (const i of [0, 1]) {
+                        let box = this.getBoxById(item[i].boxId);
 
-                    connectorIds[i] = box.connectors[item[i].index].id;
+                        connectorIds[i] = box.connectors[item[i].index].id;
+                    }
+                }
+                this.newWire(connectorIds[0], connectorIds[1], true);
+            });
+
+            // refresh the SVG document
+            this.refresh();
+
+            this.simulationEnabled = true;
+            for (let box of this.boxes) {
+                if (box instanceof editorElements.InputBox) {
+                    // switch the input box state to the oposit and back, for some reason calling box.refreshState()
+                    // results in weird unfinished simulation
+                    // this causes update of the output connector and a start of a new simulation
+
+                    // TODO find better solution instead of this workaround
+                    box.on = !box.on
+                    box.on = !box.on
                 }
             }
-            this.newWire(connectorIds[0], connectorIds[1], true);
-        });
 
-        // refresh the SVG document
-        this.refresh();
-
-        this.simulationEnabled = true;
-        for (let box of this.boxes) {
-            if (box instanceof editorElements.InputBox) {
-                // switch the input box state to the oposit and back, for some reason calling box.refreshState()
-                // results in weird unfinished simulation
-                // this causes update of the output connector and a start of a new simulation
-
-                // TODO find better solution instead of this workaround
-                box.on = !box.on
-                box.on = !box.on
-            }
-        }
+            resolve()
+        })
     }
 
     /**

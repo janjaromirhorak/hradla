@@ -1,7 +1,9 @@
+import { exportNetwork } from "./importExport.js";
+
 import {
-    exportNetwork,
-    importNetwork
-} from "./importExport.js";
+    getLibrary,
+    getNetworkFromLibrary
+} from './networkLibrary.js';
 
 /**
  * FloatingButton represents a button that is used in the floating menu in the right bottom corner
@@ -10,12 +12,11 @@ import {
 class FloatingButton {
     /**
      * @param {string} buttonClass Custom string that identifies the SVG icon used on this button. This string is also added as a CSS class to the button.
-     * @param {string} title       alternative title for the button
-     * @param {string} tooltip     tooltip for the button, that will be displayed on hover
+     * @param {string} tooltip     tooltip for the button, that will be displayed on hover and also used as alternative title for the image
      * @param {Function} clickEvent  custom callback when user clicks the button
      * @param {Canvas} parentSVG   reference to the parent SVG element
      */
-    constructor(buttonClass, title, tooltip, clickEvent, parentSVG) {
+    constructor(buttonClass, tooltip, clickEvent, parentSVG) {
         /**
          * jQuery element representing the button
          * @type {jQuery.element}
@@ -30,8 +31,7 @@ class FloatingButton {
         this.$el.append(
             $("<img>")
             .attr("src", `img/gui/${buttonClass}.svg`)
-            .attr("alt", title)
-            .attr("title", title)
+            .attr("alt", tooltip)
         );
 
         // add the tooltip element and an event listener if tooltip is defined
@@ -49,10 +49,8 @@ class FloatingButton {
 
             this.$el.hover(() => {
                 this.$tooltip.fadeIn(200);
-                console.log('display tooltip for', title)
             }, () => {
                 this.$tooltip.fadeOut(200);
-                console.log('hide tooltip for', title)
             });
         }
 
@@ -83,14 +81,16 @@ export default class FloatingMenu {
 
         this.$el.attr("id", id);
 
+        const $loader = $("<div>").addClass("loader").addClass("hidden");
+
         /* IMPORT */
 
         // here will be the instance of Lity stored
         // (we need to store it, because the "import" button also closes Lity)
-        let lityInstanceImport;
+        let lityInstance;
 
         this.append(
-            new FloatingButton("import", "Import a network", "Import a network", () => {
+            new FloatingButton("import", "Import a network from a file", () => {
                 let $popup = $("<div>")
                     .addClass("importExport")
                     .addClass("import");
@@ -110,29 +110,74 @@ export default class FloatingMenu {
                     )
                     .append(" import from JSON")
                     .on('click', () => {
-                        let $textarea = $('#' + textareaId);
+                        $popup.children().addClass("hidden");
+                        $loader.removeClass("hidden");
 
-                        // get textarea contents
-                        let importString = $textarea.val();
-
-                        // close Lity
-                        lityInstanceImport.close();
+                        const data = JSON.parse($('#' + textareaId).val());
 
                         // proccess the imported data
-                        new importNetwork(parentSVG, importString);
+                        parentSVG.importData(data).then(() => {
+                            // close Lity
+                            lityInstance.close();
+                        })
                     })
-                );
+                ).append($loader);
 
-                lityInstanceImport = lity($popup);
+                lityInstance = lity($popup);
 
                 // focus on the textblock
                 $textblock.focus();
             }, parentSVG)
         );
 
+        /* LOAD FROM LIBRARY */
+        this.append(
+            new FloatingButton("library", "Load a network from the library", () => {
+
+                let $popup = $("<div>")
+                    .addClass("importExport")
+                    .addClass("library");
+
+                let $list = $("<ul>")
+                $popup.append($list).append($loader);
+
+                getLibrary().then(networkList => {
+                    for (const networkInfo of networkList) {
+                        $list.append(
+                            $("<li>")
+                            .append(
+                                $("<span class='name'>")
+                                    .append(networkInfo.name)
+                            )
+                            .append(
+                                $("<a>").append(
+                                    "load as network"
+                                ).attr("href", "#").on("click", () => {
+                                    $popup.children().addClass("hidden");
+                                    $loader.removeClass("hidden");
+
+                                    getNetworkFromLibrary(networkInfo.file).then(response => {
+                                        // proccess the imported data
+                                        parentSVG.importData(response).then(() => {
+                                            // close Lity
+                                            lityInstance.close();
+                                        })
+                                    })
+                                })
+                            )
+                        )
+                    }
+                })
+
+                $popup.append()
+
+                lityInstance = lity($popup);
+            }, parentSVG)
+        );
+
         /* EXPORT */
         this.append(
-            new FloatingButton("export", "Export this network", "Get code for this network", () => {
+            new FloatingButton("export", "Get code for this network", () => {
                 const data = new exportNetwork(parentSVG);
 
                 // create the popup container holding all popup content (that will be passed to lity)
@@ -174,9 +219,7 @@ export default class FloatingMenu {
 
         /* HELP */
 
-        let help = new FloatingButton(
-            "help", "Display help",
-            "Display a help page", false, parentSVG);
+        let help = new FloatingButton("help", "Display a help page", false, parentSVG);
         help.$el.attr({
             'href': './docs/user.html',
             'data-lity': ''

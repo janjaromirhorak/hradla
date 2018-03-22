@@ -429,6 +429,33 @@ body {
       -ms-flex: 1;
           flex: 1; }
 
+.loader {
+  display: block;
+  border: 0.3em solid #ed254e;
+  border-top: 0.3em solid white;
+  border-top: 0.3em solid rgba(255, 255, 255, 0);
+  border-radius: 50%;
+  width: 2em;
+  height: 2em;
+  -webkit-animation: spin 1.5s linear infinite;
+          animation: spin 1.5s linear infinite; }
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg); }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg); } }
+
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg); }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg); } }
+
 #floatingMenu {
   z-index: 900;
   position: absolute;
@@ -464,6 +491,25 @@ body {
   background: #edf2f4;
   padding: 1em; }
 
+.uibutton, .importExport a.download, .importExport a.upload, .importExport.library ul li a {
+  -webkit-transition: all 200ms;
+  transition: all 200ms;
+  font-weight: bold;
+  display: inline-block;
+  margin: 0.5em 0.5em 0 0;
+  padding: 0.4em;
+  text-decoration: none;
+  color: #2b2d42;
+  background: #edf2f4; }
+  .uibutton img, .importExport a.download img, .importExport a.upload img, .importExport.library ul li a img {
+    height: 1.2em;
+    width: auto;
+    vertical-align: bottom; }
+  .uibutton:hover, .importExport a.download:hover, .importExport a.upload:hover, .importExport.library ul li a:hover {
+    background: #f9dc5c; }
+  .uibutton:active, .importExport a.download:active, .importExport a.upload:active, .importExport.library ul li a:active {
+    background: #ed254e; }
+
 .importExport {
   padding: 1em;
   background: white;
@@ -482,24 +528,15 @@ body {
     display: block;
     height: 20em;
     max-height: 50vh; }
-  .importExport a.download, .importExport a.upload {
-    -webkit-transition: all 200ms;
-    transition: all 200ms;
-    font-weight: bold;
-    display: inline-block;
-    margin: 0.5em 0.5em 0 0;
-    padding: 0.4em;
-    text-decoration: none;
-    color: #2b2d42;
-    background: #edf2f4; }
-    .importExport a.download img, .importExport a.upload img {
-      height: 1.2em;
-      width: auto;
-      vertical-align: bottom; }
-    .importExport a.download:hover, .importExport a.upload:hover {
-      background: #f9dc5c; }
-    .importExport a.download:active, .importExport a.upload:active {
-      background: #ed254e; }
+  .importExport.library ul {
+    margin: 0;
+    padding: 0; }
+    .importExport.library ul li {
+      margin: 0;
+      padding: 0;
+      list-style: none; }
+      .importExport.library ul li a {
+        margin: 0.2em; }
 
 #contextMenu, #contextMenu ul {
   z-index: 1000;
@@ -573,3 +610,6 @@ body {
 .grabbed {
   cursor: -webkit-grabbing !important;
   cursor: grabbing !important; }
+
+.hidden {
+  display: none !important; }

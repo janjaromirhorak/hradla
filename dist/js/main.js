@@ -469,142 +469,146 @@ var Canvas = function () {
         value: function importData(data) {
             var _this2 = this;
 
-            this.simulationEnabled = false;
+            return new Promise(function (resolve, reject) {
+                _this2.simulationEnabled = false;
 
-            // TODO implement gridSize scaling
+                // TODO implement gridSize scaling
 
-            // list of wires to be added
-            var newWires = new Map();
+                // list of wires to be added
+                var newWires = new Map();
 
-            for (var i = 0; i < data.boxes.length; ++i) {
-                // add box
-                var box = void 0;
-                switch (data.boxes[i].category) {
-                    case "gate":
-                        // add new gate (without reloading the SVG, we will reload it once after the import)
-                        box = this.newGate(data.boxes[i].name, 0, 0, false);
-                        break;
-                    case "io":
-                        switch (data.boxes[i].name) {
-                            case "input":
-                                // add new input (without reloading the SVG, we will reload it once after the import)
-                                box = this.newInput(0, 0, data.boxes[i].isOn, false);
-                                break;
-                            case "output":
-                                // add new output (without reloading the SVG, we will reload it once after the import)
-                                box = this.newOutput(0, 0, false);
-                                break;
-                            default:
-                                console.error("Unknown io box name '" + data.boxes[i].name + "'.");
-                                break;
+                for (var i = 0; i < data.boxes.length; ++i) {
+                    // add box
+                    var box = void 0;
+                    switch (data.boxes[i].category) {
+                        case "gate":
+                            // add new gate (without reloading the SVG, we will reload it once after the import)
+                            box = _this2.newGate(data.boxes[i].name, 0, 0, false);
+                            break;
+                        case "io":
+                            switch (data.boxes[i].name) {
+                                case "input":
+                                    // add new input (without reloading the SVG, we will reload it once after the import)
+                                    box = _this2.newInput(0, 0, data.boxes[i].isOn, false);
+                                    break;
+                                case "output":
+                                    // add new output (without reloading the SVG, we will reload it once after the import)
+                                    box = _this2.newOutput(0, 0, false);
+                                    break;
+                                default:
+                                    console.error("Unknown io box name '" + data.boxes[i].name + "'.");
+                                    break;
+                            }
+                            break;
+                        default:
+                            console.error("Unknown box category '" + data.boxes[i].category + "'.");
+                    }
+
+                    if (box) {
+                        // proccess box transforms (translation and rotation)
+                        var transform = new editorElements.Transform();
+                        for (var j = 0; j < data.boxes[i].transform.items.length; ++j) {
+                            switch (data.boxes[i].transform.items[j].name) {
+                                case "translate":
+                                    transform.setTranslate(data.boxes[i].transform.items[j].args[0], data.boxes[i].transform.items[j].args[1]);
+                                    break;
+                                case "rotate":
+                                    transform.setRotate(data.boxes[i].transform.items[j].args[0], data.boxes[i].transform.items[j].args[1], data.boxes[i].transform.items[j].args[2]);
+                                    break;
+                                default:
+                                    console.error("Unknown transform property '" + data.boxes[i].transform.items[j].name + "'.");
+                                    break;
+                            }
                         }
-                        break;
-                    default:
-                        console.error("Unknown box category '" + data.boxes[i].category + "'.");
-                }
 
-                if (box) {
-                    // proccess box transforms (translation and rotation)
-                    var transform = new editorElements.Transform();
-                    for (var j = 0; j < data.boxes[i].transform.items.length; ++j) {
-                        switch (data.boxes[i].transform.items[j].name) {
-                            case "translate":
-                                transform.setTranslate(data.boxes[i].transform.items[j].args[0], data.boxes[i].transform.items[j].args[1]);
-                                break;
-                            case "rotate":
-                                transform.setRotate(data.boxes[i].transform.items[j].args[0], data.boxes[i].transform.items[j].args[1], data.boxes[i].transform.items[j].args[2]);
-                                break;
-                            default:
-                                console.error("Unknown transform property '" + data.boxes[i].transform.items[j].name + "'.");
-                                break;
-                        }
-                    }
+                        box.setTransform(transform);
 
-                    box.setTransform(transform);
+                        // add all wires to the list of wires to be added
+                        for (var _j = 0; _j < data.boxes[i].connections.length; ++_j) {
+                            // get the artificial wire id
+                            var wireId = data.boxes[i].connections[_j].wireId;
 
-                    // add all wires to the list of wires to be added
-                    for (var _j = 0; _j < data.boxes[i].connections.length; ++_j) {
-                        // get the artificial wire id
-                        var wireId = data.boxes[i].connections[_j].wireId;
+                            // pass the values got from json into a variable that will be added into the map
+                            var value = {
+                                index: data.boxes[i].connections[_j].index,
+                                type: data.boxes[i].connections[_j].type,
+                                boxId: box.id
+                            };
 
-                        // pass the values got from json into a variable that will be added into the map
-                        var value = {
-                            index: data.boxes[i].connections[_j].index,
-                            type: data.boxes[i].connections[_j].type,
-                            boxId: box.id
-                        };
-
-                        // add the value to the map
-                        if (newWires.has(wireId)) {
-                            // if there already is a wire with this id in the map,
-                            // add the value to the end of the array of values
-                            var mapValue = newWires.get(wireId);
-                            mapValue[mapValue.length] = value;
-                            newWires.set(wireId, mapValue);
-                        } else {
-                            // if there is no wire with this id in the map
-                            // add the wire and set the value to be the first element in the array
-                            newWires.set(wireId, [value]);
+                            // add the value to the map
+                            if (newWires.has(wireId)) {
+                                // if there already is a wire with this id in the map,
+                                // add the value to the end of the array of values
+                                var mapValue = newWires.get(wireId);
+                                mapValue[mapValue.length] = value;
+                                newWires.set(wireId, mapValue);
+                            } else {
+                                // if there is no wire with this id in the map
+                                // add the wire and set the value to be the first element in the array
+                                newWires.set(wireId, [value]);
+                            }
                         }
                     }
                 }
-            }
 
-            // refresh the SVG document (needed for wiring)
-            this.refresh();
+                // refresh the SVG document (needed for wiring)
+                _this2.refresh();
 
-            // with all boxes added, we can now connect them with wires
-            newWires.forEach(function (item) {
-                var connectorIds = [];
-                if (item[0] && item[1]) {
-                    var _arr = [0, 1];
+                // with all boxes added, we can now connect them with wires
+                newWires.forEach(function (item) {
+                    var connectorIds = [];
+                    if (item[0] && item[1]) {
+                        var _arr = [0, 1];
 
-                    for (var _i2 = 0; _i2 < _arr.length; _i2++) {
-                        var _i = _arr[_i2];
-                        var _box = _this2.getBoxById(item[_i].boxId);
+                        for (var _i2 = 0; _i2 < _arr.length; _i2++) {
+                            var _i = _arr[_i2];
+                            var _box = _this2.getBoxById(item[_i].boxId);
 
-                        connectorIds[_i] = _box.connectors[item[_i].index].id;
+                            connectorIds[_i] = _box.connectors[item[_i].index].id;
+                        }
                     }
-                }
-                _this2.newWire(connectorIds[0], connectorIds[1], true);
-            });
+                    _this2.newWire(connectorIds[0], connectorIds[1], true);
+                });
 
-            // refresh the SVG document
-            this.refresh();
+                // refresh the SVG document
+                _this2.refresh();
 
-            this.simulationEnabled = true;
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
+                _this2.simulationEnabled = true;
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
 
-            try {
-                for (var _iterator = this.boxes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var _box2 = _step.value;
-
-                    if (_box2 instanceof editorElements.InputBox) {
-                        // switch the input box state to the oposit and back, for some reason calling box.refreshState()
-                        // results in weird unfinished simulation
-                        // this causes update of the output connector and a start of a new simulation
-
-                        // TODO find better solution instead of this workaround
-                        _box2.on = !_box2.on;
-                        _box2.on = !_box2.on;
-                    }
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
                 try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
+                    for (var _iterator = _this2.boxes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var _box2 = _step.value;
+
+                        if (_box2 instanceof editorElements.InputBox) {
+                            // switch the input box state to the oposit and back, for some reason calling box.refreshState()
+                            // results in weird unfinished simulation
+                            // this causes update of the output connector and a start of a new simulation
+
+                            // TODO find better solution instead of this workaround
+                            _box2.on = !_box2.on;
+                            _box2.on = !_box2.on;
+                        }
                     }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
                 } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
                     }
                 }
-            }
+
+                resolve();
+            });
         }
 
         /**
@@ -1329,7 +1333,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./fn.js":5,"./logic.js":7,"./simulation.js":9,"./svgObjects.js":11}],2:[function(require,module,exports){
+},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./fn.js":5,"./logic.js":7,"./simulation.js":10,"./svgObjects.js":12}],2:[function(require,module,exports){
 "use strict";
 
 /**
@@ -3486,8 +3490,8 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     return Wire;
 }(NetworkElement);
 
-},{"./logic.js":7,"./structuresAndClasses.js":10,"./svgObjects.js":11}],4:[function(require,module,exports){
-"use strict";
+},{"./logic.js":7,"./structuresAndClasses.js":11,"./svgObjects.js":12}],4:[function(require,module,exports){
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -3495,7 +3499,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _importExport = require("./importExport.js");
+var _importExport = require('./importExport.js');
+
+var _networkLibrary = require('./networkLibrary.js');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3506,12 +3512,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var FloatingButton =
 /**
  * @param {string} buttonClass Custom string that identifies the SVG icon used on this button. This string is also added as a CSS class to the button.
- * @param {string} title       alternative title for the button
- * @param {string} tooltip     tooltip for the button, that will be displayed on hover
+ * @param {string} tooltip     tooltip for the button, that will be displayed on hover and also used as alternative title for the image
  * @param {Function} clickEvent  custom callback when user clicks the button
  * @param {Canvas} parentSVG   reference to the parent SVG element
  */
-function FloatingButton(buttonClass, title, tooltip, clickEvent, parentSVG) {
+function FloatingButton(buttonClass, tooltip, clickEvent, parentSVG) {
     var _this = this;
 
     _classCallCheck(this, FloatingButton);
@@ -3527,7 +3532,7 @@ function FloatingButton(buttonClass, title, tooltip, clickEvent, parentSVG) {
     this.$el.addClass(buttonClass);
 
     // add the icon
-    this.$el.append($("<img>").attr("src", "img/gui/" + buttonClass + ".svg").attr("alt", title).attr("title", title));
+    this.$el.append($("<img>").attr("src", 'img/gui/' + buttonClass + '.svg').attr("alt", tooltip));
 
     // add the tooltip element and an event listener if tooltip is defined
     if (tooltip) {
@@ -3542,10 +3547,8 @@ function FloatingButton(buttonClass, title, tooltip, clickEvent, parentSVG) {
 
         this.$el.hover(function () {
             _this.$tooltip.fadeIn(200);
-            console.log('display tooltip for', title);
         }, function () {
             _this.$tooltip.fadeOut(200);
-            console.log('hide tooltip for', title);
         });
     }
 
@@ -3579,13 +3582,15 @@ var FloatingMenu = function () {
 
         this.$el.attr("id", id);
 
+        var $loader = $("<div>").addClass("loader").addClass("hidden");
+
         /* IMPORT */
 
         // here will be the instance of Lity stored
         // (we need to store it, because the "import" button also closes Lity)
-        var lityInstanceImport = void 0;
+        var lityInstance = void 0;
 
-        this.append(new FloatingButton("import", "Import a network", "Import a network", function () {
+        this.append(new FloatingButton("import", "Import a network from a file", function () {
             var $popup = $("<div>").addClass("importExport").addClass("import");
 
             var textareaId = "importJSON";
@@ -3595,26 +3600,81 @@ var FloatingMenu = function () {
                 "href": "#",
                 "class": "upload"
             }).append($("<img>").attr('src', "img/gui/import.svg")).append(" import from JSON").on('click', function () {
-                var $textarea = $('#' + textareaId);
+                $popup.children().addClass("hidden");
+                $loader.removeClass("hidden");
 
-                // get textarea contents
-                var importString = $textarea.val();
-
-                // close Lity
-                lityInstanceImport.close();
+                var data = JSON.parse($('#' + textareaId).val());
 
                 // proccess the imported data
-                new _importExport.importNetwork(parentSVG, importString);
-            }));
+                parentSVG.importData(data).then(function () {
+                    // close Lity
+                    lityInstance.close();
+                });
+            })).append($loader);
 
-            lityInstanceImport = lity($popup);
+            lityInstance = lity($popup);
 
             // focus on the textblock
             $textblock.focus();
         }, parentSVG));
 
+        /* LOAD FROM LIBRARY */
+        this.append(new FloatingButton("library", "Load a network from the library", function () {
+
+            var $popup = $("<div>").addClass("importExport").addClass("library");
+
+            var $list = $("<ul>");
+            $popup.append($list).append($loader);
+
+            (0, _networkLibrary.getLibrary)().then(function (networkList) {
+                var _loop = function _loop(networkInfo) {
+                    $list.append($("<li>").append($("<span class='name'>").append(networkInfo.name)).append($("<a>").append("load as network").attr("href", "#").on("click", function () {
+                        $popup.children().addClass("hidden");
+                        $loader.removeClass("hidden");
+
+                        (0, _networkLibrary.getNetworkFromLibrary)(networkInfo.file).then(function (response) {
+                            // proccess the imported data
+                            parentSVG.importData(response).then(function () {
+                                // close Lity
+                                lityInstance.close();
+                            });
+                        });
+                    })));
+                };
+
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = networkList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var networkInfo = _step.value;
+
+                        _loop(networkInfo);
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
+                }
+            });
+
+            $popup.append();
+
+            lityInstance = lity($popup);
+        }, parentSVG));
+
         /* EXPORT */
-        this.append(new FloatingButton("export", "Export this network", "Get code for this network", function () {
+        this.append(new FloatingButton("export", "Get code for this network", function () {
             var data = new _importExport.exportNetwork(parentSVG);
 
             // create the popup container holding all popup content (that will be passed to lity)
@@ -3645,7 +3705,7 @@ var FloatingMenu = function () {
 
         /* HELP */
 
-        var help = new FloatingButton("help", "Display help", "Display a help page", false, parentSVG);
+        var help = new FloatingButton("help", "Display a help page", false, parentSVG);
         help.$el.attr({
             'href': './docs/user.html',
             'data-lity': ''
@@ -3662,7 +3722,7 @@ var FloatingMenu = function () {
 
 
     _createClass(FloatingMenu, [{
-        key: "append",
+        key: 'append',
         value: function append(menuItem) {
             this.$el.append(menuItem.$el);
         }
@@ -3673,7 +3733,7 @@ var FloatingMenu = function () {
 
 exports.default = FloatingMenu;
 
-},{"./importExport.js":6}],5:[function(require,module,exports){
+},{"./importExport.js":6,"./networkLibrary.js":9}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3782,12 +3842,6 @@ var exportNetwork = exports.exportNetwork = function () {
     return exportNetwork;
 }();
 
-var importNetwork = exports.importNetwork = function importNetwork(parentSVG, string) {
-    _classCallCheck(this, importNetwork);
-
-    parentSVG.importData(JSON.parse(string));
-};
-
 },{}],7:[function(require,module,exports){
 "use strict";
 
@@ -3890,6 +3944,51 @@ $(function () {
 });
 
 },{"./canvas.js":1}],9:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.getLibrary = getLibrary;
+exports.getNetworkFromLibrary = getNetworkFromLibrary;
+
+var libraryDir = './library/';
+
+function getLibrary() {
+    return new Promise(function (resolve, reject) {
+        var libraryFile = libraryDir + 'networkList.json';
+
+        var request = new XMLHttpRequest();
+
+        request.addEventListener("load", function () {
+            if (this.response) {
+                resolve(this.response.networks);
+            }
+        });
+
+        request.open('GET', libraryFile, true);
+        request.responseType = 'json';
+        request.send();
+    });
+}
+
+function getNetworkFromLibrary(networkName) {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest();
+
+        request.addEventListener("load", function () {
+            if (this.response) {
+                resolve(this.response);
+            }
+        });
+
+        request.open('GET', libraryDir + networkName + '.json', true);
+        request.responseType = 'json';
+        request.send();
+    });
+}
+
+},{}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4110,7 +4209,7 @@ var Simulation = function () {
 
 exports.default = Simulation;
 
-},{"./logic.js":7}],10:[function(require,module,exports){
+},{"./logic.js":7}],11:[function(require,module,exports){
 "use strict";
 
 // singleton to generate unique id's
@@ -4253,7 +4352,7 @@ export class MapWithDefaultValue extends Map {
 }
 */
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4771,6 +4870,6 @@ var Pattern = exports.Pattern = function (_Tag4) {
     return Pattern;
 }(Tag);
 
-},{"./structuresAndClasses.js":10}]},{},[8])
+},{"./structuresAndClasses.js":11}]},{},[8])
 
 //# sourceMappingURL=main.js.map
