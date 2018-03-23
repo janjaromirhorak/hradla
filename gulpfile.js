@@ -363,7 +363,7 @@ gulp.task('jsdoc:clean', () => {
 
 gulp.task('jsdoc', gulp.series('jsdoc:clean', 'jsdoc:generate'));
 
-gulp.task('docs', gulp.parallel('help', 'jsdoc', 'styles'));
+gulp.task('docs', gulp.parallel('help', 'jsdoc'));
 
 // create network library
 // Copy all files to outJson but get their file names and 'name' fields
