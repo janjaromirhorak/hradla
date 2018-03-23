@@ -433,6 +433,7 @@ export default class Canvas {
             // list of wires to be added
             let newWires = new Map();
 
+            // find the leftmost and topmost coordinate of any box, save them to leftTopCorner
             let leftTopCorner;
 
             for (const boxData of data.boxes) {
@@ -487,7 +488,6 @@ export default class Canvas {
                     for(let j = 0 ; j < boxData.transform.items.length ; ++j) {
                         switch (boxData.transform.items[j].name) {
                             case "translate":
-                                console.log(this.viewbox);
                                 transform.setTranslate(
                                     boxData.transform.items[j].args[0]
                                         - leftTopCorner.x // make it the relative distance from the leftmost element

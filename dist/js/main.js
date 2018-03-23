@@ -480,6 +480,7 @@ var Canvas = function () {
                 // list of wires to be added
                 var newWires = new Map();
 
+                // find the leftmost and topmost coordinate of any box, save them to leftTopCorner
                 var leftTopCorner = void 0;
 
                 var _iteratorNormalCompletion = true;
@@ -582,7 +583,6 @@ var Canvas = function () {
                             for (var j = 0; j < _boxData.transform.items.length; ++j) {
                                 switch (_boxData.transform.items[j].name) {
                                     case "translate":
-                                        console.log(_this2.viewbox);
                                         transform.setTranslate(_boxData.transform.items[j].args[0] - leftTopCorner.x // make it the relative distance from the leftmost element
                                         - Math.round(_this2.viewbox.leftShift / _this2.gridSize) // move the element relative to the viewbox shift
                                         + leftTopPadding, // apply padding
@@ -1977,6 +1977,12 @@ var Transform = exports.Transform = function () {
         }
     }
 
+    /**
+     * convert distances from SVG pixels to grid pixels
+     * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+     */
+
+
     _createClass(Transform, [{
         key: 'toGridPixels',
         value: function toGridPixels(parentSVG) {
@@ -2009,6 +2015,12 @@ var Transform = exports.Transform = function () {
                 }
             }
         }
+
+        /**
+         * convert distances from grid pixels to SVG pixels
+         * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+         */
+
     }, {
         key: 'toSVGPixels',
         value: function toSVGPixels(parentSVG) {
@@ -2587,25 +2599,74 @@ var OutputConnector = exports.OutputConnector = function (_Connector2) {
 var Box = function (_NetworkElement2) {
     _inherits(Box, _NetworkElement2);
 
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {string} name       name of the element (input, output, and, or, xor...)
+     * @param {string} category   type of the element (io, gate)
+     * @param {number} gridWidth  width of the element in grid pixels
+     * @param {number} gridHeight height of the element in grid pixels
+     */
     function Box(parentSVG, name, category, gridWidth, gridHeight) {
         _classCallCheck(this, Box);
 
+        /**
+         * specifies the box type within the category (input/output in io, and/or/... in gate)
+         * @type {string}
+         */
         var _this4 = _possibleConstructorReturn(this, (Box.__proto__ || Object.getPrototypeOf(Box)).call(this, parentSVG));
 
         _this4.name = name;
+
+        /**
+         * specifies the box category (io for input or output, gate for logic gates)
+         * @type {string}
+         */
         _this4.category = category;
+
+        /**
+         * size of the grid in SVG pixels
+         * @type {number}
+         */
         _this4.gridSize = _this4.parentSVG.gridSize;
 
+        /**
+         * url of the image depicting this object
+         * @type {string}
+         */
         _this4.url = "img/" + _this4.category + "/" + _this4.name + ".svg";
 
+        /**
+         * array of connectors of this box
+         * @type {Array}
+         */
         _this4.connectors = [];
 
+        /**
+         * svgObj containing all SVG data used to display this box
+         * @type {svgObj}
+         */
         _this4.svgObj = new svgObj.Group();
 
+        /**
+         * width of this element in SVG pixels
+         * @type {number}
+         */
         _this4.width = gridWidth * _this4.gridSize;
+        /**
+         * height of this element in SVG pixels
+         * @type {number}
+         */
         _this4.height = gridHeight * _this4.gridSize;
 
+        /**
+         * width of this element in grid pixels
+         * @type {number}
+         */
         _this4.gridWidth = gridWidth;
+        /**
+         * height of this element in grid pixels
+         * @type {number}
+         */
         _this4.gridHeight = gridHeight;
 
         // transparent background rectangle
@@ -2631,8 +2692,25 @@ var Box = function (_NetworkElement2) {
         return _this4;
     }
 
+    /**
+     * get all input connectors of this box
+     * @return {Array} array of input connectors
+     */
+
+
     _createClass(Box, [{
         key: 'generateBlockNodes',
+
+
+        /**
+         * get set of nodes that are not suitable for wire routing
+         * @param  {Number} [marginTop=0]    top margin of the element (distance from the element that should be also blocked)
+         * @param  {Number} [marginRight=0]  right margin of the element
+         * @param  {Number} [marginBottom=0] bottom margin of the element
+         * @param  {Number} [marginLeft=0]   left margin of the element
+         * @param  {Number} specialNodes     additional nodes that should be added to the set
+         * @return {Set}                     set of not suitable nodes
+         */
         value: function generateBlockNodes() {
             var marginTop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
             var marginRight = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -2678,16 +2756,25 @@ var Box = function (_NetworkElement2) {
                 }
             }
         }
+
+        /**
+         * empty function, redefined in inherited elements
+         * refreshState takes input connector values and sets output values accordingly
+         */
+
     }, {
         key: 'refreshState',
         value: function refreshState() {
-            // empty function, redefined in inherited elements
-            // refreshState takes input connector values and sets output values accordingly
             console.warn("Calling the virtual function refreshState has no effect.");
         }
 
-        // usage: changeImage("abc") changes image url to image-abc.svg
-        //        changeImage() changes image url to the default one (image.svg)
+        /**
+         * change image to another one that ends with a specified suffix
+         *
+         * *usage:* `changeImage("abc")` changes image url to `image-abc.svg`,
+         * `changeImage()` changes image url to the default one (`image.svg`)
+         * @param  {string} [suffix] new suffix for the image
+         */
 
     }, {
         key: 'changeImage',
@@ -2702,13 +2789,23 @@ var Box = function (_NetworkElement2) {
             this.image.changeUrl(this.url);
         }
 
-        // returns a jQuery object
+        /**
+         * get a jQuery element representing this box
+         * @return {jQuery.element}
+         */
 
     }, {
         key: 'get',
         value: function get() {
             return this.svgObj.get();
         }
+
+        /**
+         * remove a specific onde from the set of blocked nodes
+         * @param  {number} x horizontal position of the blocked node in grid pixels
+         * @param  {number} y vertical position of the blocked node in grid pixels
+         */
+
     }, {
         key: 'removeBlockedNode',
         value: function removeBlockedNode(x, y) {
@@ -2740,6 +2837,13 @@ var Box = function (_NetworkElement2) {
                 }
             }
         }
+
+        /**
+         * rotate the set of blocked nodes to the right
+         *
+         * used to rotate the nodes when the object itself is rotated
+         */
+
     }, {
         key: 'rotateBlockedNodesRight',
         value: function rotateBlockedNodesRight() {
@@ -2770,6 +2874,14 @@ var Box = function (_NetworkElement2) {
                 this.blockedNodes = _newBlockedNodes;
             }
         }
+
+        /**
+         * add a connector to the element on the specified position
+         * @param {number}  left             horizontal distance from the left edge of the element
+         * @param {number}  top              vertical distance from the top edge of the element
+         * @param {Boolean} isInputConnector whether or not should this connector an input connector (`true` for input connector, `false` for output connector)
+         */
+
     }, {
         key: 'addConnector',
         value: function addConnector(left, top, isInputConnector) {
@@ -2783,18 +2895,36 @@ var Box = function (_NetworkElement2) {
 
             this.removeBlockedNode(left, top);
         }
+
+        /**
+         * add an input connector to the element on the specified position
+         * @param {number} left horizontal distance from the left edge of the element
+         * @param {number} top  vertical distance from the top edge of the element
+         */
+
     }, {
         key: 'addInputConnector',
         value: function addInputConnector(left, top) {
             return this.addConnector(left, top, true);
         }
+
+        /**
+         * add an output connector to the element on the specified position
+         * @param {number} left horizontal distance from the left edge of the element
+         * @param {number} top  vertical distance from the top edge of the element
+         */
+
     }, {
         key: 'addOutputConnector',
         value: function addOutputConnector(left, top) {
             return this.addConnector(left, top, false);
         }
 
-        // returns the connector object based on its id
+        /**
+         * get the connector object based on its id
+         * @param  {string} connectorId ID of the {@link Connector}
+         * @return {Connector}             instance of the {@link Connector} or `undefined` if not found
+         */
 
     }, {
         key: 'getConnectorById',
@@ -2807,6 +2937,13 @@ var Box = function (_NetworkElement2) {
             // if connector not found, return undefined
             return undefined;
         }
+
+        /**
+         * get the instance of {@link Transform} representing the state of the transform attribute of this element
+         * @param  {Boolean} [gridPixels=false] if `true`, function will return the result in grid pixels instead of SVG pixels
+         * @return {Transform}                  {@link Transform} of the element
+         */
+
     }, {
         key: 'getTransform',
         value: function getTransform() {
@@ -2830,16 +2967,36 @@ var Box = function (_NetworkElement2) {
 
             return transform;
         }
+
+        /**
+         * get the instance of {@link Transform} representing the state of the transform attribute of this element _with lenght units in grid pixels_
+         * @return {Transform} {@link Transform} of the element
+         */
+
     }, {
         key: 'getGridPixelTransform',
         value: function getGridPixelTransform() {
             return getTransform(true);
         }
+
+        /**
+         * set the transform attribute of this element
+         * @param {Transform} transform {@link Transform} of the element (with lengths specified in SVG pixels)
+         */
+
     }, {
         key: 'setTransform',
         value: function setTransform(transform) {
             this.svgObj.addAttr({ "transform": transform.get() });
         }
+
+        /**
+         * function that is called on every mouse down on this element
+         *
+         * moves the element to the front and calls onMouseDownLeft if applicable
+         * @param  {jQuery.MouseEvent} event
+         */
+
     }, {
         key: 'onMouseDown',
         value: function onMouseDown(event) {
@@ -2852,6 +3009,14 @@ var Box = function (_NetworkElement2) {
                 this.parentSVG.moveToFrontById(this.svgObj.id);
             }
         }
+
+        /**
+         * function that is called on every left mouse down on this element
+         *
+         * prepares element for the "click" and "drag and drop" actions
+         * @param  {jQuery.MouseEvent} event
+         */
+
     }, {
         key: 'onMouseDownLeft',
         value: function onMouseDownLeft(event) {
@@ -2874,6 +3039,13 @@ var Box = function (_NetworkElement2) {
                 y: pageY - currentPosition.y
             };
         }
+
+        /**
+         * function that is called on every left mouse move with this element
+         * applies the correct transform values to provide the "drag and drop" functionality
+         * @param  {jQuery.MouseEvent} event
+         */
+
     }, {
         key: 'onMouseMove',
         value: function onMouseMove(event) {
@@ -2897,6 +3069,13 @@ var Box = function (_NetworkElement2) {
                 this.updateWires(true);
             }
         }
+
+        /**
+         * function that is called on every mouse up on this element
+         * provides the "click" functionality and calls the onDrop handler for the "drag and drop" functionality
+         * @param  {jQuery.MouseEvent} event
+         */
+
     }, {
         key: 'onMouseUp',
         value: function onMouseUp(event) {
@@ -2912,6 +3091,14 @@ var Box = function (_NetworkElement2) {
 
             this.svgObj.$el.removeClass('grabbed');
         }
+
+        /**
+         * called by onMouseUp when the mouse has been moved between onMouseDown and onMouseUp
+         *
+         * applies grid snapping of the element on the end of the "drag and drop" action
+         * @param  {jQuery.MouseEvent} event
+         */
+
     }, {
         key: 'onDrop',
         value: function onDrop(event) {
@@ -2932,11 +3119,14 @@ var Box = function (_NetworkElement2) {
 
             this.updateWires();
         }
+
+        /**
+         * empty function, will be redefined in InputBox
+         */
+
     }, {
         key: 'onClick',
-        value: function onClick() {
-            // empty function, will be redefined in InputBox
-        }
+        value: function onClick() {}
     }, {
         key: 'onClickMiddle',
         value: function onClickMiddle() {
@@ -2986,6 +3176,12 @@ var Box = function (_NetworkElement2) {
                 return conn.isInputConnector;
             });
         }
+
+        /**
+         * get all output connectors of this box
+         * @return {Array} array of output connectors
+         */
+
     }, {
         key: 'outputConnectors',
         get: function get() {
@@ -2993,6 +3189,12 @@ var Box = function (_NetworkElement2) {
                 return conn.isOutputConnector;
             });
         }
+
+        /**
+         * get data of this box as a JSON-ready object
+         * @return {object}
+         */
+
     }, {
         key: 'exportData',
         get: function get() {
@@ -3069,7 +3271,6 @@ var Box = function (_NetworkElement2) {
 
             return {
                 name: this.name,
-                // id: this.svgObj.id,
                 category: this.category,
                 transform: this.getTransform(true),
                 connections: connections
