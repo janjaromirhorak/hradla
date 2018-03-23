@@ -1136,6 +1136,9 @@ export class Wire extends NetworkElement {
 
     // implementation based on this pseudocode: https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
     aStar(start, end) {
+        const wireCrossPunishment = 2;
+        const wireBendPunishment = 1;
+
         // number of nodes, that can be opened at once
         // once is this limit exceeded, aStar will fail and getTemporaryWirePoints will be used instead
         const maxNodeLimit = 50000;
@@ -1199,24 +1202,22 @@ export class Wire extends NetworkElement {
                         continue;
                     }
 
-                    if (!openNodes.has(newPoint).y) {
+                    if (!openNodes.has(newPoint)) {
                         openNodes.add(newPoint);
                     }
 
                     // calculate possible GScore by adding 1 to the score of the node we came from
                     // (we prioritize to minimize the number of nodes and not the distance,
                     //  so we are adding 1 on all nodes, even if the euclidean / mannhatan distance may vary)
-                    let increment = 1;
-                    if(i!==0) {
-                        increment = 2;
-                    }
+                    let increment = wireBendPunishment;
                     let possibleGScore = gScore.get(currentNode) + increment;
 
                     if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
                         // if the node is in the set of punished node, punish it by adding to the GScore
-                        possibleGScore += 1;
+                        possibleGScore += wireCrossPunishment;
                     }
 
+                    // skip this node if it has worst estimage gscore than in the gscore table
                     if (possibleGScore >= gScore.get(newPoint)) {
                         continue;
                     }
