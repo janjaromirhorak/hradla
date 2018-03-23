@@ -410,8 +410,8 @@ export default class Canvas {
             boxes: []
         };
 
-        for(let i = 0; i < this.boxes.length; ++i) {
-            data.boxes[i] = this.boxes[i].exportData;
+        for (const box of this.boxes) {
+            data.boxes.push(box.exportData)
         }
 
         return data;
@@ -423,6 +423,9 @@ export default class Canvas {
      */
     importData(data) {
         return new Promise((resolve, reject) => {
+            // distance from the left top corner to the first element in the imported network
+            const leftTopPadding = 4;
+
             this.simulationEnabled = false
 
             // TODO implement gridSize scaling
@@ -430,68 +433,98 @@ export default class Canvas {
             // list of wires to be added
             let newWires = new Map();
 
-            for(let i = 0 ; i < data.boxes.length; ++i) {
+            let leftTopCorner;
+
+            for (const boxData of data.boxes) {
+                for(const transformInfo of boxData.transform.items) {
+                    if(transformInfo.name === "translate") {
+                        if(leftTopCorner) {
+                            leftTopCorner = {
+                                x: Math.min(leftTopCorner.x, transformInfo.args[0]),
+                                y: Math.min(leftTopCorner.y, transformInfo.args[1])
+                            }
+                        } else {
+                            leftTopCorner = {
+                                x: transformInfo.args[0],
+                                y: transformInfo.args[1]
+                            }
+                        }
+                    }
+                }
+            }
+
+            for(let boxData of data.boxes) {
                 // add box
                 let box;
-                switch (data.boxes[i].category) {
+                switch (boxData.category) {
                     case "gate":
                         // add new gate (without reloading the SVG, we will reload it once after the import)
-                        box = this.newGate(data.boxes[i].name, 0, 0, false);
+                        box = this.newGate(boxData.name, 0, 0, false);
                         break;
                     case "io":
-                        switch (data.boxes[i].name) {
+                        switch (boxData.name) {
                             case "input":
                                 // add new input (without reloading the SVG, we will reload it once after the import)
-                                box = this.newInput(0, 0, data.boxes[i].isOn, false);
+                                box = this.newInput(0, 0, boxData.isOn, false);
                                 break;
                             case "output":
                                 // add new output (without reloading the SVG, we will reload it once after the import)
                                 box = this.newOutput(0, 0, false);
                                 break;
                             default:
-                                console.error("Unknown io box name '"+data.boxes[i].name+"'.");
+                                console.error("Unknown io box name '"+boxData.name+"'.");
                                 break;
                         }
                         break;
                     default:
-                        console.error("Unknown box category '"+data.boxes[i].category+"'.");
+                        console.error("Unknown box category '"+boxData.category+"'.");
                 }
 
                 if (box) {
                     // proccess box transforms (translation and rotation)
                     let transform = new editorElements.Transform();
-                    for(let j = 0 ; j < data.boxes[i].transform.items.length ; ++j) {
-                        switch (data.boxes[i].transform.items[j].name) {
+
+                    for(let j = 0 ; j < boxData.transform.items.length ; ++j) {
+                        switch (boxData.transform.items[j].name) {
                             case "translate":
+                                console.log(this.viewbox);
                                 transform.setTranslate(
-                                    data.boxes[i].transform.items[j].args[0],
-                                    data.boxes[i].transform.items[j].args[1]
+                                    boxData.transform.items[j].args[0]
+                                        - leftTopCorner.x // make it the relative distance from the leftmost element
+                                        - Math.round(this.viewbox.leftShift / this.gridSize) // move the element relative to the viewbox shift
+                                        + leftTopPadding, // apply padding
+
+                                    boxData.transform.items[j].args[1]
+                                        - leftTopCorner.y // make it the relative distance from the topmost element
+                                        - Math.round(this.viewbox.topShift / this.gridSize) // move the element relative to the viewbox shift
+                                        + leftTopPadding // apply padding
                                 );
                                 break;
                             case "rotate":
                                 transform.setRotate(
-                                    data.boxes[i].transform.items[j].args[0],
-                                    data.boxes[i].transform.items[j].args[1],
-                                    data.boxes[i].transform.items[j].args[2]
+                                    boxData.transform.items[j].args[0],
+                                    boxData.transform.items[j].args[1],
+                                    boxData.transform.items[j].args[2]
                                 );
                                 break;
                             default:
-                                console.error("Unknown transform property '"+data.boxes[i].transform.items[j].name+"'.");
+                                console.error("Unknown transform property '"+boxData.transform.items[j].name+"'.");
                                 break;
                         }
                     }
 
+                    transform.toSVGPixels(this);
                     box.setTransform(transform);
 
                     // add all wires to the list of wires to be added
-                    for(let j = 0 ; j < data.boxes[i].connections.length ; ++j) {
+                    for(let j = 0 ; j < boxData.connections.length ; ++j) {
                         // get the artificial wire id
-                        let wireId = data.boxes[i].connections[j].wireId;
+                        let wireId = boxData.connections[j].wireId;
 
                         // pass the values got from json into a variable that will be added into the map
                         let value = {
-                            index: data.boxes[i].connections[j].index,
-                            type: data.boxes[i].connections[j].type,
+                            index: boxData.connections[j].index,
+                            type: boxData.connections[j].type,
                             boxId: box.id
                         };
 
@@ -955,6 +988,24 @@ export default class Canvas {
      */
     snapToGrid(value) {
         return Math.round(value / this.gridSize) * this.gridSize;
+    }
+
+    /**
+     * convert grid pixels to SVG pixels
+     * @param  {number} value distance in grid pixels
+     * @return {number}       distance in SVG pixels
+     */
+    gridToSVG(value) {
+        return value * this.gridSize;
+    }
+
+    /**
+     * convert SVG pixels to grid pixels
+     * @param {number} value distance in SVG pixels
+     * @return {number}      distance in grud pixels
+     */
+    SVGToGrid(value) {
+        return value / this.gridSize;
     }
 
     /**

@@ -82,6 +82,40 @@ export class Transform {
         }
     }
 
+    toGridPixels(parentSVG) {
+        for (let item of this.items) {
+            if(item.name === "translate") {
+                item.args = [
+                    parentSVG.SVGToGrid(item.args[0]),
+                    parentSVG.SVGToGrid(item.args[1]),
+                ]
+            } else if(item.name === "rotate") {
+                item.args = [
+                    item.args[0],
+                    parentSVG.SVGToGrid(item.args[1]),
+                    parentSVG.SVGToGrid(item.args[2]),
+                ]
+            }
+        }
+    }
+
+    toSVGPixels(parentSVG) {
+        for (let item of this.items) {
+            if(item.name === "translate") {
+                item.args = [
+                    parentSVG.gridToSVG(item.args[0]),
+                    parentSVG.gridToSVG(item.args[1]),
+                ]
+            } else if(item.name === "rotate") {
+                item.args = [
+                    item.args[0],
+                    parentSVG.gridToSVG(item.args[1]),
+                    parentSVG.gridToSVG(item.args[2]),
+                ]
+            }
+        }
+    }
+
     /**
      * find a transform property by name and get its index in the [items](#items) array
      * @param  {string} name name of the property
@@ -574,7 +608,7 @@ class Box extends NetworkElement {
             name: this.name,
             // id: this.svgObj.id,
             category: this.category,
-            transform: this.getTransform(),
+            transform: this.getTransform(true),
             connections: connections
         };
     }
@@ -686,7 +720,7 @@ class Box extends NetworkElement {
         return undefined;
     }
 
-    getTransform() {
+    getTransform(gridPixels = false) {
         let transform;
         if (!this.svgObj.$el.attr("transform")) {
             // the element does not have a "transform" property --> create it
@@ -697,7 +731,17 @@ class Box extends NetworkElement {
             // the element does have a "transform" property --> change it
             transform = new Transform(this.svgObj.$el.attr("transform"));
         }
+
+        // convert values to grid pixels
+        if(gridPixels) {
+            transform.toGridPixels(this.parentSVG);
+        }
+
         return transform;
+    }
+
+    getGridPixelTransform() {
+        return getTransform(true);
     }
 
     setTransform(transform) {
