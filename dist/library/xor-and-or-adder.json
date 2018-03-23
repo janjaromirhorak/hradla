@@ -1,0 +1,241 @@
+{
+  "name": "XOR, AND, OR adder",
+  "boxes": [{
+      "name": "input",
+      "category": "io",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "160",
+            "60"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 0
+        },
+        {
+          "index": 0,
+          "wireId": 1
+        }
+      ],
+      "isOn": false
+    },
+    {
+      "name": "input",
+      "category": "io",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "160",
+            "150"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 2
+        },
+        {
+          "index": 0,
+          "wireId": 3
+        }
+      ],
+      "isOn": false
+    },
+    {
+      "name": "input",
+      "category": "io",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "160",
+            "240"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 4
+        },
+        {
+          "index": 0,
+          "wireId": 5
+        }
+      ],
+      "isOn": false
+    },
+    {
+      "name": "xor",
+      "category": "gate",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "280",
+            "70"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 6
+        },
+        {
+          "index": 0,
+          "wireId": 7
+        },
+        {
+          "index": 1,
+          "wireId": 0
+        },
+        {
+          "index": 2,
+          "wireId": 2
+        }
+      ]
+    },
+    {
+      "name": "xor",
+      "category": "gate",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "430",
+            "80"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 8
+        },
+        {
+          "index": 1,
+          "wireId": 6
+        },
+        {
+          "index": 2,
+          "wireId": 4
+        }
+      ]
+    },
+    {
+      "name": "output",
+      "category": "io",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "660",
+            "80"
+          ]
+        }]
+      },
+      "connections": [{
+        "index": 0,
+        "wireId": 8
+      }]
+    },
+    {
+      "name": "and",
+      "category": "gate",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "420",
+            "230"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 9
+        },
+        {
+          "index": 1,
+          "wireId": 7
+        },
+        {
+          "index": 2,
+          "wireId": 5
+        }
+      ]
+    },
+    {
+      "name": "and",
+      "category": "gate",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "420",
+            "150"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 10
+        },
+        {
+          "index": 1,
+          "wireId": 1
+        },
+        {
+          "index": 2,
+          "wireId": 3
+        }
+      ]
+    },
+    {
+      "name": "or",
+      "category": "gate",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "530",
+            "190"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 11
+        },
+        {
+          "index": 1,
+          "wireId": 10
+        },
+        {
+          "index": 2,
+          "wireId": 9
+        }
+      ]
+    },
+    {
+      "name": "output",
+      "category": "io",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "660",
+            "190"
+          ]
+        }]
+      },
+      "connections": [{
+        "index": 0,
+        "wireId": 11
+      }]
+    }
+  ]
+}

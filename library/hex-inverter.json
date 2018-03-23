@@ -1,0 +1,101 @@
+{
+  "name": "HEX inverter",
+  "boxes": [
+    {
+      "name": "not",
+      "category": "gate",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "440",
+              "30"
+            ]
+          }
+        ]
+      },
+      "connections": []
+    },
+    {
+      "name": "not",
+      "category": "gate",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "440",
+              "80"
+            ]
+          }
+        ]
+      },
+      "connections": []
+    },
+    {
+      "name": "not",
+      "category": "gate",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "440",
+              "130"
+            ]
+          }
+        ]
+      },
+      "connections": []
+    },
+    {
+      "name": "not",
+      "category": "gate",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "440",
+              "180"
+            ]
+          }
+        ]
+      },
+      "connections": []
+    },
+    {
+      "name": "not",
+      "category": "gate",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "440",
+              "230"
+            ]
+          }
+        ]
+      },
+      "connections": []
+    },
+    {
+      "name": "not",
+      "category": "gate",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "440",
+              "280"
+            ]
+          }
+        ]
+      },
+      "connections": []
+    }
+  ]
+}

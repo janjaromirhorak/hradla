@@ -1,0 +1,189 @@
+{
+  "name": "RS NAND latch",
+  "boxes": [
+    {
+      "name": "nand",
+      "category": "gate",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "170",
+              "50"
+            ]
+          },
+          {
+            "name": "rotate",
+            "args": [
+              "0",
+              "20",
+              "50"
+            ]
+          }
+        ]
+      },
+      "connections": [
+        {
+          "index": 0,
+          "wireId": 0
+        },
+        {
+          "index": 0,
+          "wireId": 1
+        },
+        {
+          "index": 1,
+          "wireId": 2
+        },
+        {
+          "index": 2,
+          "wireId": 3
+        }
+      ]
+    },
+    {
+      "name": "nand",
+      "category": "gate",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "170",
+              "140"
+            ]
+          },
+          {
+            "name": "rotate",
+            "args": [
+              "0",
+              "20",
+              "50"
+            ]
+          }
+        ]
+      },
+      "connections": [
+        {
+          "index": 0,
+          "wireId": 4
+        },
+        {
+          "index": 0,
+          "wireId": 3
+        },
+        {
+          "index": 1,
+          "wireId": 1
+        },
+        {
+          "index": 2,
+          "wireId": 5
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "category": "io",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "50",
+              "40"
+            ]
+          },
+          {
+            "name": "rotate",
+            "args": [
+              "0",
+              "20",
+              "30"
+            ]
+          }
+        ]
+      },
+      "connections": [
+        {
+          "index": 0,
+          "wireId": 2
+        }
+      ],
+      "isOn": false
+    },
+    {
+      "name": "input",
+      "category": "io",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "50",
+              "150"
+            ]
+          },
+          {
+            "name": "rotate",
+            "args": [
+              "0",
+              "20",
+              "30"
+            ]
+          }
+        ]
+      },
+      "connections": [
+        {
+          "index": 0,
+          "wireId": 5
+        }
+      ],
+      "isOn": false
+    },
+    {
+      "name": "output",
+      "category": "io",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "310",
+              "140"
+            ]
+          }
+        ]
+      },
+      "connections": [
+        {
+          "index": 0,
+          "wireId": 4
+        }
+      ]
+    },
+    {
+      "name": "output",
+      "category": "io",
+      "transform": {
+        "items": [
+          {
+            "name": "translate",
+            "args": [
+              "310",
+              "50"
+            ]
+          }
+        ]
+      },
+      "connections": [
+        {
+          "index": 0,
+          "wireId": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,12 +1,1 @@
-{
-    "networks": [
-        {
-            "name": "My Cool Thing",
-            "file": "lib1"
-        },
-        {
-            "name": "The second thing",
-            "file": "lib2"
-        }
-    ]
-}
+{"networks":[{"name":"Half adder","file":"half-adder"},{"name":"HEX inverter","file":"hex-inverter"},{"name":"RS NAND latch","file":"rs-nand-latch"},{"name":"XOR, AND, OR adder","file":"xor-and-or-adder"}]}

@@ -1,0 +1,136 @@
+{
+  "name": "Half adder",
+  "boxes": [{
+      "name": "and",
+      "category": "gate",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "130",
+            "110"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 0
+        },
+        {
+          "index": 1,
+          "wireId": 1
+        },
+        {
+          "index": 2,
+          "wireId": 2
+        }
+      ]
+    },
+    {
+      "name": "xor",
+      "category": "gate",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "130",
+            "40"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 3
+        },
+        {
+          "index": 1,
+          "wireId": 4
+        },
+        {
+          "index": 2,
+          "wireId": 5
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "category": "io",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "10",
+            "30"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 1
+        },
+        {
+          "index": 0,
+          "wireId": 4
+        }
+      ],
+      "isOn": false
+    },
+    {
+      "name": "input",
+      "category": "io",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "10",
+            "120"
+          ]
+        }]
+      },
+      "connections": [{
+          "index": 0,
+          "wireId": 2
+        },
+        {
+          "index": 0,
+          "wireId": 5
+        }
+      ],
+      "isOn": false
+    },
+    {
+      "name": "output",
+      "category": "io",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "270",
+            "40"
+          ]
+        }]
+      },
+      "connections": [{
+        "index": 0,
+        "wireId": 3
+      }]
+    },
+    {
+      "name": "output",
+      "category": "io",
+      "transform": {
+        "items": [{
+          "name": "translate",
+          "args": [
+            "270",
+            "110"
+          ]
+        }]
+      },
+      "connections": [{
+        "index": 0,
+        "wireId": 0
+      }]
+    }
+  ]
+}
