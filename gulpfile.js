@@ -68,7 +68,9 @@ modules.addModules({
     filter: 'gulp-filter',
     gulpif: 'gulp-if',
     jsdoc: 'gulp-jsdoc3',
-    sass: 'gulp-sass'
+    sass: 'gulp-sass',
+    jsoneditor: 'gulp-json-editor',
+    tap: 'gulp-tap'
 });
 
 const config = require('./config.json')
@@ -111,7 +113,10 @@ const
 
     docs = 'docs',
     docsOut = out + '/docs',
-    docsCss = docsOut + '/css'
+    docsCss = docsOut + '/css',
+
+    srcLibrary = "library",
+    outLibrary = out + "/library"
 
 let production = false
 
@@ -359,6 +364,44 @@ gulp.task('jsdoc:clean', () => {
 gulp.task('jsdoc', gulp.series('jsdoc:clean', 'jsdoc:generate'));
 
 gulp.task('docs', gulp.parallel('help', 'jsdoc', 'styles'));
+
+// create network library
+// Copy all files to outJson but get their file names and 'name' fields
+// and save them to the 'networks' array. Then serialize this field and save is as JSON
+gulp.task('library', () => {
+    const
+        jsoneditor = modules.get('jsoneditor'),
+        file = modules.get('file'),
+        insert = modules.get('insert'),
+        tap = modules.get('tap');
+
+    let currentFileName;
+
+    let networks = [];
+
+    return gulp.src(srcLibrary + '/*.json')
+        .pipe(tap(function(file, t) {
+            // get the file name
+            currentFileName = file.path.split('/').pop().replace('.json', '');
+        }))
+        .pipe(jsoneditor((json) => {
+            // add info about this network to the networks array
+            networks.push({
+                name: json.name, // name of the network parsed from the network JSON file
+                file: currentFileName // file name acquired using tap
+            });
+
+            return json; // pass the network JSON through without changes
+        }))
+        .pipe(gulp.dest(outLibrary)) // save the networks in the output directory without changes
+        .on('end', () => {
+            // create the network list file from the networks array and save it
+            return file('networkList.json', '', {src: true})
+                .pipe(insert.append(JSON.stringify({networks})))
+                .pipe(gulp.dest(outLibrary));
+        });
+})
+
 
 ///// create archives
 // create a zip archive
