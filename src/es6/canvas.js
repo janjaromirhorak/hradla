@@ -931,24 +931,63 @@ export default class Canvas {
         console.log("SVG document has been reloaded.")
     }
 
+    /**
+     * Display the context menu on the specified position
+     * @param  {number} x       horizontal position in CSS pixels
+     * @param  {number} y       vertical position in CSS pixels
+     * @param  {jQuery.element} $target the item user clicked on (used to display "remove this element"-type items in the menu)
+     */
     displayContextMenu(x, y, $target) {
         this.contextMenu.display(x, y, $target);
     }
+
+    /**
+     * hide the context menu
+     */
     hideContextMenu() {
         this.contextMenu.hide();
     }
 
-    // snap a value to a grid
+    /**
+     * snap a value to a grid
+     * @param  {number} value value in SVG pixels
+     * @return {number}       the value rounded to the closest number divisible by the grid size
+     */
     snapToGrid(value) {
         return Math.round(value / this.gridSize) * this.gridSize;
     }
 
-    // static function for snapping a value to a grid
+    /**
+     * static function for snapping a value to a grid
+     * @param  {number} value value in SVG pixels
+     * @param  {number} gridSize size of the grid in SVG pixels
+     * @return {number}       the value rounded to the closest number divisible by the grid size
+     */
     static snapToGrid(value, gridSize) {
         return Math.round(value / gridSize) * gridSize;
     }
 
-    // get set of nodes, that cannot be used for wiring at any circumstances
+    /**
+     * move an element to the front in the canvas
+     * @param  {string} objId id of the element
+     */
+    moveToFrontById(objId) {
+        this.$svg.append($("#" + objId));
+    }
+
+    /**
+     * move an element to the back in the canvas
+     * @param  {string} objId id of the element
+     */
+    moveToBackById(objId) {
+        $("#" + this.background.id)
+            .after($("#" + objId));
+    }
+
+    /**
+     * get set of nodes, that cannot be used for wiring at any circumstances
+     * @return {Set} set of nodes (objects containing x and y coordinates) that are not suitable for wiring
+     */
     getNonRoutableNodes() {
         let blockedNodes = new Set();
         // for each box
@@ -981,16 +1020,10 @@ export default class Canvas {
         return blockedNodes;
     }
 
-    moveToFrontById(objId) {
-        this.$svg.append($("#" + objId));
-    }
-
-    moveToBackById(objId) {
-        $("#" + this.background.id)
-            .after($("#" + objId));
-    }
-
-    // get set of nodes, that is better not to use for wiring
+    /**
+     * get set of nodes, that are inconvenient for wiring, but can be used, just are not preferred
+     * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
+     */
     getInconvenientNodes(ignoreWireId) {
 
         let inconvenientNodes = new Set();
