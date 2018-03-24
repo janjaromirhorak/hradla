@@ -185,6 +185,13 @@ export default class Canvas {
         this.simulationEnabled = true
         this.simulation = new Simulation(this); // dummy, will be overwritten on startNewSimulation
 
+        /**
+         * distance from the left top corner to the first element in the imported network
+         * and distance from the left top corner to the imported black box _in grid pixels_
+         * @type {number}
+         */
+        this.leftTopPadding = 4;
+
         // create the defs element, used for patterns
         this.$defs = $("<defs>");
         this.$svg.prepend(this.$defs);
@@ -423,9 +430,6 @@ export default class Canvas {
      */
     importData(data) {
         return new Promise((resolve, reject) => {
-            // distance from the left top corner to the first element in the imported network
-            const leftTopPadding = 4;
-
             this.simulationEnabled = false
 
             // TODO implement gridSize scaling
@@ -492,12 +496,12 @@ export default class Canvas {
                                     boxData.transform.items[j].args[0]
                                         - leftTopCorner.x // make it the relative distance from the leftmost element
                                         - Math.round(this.viewbox.leftShift / this.gridSize) // move the element relative to the viewbox shift
-                                        + leftTopPadding, // apply padding
+                                        + this.leftTopPadding, // apply padding
 
                                     boxData.transform.items[j].args[1]
                                         - leftTopCorner.y // make it the relative distance from the topmost element
                                         - Math.round(this.viewbox.topShift / this.gridSize) // move the element relative to the viewbox shift
-                                        + leftTopPadding // apply padding
+                                        + this.leftTopPadding // apply padding
                                 );
                                 break;
                             case "rotate":
@@ -733,6 +737,50 @@ export default class Canvas {
             this.wires[index].updateWireState()
 
         return this.wires[index];
+    }
+
+    importBlackbox(truthtable, name) {
+        const {inputs, outputs, table} = truthtable;
+        const padding = this.leftTopPadding * this.gridSize;
+        return this.newBlackbox(padding, padding, inputs, outputs, table, name);
+    }
+
+    newBlackbox(x, y, inputs, outputs, table, name) {
+        return new Promise((resolve) => {
+            const height = Math.max(inputs, outputs) * 2;
+            const index = this.boxes.length;
+
+            this.boxes[index] = new editorElements.Blackbox(
+                this,
+                inputs,
+                outputs,
+                (...inputStates) => {
+                    for (const line of table) {
+                        const lineInputStates = line.slice(0, inputs);
+
+                        // if every input state matches the corresponding input state in this line of the truth table
+                        if(inputStates.every((value, index) => value === lineInputStates[index])) {
+                            // return the rest of the line as output
+                            return line.slice(inputs);
+                        }
+                    }
+                    // if nothing matches, set all outputs to undefined
+                    return Array.from(new Array(outputs), () => Logic.state.unknown)
+                },
+                name
+            );
+
+            if(x && y) {
+                let tr = new editorElements.Transform();
+                tr.setTranslate(x, y);
+
+                this.boxes[index].svgObj.addAttr({"transform": tr.get()});
+            }
+
+            this.appendElement(this.boxes[index], true);
+
+            resolve(this.boxes[index]);
+        })
     }
 
     /**

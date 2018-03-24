@@ -602,6 +602,10 @@ body {
     stroke: #8b8b8b; }
   #canvas .wire.stateOscillating {
     stroke: #0000ff; }
+  #canvas .multilinetext {
+    margin: 0;
+    padding: 0;
+    text-align: center; }
 
 .grabbable {
   cursor: -webkit-grab !important;

@@ -143,29 +143,51 @@ export default class FloatingMenu {
 
                 getLibrary().then(networkList => {
                     for (const networkInfo of networkList) {
-                        $list.append(
-                            $("<li>")
+                        if(networkInfo.hasNetwork || networkInfo.hasTable) {
+                            let $listItem = $("<li>")
                             .append(
                                 $("<span class='name'>")
                                     .append(networkInfo.name)
-                            )
-                            .append(
-                                $("<a>").append(
-                                    "load as network"
-                                ).attr("href", "#").on("click", () => {
-                                    $popup.children().addClass("hidden");
-                                    $loader.removeClass("hidden");
+                            );
 
-                                    getNetworkFromLibrary(networkInfo.file).then(response => {
-                                        // proccess the imported data
-                                        parentSVG.importData(response).then(() => {
-                                            // close Lity
-                                            lityInstance.close();
+                            if(networkInfo.hasNetwork) {
+                                $listItem.append(
+                                    $("<a>").append(
+                                        "load as network"
+                                    ).attr("href", "#").on("click", () => {
+                                        $popup.children().addClass("hidden");
+                                        $loader.removeClass("hidden");
+
+                                        getNetworkFromLibrary(networkInfo.file).then(response => {
+                                            // proccess the imported data
+                                            parentSVG.importData(response).then(() => {
+                                                // close Lity
+                                                lityInstance.close();
+                                            })
                                         })
                                     })
-                                })
-                            )
-                        )
+                                )
+                            }
+
+                            if(networkInfo.hasTable) {
+                                $listItem.append(
+                                    $("<a>").append(
+                                        "load in blackbox"
+                                    ).attr("href", "#").on("click", () => {
+                                        $popup.children().addClass("hidden");
+                                        $loader.removeClass("hidden");
+
+                                        getNetworkFromLibrary(networkInfo.file).then(response => {
+                                            parentSVG.importBlackbox(response.truthtable, response.name).then(() => {
+                                                // close Lity
+                                                lityInstance.close();
+                                            });
+                                        })
+                                    })
+                                )
+                            }
+                            $list.append($listItem)
+                        }
                     }
                 })
 

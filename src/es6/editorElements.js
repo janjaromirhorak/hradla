@@ -1195,6 +1195,112 @@ export class Gate extends Box {
     }
 }
 
+/* TODO document */
+export class Blackbox extends Box {
+    constructor(parentSVG, inputConnectors, outputConnectors, evalFunction, name = "") {
+        const width = 11;
+        const height = Math.max(inputConnectors, outputConnectors) * 2;
+
+        super(parentSVG, name, "blackbox", width, height);
+
+        const connectorPinLenght = 2.5 * this.gridSize;
+
+        // override default svgObj structure
+        this.svgObj = new svgObj.Group();
+
+        // transparent background rectangle
+        let hitbox = new svgObj.Rectangle(0, 0, this.width, this.height, "none", "none");
+        hitbox.$el.addClass('rect');
+
+        this.svgObj.addChild(hitbox);
+
+        // main rectangle
+        const bodyWidth = this.width - 2 * connectorPinLenght;
+
+        let rectangle = new svgObj.Rectangle(connectorPinLenght, 0, bodyWidth, this.height, "white", "black");
+        rectangle.addAttr({'stroke-width': '2.5'});
+        rectangle.$el.addClass('rect');
+
+        this.svgObj.addChild(rectangle);
+
+        // text description of the box
+        const textWidth = bodyWidth - this.gridSize;
+        const textHeight = this.height - this.gridSize;
+        let text = new svgObj.MultiLineText(
+            (this.width - textWidth) / 2, // horizontal centering
+            (this.height - textHeight) / 2, // vertical centering
+            textWidth,
+            this.height,
+            name.toUpperCase(),
+            this.gridSize * 1.2
+        );
+        this.svgObj.addChild(text);
+
+        // add input connectors
+        for (let i = 0 ; i < inputConnectors ; ++i) {
+            const gridPosition = (i * 2) + 1;
+            const pixelPosition = gridPosition * this.gridSize;
+
+            let pin = new svgObj.PolyLine(
+                new svgObj.PolylinePoints([
+                    new svgObj.PolylinePoint(0, pixelPosition),
+                    new svgObj.PolylinePoint(connectorPinLenght, pixelPosition),
+                ]),
+                "black",
+                1
+            )
+
+            this.svgObj.addChild(pin);
+
+            // add the connector
+            this.addInputConnector(0, gridPosition);
+        }
+
+        // add output connectors
+        for (let i = 0 ; i < outputConnectors ; ++i) {
+            const gridPosition = (i * 2) + 1;
+            const pixelPosition = gridPosition * this.gridSize;
+
+            let pin = new svgObj.PolyLine(
+                new svgObj.PolylinePoints([
+                    new svgObj.PolylinePoint(this.width - connectorPinLenght, pixelPosition),
+                    new svgObj.PolylinePoint(this.width, pixelPosition),
+                ]),
+                "black",
+                1
+            )
+
+            this.svgObj.addChild(pin);
+
+            this.addOutputConnector(width, gridPosition);
+        }
+
+        // add draggability and rotatability
+        this.svgObj.draggable(true);
+        this.svgObj.rotatable(true);
+
+        // add type="gate", used in special callbacks in contextmenu
+        // this.svgObj.addAttr({"type": "blackbox"});
+
+        this.svgObj.$el.addClass("box");
+        // this.svgObj.$el.addClass(category);
+
+        // add the evalFunction to object property so it can be accessed in refreshState
+        this.evalFunction = evalFunction;
+    }
+
+    refreshState() {
+        const inputStates = this.inputConnectors.map(conn => conn.state);
+        // call the evalFunction to get the output states
+        const outputStates = this.evalFunction(...inputStates);
+
+        // apply the outputStates to the outputConnectors
+        for (let i = 0; i < outputStates.length ; ++i) {
+            this.outputConnectors[i].setState(outputStates[i]);
+        }
+    }
+}
+
 /**
  * Wire represents connection of two {@link Connector}s.
  * @extends NetworkElement

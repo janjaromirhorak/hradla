@@ -388,7 +388,9 @@ gulp.task('library', () => {
             // add info about this network to the networks array
             networks.push({
                 name: json.name, // name of the network parsed from the network JSON file
-                file: currentFileName // file name acquired using tap
+                file: currentFileName, // file name acquired using tap
+                hasNetwork: json.boxes !== undefined, // true if the network has a gate layout defined
+                hasTable: json.truthtable !== undefined // true if the network has a truth table defined
             });
 
             return json; // pass the network JSON through without changes

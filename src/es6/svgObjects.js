@@ -315,6 +315,67 @@ export class PolyLine extends Tag {
     }
 }
 
+export class Text extends Tag {
+    constructor(x, y, w, h, text, size, color = "black") {
+        const lineHeight = size * 1.2;
+
+        super("text");
+        this.addAttr({
+            x: x,
+            y: y,
+            width: w,
+            height: h,
+            fill: color
+        });
+
+        if(size) {
+            this.addAttr({
+                'font-size': size
+            })
+        }
+
+        this.$el.append(text);
+    }
+}
+
+/**
+ * Multi line text is not natively supportend in SVG 1.1,
+ * the workaround is to use the <foreignObject> element and display
+ * a HTML paragraph inside of the SVG document.
+ *
+ * Because this technique is not supported by all of the browsers,
+ * the foreignObject element is wrapped in <switch>, which
+ * provides fallback for those cases.
+ *
+ * read more: [foreignObject on MDN web docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject)
+ */
+export class MultiLineText extends Tag {
+    constructor(x, y, w, h, text, size, color = "black") {
+        super("switch");
+
+        let foreignObject = new Tag("foreignObject");
+        let alternativeText = new Text(x, y, w, h, text, size, color);
+
+        foreignObject.addAttr({
+            x,
+            y,
+            width: w,
+            height: h
+        });
+
+        foreignObject.$el.append(
+            $(`<p class="multilinetext" xmlns="http://www.w3.org/1999/xhtml" style="font-size:${size}px">`).append(text)
+        )
+
+        this.$el.append(
+            foreignObject.$el
+        ).append(
+            alternativeText.$el
+        )
+    }
+
+}
+
 export class Pattern extends Tag {
     constructor(id, width, height) {
         super("pattern");
