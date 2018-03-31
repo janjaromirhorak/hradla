@@ -439,7 +439,7 @@ gulp.task('package', gulp.parallel('zip', 'tarball'))
 ///// main scripts
 // build the whole project
 
-gulp.task('build-all', gulp.series('clean', gulp.parallel('scripts', 'styles', 'libraries', 'html', 'images', 'docs')))
+gulp.task('build-all', gulp.series('clean', gulp.parallel('scripts', 'styles', 'library', 'libraries', 'html', 'images', 'docs')))
 gulp.task('build-prod', gulp.series('production', 'build-all', 'package'))
 
 gulp.task('build-dev', gulp.series('build-all'))
