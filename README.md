@@ -12,11 +12,11 @@ you can run `gulp` instead of `npm run gulp`.
 
 In one command:
 ```bash
-npm install && npm run gulp
+npm i && npm run gulp
 ```
 or, if you have gulp (version 4.0.0 or higher) installed globally on your system
 ```bash
-npm install && gulp
+npm i && gulp
 ```
 
 ## download compiled code
