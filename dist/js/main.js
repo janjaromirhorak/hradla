@@ -4869,19 +4869,49 @@ var Logic = function () {
 
     _createClass(Logic, null, [{
         key: "and",
+
+
+        /**
+         * Logic AND
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
         value: function and(a, b) {
-            return Logic.testLogicRulesSymmetric(a, b, [[Logic.state.on, Logic.state.on, Logic.state.on], [Logic.state.on, Logic.state.off, Logic.state.off], [Logic.state.on, Logic.state.unknown, Logic.state.unknown], [Logic.state.on, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.off], [Logic.state.off, Logic.state.oscillating, Logic.state.off], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
+            return Logic.runSymmetricRules(a, b, [[Logic.state.on, Logic.state.on, Logic.state.on], [Logic.state.on, Logic.state.off, Logic.state.off], [Logic.state.on, Logic.state.unknown, Logic.state.unknown], [Logic.state.on, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.off], [Logic.state.off, Logic.state.oscillating, Logic.state.off], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
         }
+        /**
+         * Logic NAND
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+
     }, {
         key: "nand",
         value: function nand(a, b) {
             return Logic.not(Logic.and(a, b));
         }
+
+        /**
+         * Logic NOR
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+
     }, {
         key: "nor",
         value: function nor(a, b) {
             return Logic.not(Logic.or(a, b));
         }
+
+        /**
+         * Logic NOT
+         * @param  {Logic.state} a first input state
+         * @return {Logic.state}   output state
+         */
+
     }, {
         key: "not",
         value: function not(a) {
@@ -4893,21 +4923,95 @@ var Logic = function () {
                 return a;
             }
         }
+
+        /**
+         * Logic OR
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+
     }, {
         key: "or",
         value: function or(a, b) {
-            return Logic.testLogicRulesSymmetric(a, b, [[Logic.state.on, Logic.state.on, Logic.state.on], [Logic.state.on, Logic.state.off, Logic.state.on], [Logic.state.on, Logic.state.unknown, Logic.state.on], [Logic.state.on, Logic.state.oscillating, Logic.state.on], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.unknown], [Logic.state.off, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
+            return Logic.runSymmetricRules(a, b, [[Logic.state.on, Logic.state.on, Logic.state.on], [Logic.state.on, Logic.state.off, Logic.state.on], [Logic.state.on, Logic.state.unknown, Logic.state.on], [Logic.state.on, Logic.state.oscillating, Logic.state.on], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.unknown], [Logic.state.off, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
         }
+
+        /**
+         * Logic XNOR
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+
     }, {
         key: "xnor",
         value: function xnor(a, b) {
             return Logic.not(Logic.xor(a, b));
         }
+
+        /**
+         * Logic XOR
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+
     }, {
         key: "xor",
         value: function xor(a, b) {
-            return Logic.testLogicRulesSymmetric(a, b, [[Logic.state.on, Logic.state.on, Logic.state.off], [Logic.state.on, Logic.state.off, Logic.state.on], [Logic.state.on, Logic.state.unknown, Logic.state.unknown], [Logic.state.on, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.unknown], [Logic.state.off, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
+            return Logic.runSymmetricRules(a, b, [[Logic.state.on, Logic.state.on, Logic.state.off], [Logic.state.on, Logic.state.off, Logic.state.on], [Logic.state.on, Logic.state.unknown, Logic.state.unknown], [Logic.state.on, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.unknown], [Logic.state.off, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
         }
+
+        /**
+         * Finds the correct rule in the array of rules and returns the corresponding return value.
+         * This function expects rules to be symmetric (so `a RULE b` should returns the same value as `b RULE a`),
+         * which allows to cut down on the `rules` array quite a bit
+         * @param  {Logic.state} a     first input state
+         * @param  {Logic.state} b     second input state
+         * @param  {Array} rules       Array of arrays. Each inner array represents a rule in the format [input1, input2, output].
+         *                             The function finds an array, where `a === input1` and `b === input1` (or `a === input2` and `b === input1`)
+         *                             and returns `output` from this array.
+         * @return {Logic.state}       output state
+         */
+
+    }, {
+        key: "runSymmetricRules",
+        value: function runSymmetricRules(a, b, rules) {
+            // iterate through all the rules
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = rules[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var rule = _step.value;
+
+                    if (rule[0] === a && rule[1] === b || rule[0] === b && rule[1] === a) {
+                        return rule[2];
+                    }
+                }
+
+                // if no rule matches, the output state is unknown
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            return Logic.state.unknown;
+        }
+    }, {
+        key: "state",
 
         /**
          * Enum for logic states.
@@ -4919,18 +5023,6 @@ var Logic = function () {
          * - `oscillating`
          * @type {Number}
          */
-
-    }, {
-        key: "testLogicRulesSymmetric",
-        value: function testLogicRulesSymmetric(a, b, rules) {
-            for (var i = 0; i < rules.length; i++) {
-                if (rules[i][0] === a && rules[i][1] === b || rules[i][0] === b && rules[i][1] === a) {
-                    return rules[i][2];
-                }
-            }
-        }
-    }, {
-        key: "state",
         get: function get() {
             return {
                 unknown: 0,
