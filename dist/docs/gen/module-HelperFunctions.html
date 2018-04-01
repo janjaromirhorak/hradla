@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: module:Logic | Hradla</title>
+    <title>Module: HelperFunctions | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,9 +50,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>module:Logic<span class="signature">()</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><p>definitions of logic states and basic logic functions used in the simulation</p></div>
+        <h2>HelperFunctions</h2>
         
     
 </header>
@@ -63,88 +61,7 @@
         
             
 
-<dt>
-    
-        <h4 class="name" id="module:Logic">
             
-                new <span class="type-signature"></span>module:Logic<span class="signature">()</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="logic.js.html">logic.js</a></code>,
-                <code><a href="logic.js.html#line7">line 7</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
         
         </div>
     
@@ -162,131 +79,130 @@
     
 
     
-        <h3 class="subsection-title">Members</h3>
+
+    
+        <h3 class="subsection-title">Methods</h3>
 
         <dl>
-            
+                
 
 <dt>
-<h4 class="name" id=".state">
-    <span class="type-signature"><span class="icon green">static</span> </span>state<span class="type-signature"> :Number</span>
     
-    <div class="container-source members">
-        <code><a href="logic.js.html">logic.js</a></code>,
-        <code><a href="logic.js.html#line88">line 88</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>Enum for logic states.</p>
-<p>States:</p>
-<ul>
-<li><code>unknown</code></li>
-<li><code>on</code></li>
-<li><code>off</code></li>
-<li><code>oscillating</code></li>
-</ul>
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
+        <h4 class="name" id=".addMouseScrollEventListener">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>addMouseScrollEventListener<span class="signature">(query, func)</span><span class="type-signature"></span>
                 
-<span class="param-type">Number</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
+            
+            <div class="container-source members">
+                <code><a href="helperFunctions.js.html">helperFunctions.js</a></code>,
+                <code><a href="helperFunctions.js.html#line12">line 12</a></code>
+            </div>
+            
+        </h4>
 
         
-            
-
-<dt>
-<h4 class="name" id=".stateList">
-    <span class="type-signature"><span class="icon green">static</span> </span>stateList<span class="type-signature"> :Array</span>
     
-    <div class="container-source members">
-        <code><a href="logic.js.html">logic.js</a></code>,
-        <code><a href="logic.js.html#line103">line 103</a></code>
-    </div>
-    
-</h4>
-
-
 </dt>
 <dd>
+
     
     <div class="description">
-        <p>list of all states that can be used in the simulation</p>
-<p>This getter iterates over Logic.state and returns an array containing all values of Logic.state's members</p>
+        <p>add a cross browser event listener on a mouse scroll</p>
     </div>
     
 
-    <!--
     
-        <h5>Type:</h5>
-        <ul>
-            <li>
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>query</code></td>
+            
+
+            <td class="type">
+            
                 
-<span class="param-type">Array</span>
+<span class="param-type">string</span>
 
 
-            </li>
-        </ul>
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>DOM query of the element that the listener will be added to</p></td>
+        </tr>
+
     
-    -->
+
+        <tr>
+            
+                <td class="name"><code>func</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Function that will be called when the event occurs. The function takes as a parameter an event object.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
 
     
 
@@ -327,12 +243,261 @@
 
     
 
-    
 </dd>
 
-        </dl>
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".getJSONString">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>getJSONString<span class="signature">(data, pretty<span class="signature-attributes">opt</span>, dataUri<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {string}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="helperFunctions.js.html">helperFunctions.js</a></code>,
+                <code><a href="helperFunctions.js.html#line52">line 52</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>convert a data object to JSON string or to a data URI containing a JSON string</p>
+    </div>
     
 
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>object that will be serialized into a JSON string</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>pretty</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last"><p>if <code>true</code>, the code will be proprerly indented, else a more compact syntax will be used</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dataUri</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last"><p>return dataUri containing the JSON string instead of the pure JSON string</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">string</span>
+
+
+
+
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            </dl>
     
 
     
@@ -357,7 +522,7 @@
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'module:Logic_sub'.replace(/"/g, '_');
+        var id = 'module:HelperFunctions_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

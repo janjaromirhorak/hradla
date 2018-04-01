@@ -1,8 +1,10 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: module:Logic | Hradla</title>
+    <title>Source: helperFunctions.js | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -45,302 +47,76 @@
 
 
 
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>module:Logic<span class="signature">()</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><p>definitions of logic states and basic logic functions used in the simulation</p></div>
-        
-    
-</header>
-
-<article>
-    
-        <div class="container-overview">
-        
-            
-
-<dt>
-    
-        <h4 class="name" id="module:Logic">
-            
-                new <span class="type-signature"></span>module:Logic<span class="signature">()</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="logic.js.html">logic.js</a></code>,
-                <code><a href="logic.js.html#line7">line 7</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-        
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        <dl>
-            
-
-<dt>
-<h4 class="name" id=".state">
-    <span class="type-signature"><span class="icon green">static</span> </span>state<span class="type-signature"> :Number</span>
-    
-    <div class="container-source members">
-        <code><a href="logic.js.html">logic.js</a></code>,
-        <code><a href="logic.js.html#line88">line 88</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>Enum for logic states.</p>
-<p>States:</p>
-<ul>
-<li><code>unknown</code></li>
-<li><code>on</code></li>
-<li><code>off</code></li>
-<li><code>oscillating</code></li>
-</ul>
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">Number</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".stateList">
-    <span class="type-signature"><span class="icon green">static</span> </span>stateList<span class="type-signature"> :Array</span>
-    
-    <div class="container-source members">
-        <code><a href="logic.js.html">logic.js</a></code>,
-        <code><a href="logic.js.html#line103">line 103</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>list of all states that can be used in the simulation</p>
-<p>This getter iterates over Logic.state and returns an array containing all values of Logic.state's members</p>
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">Array</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        </dl>
     
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+/**
+ * @module HelperFunctions
+ */
+
+/**
+ * add a cross browser event listener on a mouse scroll
+ * @param {string} query DOM query of the element that the listener will be added to
+ * @param {Function} func  Function that will be called when the event occurs. The function takes as a parameter an event object.
+ */
+export function addMouseScrollEventListener(query, func) {
+    let MouseWheelHandler = event => {
+        var event = window.event || event; // old IE support
+        event.delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+
+        func(event)
+
+        return false;
+    }
+
+    let svgelement;
+
+    // if the query is a simple DOM id selector, we can use getElementById which has better backwards compatibility
+    if(query.match(/^#\w+$/)) {
+        svgelement = document.getElementById(query.substr(1))
+    } else {
+        svgelement = document.querySelector(query)
+    }
+
+    if (svgelement.addEventListener) {
+        // IE9, Chrome, Safari, Opera
+        svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
+        // Firefox
+        svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+    } else  {
+        // IE 6/7/8
+        svgelement.attachEvent("onmousewheel", MouseWheelHandler);
+    }
+    svgelement.addEventListener('mousewheel', function(e) {
+        console.log('event', e)
+    }, false)
+}
+
+/**
+ * convert a data object to JSON string or to a data URI containing a JSON string
+ * @param  {Object}  data            object that will be serialized into a JSON string
+ * @param  {Boolean} [pretty=false]  if `true`, the code will be proprerly indented, else a more compact syntax will be used
+ * @param  {Boolean} [dataUri=false] return dataUri containing the JSON string instead of the pure JSON string
+ * @return {string}
+ */
+export function getJSONString(data, pretty = false, dataUri = false) {
+    if(dataUri) {
+        return 'data:application/json;charset=utf-8,'
+            + encodeURIComponent(getJSONString(data, pretty));
+    } else {
+        switch (pretty) {
+            case true:
+                return JSON.stringify(data, null, 2);
+            case false:
+                return JSON.stringify(data);
+        }
+    }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
@@ -357,7 +133,7 @@
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'module:Logic_sub'.replace(/"/g, '_');
+        var id = '_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 
