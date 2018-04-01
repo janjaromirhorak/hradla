@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: Gate | Hradla</title>
+    <title>Class: Blackbox | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,9 +50,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Gate<span class="signature">()</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Blackbox<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>Gate is a box that processes the states of its input connectors and returns the result in its output connectors.</p></div>
+            <div class="class-description"><p>Blackbox is a box that is defined by its evaluation function</p></div>
         
     
 </header>
@@ -65,14 +65,14 @@
 
 <dt>
     
-        <h4 class="name" id="Gate">
+        <h4 class="name" id="Blackbox">
             
-                new <span class="type-signature"></span>Gate<span class="signature">()</span><span class="type-signature"></span>
+                new <span class="type-signature"></span>Blackbox<span class="signature">()</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
                 <code><a href="editorElements.js.html">editorElements.js</a></code>,
-                <code><a href="editorElements.js.html#line1131">line 1131</a></code>
+                <code><a href="editorElements.js.html#line1202">line 1202</a></code>
             </div>
             
         </h4>
@@ -380,12 +380,12 @@
     
 
     
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
         <a href="Box.html#exportData">Box#exportData</a>
     </li></ul></dd>
-    
-
     
 
     
@@ -1106,12 +1106,12 @@
     
 
     
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
         <a href="Box.html#svgObj">Box#svgObj</a>
     </li></ul></dd>
-    
-
     
 
     
@@ -2302,12 +2302,12 @@
     
 
     
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
         <a href="Box.html#generateBlockNodes">Box#generateBlockNodes</a>
     </li></ul></dd>
+    
+
     
 
     
@@ -4261,7 +4261,7 @@ refreshState takes input connector values and sets output values accordingly</p>
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'Gate_sub'.replace(/"/g, '_');
+        var id = 'Blackbox_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

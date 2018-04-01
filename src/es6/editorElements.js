@@ -1195,7 +1195,10 @@ export class Gate extends Box {
     }
 }
 
-/* TODO document */
+/**
+ * Blackbox is a box that is defined by its evaluation function
+ * @extends Box
+ */
 export class Blackbox extends Box {
     constructor(parentSVG, inputConnectors, outputConnectors, evalFunction, name = "") {
         const width = 11;
@@ -1287,6 +1290,57 @@ export class Blackbox extends Box {
 
         // add the evalFunction to object property so it can be accessed in refreshState
         this.evalFunction = evalFunction;
+    }
+
+    get exportData() {
+        let data = super.exportData;
+        data.inputs = this.inputConnectors.length;
+        data.outputs = this.outputConnectors.length;
+
+        // generate the truth table
+
+        data.table = []
+
+        // array of tested input states
+        const stateList = Logic.stateList;
+
+        // recursive function that generates all possible inputs
+        const getPermutations = (length) => {
+            let permutations = [];
+            switch (length) {
+                case 0:
+                    return [];
+                case 1:
+                    for (const state of stateList) {
+                        permutations.push([state])
+                    }
+                    return permutations;
+                default:
+                    const shorterPermutations = getPermutations(length - 1);
+                    for (const state of stateList) {
+                        for(const perm of shorterPermutations) {
+                            permutations.push([state, ...perm])
+                        }
+                    }
+                    return permutations;
+            }
+        }
+
+        // generate outputs for all the possible inputs
+        for (const inputValues of getPermutations(data.inputs)) {
+            const outputValues = this.evalFunction(...inputValues);
+
+            // if there is an output value that is not Logic.state.unknown, add this line to the
+            // truthtable, otherwise don't add it (if all output values are Logic.state.unknown,
+            // the input combination does not have to be defines, because Logic.state.unknown is the default value)
+            if (outputValues.reduce((accumulator, current) => {
+                return accumulator || current !== Logic.state.unknown
+            })) {
+                data.table.push([...inputValues, ...outputValues])
+            }
+        }
+
+        return data;
     }
 
     refreshState() {

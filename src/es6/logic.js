@@ -1,6 +1,9 @@
 "use strict";
 
-// logic functions used in the gate evaluation
+/** @module Logic */
+/**
+ * definitions of logic states and basic logic functions used in the simulation
+ */
 export default class Logic {
     static and(a, b) {
         return Logic.testLogicRulesSymmetric(a, b, [
@@ -72,6 +75,16 @@ export default class Logic {
         ]);
     }
 
+    /**
+     * Enum for logic states.
+     *
+     * States:
+     * - `unknown`
+     * - `on`
+     * - `off`
+     * - `oscillating`
+     * @type {Number}
+     */
     static get state() {
         return {
             unknown: 0,
@@ -79,6 +92,23 @@ export default class Logic {
             off: 2,
             oscillating: 3
         }
+    }
+
+    /**
+     * list of all states that can be used in the simulation
+     *
+     * This getter iterates over Logic.state and returns an array containing all values of Logic.state's members
+     * @type {Array}
+     */
+    static get stateList() {
+        let states = [];
+
+        // iterate over all defined states and add their values to the states array
+        Object.keys(Logic.state).forEach(key => {
+            states.push(Logic.state[key]);
+        });
+
+        return states;
     }
 
     static testLogicRulesSymmetric(a, b, rules) {

@@ -481,8 +481,6 @@ var Canvas = function () {
             return new Promise(function (resolve, reject) {
                 _this2.simulationEnabled = false;
 
-                // TODO implement gridSize scaling
-
                 // list of wires to be added
                 var newWires = new Map();
 
@@ -577,6 +575,9 @@ var Canvas = function () {
                                         console.error("Unknown io box name '" + _boxData.name + "'.");
                                         break;
                                 }
+                                break;
+                            case "blackbox":
+                                box = _this2.newBlackbox(0, 0, _boxData.inputs, _boxData.outputs, _boxData.table, _boxData.name);
                                 break;
                             default:
                                 console.error("Unknown box category '" + _boxData.category + "'.");
@@ -901,88 +902,95 @@ var Canvas = function () {
 
             return this.wires[index];
         }
+
+        /**
+         * import a blackbox based on the provided data
+         * @param  {[type]} data [description]
+         * @param  {[type]} name [description]
+         * @return {[type]}      [description]
+         */
+
     }, {
         key: 'importBlackbox',
-        value: function importBlackbox(truthtable, name) {
-            var inputs = truthtable.inputs,
-                outputs = truthtable.outputs,
-                table = truthtable.table;
+        value: function importBlackbox(data, name) {
+            var inputs = data.inputs,
+                outputs = data.outputs,
+                table = data.table;
 
-            var padding = this.leftTopPadding * this.gridSize;
-            return this.newBlackbox(padding, padding, inputs, outputs, table, name);
+            var padding = {
+                x: this.snapToGrid(this.leftTopPadding * this.gridSize - this.viewbox.leftShift),
+                y: this.snapToGrid(this.leftTopPadding * this.gridSize - this.viewbox.topShift)
+            };
+            return this.newBlackbox(padding.x, padding.y, inputs, outputs, table, name);
         }
     }, {
         key: 'newBlackbox',
         value: function newBlackbox(x, y, inputs, outputs, table, name) {
-            var _this4 = this;
+            var height = Math.max(inputs, outputs) * 2;
+            var index = this.boxes.length;
 
-            return new Promise(function (resolve) {
-                var height = Math.max(inputs, outputs) * 2;
-                var index = _this4.boxes.length;
-
-                _this4.boxes[index] = new editorElements.Blackbox(_this4, inputs, outputs, function () {
-                    for (var _len = arguments.length, inputStates = Array(_len), _key = 0; _key < _len; _key++) {
-                        inputStates[_key] = arguments[_key];
-                    }
-
-                    var _loop = function _loop(line) {
-                        var lineInputStates = line.slice(0, inputs);
-
-                        // if every input state matches the corresponding input state in this line of the truth table
-                        if (inputStates.every(function (value, index) {
-                            return value === lineInputStates[index];
-                        })) {
-                            // return the rest of the line as output
-                            return {
-                                v: line.slice(inputs)
-                            };
-                        }
-                    };
-
-                    var _iteratorNormalCompletion5 = true;
-                    var _didIteratorError5 = false;
-                    var _iteratorError5 = undefined;
-
-                    try {
-                        for (var _iterator5 = table[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                            var line = _step5.value;
-
-                            var _ret = _loop(line);
-
-                            if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
-                        }
-                        // if nothing matches, set all outputs to undefined
-                    } catch (err) {
-                        _didIteratorError5 = true;
-                        _iteratorError5 = err;
-                    } finally {
-                        try {
-                            if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                                _iterator5.return();
-                            }
-                        } finally {
-                            if (_didIteratorError5) {
-                                throw _iteratorError5;
-                            }
-                        }
-                    }
-
-                    return Array.from(new Array(outputs), function () {
-                        return _logic2.default.state.unknown;
-                    });
-                }, name);
-
-                if (x && y) {
-                    var tr = new editorElements.Transform();
-                    tr.setTranslate(x, y);
-
-                    _this4.boxes[index].svgObj.addAttr({ "transform": tr.get() });
+            this.boxes[index] = new editorElements.Blackbox(this, inputs, outputs, function () {
+                for (var _len = arguments.length, inputStates = Array(_len), _key = 0; _key < _len; _key++) {
+                    inputStates[_key] = arguments[_key];
                 }
 
-                _this4.appendElement(_this4.boxes[index], true);
+                var _loop = function _loop(line) {
+                    var lineInputStates = line.slice(0, inputs);
 
-                resolve(_this4.boxes[index]);
-            });
+                    // if every input state matches the corresponding input state in this line of the truth table
+                    if (inputStates.every(function (value, index) {
+                        return value === lineInputStates[index];
+                    })) {
+                        // return the rest of the line as output
+                        return {
+                            v: line.slice(inputs)
+                        };
+                    }
+                };
+
+                var _iteratorNormalCompletion5 = true;
+                var _didIteratorError5 = false;
+                var _iteratorError5 = undefined;
+
+                try {
+                    for (var _iterator5 = table[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                        var line = _step5.value;
+
+                        var _ret = _loop(line);
+
+                        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+                    }
+                    // if nothing matches, set all outputs to undefined
+                } catch (err) {
+                    _didIteratorError5 = true;
+                    _iteratorError5 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                            _iterator5.return();
+                        }
+                    } finally {
+                        if (_didIteratorError5) {
+                            throw _iteratorError5;
+                        }
+                    }
+                }
+
+                return Array.from(new Array(outputs), function () {
+                    return _logic2.default.state.unknown;
+                });
+            }, name);
+
+            if (x && y) {
+                var tr = new editorElements.Transform();
+                tr.setTranslate(x, y);
+
+                this.boxes[index].svgObj.addAttr({ "transform": tr.get() });
+            }
+
+            this.appendElement(this.boxes[index], true);
+
+            return this.boxes[index];
         }
 
         /**
@@ -1070,17 +1078,17 @@ var Canvas = function () {
     }, {
         key: 'removeWiresByConnectorId',
         value: function removeWiresByConnectorId(connectorId) {
-            var _this5 = this;
+            var _this4 = this;
 
             var connector = this.getConnectorById(connectorId);
 
             connector.wireIds.forEach(function (wireId) {
-                var wire = _this5.getWireById(wireId);
+                var wire = _this4.getWireById(wireId);
 
                 // get the other connector that is the wire connected to
-                var otherConnector = _this5.getConnectorById(wire.fromId, wire);
+                var otherConnector = _this4.getConnectorById(wire.fromId, wire);
                 if (otherConnector.svgObj.id === connectorId) {
-                    otherConnector = _this5.getConnectorById(wire.toId, wire);
+                    otherConnector = _this4.getConnectorById(wire.toId, wire);
                 }
 
                 // delete the wire record from the other connector
@@ -1091,7 +1099,7 @@ var Canvas = function () {
 
                 // if otherConnector is an input connector, set its state to unknown
                 if (otherConnector.isInputConnector) {
-                    _this5.startNewSimulation(otherConnector, _logic2.default.state.unknown);
+                    _this4.startNewSimulation(otherConnector, _logic2.default.state.unknown);
                 }
             });
 
@@ -1458,7 +1466,7 @@ var Canvas = function () {
     }, {
         key: 'getInconvenientNodes',
         value: function getInconvenientNodes(ignoreWireId) {
-            var _this6 = this;
+            var _this5 = this;
 
             var inconvenientNodes = new Set();
             // for each wire
@@ -1469,7 +1477,7 @@ var Canvas = function () {
                         // cycle through points, for each neigbours add all points that are in between them
                         // i.e.: (0,0) and (0,30) are blocking these nodes: (0,0), (0,10), (0,20), (0,30)
                         var prevPoint = void 0;
-                        _this6.wires[i].points.forEach(function (point) {
+                        _this5.wires[i].points.forEach(function (point) {
                             if (prevPoint === undefined) {
                                 // if the prevPoint is undefined, add the first point
                                 inconvenientNodes.add({ x: point.x, y: point.y });
@@ -1483,7 +1491,7 @@ var Canvas = function () {
 
                                     while (from <= to) {
                                         inconvenientNodes.add({ x: point.x, y: from });
-                                        from += _this6.gridSize;
+                                        from += _this5.gridSize;
                                     }
                                 } else if (prevPoint.y === point.y) {
                                     // if the line is vertical
@@ -1492,7 +1500,7 @@ var Canvas = function () {
 
                                     while (_from <= _to) {
                                         inconvenientNodes.add({ x: _from, y: point.y });
-                                        _from += _this6.gridSize;
+                                        _from += _this5.gridSize;
                                     }
                                 } else {
                                     // line is neither horizontal nor vertical, throw an error for better future debugging
@@ -1559,8 +1567,6 @@ var Canvas = function () {
             this.exportWireId = 0;
 
             var data = {
-                // TODO implement gridSize scaling
-                // gridSize: this.gridSize,
                 boxes: []
             };
 
@@ -3681,6 +3687,143 @@ var Blackbox = exports.Blackbox = function (_Box4) {
                 this.outputConnectors[i].setState(outputStates[i]);
             }
         }
+    }, {
+        key: 'exportData',
+        get: function get() {
+            var data = _get(Blackbox.prototype.__proto__ || Object.getPrototypeOf(Blackbox.prototype), 'exportData', this);
+            data.inputs = this.inputConnectors.length;
+            data.outputs = this.outputConnectors.length;
+
+            // generate the truth table
+
+            data.table = [];
+
+            // array of tested input states
+            var stateList = _logic2.default.stateList;
+
+            // recursive function that generates all possible inputs
+            var getPermutations = function getPermutations(length) {
+                var permutations = [];
+                switch (length) {
+                    case 0:
+                        return [];
+                    case 1:
+                        var _iteratorNormalCompletion8 = true;
+                        var _didIteratorError8 = false;
+                        var _iteratorError8 = undefined;
+
+                        try {
+                            for (var _iterator8 = stateList[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                                var state = _step8.value;
+
+                                permutations.push([state]);
+                            }
+                        } catch (err) {
+                            _didIteratorError8 = true;
+                            _iteratorError8 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                                    _iterator8.return();
+                                }
+                            } finally {
+                                if (_didIteratorError8) {
+                                    throw _iteratorError8;
+                                }
+                            }
+                        }
+
+                        return permutations;
+                    default:
+                        var shorterPermutations = getPermutations(length - 1);
+                        var _iteratorNormalCompletion9 = true;
+                        var _didIteratorError9 = false;
+                        var _iteratorError9 = undefined;
+
+                        try {
+                            for (var _iterator9 = stateList[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                                var _state = _step9.value;
+                                var _iteratorNormalCompletion10 = true;
+                                var _didIteratorError10 = false;
+                                var _iteratorError10 = undefined;
+
+                                try {
+                                    for (var _iterator10 = shorterPermutations[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                                        var perm = _step10.value;
+
+                                        permutations.push([_state].concat(_toConsumableArray(perm)));
+                                    }
+                                } catch (err) {
+                                    _didIteratorError10 = true;
+                                    _iteratorError10 = err;
+                                } finally {
+                                    try {
+                                        if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                                            _iterator10.return();
+                                        }
+                                    } finally {
+                                        if (_didIteratorError10) {
+                                            throw _iteratorError10;
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            _didIteratorError9 = true;
+                            _iteratorError9 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                                    _iterator9.return();
+                                }
+                            } finally {
+                                if (_didIteratorError9) {
+                                    throw _iteratorError9;
+                                }
+                            }
+                        }
+
+                        return permutations;
+                }
+            };
+
+            // generate outputs for all the possible inputs
+            var _iteratorNormalCompletion11 = true;
+            var _didIteratorError11 = false;
+            var _iteratorError11 = undefined;
+
+            try {
+                for (var _iterator11 = getPermutations(data.inputs)[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                    var inputValues = _step11.value;
+
+                    var outputValues = this.evalFunction.apply(this, _toConsumableArray(inputValues));
+
+                    // if there is an output value that is not Logic.state.unknown, add this line to the
+                    // truthtable, otherwise don't add it (if all output values are Logic.state.unknown,
+                    // the input combination does not have to be defines, because Logic.state.unknown is the default value)
+                    if (outputValues.reduce(function (accumulator, current) {
+                        return accumulator || current !== _logic2.default.state.unknown;
+                    })) {
+                        data.table.push([].concat(_toConsumableArray(inputValues), _toConsumableArray(outputValues)));
+                    }
+                }
+            } catch (err) {
+                _didIteratorError11 = true;
+                _iteratorError11 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion11 && _iterator11.return) {
+                        _iterator11.return();
+                    }
+                } finally {
+                    if (_didIteratorError11) {
+                        throw _iteratorError11;
+                    }
+                }
+            }
+
+            return data;
+        }
     }]);
 
     return Blackbox;
@@ -3721,29 +3864,29 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
         _this11.elementState = _logic2.default.state.unknown;
 
-        var _iteratorNormalCompletion8 = true;
-        var _didIteratorError8 = false;
-        var _iteratorError8 = undefined;
+        var _iteratorNormalCompletion12 = true;
+        var _didIteratorError12 = false;
+        var _iteratorError12 = undefined;
 
         try {
-            for (var _iterator8 = _this11.connectors[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                var connector = _step8.value;
+            for (var _iterator12 = _this11.connectors[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                var connector = _step12.value;
 
                 if (connector.isOutputConnector) {
                     _this11.setState(connector.state);
                 }
             }
         } catch (err) {
-            _didIteratorError8 = true;
-            _iteratorError8 = err;
+            _didIteratorError12 = true;
+            _iteratorError12 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion8 && _iterator8.return) {
-                    _iterator8.return();
+                if (!_iteratorNormalCompletion12 && _iterator12.return) {
+                    _iterator12.return();
                 }
             } finally {
-                if (_didIteratorError8) {
-                    throw _iteratorError8;
+                if (_didIteratorError12) {
+                    throw _iteratorError12;
                 }
             }
         }
@@ -3784,27 +3927,27 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     }, {
         key: 'updateWireState',
         value: function updateWireState() {
-            var _iteratorNormalCompletion9 = true;
-            var _didIteratorError9 = false;
-            var _iteratorError9 = undefined;
+            var _iteratorNormalCompletion13 = true;
+            var _didIteratorError13 = false;
+            var _iteratorError13 = undefined;
 
             try {
-                for (var _iterator9 = this.boxes[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                    var box = _step9.value;
+                for (var _iterator13 = this.boxes[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                    var box = _step13.value;
 
                     box.refreshState();
                 }
             } catch (err) {
-                _didIteratorError9 = true;
-                _iteratorError9 = err;
+                _didIteratorError13 = true;
+                _iteratorError13 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                        _iterator9.return();
+                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
+                        _iterator13.return();
                     }
                 } finally {
-                    if (_didIteratorError9) {
-                        throw _iteratorError9;
+                    if (_didIteratorError13) {
+                        throw _iteratorError13;
                     }
                 }
             }
@@ -3913,13 +4056,13 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
                 // find the value from openNodes that has the lowest fScore
                 // (can be implemented effectively using min-heap data structure (maybe TODO sometime)?)
-                var _iteratorNormalCompletion10 = true;
-                var _didIteratorError10 = false;
-                var _iteratorError10 = undefined;
+                var _iteratorNormalCompletion14 = true;
+                var _didIteratorError14 = false;
+                var _iteratorError14 = undefined;
 
                 try {
-                    for (var _iterator10 = openNodes[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-                        var node = _step10.value;
+                    for (var _iterator14 = openNodes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                        var node = _step14.value;
 
                         if (!currentNode || fScore.get(node) < currentNodeFScore) {
                             currentNode = node;
@@ -3927,16 +4070,16 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         }
                     }
                 } catch (err) {
-                    _didIteratorError10 = true;
-                    _iteratorError10 = err;
+                    _didIteratorError14 = true;
+                    _iteratorError14 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion10 && _iterator10.return) {
-                            _iterator10.return();
+                        if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                            _iterator14.return();
                         }
                     } finally {
-                        if (_didIteratorError10) {
-                            throw _iteratorError10;
+                        if (_didIteratorError14) {
+                            throw _iteratorError14;
                         }
                     }
                 }
@@ -4110,29 +4253,29 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     }, {
         key: 'setHasThisPoint',
         value: function setHasThisPoint(set, point) {
-            var _iteratorNormalCompletion11 = true;
-            var _didIteratorError11 = false;
-            var _iteratorError11 = undefined;
+            var _iteratorNormalCompletion15 = true;
+            var _didIteratorError15 = false;
+            var _iteratorError15 = undefined;
 
             try {
-                for (var _iterator11 = set[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-                    var item = _step11.value;
+                for (var _iterator15 = set[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                    var item = _step15.value;
 
                     if (item.x === point.x && item.y === point.y) {
                         return true;
                     }
                 }
             } catch (err) {
-                _didIteratorError11 = true;
-                _iteratorError11 = err;
+                _didIteratorError15 = true;
+                _iteratorError15 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion11 && _iterator11.return) {
-                        _iterator11.return();
+                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
+                        _iterator15.return();
                     }
                 } finally {
-                    if (_didIteratorError11) {
-                        throw _iteratorError11;
+                    if (_didIteratorError15) {
+                        throw _iteratorError15;
                     }
                 }
             }
@@ -4306,10 +4449,10 @@ var FloatingMenu = function () {
                                 $loader.removeClass("hidden");
 
                                 (0, _networkLibrary.getNetworkFromLibrary)(networkInfo.file).then(function (response) {
-                                    parentSVG.importBlackbox(response.truthtable, response.name).then(function () {
-                                        // close Lity
-                                        lityInstance.close();
-                                    });
+                                    parentSVG.importBlackbox(response.blackbox, response.name);
+
+                                    // close Lity
+                                    lityInstance.close();
                                 });
                             }));
                         }
@@ -4576,6 +4719,18 @@ var Logic = function () {
         value: function xor(a, b) {
             return Logic.testLogicRulesSymmetric(a, b, [[Logic.state.on, Logic.state.on, Logic.state.off], [Logic.state.on, Logic.state.off, Logic.state.on], [Logic.state.on, Logic.state.unknown, Logic.state.unknown], [Logic.state.on, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.unknown], [Logic.state.off, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
         }
+
+        /**
+         * Enum for logic states.
+         *
+         * States:
+         * - `unknown`
+         * - `on`
+         * - `off`
+         * - `oscillating`
+         * @type {Number}
+         */
+
     }, {
         key: "testLogicRulesSymmetric",
         value: function testLogicRulesSymmetric(a, b, rules) {
@@ -4594,6 +4749,26 @@ var Logic = function () {
                 off: 2,
                 oscillating: 3
             };
+        }
+
+        /**
+         * list of all states that can be used in the simulation
+         *
+         * This getter iterates over Logic.state and returns an array containing all values of Logic.state's members
+         * @type {Array}
+         */
+
+    }, {
+        key: "stateList",
+        get: function get() {
+            var states = [];
+
+            // iterate over all defined states and add their values to the states array
+            Object.keys(Logic.state).forEach(function (key) {
+                states.push(Logic.state[key]);
+            });
+
+            return states;
         }
     }]);
 

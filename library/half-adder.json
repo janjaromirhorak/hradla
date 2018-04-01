@@ -133,7 +133,7 @@
             }]
         }
     ],
-    "truthtable": {
+    "blackbox": {
         "inputs": 2,
         "outputs": 2,
         "table": [

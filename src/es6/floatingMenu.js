@@ -178,10 +178,10 @@ export default class FloatingMenu {
                                         $loader.removeClass("hidden");
 
                                         getNetworkFromLibrary(networkInfo.file).then(response => {
-                                            parentSVG.importBlackbox(response.truthtable, response.name).then(() => {
-                                                // close Lity
-                                                lityInstance.close();
-                                            });
+                                            parentSVG.importBlackbox(response.blackbox, response.name);
+
+                                            // close Lity
+                                            lityInstance.close();
                                         })
                                     })
                                 )

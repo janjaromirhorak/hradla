@@ -390,7 +390,7 @@ gulp.task('library', () => {
                 name: json.name, // name of the network parsed from the network JSON file
                 file: currentFileName, // file name acquired using tap
                 hasNetwork: json.boxes !== undefined, // true if the network has a gate layout defined
-                hasTable: json.truthtable !== undefined // true if the network has a truth table defined
+                hasTable: json.blackbox !== undefined // true if the network has a truth table defined
             });
 
             return json; // pass the network JSON through without changes

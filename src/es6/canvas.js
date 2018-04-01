@@ -412,8 +412,6 @@ export default class Canvas {
         this.exportWireId = 0;
 
         let data = {
-            // TODO implement gridSize scaling
-            // gridSize: this.gridSize,
             boxes: []
         };
 
@@ -431,8 +429,6 @@ export default class Canvas {
     importData(data) {
         return new Promise((resolve, reject) => {
             this.simulationEnabled = false
-
-            // TODO implement gridSize scaling
 
             // list of wires to be added
             let newWires = new Map();
@@ -480,6 +476,9 @@ export default class Canvas {
                                 console.error("Unknown io box name '"+boxData.name+"'.");
                                 break;
                         }
+                        break;
+                    case "blackbox":
+                        box = this.newBlackbox(0, 0, boxData.inputs, boxData.outputs, boxData.table, boxData.name)
                         break;
                     default:
                         console.error("Unknown box category '"+boxData.category+"'.");
@@ -739,48 +738,76 @@ export default class Canvas {
         return this.wires[index];
     }
 
-    importBlackbox(truthtable, name) {
-        const {inputs, outputs, table} = truthtable;
-        const padding = this.leftTopPadding * this.gridSize;
-        return this.newBlackbox(padding, padding, inputs, outputs, table, name);
+    /**
+     * import a blackbox based on the provided data
+     * @param  {Object} data data describing the object,
+     *                       must contain fields `inputs`, `outputs`
+     *                       (positive integers, determining number of inputs and outputs)
+     *                       and `table` (array of arrays, the inner arrays have `inputs + outputs`
+     *                       items that describe the input and output states of the connectors in order)
+     * @param  {string} name name of the black box
+     * @return {editorElements.Blackbox} instance of {@link Blackbox} that has been added to the [Canvas](./module-Canvas.html)
+     */
+    importBlackbox(data, name) {
+        const {inputs, outputs, table} = data;
+        const padding =  {
+            x: this.snapToGrid(this.leftTopPadding * this.gridSize - this.viewbox.leftShift),
+            y: this.snapToGrid(this.leftTopPadding * this.gridSize - this.viewbox.topShift)
+        };
+        return this.newBlackbox(padding.x, padding.y, inputs, outputs, table, name);
     }
 
-    newBlackbox(x, y, inputs, outputs, table, name) {
-        return new Promise((resolve) => {
-            const height = Math.max(inputs, outputs) * 2;
-            const index = this.boxes.length;
+    /**
+     * creates a new blackbox
+     * @param  {number} x       horizontal position of the blackbox in SVG pixels
+     * @param  {number} y       vertical position of the gate in SVG pixels
+     * @param  {number} inputs  number of input pins of this blackbox
+     * @param  {number} outputs number of output pins of this blackbox
+     * @param  {Array} table   Array of arrays, each inner array contains list of [Logic.state](./module-Logic.html#.state)s,
+     *                          that describe the combination of input pin and output pin states in the order from the top to bottom for both input and output connectors.
+     *                          If we had an AND array as a blackbox, one of the states could be `[Logic.state.on, Logic.state.off, Logic.state.off]`
+     *                          which means that if the first input connector is in the `on` state and the second connector is in the `off` state,
+     *                          the state of the output connector will be `off`.
+     *                          The array can be described as `[state for input conn 1, state for input conn 2, ..., state for output conn 1, state for output conn 2 ...]`.
+     * @param  {string}  name   a name that will be displayed on the blackbox
+     * @param  {boolean} [refresh=true] if true, this.refresh() will be called after adding the gate
+     *
+     * @return {editorElements.Blackbox} instance of {@link Blackbox} that has been added to the [Canvas](./module-Canvas.html)
+     */
+    newBlackbox(x, y, inputs, outputs, table, name, refresh=true) {
+        const height = Math.max(inputs, outputs) * 2;
+        const index = this.boxes.length;
 
-            this.boxes[index] = new editorElements.Blackbox(
-                this,
-                inputs,
-                outputs,
-                (...inputStates) => {
-                    for (const line of table) {
-                        const lineInputStates = line.slice(0, inputs);
+        this.boxes[index] = new editorElements.Blackbox(
+            this,
+            inputs,
+            outputs,
+            (...inputStates) => {
+                for (const line of table) {
+                    const lineInputStates = line.slice(0, inputs);
 
-                        // if every input state matches the corresponding input state in this line of the truth table
-                        if(inputStates.every((value, index) => value === lineInputStates[index])) {
-                            // return the rest of the line as output
-                            return line.slice(inputs);
-                        }
+                    // if every input state matches the corresponding input state in this line of the truth table
+                    if(inputStates.every((value, index) => value === lineInputStates[index])) {
+                        // return the rest of the line as output
+                        return line.slice(inputs);
                     }
-                    // if nothing matches, set all outputs to undefined
-                    return Array.from(new Array(outputs), () => Logic.state.unknown)
-                },
-                name
-            );
+                }
+                // if nothing matches, set all outputs to undefined
+                return Array.from(new Array(outputs), () => Logic.state.unknown)
+            },
+            name
+        );
 
-            if(x && y) {
-                let tr = new editorElements.Transform();
-                tr.setTranslate(x, y);
+        if(x && y) {
+            let tr = new editorElements.Transform();
+            tr.setTranslate(x, y);
 
-                this.boxes[index].svgObj.addAttr({"transform": tr.get()});
-            }
+            this.boxes[index].svgObj.addAttr({"transform": tr.get()});
+        }
 
-            this.appendElement(this.boxes[index], true);
+        this.appendElement(this.boxes[index], refresh);
 
-            resolve(this.boxes[index]);
-        })
+        return this.boxes[index];
     }
 
     /**
