@@ -1632,7 +1632,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":6,"./simulation.js":9,"./svgObjects.js":11}],2:[function(require,module,exports){
+},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":7,"./simulation.js":11,"./svgObjects.js":12}],2:[function(require,module,exports){
 "use strict";
 
 /**
@@ -1976,9 +1976,9 @@ var _svgObjects = require('./svgObjects.js');
 
 var svgObj = _interopRequireWildcard(_svgObjects);
 
-var _structuresAndClasses = require('./structuresAndClasses.js');
+var _mapWithDefaultValue = require('./mapWithDefaultValue.js');
 
-var Structures = _interopRequireWildcard(_structuresAndClasses);
+var _mapWithDefaultValue2 = _interopRequireDefault(_mapWithDefaultValue);
 
 var _logic = require('./logic.js');
 
@@ -4208,11 +4208,11 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             var cameFrom = new Map();
 
             // default value: infinity
-            var gScore = new Structures.MapWithDefaultValue(Infinity);
+            var gScore = new _mapWithDefaultValue2.default(Infinity);
             gScore.set(start, 0);
 
             // default value: infinity
-            var fScore = new Structures.MapWithDefaultValue(Infinity);
+            var fScore = new _mapWithDefaultValue2.default(Infinity);
             fScore.set(start, Wire.manhattanDistance(start, end));
 
             var nonRoutable = this.parentSVG.getNonRoutableNodes();
@@ -4510,7 +4510,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     return Wire;
 }(NetworkElement);
 
-},{"./logic.js":6,"./structuresAndClasses.js":10,"./svgObjects.js":11}],4:[function(require,module,exports){
+},{"./logic.js":7,"./mapWithDefaultValue.js":9,"./svgObjects.js":12}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4772,7 +4772,7 @@ var FloatingMenu = function () {
 
 exports.default = FloatingMenu;
 
-},{"./helperFunctions.js":5,"./networkLibrary.js":8}],5:[function(require,module,exports){
+},{"./helperFunctions.js":5,"./networkLibrary.js":10}],5:[function(require,module,exports){
 "use strict";
 
 /**
@@ -4847,6 +4847,83 @@ function getJSONString(data) {
 }
 
 },{}],6:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/** @module Id */
+
+/**
+ * the current instance of Id
+ * @type {Id}
+ */
+var existingIdInstance = void 0;
+
+/**
+ * singleton to generate unique id's
+ *
+ * usage: `let id = new Id().unique`
+ */
+
+var Id = function () {
+  function Id() {
+    _classCallCheck(this, Id);
+
+    if (!existingIdInstance) {
+      existingIdInstance = this;
+    }
+
+    /**
+     * prefix for the id, that is common in all the Ids
+     * @type {String}
+     */
+    this.prefix = "id";
+
+    /**
+     * numeric part of the next id (the next id without the prefix)
+     * @type {number}
+     */
+    this.nextId = 0;
+
+    return existingIdInstance;
+  }
+
+  /**
+   * get unique ID
+   * @return {string} new unique ID
+   */
+
+
+  _createClass(Id, [{
+    key: "unique",
+    get: function get() {
+      var retVal = this.prefix + this.nextId;
+
+      // find next unused idXXXX to prevent id collision that might be caused by some other component
+      // (it really should not happen, but this is a simple way to ensure it)
+      while ($("#" + retVal).length) {
+        this.nextId++;
+        retVal = this.generate();
+      }
+      // return this id
+      this.nextId++;
+
+      return retVal;
+    }
+  }]);
+
+  return Id;
+}();
+
+exports.default = Id;
+
+},{}],7:[function(require,module,exports){
 "use strict";
 
 /** @module Logic */
@@ -5058,7 +5135,7 @@ var Logic = function () {
 
 exports.default = Logic;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 var _canvas = require("./canvas.js");
@@ -5074,7 +5151,113 @@ $(function () {
   new _canvas2.default("#canvas", 10);
 });
 
-},{"./canvas.js":1}],8:[function(require,module,exports){
+},{"./canvas.js":1}],9:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/** @module MapWithDefaultValue */
+/**
+ * Map that has a default value specified in the constructor.
+ *
+ * For the complete documentation of the Map see [Map in the MDN web docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)
+ *
+ * _Note: This version is written specially for ES6 compiled into ES5. In non-compiled ES6 is the implementation far simpler:_
+ *
+ * ```JavaScript
+ export class MapWithDefaultValue extends Map {
+     constructor(defaultValue) {
+         super();
+
+         this.default = defaultValue;
+     }
+
+     get(key) {
+         if(this.has(key)) {
+             return super.get(key);
+         } else {
+             return this.default;
+         }
+     }
+ }```
+ */
+var MapWithDefaultValue = function () {
+    /**
+     * @param defaultValue the value that will be returned on get(key) when the key is not found in the map
+     */
+    function MapWithDefaultValue(defaultValue) {
+        _classCallCheck(this, MapWithDefaultValue);
+
+        this.map = new Map();
+        this.default = defaultValue;
+    }
+
+    _createClass(MapWithDefaultValue, [{
+        key: "clear",
+        value: function clear() {
+            return this.map.clear();
+        }
+    }, {
+        key: "forEach",
+        value: function forEach() {
+            var _map;
+
+            return (_map = this.map).forEach.apply(_map, arguments);
+        }
+    }, {
+        key: "get",
+        value: function get(key) {
+            return this.map.get(key);
+        }
+    }, {
+        key: "delete",
+        value: function _delete(key) {
+            return this.map.delete(key);
+        }
+    }, {
+        key: "set",
+        value: function set(key, value) {
+            return this.map.set(key, value);
+        }
+    }, {
+        key: "has",
+        value: function has(key) {
+            return this.map.has(key);
+        }
+    }, {
+        key: "entries",
+        value: function entries() {
+            return this.map.entries();
+        }
+    }, {
+        key: "keys",
+        value: function keys() {
+            return this.map.keys();
+        }
+    }, {
+        key: "values",
+        value: function values() {
+            return this.map.values();
+        }
+    }, {
+        key: "size",
+        get: function get() {
+            return this.map.size;
+        }
+    }]);
+
+    return MapWithDefaultValue;
+}();
+
+exports.default = MapWithDefaultValue;
+
+},{}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5082,9 +5265,16 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.getLibrary = getLibrary;
 exports.getNetworkFromLibrary = getNetworkFromLibrary;
+/**
+ * @module Library
+ */
 
 var libraryDir = './library/';
 
+/**
+ * get list of networks from the library
+ * @return {Promise} promise, the resolution is an object containing a list of libraries
+ */
 function getLibrary() {
     return new Promise(function (resolve, reject) {
         var libraryFile = libraryDir + 'networkList.json';
@@ -5103,6 +5293,11 @@ function getLibrary() {
     });
 }
 
+/**
+ * get a network from the library, specified by filename
+ * @param  {string} networkName library file name without the extension
+ * @return {Promise} promise, the resolution is an object containing the library import data
+ */
 function getNetworkFromLibrary(networkName) {
     return new Promise(function (resolve, reject) {
         var request = new XMLHttpRequest();
@@ -5119,7 +5314,7 @@ function getNetworkFromLibrary(networkName) {
     });
 }
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5136,6 +5331,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/**
+ * @module Simulation
+ */
+
 var stateChange = function stateChange(connectorId, state, whoCausedIt) {
     _classCallCheck(this, stateChange);
 
@@ -5144,25 +5343,56 @@ var stateChange = function stateChange(connectorId, state, whoCausedIt) {
     this.whoCausedIt = whoCausedIt;
 };
 
-// all connectors mentioned here are OUTPUT CONNECTORS
+/**
+ * This class runs the network simulation.
+ *
+ * _note: all connectors that are used in this class are **output connectors**_
+ */
 
 
 var Simulation = function () {
+    /**
+     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+     */
     function Simulation(parentSVG) {
         _classCallCheck(this, Simulation);
 
+        /**
+         * instance of Canvas this Simulation belongs to
+         * @type {Canvas}
+         */
         this.parentSVG = parentSVG;
 
-        // maps each affected output connector to it's directly preceeding output connectors
+        /**
+         * maps each affected output connector to it's directly preceeding output connectors
+         * @type {Map}
+         */
         this.predecessors = new Map();
 
-        // maps waveId -> array of outputConnectors affected
+        /**
+         * maps waveId to an array of affected outputConnectors
+         * @type {Map}
+         */
         this.waves = new Map();
         this.wave = 0;
 
+        /**
+         * maps cycled connector id to set of states this connector was in
+         * @type {Map}
+         */
         this.cycledConnectors = new Map();
+
+        /**
+         * set of cycled connectors that have been already resolved
+         * @type {Set}
+         */
         this.resolvedCycledConnectors = new Set();
     }
+
+    /**
+     * run the simulation
+     */
+
 
     _createClass(Simulation, [{
         key: 'run',
@@ -5174,6 +5404,13 @@ var Simulation = function () {
                 this.wave++;
             }
         }
+
+        /**
+         * one step/wave of the simulation
+         *
+         * determines states of the connectors in the current wave, detects cycles
+         */
+
     }, {
         key: 'step',
         value: function step() {
@@ -5261,7 +5498,11 @@ var Simulation = function () {
             this.whoCausedIt = undefined;
         }
 
-        // mark a predecessorConnectorId as a predecessor of connectorId
+        /**
+         * mark a predecessorConnectorId as a predecessor of connectorId
+         * @param {string} connectorId ID of a connector
+         * @param {string} predecessorConnectorId predecessor of `connectorId`
+         */
 
     }, {
         key: 'addPredecessor',
@@ -5273,7 +5514,11 @@ var Simulation = function () {
             this.predecessors.get(connectorId).add(predecessorConnectorId);
         }
 
-        // returns set of all output connectors, that are before this output connector
+        /**
+         * get set of all output connectors that are before this output connector
+         * @param  {string} connectorId ID of a connector
+         * @return {Set}                set of connector ids that are before this output connector
+         */
 
     }, {
         key: 'getAllPredecessors',
@@ -5322,6 +5567,13 @@ var Simulation = function () {
 
             return all;
         }
+
+        /**
+         * Notify a change in the network. This function adds the changed connector to the next wave
+         * @param  {string} connectorId ID of the changed connector
+         * @param  {Logic.state} state  new [Logic.state](./module-Logic.html#.state) of the connector
+         */
+
     }, {
         key: 'notifyChange',
         value: function notifyChange(connectorId, state) {
@@ -5340,150 +5592,7 @@ var Simulation = function () {
 
 exports.default = Simulation;
 
-},{"./logic.js":6}],10:[function(require,module,exports){
-"use strict";
-
-// singleton to generate unique id's
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var existingIdInstance = null;
-// usage: let id = new Id().unique
-
-var Id = exports.Id = function () {
-    function Id() {
-        _classCallCheck(this, Id);
-
-        if (!existingIdInstance) {
-            existingIdInstance = this;
-        }
-
-        this.prefix = "id";
-        this.nextId = 0;
-
-        return existingIdInstance;
-    }
-
-    _createClass(Id, [{
-        key: "generate",
-        value: function generate() {
-            return this.prefix + this.nextId;
-        }
-    }, {
-        key: "unique",
-        get: function get() {
-            var retVal = this.generate();
-
-            // find next unused idXXXX to prevent id collision that might be caused by some other component
-            // (it really should not happen, but this is a simple method to ensure safety)
-            while ($("#" + retVal).length) {
-                this.nextId++;
-                retVal = this.generate();
-            }
-            // return this id
-            this.nextId++;
-
-            return retVal;
-        }
-    }]);
-
-    return Id;
-}();
-
-// to es5 compiler friendly implementation ("calling a builtin Map constructor without new is forbidden")
-
-
-var MapWithDefaultValue = exports.MapWithDefaultValue = function () {
-    function MapWithDefaultValue(defaultValue) {
-        _classCallCheck(this, MapWithDefaultValue);
-
-        this.map = new Map();
-        this.default = defaultValue;
-    }
-
-    _createClass(MapWithDefaultValue, [{
-        key: "clear",
-        value: function clear() {
-            return this.map.clear();
-        }
-    }, {
-        key: "forEach",
-        value: function forEach() {
-            var _map;
-
-            return (_map = this.map).forEach.apply(_map, arguments);
-        }
-    }, {
-        key: "get",
-        value: function get(key) {
-            return this.map.get(key);
-        }
-    }, {
-        key: "delete",
-        value: function _delete(key) {
-            return this.map.delete(key);
-        }
-    }, {
-        key: "set",
-        value: function set(key, value) {
-            return this.map.set(key, value);
-        }
-    }, {
-        key: "has",
-        value: function has(key) {
-            return this.map.has(key);
-        }
-    }, {
-        key: "entries",
-        value: function entries() {
-            return this.map.entries();
-        }
-    }, {
-        key: "keys",
-        value: function keys() {
-            return this.map.keys();
-        }
-    }, {
-        key: "values",
-        value: function values() {
-            return this.map.values();
-        }
-    }, {
-        key: "size",
-        get: function get() {
-            return this.map.size;
-        }
-    }]);
-
-    return MapWithDefaultValue;
-}();
-
-/*
-// es6 implementation
-export class MapWithDefaultValue extends Map {
-    constructor(defaultValue) {
-        super();
-
-        this.default = defaultValue;
-    }
-
-    get(key) {
-        if(this.has(key)) {
-            return super.get(key);
-        } else {
-            return this.default;
-        }
-    }
-}
-*/
-
-},{}],11:[function(require,module,exports){
+},{"./logic.js":7}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5495,11 +5604,11 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _structuresAndClasses = require("./structuresAndClasses.js");
+var _id = require("./id.js");
 
-var Structures = _interopRequireWildcard(_structuresAndClasses);
+var _id2 = _interopRequireDefault(_id);
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
@@ -5533,7 +5642,7 @@ var Tag = function () {
          * unique ID of this SVG object
          * @type {string}
          */
-        this.id = new Structures.Id().unique;
+        this.id = new _id2.default().unique;
     }
 
     /**
@@ -6329,6 +6438,6 @@ var Pattern = exports.Pattern = function (_Tag6) {
     return Pattern;
 }(Tag);
 
-},{"./structuresAndClasses.js":10}]},{},[7])
+},{"./id.js":6}]},{},[8])
 
 //# sourceMappingURL=main.js.map

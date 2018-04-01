@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: PolylinePoints | Hradla</title>
+    <title>Class: module:Simulation | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,9 +50,10 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>PolylinePoints<span class="signature">(arr<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>module:Simulation<span class="signature">(parentSVG)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>points of the <a href="PolyLine.html">PolyLine</a></p></div>
+            <div class="class-description"><p>This class runs the network simulation.</p>
+<p><em>note: all connectors that are used in this class are <strong>output connectors</strong></em></p></div>
         
     
 </header>
@@ -65,14 +66,14 @@
 
 <dt>
     
-        <h4 class="name" id="PolylinePoints">
+        <h4 class="name" id="module:Simulation">
             
-                new <span class="type-signature"></span>PolylinePoints<span class="signature">(arr<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                new <span class="type-signature"></span>module:Simulation<span class="signature">(parentSVG)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line364">line 364</a></code>
+                <code><a href="simulation.js.html">simulation.js</a></code>,
+                <code><a href="simulation.js.html#line21">line 21</a></code>
             </div>
             
         </h4>
@@ -104,8 +105,6 @@
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -118,33 +117,23 @@
 
         <tr>
             
-                <td class="name"><code>arr</code></td>
+                <td class="name"><code>parentSVG</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array</span>
+<span class="param-type">Canvas</span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>array containing instances of <a href="PolylinePoint.html">PolylinePoint</a></p></td>
+            <td class="description last"><p>instance of <a href="./module-Canvas.html">Canvas</a></p></td>
         </tr>
 
     
@@ -212,17 +201,6 @@
     
 
     
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="SmartArray.html">SmartArray</a></li>
-    </ul>
-
-
-    
 
     
 
@@ -241,152 +219,12 @@
             
 
 <dt>
-<h4 class="name" id="first">
-    <span class="type-signature"></span>first<span class="type-signature"></span>
+<h4 class="name" id="cycledConnectors">
+    <span class="type-signature"></span>cycledConnectors<span class="type-signature"> :Map</span>
     
     <div class="container-source members">
-        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-        <code><a href="svgObjects.js.html#line338">line 338</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="SmartArray.html#first">SmartArray#first</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id="last">
-    <span class="type-signature"></span>last<span class="type-signature"></span>
-    
-    <div class="container-source members">
-        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-        <code><a href="svgObjects.js.html#line327">line 327</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="SmartArray.html#last">SmartArray#last</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id="length">
-    <span class="type-signature"></span>length<span class="type-signature"></span>
-    
-    <div class="container-source members">
-        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-        <code><a href="svgObjects.js.html#line311">line 311</a></code>
+        <code><a href="simulation.js.html">simulation.js</a></code>,
+        <code><a href="simulation.js.html#line49">line 49</a></code>
     </div>
     
 </h4>
@@ -396,11 +234,21 @@
 <dd>
     
     <div class="description">
-        <p>get length of the array</p>
+        <p>maps cycled connector id to set of states this connector was in</p>
     </div>
     
 
     <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Map</span>
+
+
+            </li>
+        </ul>
     
     -->
 
@@ -413,11 +261,6 @@
 
     
 
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="SmartArray.html#length">SmartArray#length</a>
-    </li></ul></dd>
     
 
     
@@ -455,12 +298,12 @@
             
 
 <dt>
-<h4 class="name" id="string">
-    <span class="type-signature"></span>string<span class="type-signature"></span>
+<h4 class="name" id="parentSVG">
+    <span class="type-signature"></span>parentSVG<span class="type-signature"> :Canvas</span>
     
     <div class="container-source members">
-        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-        <code><a href="svgObjects.js.html#line425">line 425</a></code>
+        <code><a href="simulation.js.html">simulation.js</a></code>,
+        <code><a href="simulation.js.html#line30">line 30</a></code>
     </div>
     
 </h4>
@@ -470,11 +313,258 @@
 <dd>
     
     <div class="description">
-        <p>get a string representation of this polyline</p>
+        <p>instance of Canvas this Simulation belongs to</p>
     </div>
     
 
     <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Canvas</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="predecessors">
+    <span class="type-signature"></span>predecessors<span class="type-signature"> :Map</span>
+    
+    <div class="container-source members">
+        <code><a href="simulation.js.html">simulation.js</a></code>,
+        <code><a href="simulation.js.html#line36">line 36</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>maps each affected output connector to it's directly preceeding output connectors</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Map</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="resolvedCycledConnectors">
+    <span class="type-signature"></span>resolvedCycledConnectors<span class="type-signature"> :Set</span>
+    
+    <div class="container-source members">
+        <code><a href="simulation.js.html">simulation.js</a></code>,
+        <code><a href="simulation.js.html#line55">line 55</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>set of cycled connectors that have been already resolved</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Set</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="waves">
+    <span class="type-signature"></span>waves<span class="type-signature"> :Map</span>
+    
+    <div class="container-source members">
+        <code><a href="simulation.js.html">simulation.js</a></code>,
+        <code><a href="simulation.js.html#line42">line 42</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>maps waveId to an array of affected outputConnectors</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Map</span>
+
+
+            </li>
+        </ul>
     
     -->
 
@@ -531,14 +621,14 @@
 
 <dt>
     
-        <h4 class="name" id=".parseFromString">
+        <h4 class="name" id="addPredecessor">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>parseFromString<span class="signature">(string)</span><span class="type-signature"> &rarr; {<a href="PolylinePoints.html">PolylinePoints</a>}</span>
+                <span class="type-signature"></span>addPredecessor<span class="signature">(connectorId, predecessorConnectorId)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line410">line 410</a></code>
+                <code><a href="simulation.js.html">simulation.js</a></code>,
+                <code><a href="simulation.js.html#line143">line 143</a></code>
             </div>
             
         </h4>
@@ -550,7 +640,7 @@
 
     
     <div class="description">
-        <p>parse polyline from string</p>
+        <p>mark a predecessorConnectorId as a predecessor of connectorId</p>
     </div>
     
 
@@ -586,7 +676,7 @@
 
         <tr>
             
-                <td class="name"><code>string</code></td>
+                <td class="name"><code>connectorId</code></td>
             
 
             <td class="type">
@@ -602,7 +692,169 @@
 
             
 
-            <td class="description last"><p>string in the polyline format (<code>x1,y1 x2,y2, x3,y3</code>)</p></td>
+            <td class="description last"><p>ID of a connector</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>predecessorConnectorId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>predecessor of <code>connectorId</code></p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="getAllPredecessors">
+            
+                <span class="type-signature"></span>getAllPredecessors<span class="signature">(connectorId)</span><span class="type-signature"> &rarr; {Set}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="simulation.js.html">simulation.js</a></code>,
+                <code><a href="simulation.js.html#line156">line 156</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>get set of all output connectors that are before this output connector</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>connectorId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>ID of a connector</p></td>
         </tr>
 
     
@@ -630,13 +882,13 @@
 
 
 
-<span class="param-type"><a href="PolylinePoints.html">PolylinePoints</a></span>
+<span class="param-type">Set</span>
 
 
 
 
 
-- <p>a new instance of <a href="PolylinePoints.html">PolylinePoints</a> created by parsing the string</p>
+- <p>set of connector ids that are before this output connector</p>
 
 
 
@@ -691,14 +943,14 @@
 
 <dt>
     
-        <h4 class="name" id="addWithIndex">
+        <h4 class="name" id="notifyChange">
             
-                <span class="type-signature"></span>addWithIndex<span class="signature">(item, index)</span><span class="type-signature"></span>
+                <span class="type-signature"></span>notifyChange<span class="signature">(connectorId, state)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line299">line 299</a></code>
+                <code><a href="simulation.js.html">simulation.js</a></code>,
+                <code><a href="simulation.js.html#line185">line 185</a></code>
             </div>
             
         </h4>
@@ -710,7 +962,7 @@
 
     
     <div class="description">
-        <p>add a new item at the specified index, move all following items</p>
+        <p>Notify a change in the network. This function adds the changed connector to the next wave</p>
     </div>
     
 
@@ -746,10 +998,15 @@
 
         <tr>
             
-                <td class="name"><code>item</code></td>
+                <td class="name"><code>connectorId</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
             
             </td>
 
@@ -757,20 +1014,20 @@
 
             
 
-            <td class="description last"><p>new item that will be added at the specified index</p></td>
+            <td class="description last"><p>ID of the changed connector</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>index</code></td>
+                <td class="name"><code>state</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">number</span>
+<span class="param-type">Logic.state</span>
 
 
             
@@ -780,408 +1037,7 @@
 
             
 
-            <td class="description last"><p>index of this item</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="SmartArray.html#addWithIndex">SmartArray#addWithIndex</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="append">
-            
-                <span class="type-signature"></span>append<span class="signature">(point)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line384">line 384</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>append a point</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>point</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="PolylinePoint.html">PolylinePoint</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>a new point</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="SmartArray.html#append">SmartArray#append</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="copy">
-            
-                <span class="type-signature"></span>copy<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="PolylinePoints.html">PolylinePoints</a>}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line376">line 376</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get a deep copy of this object</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type"><a href="PolylinePoints.html">PolylinePoints</a></span>
-
-
-
-
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="SmartArray.html#copy">SmartArray#copy</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="forEach">
-            
-                <span class="type-signature"></span>forEach<span class="signature">(func)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line440">line 440</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>wrapper for foreach on the polyline points</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>func</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function that will be called on each element</p></td>
+            <td class="description last"><p>new <a href="./module-Logic.html#.state">Logic.state</a> of the connector</p></td>
         </tr>
 
     
@@ -1249,14 +1105,14 @@
 
 <dt>
     
-        <h4 class="name" id="getItem">
+        <h4 class="name" id="run">
             
-                <span class="type-signature"></span>getItem<span class="signature">(index)</span><span class="type-signature"></span>
+                <span class="type-signature"></span>run<span class="signature">()</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line320">line 320</a></code>
+                <code><a href="simulation.js.html">simulation.js</a></code>,
+                <code><a href="simulation.js.html#line62">line 62</a></code>
             </div>
             
         </h4>
@@ -1268,65 +1124,7 @@
 
     
     <div class="description">
-        <p>get item by index</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>index</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>index of the item</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
+        <p>run the simulation</p>
     </div>
     
 
@@ -1341,21 +1139,13 @@
     
 
     
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
 
+    
 
+    
 
+    
 
-- <p>contents of the array on the specified index</p>
-
-
-
-
-            
-    </div>
     
 
     
@@ -1367,11 +1157,6 @@
 
     
 
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="SmartArray.html#getItem">SmartArray#getItem</a>
-    </li></ul></dd>
     
 
     
@@ -1409,14 +1194,14 @@
 
 <dt>
     
-        <h4 class="name" id="prepend">
+        <h4 class="name" id="step">
             
-                <span class="type-signature"></span>prepend<span class="signature">(item)</span><span class="type-signature"></span>
+                <span class="type-signature"></span>step<span class="signature">()</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line290">line 290</a></code>
+                <code><a href="simulation.js.html">simulation.js</a></code>,
+                <code><a href="simulation.js.html#line76">line 76</a></code>
             </div>
             
         </h4>
@@ -1428,7 +1213,8 @@
 
     
     <div class="description">
-        <p>prepend an item to the array</p>
+        <p>one step/wave of the simulation</p>
+<p>determines states of the connectors in the current wave, detects cycles</p>
     </div>
     
 
@@ -1438,51 +1224,6 @@
 
     
 
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>item</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>new item that will be prepended to the array</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
     
 
     
@@ -1506,155 +1247,6 @@
 
     
 
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="SmartArray.html#prepend">SmartArray#prepend</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="remove">
-            
-                <span class="type-signature"></span>remove<span class="signature">(index)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line350">line 350</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>remove an item from the array by index</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>index</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>index of the item that will be removed</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="SmartArray.html#remove">SmartArray#remove</a>
-    </li></ul></dd>
     
 
     
@@ -1712,7 +1304,7 @@
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'PolylinePoints_sub'.replace(/"/g, '_');
+        var id = 'module:Simulation_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

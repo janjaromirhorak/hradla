@@ -1,4 +1,4 @@
-import * as Structures from './structuresAndClasses.js'
+import Id from './id.js'
 
 /**
  * Parent class for all svgObjects
@@ -24,7 +24,7 @@ class Tag {
          * unique ID of this SVG object
          * @type {string}
          */
-        this.id = new Structures.Id().unique;
+        this.id = new Id().unique;
     }
 
     /**

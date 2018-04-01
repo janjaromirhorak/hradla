@@ -1,5 +1,5 @@
 import * as svgObj from './svgObjects.js'
-import * as Structures from './structuresAndClasses.js'
+import MapWithDefaultValue from './mapWithDefaultValue.js'
 import Logic from './logic.js'
 
 /**
@@ -1620,11 +1620,11 @@ export class Wire extends NetworkElement {
         let cameFrom = new Map();
 
         // default value: infinity
-        let gScore = new Structures.MapWithDefaultValue(Infinity);
+        let gScore = new MapWithDefaultValue(Infinity);
         gScore.set(start, 0);
 
         // default value: infinity
-        let fScore = new Structures.MapWithDefaultValue(Infinity);
+        let fScore = new MapWithDefaultValue(Infinity);
         fScore.set(start, Wire.manhattanDistance(start, end));
 
         let nonRoutable = this.parentSVG.getNonRoutableNodes();
