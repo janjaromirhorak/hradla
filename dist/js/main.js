@@ -1632,7 +1632,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":7,"./simulation.js":10,"./svgObjects.js":12}],2:[function(require,module,exports){
+},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":6,"./simulation.js":9,"./svgObjects.js":11}],2:[function(require,module,exports){
 "use strict";
 
 /**
@@ -4510,7 +4510,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     return Wire;
 }(NetworkElement);
 
-},{"./logic.js":7,"./structuresAndClasses.js":11,"./svgObjects.js":12}],4:[function(require,module,exports){
+},{"./logic.js":6,"./structuresAndClasses.js":10,"./svgObjects.js":11}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4519,7 +4519,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _importExport = require('./importExport.js');
+var _helperFunctions = require('./helperFunctions.js');
 
 var _networkLibrary = require('./networkLibrary.js');
 
@@ -4716,24 +4716,22 @@ var FloatingMenu = function () {
 
         /* EXPORT */
         this.append(new FloatingButton("export", "Get code for this network", function () {
-            var data = new _importExport.exportNetwork(parentSVG);
-
             // create the popup container holding all popup content (that will be passed to lity)
             var $popup = $("<div>").addClass("importExport").addClass("export");
 
             // generate the block with code to be displayed and append it to the popup element
-            var $textblock = $("<textarea>").text(data.json(_importExport.exportNetwork.style.pretty));
+            var $textblock = $("<textarea>").text((0, _helperFunctions.getJSONString)(parentSVG.exportData, true));
 
             $popup.append($textblock);
 
             // generate the links
             $popup.append($("<a>").attr({
-                "href": data.json(_importExport.exportNetwork.style.pretty, true),
+                "href": (0, _helperFunctions.getJSONString)(parentSVG.exportData, true, true),
                 "class": "download",
                 "download": "network.json"
             }).append($("<img>").attr('src', "img/gui/export.svg")).append(" expanded JSON"));
             $popup.append($("<a>").attr({
-                "href": data.json(_importExport.exportNetwork.style.compact, true),
+                "href": (0, _helperFunctions.getJSONString)(parentSVG.exportData, false, true),
                 "class": "download",
                 "download": "network.min.json"
             }).append($("<img>").attr('src', "img/gui/export.svg")).append(" compact JSON"));
@@ -4774,7 +4772,7 @@ var FloatingMenu = function () {
 
 exports.default = FloatingMenu;
 
-},{"./importExport.js":6,"./networkLibrary.js":9}],5:[function(require,module,exports){
+},{"./helperFunctions.js":5,"./networkLibrary.js":8}],5:[function(require,module,exports){
 "use strict";
 
 /**
@@ -4791,6 +4789,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.addMouseScrollEventListener = addMouseScrollEventListener;
+exports.getJSONString = getJSONString;
 function addMouseScrollEventListener(query, func) {
     var MouseWheelHandler = function MouseWheelHandler(event) {
         var event = window.event || event; // old IE support
@@ -4824,60 +4823,30 @@ function addMouseScrollEventListener(query, func) {
     }, false);
 }
 
-},{}],6:[function(require,module,exports){
-"use strict";
+/**
+ * convert a data object to JSON string or to a data URI containing a JSON string
+ * @param  {Object}  data            object that will be serialized into a JSON string
+ * @param  {Boolean} [pretty=false]  if `true`, the code will be proprerly indented, else a more compact syntax will be used
+ * @param  {Boolean} [dataUri=false] return dataUri containing the JSON string instead of the pure JSON string
+ * @return {string}
+ */
+function getJSONString(data) {
+    var pretty = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    var dataUri = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var exportNetwork = exports.exportNetwork = function () {
-    function exportNetwork(parentSVG) {
-        _classCallCheck(this, exportNetwork);
-
-        this.parentSVG = parentSVG;
+    if (dataUri) {
+        return 'data:application/json;charset=utf-8,' + encodeURIComponent(getJSONString(data, pretty));
+    } else {
+        switch (pretty) {
+            case true:
+                return JSON.stringify(data, null, 2);
+            case false:
+                return JSON.stringify(data);
+        }
     }
+}
 
-    _createClass(exportNetwork, [{
-        key: "json",
-        value: function json() {
-            var style = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : exportNetwork.style.compact;
-            var dataUri = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-            if (dataUri) {
-                return 'data:application/json;charset=utf-8,' + encodeURIComponent(this.json(style));
-            } else {
-                switch (style) {
-                    case exportNetwork.style.compact:
-                        return JSON.stringify(this.exportData);
-                    case exportNetwork.style.pretty:
-                        return JSON.stringify(this.exportData, null, 2);
-                }
-            }
-        }
-    }, {
-        key: "exportData",
-        get: function get() {
-            return this.parentSVG.exportData;
-        }
-    }], [{
-        key: "style",
-        get: function get() {
-            return {
-                pretty: 0,
-                compact: 1
-            };
-        }
-    }]);
-
-    return exportNetwork;
-}();
-
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 /** @module Logic */
@@ -4997,7 +4966,7 @@ var Logic = function () {
 
 exports.default = Logic;
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 
 var _canvas = require("./canvas.js");
@@ -5013,7 +4982,7 @@ $(function () {
   new _canvas2.default("#canvas", 10);
 });
 
-},{"./canvas.js":1}],9:[function(require,module,exports){
+},{"./canvas.js":1}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5058,7 +5027,7 @@ function getNetworkFromLibrary(networkName) {
     });
 }
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5279,7 +5248,7 @@ var Simulation = function () {
 
 exports.default = Simulation;
 
-},{"./logic.js":7}],11:[function(require,module,exports){
+},{"./logic.js":6}],10:[function(require,module,exports){
 "use strict";
 
 // singleton to generate unique id's
@@ -5422,7 +5391,7 @@ export class MapWithDefaultValue extends Map {
 }
 */
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6268,6 +6237,6 @@ var Pattern = exports.Pattern = function (_Tag6) {
     return Pattern;
 }(Tag);
 
-},{"./structuresAndClasses.js":11}]},{},[8])
+},{"./structuresAndClasses.js":10}]},{},[7])
 
 //# sourceMappingURL=main.js.map

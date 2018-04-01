@@ -1,4 +1,4 @@
-import { exportNetwork } from "./importExport.js";
+import { getJSONString } from "./helperFunctions.js";
 
 import {
     getLibrary,
@@ -200,22 +200,22 @@ export default class FloatingMenu {
         /* EXPORT */
         this.append(
             new FloatingButton("export", "Get code for this network", () => {
-                const data = new exportNetwork(parentSVG);
-
                 // create the popup container holding all popup content (that will be passed to lity)
                 let $popup = $("<div>")
                     .addClass("importExport")
                     .addClass("export");
 
                 // generate the block with code to be displayed and append it to the popup element
-                const $textblock = $("<textarea>").text(data.json(exportNetwork.style.pretty))
+                const $textblock = $("<textarea>").text(
+                    getJSONString(parentSVG.exportData, true)
+                )
 
                 $popup.append($textblock);
 
                 // generate the links
                 $popup.append(
                     $("<a>").attr({
-                        "href": data.json(exportNetwork.style.pretty, true),
+                        "href": getJSONString(parentSVG.exportData, true, true),
                         "class": "download",
                         "download": "network.json"
                     }).append(
@@ -224,7 +224,7 @@ export default class FloatingMenu {
                 );
                 $popup.append(
                     $("<a>").attr({
-                        "href": data.json(exportNetwork.style.compact, true),
+                        "href": getJSONString(parentSVG.exportData, false, true),
                         "class": "download",
                         "download": "network.min.json"
                     }).append(

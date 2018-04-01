@@ -41,3 +41,24 @@ export function addMouseScrollEventListener(query, func) {
         console.log('event', e)
     }, false)
 }
+
+/**
+ * convert a data object to JSON string or to a data URI containing a JSON string
+ * @param  {Object}  data            object that will be serialized into a JSON string
+ * @param  {Boolean} [pretty=false]  if `true`, the code will be proprerly indented, else a more compact syntax will be used
+ * @param  {Boolean} [dataUri=false] return dataUri containing the JSON string instead of the pure JSON string
+ * @return {string}
+ */
+export function getJSONString(data, pretty = false, dataUri = false) {
+    if(dataUri) {
+        return 'data:application/json;charset=utf-8,'
+            + encodeURIComponent(getJSONString(data, pretty));
+    } else {
+        switch (pretty) {
+            case true:
+                return JSON.stringify(data, null, 2);
+            case false:
+                return JSON.stringify(data);
+        }
+    }
+}
