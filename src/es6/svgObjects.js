@@ -60,38 +60,7 @@ class Tag {
     }
 }
 
-class Draggable extends Tag {
-    constructor(tagName) {
-        super(tagName);
-    }
-
-    draggable(value) {
-        this.addAttr({"draggable": value});
-    }
-}
-
-class Rotatable extends Tag {
-    constructor(tagName) {
-        super(tagName);
-    }
-
-    rotatable(value) {
-        this.addAttr({"rotatable": value});
-    }
-}
-
-// there is no multiple inheritance in ES6, so I have to do something ugly like this
-class DraggableRotatable extends Draggable {
-    constructor(tagName) {
-        super(tagName);
-    }
-
-    rotatable(value) {
-        this.addAttr({"rotatable": value});
-    }
-}
-
-class SvgElement extends DraggableRotatable {
+class SvgElement extends Tag {
     constructor(x, y, w, h, tagName) {
         super(tagName);
 
@@ -131,7 +100,7 @@ export class SvgImage extends SvgElement {
     }
 }
 
-export class Group extends DraggableRotatable {
+export class Group extends Tag {
     constructor() {
         super("g");
     }
