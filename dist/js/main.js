@@ -33,9 +33,7 @@ var _simulation = require('./simulation.js');
 
 var _simulation2 = _interopRequireDefault(_simulation);
 
-var _fn = require('./fn.js');
-
-var _fn2 = _interopRequireDefault(_fn);
+var _helperFunctions = require('./helperFunctions.js');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -337,7 +335,7 @@ var Canvas = function () {
             _this.onKeyUp(event);
         });
 
-        _fn2.default.addMouseScrollEventListener(canvas, function (event) {
+        (0, _helperFunctions.addMouseScrollEventListener)(canvas, function (event) {
             // zoom only if the ctrl key is pressed
             if (event.ctrlKey) {
                 switch (event.delta) {
@@ -1634,7 +1632,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./fn.js":5,"./logic.js":7,"./simulation.js":10,"./svgObjects.js":12}],2:[function(require,module,exports){
+},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":7,"./simulation.js":10,"./svgObjects.js":12}],2:[function(require,module,exports){
 "use strict";
 
 /**
@@ -4779,58 +4777,52 @@ exports.default = FloatingMenu;
 },{"./importExport.js":6,"./networkLibrary.js":9}],5:[function(require,module,exports){
 "use strict";
 
+/**
+ * @module HelperFunctions
+ */
+
+/**
+ * add a cross browser event listener on a mouse scroll
+ * @param {string} query DOM query of the element that the listener will be added to
+ * @param {Function} func  Function that will be called when the event occurs. The function takes as a parameter an event object.
+ */
+
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.addMouseScrollEventListener = addMouseScrollEventListener;
+function addMouseScrollEventListener(query, func) {
+    var MouseWheelHandler = function MouseWheelHandler(event) {
+        var event = window.event || event; // old IE support
+        event.delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+        func(event);
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+        return false;
+    };
 
-var Fn = function () {
-    function Fn() {
-        _classCallCheck(this, Fn);
+    var svgelement = void 0;
+
+    // if the query is a simple DOM id selector, we can use getElementById which has better backwards compatibility
+    if (query.match(/^#\w+$/)) {
+        svgelement = document.getElementById(query.substr(1));
+    } else {
+        svgelement = document.querySelector(query);
     }
 
-    _createClass(Fn, null, [{
-        key: "deepCopy",
-        value: function deepCopy(arr) {
-            return $.extend(true, [], arr);
-        }
-    }, {
-        key: "addMouseScrollEventListener",
-        value: function addMouseScrollEventListener(query, func) {
-            var MouseWheelHandler = function MouseWheelHandler(event) {
-                var event = window.event || event; // old IE support
-                event.delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
-
-                func(event);
-
-                return false;
-            };
-
-            // TODO add more backwards compatibility somehow
-            var svgelement = document.querySelector(query);
-
-            if (svgelement.addEventListener) {
-                // IE9, Chrome, Safari, Opera
-                svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
-                // Firefox
-                svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
-            } else {
-                // IE 6/7/8
-                svgelement.attachEvent("onmousewheel", MouseWheelHandler);
-            }
-            svgelement.addEventListener('mousewheel', function (e) {
-                console.log('event', e);
-            }, false);
-        }
-    }]);
-
-    return Fn;
-}();
-
-exports.default = Fn;
+    if (svgelement.addEventListener) {
+        // IE9, Chrome, Safari, Opera
+        svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
+        // Firefox
+        svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+    } else {
+        // IE 6/7/8
+        svgelement.attachEvent("onmousewheel", MouseWheelHandler);
+    }
+    svgelement.addEventListener('mousewheel', function (e) {
+        console.log('event', e);
+    }, false);
+}
 
 },{}],6:[function(require,module,exports){
 "use strict";

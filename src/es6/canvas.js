@@ -6,7 +6,7 @@ import Logic from './logic.js'
 import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
 import Simulation from './simulation.js'
-import Fn from './fn.js'
+import { addMouseScrollEventListener } from './helperFunctions.js'
 
 /**
  * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
@@ -267,7 +267,7 @@ export default class Canvas {
             this.onKeyUp(event);
         });
 
-        Fn.addMouseScrollEventListener(canvas, event => {
+        addMouseScrollEventListener(canvas, event => {
             // zoom only if the ctrl key is pressed
             if(event.ctrlKey) {
                 switch (event.delta) {
