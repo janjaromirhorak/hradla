@@ -905,9 +905,13 @@ var Canvas = function () {
 
         /**
          * import a blackbox based on the provided data
-         * @param  {[type]} data [description]
-         * @param  {[type]} name [description]
-         * @return {[type]}      [description]
+         * @param  {Object} data data describing the object,
+         *                       must contain fields `inputs`, `outputs`
+         *                       (positive integers, determining number of inputs and outputs)
+         *                       and `table` (array of arrays, the inner arrays have `inputs + outputs`
+         *                       items that describe the input and output states of the connectors in order)
+         * @param  {string} name name of the black box
+         * @return {editorElements.Blackbox} instance of {@link Blackbox} that has been added to the [Canvas](./module-Canvas.html)
          */
 
     }, {
@@ -923,9 +927,30 @@ var Canvas = function () {
             };
             return this.newBlackbox(padding.x, padding.y, inputs, outputs, table, name);
         }
+
+        /**
+         * creates a new blackbox
+         * @param  {number} x       horizontal position of the blackbox in SVG pixels
+         * @param  {number} y       vertical position of the gate in SVG pixels
+         * @param  {number} inputs  number of input pins of this blackbox
+         * @param  {number} outputs number of output pins of this blackbox
+         * @param  {Array} table   Array of arrays, each inner array contains list of [Logic.state](./module-Logic.html#.state)s,
+         *                          that describe the combination of input pin and output pin states in the order from the top to bottom for both input and output connectors.
+         *                          If we had an AND array as a blackbox, one of the states could be `[Logic.state.on, Logic.state.off, Logic.state.off]`
+         *                          which means that if the first input connector is in the `on` state and the second connector is in the `off` state,
+         *                          the state of the output connector will be `off`.
+         *                          The array can be described as `[state for input conn 1, state for input conn 2, ..., state for output conn 1, state for output conn 2 ...]`.
+         * @param  {string}  name   a name that will be displayed on the blackbox
+         * @param  {boolean} [refresh=true] if true, this.refresh() will be called after adding the gate
+         *
+         * @return {editorElements.Blackbox} instance of {@link Blackbox} that has been added to the [Canvas](./module-Canvas.html)
+         */
+
     }, {
         key: 'newBlackbox',
         value: function newBlackbox(x, y, inputs, outputs, table, name) {
+            var refresh = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
+
             var height = Math.max(inputs, outputs) * 2;
             var index = this.boxes.length;
 
@@ -988,7 +1013,7 @@ var Canvas = function () {
                 this.boxes[index].svgObj.addAttr({ "transform": tr.get() });
             }
 
-            this.appendElement(this.boxes[index], true);
+            this.appendElement(this.boxes[index], refresh);
 
             return this.boxes[index];
         }
@@ -2576,6 +2601,13 @@ var Connector = function (_NetworkElement) {
 var InputConnector = exports.InputConnector = function (_Connector) {
     _inherits(InputConnector, _Connector);
 
+    /**
+     * Call the constructor from the parent {@link Connector} class and set isInputConnector to true.
+     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {number} gridSize  size of the grid in SVG pixels
+     * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
+     * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
+     */
     function InputConnector(parentSVG, gridSize, left, top) {
         _classCallCheck(this, InputConnector);
 
@@ -2612,11 +2644,6 @@ var InputConnector = exports.InputConnector = function (_Connector) {
             _get(InputConnector.prototype.__proto__ || Object.getPrototypeOf(InputConnector.prototype), 'removeWireIdAndUpdate', this).call(this, wireId);
             this.setState(_logic2.default.state.unknown);
         }
-    }, {
-        key: 'state',
-        get: function get() {
-            return _get(InputConnector.prototype.__proto__ || Object.getPrototypeOf(InputConnector.prototype), 'state', this);
-        }
     }]);
 
     return InputConnector;
@@ -2631,6 +2658,13 @@ var InputConnector = exports.InputConnector = function (_Connector) {
 var OutputConnector = exports.OutputConnector = function (_Connector2) {
     _inherits(OutputConnector, _Connector2);
 
+    /**
+     * Call the constructor from the parent {@link Connector} class and set isOutputConnector to true.
+     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {number} gridSize  size of the grid in SVG pixels
+     * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
+     * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
+     */
     function OutputConnector(parentSVG, gridSize, left, top) {
         _classCallCheck(this, OutputConnector);
 
@@ -2675,11 +2709,6 @@ var OutputConnector = exports.OutputConnector = function (_Connector2) {
                     }
                 }
             }
-        }
-    }, {
-        key: 'state',
-        get: function get() {
-            return _get(OutputConnector.prototype.__proto__ || Object.getPrototypeOf(OutputConnector.prototype), 'state', this);
         }
     }]);
 
@@ -3224,29 +3253,45 @@ var Box = function (_NetworkElement2) {
     }, {
         key: 'onClick',
         value: function onClick() {}
+
+        /**
+         * custom callback function for middle click that rotates the box by 90 degrees to the right
+         */
+
     }, {
         key: 'onClickMiddle',
         value: function onClickMiddle() {
+            // get the transform value for this box
             var transform = this.getTransform();
 
+            // get the bounding rectangle for this box
             var rect = this.svgObj.$el[0].getBoundingClientRect();
 
+            // use the bounding rectangle dimensions to figure out the geometrical centre of the box
             var centreX = Math.round(rect.width / 2);
             var centreY = Math.round(rect.height / 2);
 
             centreX -= centreX % this.gridSize;
             centreY -= centreY % this.gridSize;
 
+            // apply the rotation to the transform object
             transform.rotateRight(centreX, centreY);
 
+            // apply the modified transform object ot the svgObj
             this.svgObj.addAttr({ "transform": transform.get() });
 
+            // rotate also the blocked nodes
             this.rotateBlockedNodesRight();
 
+            // update the wires
             this.updateWires();
         }
 
-        // updates all wires connected to this box
+        /**
+         * Updates all wires connected to this box. Iterates over all wires that are connected to this box
+         * and calls routeWire (or temporaryWire if the `temporary` parameter is set to true) to update the wire routing
+         * @param  {Boolean} [temporary=false] [description]
+         */
 
     }, {
         key: 'updateWires',
@@ -3289,7 +3334,7 @@ var Box = function (_NetworkElement2) {
 
         /**
          * get data of this box as a JSON-ready object
-         * @return {object}
+         * @return {Object} javascript object containing essential data for this box
          */
 
     }, {
@@ -3387,6 +3432,10 @@ var Box = function (_NetworkElement2) {
 var InputBox = exports.InputBox = function (_Box) {
     _inherits(InputBox, _Box);
 
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {Boolean} [isOn=false] the initial state of the inputbox (`true` is *on*, `false` is *off*)
+     */
     function InputBox(parentSVG) {
         var isOn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -3403,19 +3452,40 @@ var InputBox = exports.InputBox = function (_Box) {
         return _this7;
     }
 
+    /**
+     * get data of this input box as a JSON-ready object
+     * @return {Object} javascript object containing essential data for this input box
+     */
+
+
     _createClass(InputBox, [{
         key: 'generateBlockNodes',
         value: function generateBlockNodes() {
             _get(InputBox.prototype.__proto__ || Object.getPrototypeOf(InputBox.prototype), 'generateBlockNodes', this).call(this, 0, 1, 1, 0);
         }
+
+        /**
+         * start a new simulation from the output connector
+         */
+
     }, {
         key: 'refreshState',
         value: function refreshState() {
-            // start a new simulation from the output connector
             this.parentSVG.startNewSimulation(this.connectors[0], this.connectors[0].state);
         }
+
+        /**
+         * set the state of the inputbox to the corresponding value
+         * @param  {Boolean} isOn set to *on* if `true`, set to *off* if `false`
+         */
+
     }, {
         key: 'onClick',
+
+
+        /**
+         * toggle the state of the inputbox
+         */
         value: function onClick() {
             this.on = !this.on;
         }
@@ -3442,7 +3512,13 @@ var InputBox = exports.InputBox = function (_Box) {
             }
 
             this.isOn = isOn;
-        },
+        }
+
+        /**
+         * get the state of the inputbox (`true` if *on*, `false` if *off*)
+         * @return {Boolean} [description]
+         */
+        ,
         get: function get() {
             return this.isOn;
         }
@@ -3460,6 +3536,9 @@ var InputBox = exports.InputBox = function (_Box) {
 var OutputBox = exports.OutputBox = function (_Box2) {
     _inherits(OutputBox, _Box2);
 
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     */
     function OutputBox(parentSVG) {
         _classCallCheck(this, OutputBox);
 
@@ -3472,11 +3551,23 @@ var OutputBox = exports.OutputBox = function (_Box2) {
         return _this8;
     }
 
+    /**
+     * set state of this output box to match the state of its input connector
+     */
+
+
     _createClass(OutputBox, [{
         key: 'refreshState',
         value: function refreshState() {
             this.setState(this.connectors[0].state);
         }
+
+        /**
+         * Reflect the input connector state in the appearance of the element - set
+         * the element image to represent the corresponding state
+         * @param {Logic.state} state new state of this outputBox
+         */
+
     }, {
         key: 'setState',
         value: function setState(state) {
@@ -3514,6 +3605,10 @@ var OutputBox = exports.OutputBox = function (_Box2) {
 var Gate = exports.Gate = function (_Box3) {
     _inherits(Gate, _Box3);
 
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {string} name       name of the gate (and, not, xor...)
+     */
     function Gate(parentSVG, name) {
         _classCallCheck(this, Gate);
 
@@ -3554,6 +3649,12 @@ var Gate = exports.Gate = function (_Box3) {
                 _get(Gate.prototype.__proto__ || Object.getPrototypeOf(Gate.prototype), 'generateBlockNodes', this).call(this, 0, 1, 0, 1);
             }
         }
+
+        /**
+         * proccess the input connector states and reflect them in the output connector states according
+         * to the logic corresponding to this gate's name
+         */
+
     }, {
         key: 'refreshState',
         value: function refreshState() {
@@ -3589,12 +3690,23 @@ var Gate = exports.Gate = function (_Box3) {
     return Gate;
 }(Box);
 
-/* TODO document */
+/**
+ * Blackbox is a box that is defined by its evaluation function
+ * @extends Box
+ */
 
 
 var Blackbox = exports.Blackbox = function (_Box4) {
     _inherits(Blackbox, _Box4);
 
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {number} inputConnectors  number of input connectors
+     * @param {number} outputConnectors number of output connectors
+     * @param {Function} evalFunction   function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
+     *                                  and returns `outputConnectors` Logic.states.
+     * @param {String} [name]        name that will be displayed on the blackbox
+     */
     function Blackbox(parentSVG, inputConnectors, outputConnectors, evalFunction) {
         var name = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "";
 
@@ -3662,19 +3774,30 @@ var Blackbox = exports.Blackbox = function (_Box4) {
         _this10.svgObj.draggable(true);
         _this10.svgObj.rotatable(true);
 
-        // add type="gate", used in special callbacks in contextmenu
-        // this.svgObj.addAttr({"type": "blackbox"});
-
         _this10.svgObj.$el.addClass("box");
-        // this.svgObj.$el.addClass(category);
 
-        // add the evalFunction to object property so it can be accessed in refreshState
+        /**
+         * function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
+         * and returns `outputConnectors` Logic.states.
+         */
         _this10.evalFunction = evalFunction;
         return _this10;
     }
 
+    /**
+     * get data of this blackbox as a JSON-ready object
+     * @return {Object} javascript object containing essential data for this blackbox
+     */
+
+
     _createClass(Blackbox, [{
         key: 'refreshState',
+
+
+        /**
+         * proccess the input connector states and reflect them in the output connector states according
+         * to the logic defined by this.evalFunction
+         */
         value: function refreshState() {
             var inputStates = this.inputConnectors.map(function (conn) {
                 return conn.state;
@@ -3838,6 +3961,13 @@ var Blackbox = exports.Blackbox = function (_Box4) {
 var Wire = exports.Wire = function (_NetworkElement3) {
     _inherits(Wire, _NetworkElement3);
 
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {string}  fromId    id of the first connector this wire will be connected to
+     * @param {string}  toId      id of the second connector this wire will be connected to
+     * @param {number}  gridSize       size of the grid in SVG pixels
+     * @param {Boolean} [refresh=true] if `true`, the [Canvas](./module-Canvas.html) will refresh after creating this wire
+     */
     function Wire(parentSVG, fromId, toId, gridSize) {
         var refresh = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
 
@@ -3895,8 +4025,20 @@ var Wire = exports.Wire = function (_NetworkElement3) {
         return _this11;
     }
 
+    /**
+     * get data of this wire as a JSON-ready object
+     * @return {Object} javascript object containing essential data for this wire
+     */
+
+
     _createClass(Wire, [{
         key: 'setState',
+
+
+        /**
+         * set the state of this wire to match the state of the input connector it is connected to
+         * @param {Logic.state} state [description]
+         */
         value: function setState(state) {
             this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
 
@@ -3924,8 +4066,19 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
             this.elementState = state;
         }
+
+        /**
+         * get the current [Logic.state](./modules-Logic.html#.state) of this wire
+         * @return {Logic.state}
+         */
+
     }, {
         key: 'updateWireState',
+
+
+        /**
+         * update the state of this wire
+         */
         value: function updateWireState() {
             var _iteratorNormalCompletion13 = true;
             var _didIteratorError13 = false;
@@ -3952,11 +4105,23 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                 }
             }
         }
+
+        /**
+         * get the jQuery element for this wire
+         * @return {jQuery.element}
+         */
+
     }, {
         key: 'get',
         value: function get() {
             return this.svgObj.get();
         }
+
+        /**
+         * get the polyline points for a temporary wire placement connecting the two connectors
+         * @return {PolylinePoints} new instance of {@link PolylinePoints}
+         */
+
     }, {
         key: 'getTemporaryWirePoints',
         value: function getTemporaryWirePoints() {
@@ -3965,6 +4130,11 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             points.append(new svgObj.PolylinePoint(this.wireEnd.x, this.wireEnd.y));
             return points;
         }
+
+        /**
+         * route the wire using the temporary wire points
+         */
+
     }, {
         key: 'temporaryWire',
         value: function temporaryWire() {
@@ -3972,10 +4142,12 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             this.wireEnd = this.getCoordinates(this.endConnector, false);
 
             this.setWirePath(this.getTemporaryWirePoints());
-
-            // this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
-            // this.svgObj.addClass(stateClasses.unknown);
         }
+
+        /**
+         * route the wire using the modified A* wire routing algorithm
+         */
+
     }, {
         key: 'routeWire',
         value: function routeWire() {
@@ -3997,6 +4169,12 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
             if (refresh) this.updateWireState();
         }
+
+        /**
+         * set the wire to follow the specified points
+         * @param {PolylinePoints} points instance of {@link PolylinePoints}
+         */
+
     }, {
         key: 'setWirePath',
         value: function setWirePath(points) {
@@ -4016,7 +4194,12 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             });
         }
 
-        // implementation based on this pseudocode: https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
+        /**
+         * Heavily modified implementation of the A* algorithm
+         * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
+         * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire
+         * @return {PolylinePoints} instance of {@link PolylinePoints}
+         */
 
     }, {
         key: 'aStar',
@@ -4150,14 +4333,41 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             // if we got here, the path does not exist -> let's use temporary path ignoring all colisions
             return this.getTemporaryWirePoints();
         }
+
+        /**
+         * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
+         * @param  {Object} point     object containing numeric attributes `x` and `y`
+         * @param  {number} direction directions:
+         *                              - 0: up
+         *                              - 1: right
+         *                              - 2: down
+         *                              - 3: left
+         * @return {Object}           object containing numeric attributes `x` and `y`
+         */
+
     }, {
         key: 'scalePointToGrid',
+
+
+        /**
+         * multiply the point coordinates by the grid size
+         * @param  {Object} point object containing numeric attributes `x` and `y` in grid pixels
+         * @return {Object}       the same point but containing numeric attributes `x` and `y` in SVG pixels
+         */
         value: function scalePointToGrid(point) {
             return {
                 x: point.x * this.gridSize,
                 y: point.y * this.gridSize
             };
         }
+
+        /**
+         * helper backtracking function used by the aStar algorithm to construct the final {@link PolylinePoints}
+         * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
+         * @param  {Object} currentNode object containing numeric attributes `x` and `y`
+         * @return {PolylinePoints}     instance of {@link PolylinePoints} that represents the path found by the aStar algorithm
+         */
+
     }, {
         key: 'reconstructPath',
         value: function reconstructPath(cameFrom, currentNode) {
@@ -4171,8 +4381,24 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
             return totalPath;
         }
+
+        /**
+         * returns the Manhattan distance between the points _a_ and _b_
+         * @param  {Object} a object containing numeric attributes `x` and `y`
+         * @param  {Object} b object containing numeric attributes `x` and `y`
+         * @return {number}
+         */
+
     }, {
         key: 'getCoordinates',
+
+
+        /**
+         * get the coordinates of the specified connector
+         * @param  {Connector}  connector      instance of {@link Connector}
+         * @param  {Boolean} [snapToGrid=true] if true, the connector position will be snapped to the grid
+         * @return {Object}                    point - object containing numeric attributes `x` and `y`
+         */
         value: function getCoordinates(connector) {
             var snapToGrid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
@@ -4250,6 +4476,13 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             // Manhattan geometry
             return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
         }
+
+        /**
+         * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
+         * @param {Set} set set of points
+         * @param {Object} point object containing numeric attributes `x` and `y`
+         */
+
     }, {
         key: 'setHasThisPoint',
         value: function setHasThisPoint(set, point) {
@@ -4663,7 +4896,10 @@ var exportNetwork = exports.exportNetwork = function () {
 },{}],7:[function(require,module,exports){
 "use strict";
 
-// logic functions used in the gate evaluation
+/** @module Logic */
+/**
+ * definitions of logic states and basic logic functions used in the simulation
+ */
 
 Object.defineProperty(exports, "__esModule", {
     value: true

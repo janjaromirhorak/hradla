@@ -467,6 +467,13 @@ class Connector extends NetworkElement {
  * @extends Connector
  */
 export class InputConnector extends Connector {
+    /**
+     * Call the constructor from the parent {@link Connector} class and set isInputConnector to true.
+     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {number} gridSize  size of the grid in SVG pixels
+     * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
+     * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
+     */
     constructor(parentSVG, gridSize, left, top) {
         super(parentSVG, gridSize, left, top);
 
@@ -493,10 +500,6 @@ export class InputConnector extends Connector {
         super.removeWireIdAndUpdate(wireId);
         this.setState(Logic.state.unknown);
     }
-
-    get state() {
-        return super.state;
-    }
 }
 
 /**
@@ -504,6 +507,13 @@ export class InputConnector extends Connector {
  * @extends Connector
  */
 export class OutputConnector extends Connector {
+    /**
+     * Call the constructor from the parent {@link Connector} class and set isOutputConnector to true.
+     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {number} gridSize  size of the grid in SVG pixels
+     * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
+     * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
+     */
     constructor(parentSVG, gridSize, left, top) {
         super(parentSVG, gridSize, left, top);
 
@@ -520,10 +530,6 @@ export class OutputConnector extends Connector {
         for (const wireId of this.wireIds) {
             this.parentSVG.getWireById(wireId).setState(state);
         }
-    }
-
-    get state() {
-        return super.state;
     }
 }
 
@@ -641,7 +647,7 @@ class Box extends NetworkElement {
 
     /**
      * get data of this box as a JSON-ready object
-     * @return {object}
+     * @return {Object} javascript object containing essential data for this box
      */
     get exportData() {
         let connections = [];
@@ -990,30 +996,44 @@ class Box extends NetworkElement {
      */
     onClick() {}
 
+    /**
+     * custom callback function for middle click that rotates the box by 90 degrees to the right
+     */
     onClickMiddle() {
+        // get the transform value for this box
         let transform = this.getTransform();
 
+        // get the bounding rectangle for this box
         let rect = this.svgObj.$el[0].getBoundingClientRect();
 
+        // use the bounding rectangle dimensions to figure out the geometrical centre of the box
         let centreX = Math.round(rect.width / 2);
         let centreY = Math.round(rect.height / 2);
 
         centreX -= centreX % this.gridSize;
         centreY -= centreY % this.gridSize;
 
+        // apply the rotation to the transform object
         transform.rotateRight(
             centreX,
             centreY
         );
 
+        // apply the modified transform object ot the svgObj
         this.svgObj.addAttr({"transform": transform.get()});
 
+        // rotate also the blocked nodes
         this.rotateBlockedNodesRight();
 
+        // update the wires
         this.updateWires();
     }
 
-    // updates all wires connected to this box
+    /**
+     * Updates all wires connected to this box. Iterates over all wires that are connected to this box
+     * and calls routeWire (or temporaryWire if the `temporary` parameter is set to true) to update the wire routing
+     * @param  {Boolean} [temporary=false] [description]
+     */
     updateWires(temporary = false) {
         this.connectors.forEach(conn => {
             conn.wireIds.forEach(wireId => {
@@ -1033,6 +1053,10 @@ class Box extends NetworkElement {
  * @extends Box
  */
 export class InputBox extends Box {
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {Boolean} [isOn=false] the initial state of the inputbox (`true` is *on*, `false` is *off*)
+     */
     constructor(parentSVG, isOn = false) {
         const width = 7;
         const height = 4;
@@ -1044,6 +1068,10 @@ export class InputBox extends Box {
         this.on = isOn;
     }
 
+    /**
+     * get data of this input box as a JSON-ready object
+     * @return {Object} javascript object containing essential data for this input box
+     */
     get exportData() {
         let data = super.exportData;
         data.isOn = this.isOn;
@@ -1054,11 +1082,17 @@ export class InputBox extends Box {
         super.generateBlockNodes(0, 1, 1, 0);
     }
 
+    /**
+     * start a new simulation from the output connector
+     */
     refreshState() {
-        // start a new simulation from the output connector
         this.parentSVG.startNewSimulation(this.connectors[0], this.connectors[0].state)
     }
 
+    /**
+     * set the state of the inputbox to the corresponding value
+     * @param  {Boolean} isOn set to *on* if `true`, set to *off* if `false`
+     */
     set on(isOn) {
         if (isOn) {
             // turn on
@@ -1075,10 +1109,17 @@ export class InputBox extends Box {
         this.isOn = isOn;
     }
 
+    /**
+     * get the state of the inputbox (`true` if *on*, `false` if *off*)
+     * @return {Boolean} [description]
+     */
     get on() {
         return this.isOn;
     }
 
+    /**
+     * toggle the state of the inputbox
+     */
     onClick() {
         this.on = !this.on;
     }
@@ -1089,6 +1130,9 @@ export class InputBox extends Box {
  * @extends Box
  */
 export class OutputBox extends Box {
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     */
     constructor(parentSVG) {
         const height = 4;
         const width = 5;
@@ -1098,10 +1142,18 @@ export class OutputBox extends Box {
         this.addConnector(0, height / 2, true);
     }
 
+    /**
+     * set state of this output box to match the state of its input connector
+     */
     refreshState() {
         this.setState(this.connectors[0].state);
     }
 
+    /**
+     * Reflect the input connector state in the appearance of the element - set
+     * the element image to represent the corresponding state
+     * @param {Logic.state} state new state of this outputBox
+     */
     setState(state) {
         switch (state) {
             case Logic.state.on:
@@ -1129,6 +1181,10 @@ export class OutputBox extends Box {
  * @extends Box
  */
 export class Gate extends Box {
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {string} name       name of the gate (and, not, xor...)
+     */
     constructor(parentSVG, name) {
         const width = 9;
         const height = 4;
@@ -1165,6 +1221,10 @@ export class Gate extends Box {
         }
     }
 
+    /**
+     * proccess the input connector states and reflect them in the output connector states according
+     * to the logic corresponding to this gate's name
+     */
     refreshState() {
         let state = Logic.state.unknown
         switch (this.name) {
@@ -1200,6 +1260,14 @@ export class Gate extends Box {
  * @extends Box
  */
 export class Blackbox extends Box {
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {number} inputConnectors  number of input connectors
+     * @param {number} outputConnectors number of output connectors
+     * @param {Function} evalFunction   function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
+     *                                  and returns `outputConnectors` Logic.states.
+     * @param {String} [name]        name that will be displayed on the blackbox
+     */
     constructor(parentSVG, inputConnectors, outputConnectors, evalFunction, name = "") {
         const width = 11;
         const height = Math.max(inputConnectors, outputConnectors) * 2;
@@ -1282,16 +1350,19 @@ export class Blackbox extends Box {
         this.svgObj.draggable(true);
         this.svgObj.rotatable(true);
 
-        // add type="gate", used in special callbacks in contextmenu
-        // this.svgObj.addAttr({"type": "blackbox"});
-
         this.svgObj.$el.addClass("box");
-        // this.svgObj.$el.addClass(category);
 
-        // add the evalFunction to object property so it can be accessed in refreshState
+        /**
+         * function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
+         * and returns `outputConnectors` Logic.states.
+         */
         this.evalFunction = evalFunction;
     }
 
+    /**
+     * get data of this blackbox as a JSON-ready object
+     * @return {Object} javascript object containing essential data for this blackbox
+     */
     get exportData() {
         let data = super.exportData;
         data.inputs = this.inputConnectors.length;
@@ -1343,6 +1414,10 @@ export class Blackbox extends Box {
         return data;
     }
 
+    /**
+     * proccess the input connector states and reflect them in the output connector states according
+     * to the logic defined by this.evalFunction
+     */
     refreshState() {
         const inputStates = this.inputConnectors.map(conn => conn.state);
         // call the evalFunction to get the output states
@@ -1360,6 +1435,13 @@ export class Blackbox extends Box {
  * @extends NetworkElement
  */
 export class Wire extends NetworkElement {
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {string}  fromId    id of the first connector this wire will be connected to
+     * @param {string}  toId      id of the second connector this wire will be connected to
+     * @param {number}  gridSize       size of the grid in SVG pixels
+     * @param {Boolean} [refresh=true] if `true`, the [Canvas](./module-Canvas.html) will refresh after creating this wire
+     */
     constructor(parentSVG, fromId, toId, gridSize, refresh = true) {
         // small TODO: rework start... end... to arrays? (not important)
 
@@ -1392,6 +1474,10 @@ export class Wire extends NetworkElement {
         this.svgObj.$el.addClass("wire");
     }
 
+    /**
+     * get data of this wire as a JSON-ready object
+     * @return {Object} javascript object containing essential data for this wire
+     */
     get exportData() {
         return {
             fromId: this.fromId,
@@ -1399,6 +1485,10 @@ export class Wire extends NetworkElement {
         };
     }
 
+    /**
+     * set the state of this wire to match the state of the input connector it is connected to
+     * @param {Logic.state} state [description]
+     */
     setState(state) {
         this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
 
@@ -1427,20 +1517,35 @@ export class Wire extends NetworkElement {
         this.elementState = state;
     }
 
+    /**
+     * get the current [Logic.state](./modules-Logic.html#.state) of this wire
+     * @return {Logic.state}
+     */
     get state() {
         return this.elementState;
     }
 
+    /**
+     * update the state of this wire
+     */
     updateWireState() {
         for (const box of this.boxes) {
             box.refreshState()
         }
     }
 
+    /**
+     * get the jQuery element for this wire
+     * @return {jQuery.element}
+     */
     get() {
         return this.svgObj.get();
     }
 
+    /**
+     * get the polyline points for a temporary wire placement connecting the two connectors
+     * @return {PolylinePoints} new instance of {@link PolylinePoints}
+     */
     getTemporaryWirePoints() {
         let points = new svgObj.PolylinePoints();
         points.append(new svgObj.PolylinePoint(this.wireStart.x, this.wireStart.y));
@@ -1448,16 +1553,19 @@ export class Wire extends NetworkElement {
         return points;
     }
 
+    /**
+     * route the wire using the temporary wire points
+     */
     temporaryWire() {
         this.wireStart = this.getCoordinates(this.startConnector, false);
         this.wireEnd = this.getCoordinates(this.endConnector, false);
 
         this.setWirePath(this.getTemporaryWirePoints());
-
-        // this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
-        // this.svgObj.addClass(stateClasses.unknown);
     }
 
+    /**
+     * route the wire using the modified A* wire routing algorithm
+     */
     routeWire(snapToGrid = true, refresh = true) {
         this.wireStart = this.getCoordinates(this.startConnector, snapToGrid);
         this.wireEnd = this.getCoordinates(this.endConnector, snapToGrid);
@@ -1478,6 +1586,10 @@ export class Wire extends NetworkElement {
             this.updateWireState();
     }
 
+    /**
+     * set the wire to follow the specified points
+     * @param {PolylinePoints} points instance of {@link PolylinePoints}
+     */
     setWirePath(points) {
         // set the line
         if(this.svgObj!==undefined) {
@@ -1495,9 +1607,12 @@ export class Wire extends NetworkElement {
         });
     }
 
-
-
-    // implementation based on this pseudocode: https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
+    /**
+     * Heavily modified implementation of the A* algorithm
+     * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
+     * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire
+     * @return {PolylinePoints} instance of {@link PolylinePoints}
+     */
     aStar(start, end) {
         const wireCrossPunishment = 2;
         const wireBendPunishment = 1;
@@ -1607,6 +1722,17 @@ export class Wire extends NetworkElement {
         // if we got here, the path does not exist -> let's use temporary path ignoring all colisions
         return this.getTemporaryWirePoints();
     }
+
+    /**
+     * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
+     * @param  {Object} point     object containing numeric attributes `x` and `y`
+     * @param  {number} direction directions:
+     *                              - 0: up
+     *                              - 1: right
+     *                              - 2: down
+     *                              - 3: left
+     * @return {Object}           object containing numeric attributes `x` and `y`
+     */
     static movePoint(point, direction) {
         switch (direction) {
             case 0: // up
@@ -1631,6 +1757,12 @@ export class Wire extends NetworkElement {
                 };
         }
     }
+
+    /**
+     * multiply the point coordinates by the grid size
+     * @param  {Object} point object containing numeric attributes `x` and `y` in grid pixels
+     * @return {Object}       the same point but containing numeric attributes `x` and `y` in SVG pixels
+     */
     scalePointToGrid(point) {
         return {
             x: point.x * this.gridSize,
@@ -1638,6 +1770,12 @@ export class Wire extends NetworkElement {
         }
     }
 
+    /**
+     * helper backtracking function used by the aStar algorithm to construct the final {@link PolylinePoints}
+     * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
+     * @param  {Object} currentNode object containing numeric attributes `x` and `y`
+     * @return {PolylinePoints}     instance of {@link PolylinePoints} that represents the path found by the aStar algorithm
+     */
     reconstructPath(cameFrom, currentNode) {
         let totalPath = new svgObj.PolylinePoints();
         totalPath.append(new svgObj.PolylinePoint(currentNode.x * this.gridSize, currentNode.y * this.gridSize));
@@ -1650,11 +1788,22 @@ export class Wire extends NetworkElement {
         return totalPath;
     }
 
+    /**
+     * returns the Manhattan distance between the points _a_ and _b_
+     * @param  {Object} a object containing numeric attributes `x` and `y`
+     * @param  {Object} b object containing numeric attributes `x` and `y`
+     * @return {number}
+     */
     static manhattanDistance(a, b) {
         // Manhattan geometry
         return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
     }
 
+    /**
+     * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
+     * @param {Set} set set of points
+     * @param {Object} point object containing numeric attributes `x` and `y`
+     */
     static setHasThisPoint(set, point) {
         for (let item of set) {
             if(item.x === point.x && item.y === point.y) {
@@ -1664,6 +1813,12 @@ export class Wire extends NetworkElement {
         return false;
     }
 
+    /**
+     * get the coordinates of the specified connector
+     * @param  {Connector}  connector      instance of {@link Connector}
+     * @param  {Boolean} [snapToGrid=true] if true, the connector position will be snapped to the grid
+     * @return {Object}                    point - object containing numeric attributes `x` and `y`
+     */
     getCoordinates(connector, snapToGrid = true) {
         // connector.svgObj.id has to be called, else the getCoordinates does not work on the first call in Firefox 55
         let dummy = connector.svgObj.id;
