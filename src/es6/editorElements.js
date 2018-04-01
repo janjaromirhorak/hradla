@@ -616,10 +616,6 @@ class Box extends NetworkElement {
         this.image = new svgObj.SvgImage(0, 0, this.width, this.height, this.url);
         this.svgObj.addChild(this.image);
 
-        // add draggability and rotatability
-        this.svgObj.draggable(true);
-        this.svgObj.rotatable(true);
-
         // add type="gate", used in special callbacks in contextmenu
         this.svgObj.addAttr({"type": category});
 
@@ -1345,10 +1341,6 @@ export class Blackbox extends Box {
 
             this.addOutputConnector(width, gridPosition);
         }
-
-        // add draggability and rotatability
-        this.svgObj.draggable(true);
-        this.svgObj.rotatable(true);
 
         this.svgObj.$el.addClass("box");
 

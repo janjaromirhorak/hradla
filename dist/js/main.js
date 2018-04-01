@@ -2804,10 +2804,6 @@ var Box = function (_NetworkElement2) {
         _this4.image = new svgObj.SvgImage(0, 0, _this4.width, _this4.height, _this4.url);
         _this4.svgObj.addChild(_this4.image);
 
-        // add draggability and rotatability
-        _this4.svgObj.draggable(true);
-        _this4.svgObj.rotatable(true);
-
         // add type="gate", used in special callbacks in contextmenu
         _this4.svgObj.addAttr({ "type": category });
 
@@ -3769,10 +3765,6 @@ var Blackbox = exports.Blackbox = function (_Box4) {
 
             _this10.addOutputConnector(width, _gridPosition);
         }
-
-        // add draggability and rotatability
-        _this10.svgObj.draggable(true);
-        _this10.svgObj.rotatable(true);
 
         _this10.svgObj.$el.addClass("box");
 
@@ -5462,22 +5454,52 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/**
+ * Parent class for all svgObjects
+ */
 var Tag = function () {
+    /**
+     * @param {string} tagName SVG tag identifier (`rect`, `image`, `polyline`)
+     */
     function Tag(tagName) {
         _classCallCheck(this, Tag);
 
+        /**
+         * SVG tag identifier (`rect`, `image`, `polyline`)
+         * @type {string}
+         */
         this.tagName = tagName;
 
+        /**
+         * jQuery element for this tag
+         * @type {jQuery.element}
+         */
         this.$el = $("<" + this.tagName + ">");
 
+        /**
+         * unique ID of this SVG object
+         * @type {string}
+         */
         this.id = new Structures.Id().unique;
     }
+
+    /**
+     * add a class to this element
+     * @param {string} name class name to be added
+     */
+
 
     _createClass(Tag, [{
         key: "addClass",
         value: function addClass(name) {
             this.$el.addClass(name);
         }
+
+        /**
+         * remove class names from this element
+         * @param  {string} classes class names to be removed
+         */
+
     }, {
         key: "removeClasses",
         value: function removeClasses() {
@@ -5510,6 +5532,12 @@ var Tag = function () {
                 }
             }
         }
+
+        /**
+         * set attributes of this element
+         * @param {Object} assoc javascript object that will be mapped into attributes (`{key: value}` -> `key="value"`)
+         */
+
     }, {
         key: "addAttr",
         value: function addAttr(assoc) {
@@ -5518,6 +5546,13 @@ var Tag = function () {
             // add attributes to the element
             this.$el.attr(assoc);
         }
+
+        /**
+         * get attribute value by name
+         * @param  {string} name name of the attribute
+         * @return {string}      value of the attribute
+         */
+
     }, {
         key: "getAttr",
         value: function getAttr(name) {
@@ -5525,6 +5560,12 @@ var Tag = function () {
 
             return this.$el.attr(name);
         }
+
+        /**
+         * remove attribute by value
+         * @param  {string} name name of the attribute to be removed
+         */
+
     }, {
         key: "removeAttr",
         value: function removeAttr(name) {
@@ -5532,14 +5573,28 @@ var Tag = function () {
 
             this.$el.removeAttr(name);
         }
+
+        /**
+         * set id of this SVG object
+         * @param  {string} id new id for this object
+         */
+
     }, {
         key: "get",
+
+
+        /**
+         * get jQuery element for this SVG object
+         * @return {jQuery.element}
+         */
         value: function get() {
             this.checkIfElementExistsInDOM();
             return this.$el;
         }
 
-        // if the element exists in dom, we need to fetch it using jQuery
+        /**
+         * check if the element exists in dom, if so, refetch it from DOM using jQuery
+         */
 
     }, {
         key: "checkIfElementExistsInDOM",
@@ -5554,6 +5609,12 @@ var Tag = function () {
         set: function set(id) {
             this.addAttr({ "id": id });
         },
+
+
+        /**
+         * get id of this SVG object
+         * @return {string}
+         */
         get: function get() {
             return this.getAttr("id");
         }
@@ -5562,85 +5623,44 @@ var Tag = function () {
     return Tag;
 }();
 
-var Draggable = function (_Tag) {
-    _inherits(Draggable, _Tag);
-
-    function Draggable(tagName) {
-        _classCallCheck(this, Draggable);
-
-        return _possibleConstructorReturn(this, (Draggable.__proto__ || Object.getPrototypeOf(Draggable)).call(this, tagName));
-    }
-
-    _createClass(Draggable, [{
-        key: "draggable",
-        value: function draggable(value) {
-            this.addAttr({ "draggable": value });
-        }
-    }]);
-
-    return Draggable;
-}(Tag);
-
-var Rotatable = function (_Tag2) {
-    _inherits(Rotatable, _Tag2);
-
-    function Rotatable(tagName) {
-        _classCallCheck(this, Rotatable);
-
-        return _possibleConstructorReturn(this, (Rotatable.__proto__ || Object.getPrototypeOf(Rotatable)).call(this, tagName));
-    }
-
-    _createClass(Rotatable, [{
-        key: "rotatable",
-        value: function rotatable(value) {
-            this.addAttr({ "rotatable": value });
-        }
-    }]);
-
-    return Rotatable;
-}(Tag);
-
-// there is no multiple inheritance in ES6, so I have to do something ugly like this
+/**
+ * represents visible element in SVG that has position and dimensions (for example `rectangle` is a SvgElement, but `pattern` is not, even though both are tags)
+ * @extends Tag
+ */
 
 
-var DraggableRotatable = function (_Draggable) {
-    _inherits(DraggableRotatable, _Draggable);
+var SvgElement = function (_Tag) {
+    _inherits(SvgElement, _Tag);
 
-    function DraggableRotatable(tagName) {
-        _classCallCheck(this, DraggableRotatable);
-
-        return _possibleConstructorReturn(this, (DraggableRotatable.__proto__ || Object.getPrototypeOf(DraggableRotatable)).call(this, tagName));
-    }
-
-    _createClass(DraggableRotatable, [{
-        key: "rotatable",
-        value: function rotatable(value) {
-            this.addAttr({ "rotatable": value });
-        }
-    }]);
-
-    return DraggableRotatable;
-}(Draggable);
-
-var SvgElement = function (_DraggableRotatable) {
-    _inherits(SvgElement, _DraggableRotatable);
-
+    /**
+     * @param {number} x       horizontal position in SVG pixels
+     * @param {number} y       vertical position in SVG pixels
+     * @param {number} w       width in SVG pixels
+     * @param {number} h       height in SVG pixels
+     * @param {string} tagName tag name of the element
+     */
     function SvgElement(x, y, w, h, tagName) {
         _classCallCheck(this, SvgElement);
 
-        var _this4 = _possibleConstructorReturn(this, (SvgElement.__proto__ || Object.getPrototypeOf(SvgElement)).call(this, tagName));
+        var _this = _possibleConstructorReturn(this, (SvgElement.__proto__ || Object.getPrototypeOf(SvgElement)).call(this, tagName));
 
-        _this4.addAttr({
+        _this.addAttr({
             x: x,
             y: y,
             width: w,
             height: h
         });
-        return _this4;
+        return _this;
     }
 
     return SvgElement;
-}(DraggableRotatable);
+}(Tag);
+
+/**
+ * a rectangle in SVG
+ * @extends SvgElement
+ */
+
 
 var Rectangle = exports.Rectangle = function (_SvgElement) {
     _inherits(Rectangle, _SvgElement);
@@ -5648,19 +5668,25 @@ var Rectangle = exports.Rectangle = function (_SvgElement) {
     function Rectangle(x, y, w, h, fill, stroke) {
         _classCallCheck(this, Rectangle);
 
-        var _this5 = _possibleConstructorReturn(this, (Rectangle.__proto__ || Object.getPrototypeOf(Rectangle)).call(this, x, y, w, h, "rect"));
+        var _this2 = _possibleConstructorReturn(this, (Rectangle.__proto__ || Object.getPrototypeOf(Rectangle)).call(this, x, y, w, h, "rect"));
 
-        _this5.addAttr({
+        _this2.addAttr({
             fill: fill,
             stroke: stroke,
             'stroke-width': 0.5,
             'pointer-events': 'all' // to trigger hover even with transparent background
         });
-        return _this5;
+        return _this2;
     }
 
     return Rectangle;
 }(SvgElement);
+
+/**
+ * an image in SVG
+ * @extends SvgElement
+ */
+
 
 var SvgImage = exports.SvgImage = function (_SvgElement2) {
     _inherits(SvgImage, _SvgElement2);
@@ -5668,13 +5694,19 @@ var SvgImage = exports.SvgImage = function (_SvgElement2) {
     function SvgImage(x, y, w, h, url) {
         _classCallCheck(this, SvgImage);
 
-        var _this6 = _possibleConstructorReturn(this, (SvgImage.__proto__ || Object.getPrototypeOf(SvgImage)).call(this, x, y, w, h, "image"));
+        var _this3 = _possibleConstructorReturn(this, (SvgImage.__proto__ || Object.getPrototypeOf(SvgImage)).call(this, x, y, w, h, "image"));
 
-        _this6.addAttr({
+        _this3.addAttr({
             "xlink:href": url
         });
-        return _this6;
+        return _this3;
     }
+
+    /**
+     * change url of the image
+     * @param {string} url the new url of the image
+     */
+
 
     _createClass(SvgImage, [{
         key: "changeUrl",
@@ -5688,14 +5720,27 @@ var SvgImage = exports.SvgImage = function (_SvgElement2) {
     return SvgImage;
 }(SvgElement);
 
-var Group = exports.Group = function (_DraggableRotatable2) {
-    _inherits(Group, _DraggableRotatable2);
+/**
+ * SVG group, used for grouping elements, for example a gate is represented by many elements (rectangle, image, inivisible hitbox rectangle...),
+ * but all of the elements need to be transformed together. Using groups the transform property can be set on the group which contains all the elements.
+ * @extends Tag
+ */
+
+
+var Group = exports.Group = function (_Tag2) {
+    _inherits(Group, _Tag2);
 
     function Group() {
         _classCallCheck(this, Group);
 
         return _possibleConstructorReturn(this, (Group.__proto__ || Object.getPrototypeOf(Group)).call(this, "g"));
     }
+
+    /**
+     * add an element to the group
+     * @param {SvgElement} el an instance of {@link SvgElement}
+     */
+
 
     _createClass(Group, [{
         key: "addChild",
@@ -5706,9 +5751,18 @@ var Group = exports.Group = function (_DraggableRotatable2) {
     }]);
 
     return Group;
-}(DraggableRotatable);
+}(Tag);
+
+/**
+ * one point of {@link PolylinePoints}, used in the {@link PolyLine} object
+ */
+
 
 var PolylinePoint = exports.PolylinePoint = function () {
+    /**
+     * @param {number} x horizontal coordinate of the polyline point
+     * @param {number} y vertical coordinate of the polyline point
+     */
     function PolylinePoint(x, y) {
         _classCallCheck(this, PolylinePoint);
 
@@ -5720,17 +5774,45 @@ var PolylinePoint = exports.PolylinePoint = function () {
         }
     }
 
+    /**
+     * change the coordinates of this point
+     * @param {number} x horizontal coordinate of the polyline point
+     * @param {number} y vertical coordinate of the polyline point
+     */
+
+
     _createClass(PolylinePoint, [{
         key: "set",
         value: function set(x, y) {
             this.x = x;
             this.y = y;
         }
+
+        /**
+         * create polyline from a comma separated string (e.g. from a string formatted like this: "x,y", for example "15,8")
+         * @param  {string} string string in the format "x,y" representing a point in the SVG polyline
+         * @return {PolylinePoint} newly created instance of {@link PolylinePoint}
+         */
+
     }, {
         key: "string",
+
+
+        /**
+         * return a string representation of this polyline point
+         * @return {string} string in the format "x,y"
+         */
         get: function get() {
             return this.x + "," + this.y;
         }
+
+        /**
+         * compare polyline points, return `true` if they are equal, else return `false`
+         * @param  {PolylinePoint} a
+         * @param  {PolylinePoint} b
+         * @return {boolean}
+         */
+
     }], [{
         key: "parseFromString",
         value: function parseFromString(string) {
@@ -5747,7 +5829,15 @@ var PolylinePoint = exports.PolylinePoint = function () {
     return PolylinePoint;
 }();
 
+/**
+ * array-like structure used in {@link PolylinePoints}
+ */
+
+
 var SmartArray = function () {
+    /**
+     * @param {Array} [arr] if set, initialized SmartArray will contain these values
+     */
     function SmartArray(arr) {
         _classCallCheck(this, SmartArray);
 
@@ -5758,43 +5848,86 @@ var SmartArray = function () {
         }
     }
 
+    /**
+     * get a deep copy of this array
+     * @return {SmartArray}
+     */
+
+
     _createClass(SmartArray, [{
         key: "copy",
         value: function copy() {
             return SmartArray($.extend(true, [], this.arr));
         }
+
+        /**
+         * append an item to the array
+         * @param item new item that will be appended to the array
+         */
+
     }, {
         key: "append",
-        value: function append(point) {
-            return this.addWithIndex(point, this.arr.length);
-        }
-    }, {
-        key: "prepend",
-        value: function prepend(point) {
-            return this.addWithIndex(point, 0);
+        value: function append(item) {
+            return this.addWithIndex(item, this.arr.length);
         }
 
-        // add a point at the specified index, move all following items
+        /**
+         * prepend an item to the array
+         * @param item new item that will be prepended to the array
+         */
+
+    }, {
+        key: "prepend",
+        value: function prepend(item) {
+            return this.addWithIndex(item, 0);
+        }
+
+        /**
+         * add a new item at the specified index, move all following items
+         * @param item new item that will be added at the specified index
+         * @param {number} index index of this item
+         */
 
     }, {
         key: "addWithIndex",
-        value: function addWithIndex(point, index) {
+        value: function addWithIndex(item, index) {
             for (var i = this.arr.length; i > index; --i) {
                 this.arr[i] = this.arr[i - 1];
             }
-            this.arr[index] = point;
+            this.arr[index] = item;
             return this; // to enable chaining of append / preppend / addWithIndex commands
         }
+
+        /**
+         * get length of the array
+         * @return {number}
+         */
+
     }, {
         key: "getItem",
+
+
+        /**
+         * get item by index
+         * @param  {number} index index of the item
+         * @return contents of the array on the specified index
+         */
         value: function getItem(index) {
             return this.arr[index];
         }
+
+        /**
+         * @return last element of the array
+         */
+
     }, {
         key: "remove",
 
 
-        // indexArray must be sorted (ASC, eg. [1, 3, 4, 8])
+        /**
+         * remove an item from the array by index
+         * @param  {number} index index of the item that will be removed
+         */
         value: function remove(index) {
             var length = this.length;
 
@@ -5817,6 +5950,11 @@ var SmartArray = function () {
                 return false;
             }
         }
+
+        /**
+         * @return first element of the array
+         */
+
     }, {
         key: "first",
         get: function get() {
@@ -5831,20 +5969,41 @@ var SmartArray = function () {
     return SmartArray;
 }();
 
+/**
+ * points of the {@link PolyLine}
+ * @extends SmartArray
+ */
+
+
 var PolylinePoints = exports.PolylinePoints = function (_SmartArray) {
     _inherits(PolylinePoints, _SmartArray);
 
+    /**
+     * @param {Array} [arr] array containing instances of {@link PolylinePoint}
+     */
     function PolylinePoints(arr) {
         _classCallCheck(this, PolylinePoints);
 
         return _possibleConstructorReturn(this, (PolylinePoints.__proto__ || Object.getPrototypeOf(PolylinePoints)).call(this, arr));
     }
 
+    /**
+     * get a deep copy of this object
+     * @return {PolylinePoints}
+     */
+
+
     _createClass(PolylinePoints, [{
         key: "copy",
         value: function copy() {
             return new PolylinePoints($.extend(true, [], this.arr));
         }
+
+        /**
+         * append a point
+         * @param  {PolylinePoint} point a new point
+         */
+
     }, {
         key: "append",
         value: function append(point) {
@@ -5860,8 +6019,21 @@ var PolylinePoints = exports.PolylinePoints = function (_SmartArray) {
             // return this element (to allow chaining)
             return this;
         }
+
+        /**
+         * parse polyline from string
+         * @param  {string} string string in the polyline format (`x1,y1 x2,y2, x3,y3`)
+         * @return {PolylinePoints} a new instance of {@link PolylinePoints} created by parsing the string
+         */
+
     }, {
         key: "forEach",
+
+
+        /**
+         * wrapper for foreach on the polyline points
+         * @param  {Function} func function that will be called on each element
+         */
         value: function forEach(func) {
             for (var i = 0; i < this.arr.length; ++i) {
                 func(this.arr[i]);
@@ -5869,6 +6041,12 @@ var PolylinePoints = exports.PolylinePoints = function (_SmartArray) {
         }
     }, {
         key: "string",
+
+
+        /**
+         * get a string representation of this polyline
+         * @return {string} string in the polyline format (`x1,y1 x2,y2, x3,y3`)
+         */
         get: function get() {
             var string = "";
             for (var i = 0; i < this.length; ++i) {
@@ -5896,22 +6074,39 @@ var PolylinePoints = exports.PolylinePoints = function (_SmartArray) {
     return PolylinePoints;
 }(SmartArray);
 
+/**
+ * SVG polyline (a path defined by sequence of points on plane)
+ * @extends Tag
+ */
+
+
 var PolyLine = exports.PolyLine = function (_Tag3) {
     _inherits(PolyLine, _Tag3);
 
+    /**
+     * @param {PolylinePoints} points points describing this polyline
+     * @param {string} color CSS color of this polyline
+     * @param {number} strokeWidth width of the stroke for this polyline in SVG pixels
+     */
     function PolyLine(points, color, strokeWidth) {
         _classCallCheck(this, PolyLine);
 
-        var _this9 = _possibleConstructorReturn(this, (PolyLine.__proto__ || Object.getPrototypeOf(PolyLine)).call(this, "polyline"));
+        var _this6 = _possibleConstructorReturn(this, (PolyLine.__proto__ || Object.getPrototypeOf(PolyLine)).call(this, "polyline"));
 
-        _this9.addAttr({
+        _this6.addAttr({
             points: points.string,
             stroke: color,
             fill: "none",
             "stroke-width": strokeWidth
         });
-        return _this9;
+        return _this6;
     }
+
+    /**
+     * update points of this polyline
+     * @param {PolylinePoints} points new set of points describing this polyline
+     */
+
 
     _createClass(PolyLine, [{
         key: "updatePoints",
@@ -5925,9 +6120,25 @@ var PolyLine = exports.PolyLine = function (_Tag3) {
     return PolyLine;
 }(Tag);
 
+/**
+ * Text element in SVG
+ * @extends Tag
+ */
+
+
 var Text = exports.Text = function (_Tag4) {
     _inherits(Text, _Tag4);
 
+    /**
+     * @param {number} x       horizontal position in SVG pixels
+     * @param {number} y       vertical position in SVG pixels
+     * @param {number} w       width of the text box in SVG pixels
+     * @param {number} h       height of the text box in SVG pixels
+     * @param {number} text    text content of the text box
+     * @param {string} size    CSS font size of the text
+     * @param {String} [color="black"] color of the text
+     *
+     */
     function Text(x, y, w, h, text, size) {
         var color = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : "black";
 
@@ -5935,9 +6146,9 @@ var Text = exports.Text = function (_Tag4) {
 
         var lineHeight = size * 1.2;
 
-        var _this10 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, "text"));
+        var _this7 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, "text"));
 
-        _this10.addAttr({
+        _this7.addAttr({
             x: x,
             y: y,
             width: w,
@@ -5946,19 +6157,21 @@ var Text = exports.Text = function (_Tag4) {
         });
 
         if (size) {
-            _this10.addAttr({
+            _this7.addAttr({
                 'font-size': size
             });
         }
 
-        _this10.$el.append(text);
-        return _this10;
+        _this7.$el.append(text);
+        return _this7;
     }
 
     return Text;
 }(Tag);
 
 /**
+ * Multi line text element in SVG
+ *
  * Multi line text is not natively supportend in SVG 1.1,
  * the workaround is to use the <foreignObject> element and display
  * a HTML paragraph inside of the SVG document.
@@ -5968,18 +6181,30 @@ var Text = exports.Text = function (_Tag4) {
  * provides fallback for those cases.
  *
  * read more: [foreignObject on MDN web docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject)
+ *
+ * @extends Tag
  */
 
 
 var MultiLineText = exports.MultiLineText = function (_Tag5) {
     _inherits(MultiLineText, _Tag5);
 
+    /**
+     * @param {number} x       horizontal position in SVG pixels
+     * @param {number} y       vertical position in SVG pixels
+     * @param {number} w       width of the text box in SVG pixels
+     * @param {number} h       height of the text box in SVG pixels
+     * @param {number} text    text content of the text box
+     * @param {string} size    CSS font size of the text
+     * @param {String} [color="black"] color of the text
+     *
+     */
     function MultiLineText(x, y, w, h, text, size) {
         var color = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : "black";
 
         _classCallCheck(this, MultiLineText);
 
-        var _this11 = _possibleConstructorReturn(this, (MultiLineText.__proto__ || Object.getPrototypeOf(MultiLineText)).call(this, "switch"));
+        var _this8 = _possibleConstructorReturn(this, (MultiLineText.__proto__ || Object.getPrototypeOf(MultiLineText)).call(this, "switch"));
 
         var foreignObject = new Tag("foreignObject");
         var alternativeText = new Text(x, y, w, h, text, size, color);
@@ -5993,22 +6218,33 @@ var MultiLineText = exports.MultiLineText = function (_Tag5) {
 
         foreignObject.$el.append($("<p class=\"multilinetext\" xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-size:" + size + "px\">").append(text));
 
-        _this11.$el.append(foreignObject.$el).append(alternativeText.$el);
-        return _this11;
+        _this8.$el.append(foreignObject.$el).append(alternativeText.$el);
+        return _this8;
     }
 
     return MultiLineText;
 }(Tag);
 
+/**
+ * pattern object in SVG
+ * @extends Tag
+ */
+
+
 var Pattern = exports.Pattern = function (_Tag6) {
     _inherits(Pattern, _Tag6);
 
+    /**
+     * @param {string} id     unique id of this pattern
+     * @param {number} width  width of one pattern tile in SVG pixels
+     * @param {number} height height of one pattern tile in SVG pixels
+     */
     function Pattern(id, width, height) {
         _classCallCheck(this, Pattern);
 
-        var _this12 = _possibleConstructorReturn(this, (Pattern.__proto__ || Object.getPrototypeOf(Pattern)).call(this, "pattern"));
+        var _this9 = _possibleConstructorReturn(this, (Pattern.__proto__ || Object.getPrototypeOf(Pattern)).call(this, "pattern"));
 
-        _this12.addAttr({
+        _this9.addAttr({
             id: id,
             x: 0,
             y: 0,
@@ -6017,14 +6253,23 @@ var Pattern = exports.Pattern = function (_Tag6) {
             patternUnits: "userSpaceOnUse",
             viewBox: "0 0 " + width + " " + height
         });
-        return _this12;
+        return _this9;
     }
+
+    /**
+     * add a child to this pattern
+     *
+     * pattern behaves a little like {@link Group} - it contains child elements, which represent the content of one tile of the pattern
+     * and the whole package of the child elements is repeated on each tile of the pattern
+     * @param {SvgElement} el element that will be added to the pattern
+     */
+
 
     _createClass(Pattern, [{
         key: "addChild",
         value: function addChild(el) {
             this.$el.append(el.$el);
-            return el; // pro jednodussi "let rect = g.addChild(new Rectangle(..."
+            return el;
         }
     }]);
 

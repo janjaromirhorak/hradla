@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Home | Hradla</title>
+    <title>Class: PolyLine | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -45,34 +45,1598 @@
 
 
 
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>PolyLine<span class="signature">(points, color, strokeWidth)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>SVG polyline (a path defined by sequence of points on plane)</p></div>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+<dt>
+    
+        <h4 class="name" id="PolyLine">
+            
+                new <span class="type-signature"></span>PolyLine<span class="signature">(points, color, strokeWidth)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+                <code><a href="svgObjects.js.html#line451">line 451</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>points</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="PolylinePoints.html">PolylinePoints</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>points describing this polyline</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>color</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>CSS color of this polyline</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>strokeWidth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>width of the stroke for this polyline in SVG pixels</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
     
 
 
+<dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
 
 
     
 
+</dd>
 
-    <section>
-        <article class="readme"><h1>hradla</h1><p>Logic network simulator that runs in your browser.</p>
-<h2>install</h2><p>You will need <a href="https://www.npmjs.com/">npm</a> and <a href="https://gcc.gnu.org/">gcc</a> (or some other C++ compiler) to build this project. (C++ compiler is required because the current implementation of <a href="https://github.com/dlmanning/gulp-sass">gulp-sass</a> uses <a href="https://github.com/sass/node-sass">node-sass</a> which
-is dependent on <a href="https://github.com/sass/libsass">LibSass</a>.)</p>
-<p>Use <code>npm install</code> to install dependencies, than <code>npm run gulp</code> to build the project.</p>
-<p>If you have <a href="https://github.com/gulpjs/gulp">gulp</a> (version 4.0.0 or higher) installed globally on your system,
-you can run <code>gulp</code> instead of <code>npm run gulp</code>.</p>
-<p>In one command:</p>
-<pre class="prettyprint source lang-bash"><code>npm i && npm run gulp</code></pre><p>or, if you have gulp (version 4.0.0 or higher) installed globally on your system</p>
-<pre class="prettyprint source lang-bash"><code>npm i && gulp</code></pre><h2>download compiled code</h2><p>You also can download the <a href="https://github.com/janjaromirhorak/hradla/releases/latest">already compiled version</a> of the latest release.</p>
-<h2>live version</h2><p><a href="https://hradla.janjaromirhorak.cz/">https://hradla.janjaromirhorak.cz/</a></p>
-<h2>czech documentation</h2><p><a href="docs/md/developer.md">docs/md/developer.md</a></p></article>
-    </section>
+        
+        </div>
+    
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
 
 
+    <ul>
+        <li><a href="Tag.html">Tag</a></li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+
+<dt>
+<h4 class="name" id="$el">
+    <span class="type-signature"></span>$el<span class="type-signature"> :jQuery.element</span>
+    
+    <div class="container-source members">
+        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+        <code><a href="svgObjects.js.html#line21">line 21</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>jQuery element for this tag</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">jQuery.element</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Tag.html#$el">Tag#$el</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="id">
+    <span class="type-signature"></span>id<span class="type-signature"> :string</span>
+    
+    <div class="container-source members">
+        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+        <code><a href="svgObjects.js.html#line27">line 27</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>unique ID of this SVG object</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">string</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Tag.html#id">Tag#id</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="tagName">
+    <span class="type-signature"></span>tagName<span class="type-signature"> :string</span>
+    
+    <div class="container-source members">
+        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+        <code><a href="svgObjects.js.html#line15">line 15</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>SVG tag identifier (<code>rect</code>, <code>image</code>, <code>polyline</code>)</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">string</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Tag.html#tagName">Tag#tagName</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+                
+
+<dt>
+    
+        <h4 class="name" id="addAttr">
+            
+                <span class="type-signature"></span>addAttr<span class="signature">(assoc)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+                <code><a href="svgObjects.js.html#line52">line 52</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>set attributes of this element</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>assoc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>javascript object that will be mapped into attributes (<code>{key: value}</code> -&gt; <code>key=&quot;value&quot;</code>)</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Tag.html#addAttr">Tag#addAttr</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="addClass">
+            
+                <span class="type-signature"></span>addClass<span class="signature">(name)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+                <code><a href="svgObjects.js.html#line34">line 34</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>add a class to this element</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>class name to be added</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Tag.html#addClass">Tag#addClass</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="checkIfElementExistsInDOM">
+            
+                <span class="type-signature"></span>checkIfElementExistsInDOM<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+                <code><a href="svgObjects.js.html#line108">line 108</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>check if the element exists in dom, if so, refetch it from DOM using jQuery</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Tag.html#checkIfElementExistsInDOM">Tag#checkIfElementExistsInDOM</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="get">
+            
+                <span class="type-signature"></span>get<span class="signature">()</span><span class="type-signature"> &rarr; {jQuery.element}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+                <code><a href="svgObjects.js.html#line100">line 100</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>get jQuery element for this SVG object</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">jQuery.element</span>
+
+
+
+
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Tag.html#get">Tag#get</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="getAttr">
+            
+                <span class="type-signature"></span>getAttr<span class="signature">(name)</span><span class="type-signature"> &rarr; {string}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+                <code><a href="svgObjects.js.html#line64">line 64</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>get attribute value by name</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>name of the attribute</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">string</span>
+
+
+
+
+
+- <p>value of the attribute</p>
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Tag.html#getAttr">Tag#getAttr</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="removeAttr">
+            
+                <span class="type-signature"></span>removeAttr<span class="signature">(name)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+                <code><a href="svgObjects.js.html#line74">line 74</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>remove attribute by value</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>name of the attribute to be removed</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Tag.html#removeAttr">Tag#removeAttr</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="removeClasses">
+            
+                <span class="type-signature"></span>removeClasses<span class="signature">(&hellip;classes)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+                <code><a href="svgObjects.js.html#line42">line 42</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>remove class names from this element</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>classes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>class names to be removed</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Tag.html#removeClasses">Tag#removeClasses</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="updatePoints">
+            
+                <span class="type-signature"></span>updatePoints<span class="signature">(points)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
+                <code><a href="svgObjects.js.html#line472">line 472</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>update points of this polyline</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>points</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="PolylinePoints.html">PolylinePoints</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>new set of points describing this polyline</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -89,7 +1653,7 @@ you can run <code>gulp</code> instead of <code>npm run gulp</code>.</p>
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'package:undefined_sub'.replace(/"/g, '_');
+        var id = 'PolyLine_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 
