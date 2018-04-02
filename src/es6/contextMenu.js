@@ -33,12 +33,6 @@ class ContextMenuItem {
          */
         this.$el = $("<li>").text(text);
 
-        /**
-         * Number of items in this menu (used in the .lenght getter). Conditional items do not count.
-         * @type {Number}
-         */
-        this.itemCount = 0;
-
         // set up click callback if clickFunction is defined
         if(clickFunction!==undefined) {
             $(this.$el).click(
@@ -50,6 +44,45 @@ class ContextMenuItem {
                 }
             );
         }
+
+        /**
+         * jQuery element containing the submenu (or undefined, if item has no subitems)
+         * @type {jQuery.element}
+         */
+        this.$submenu = undefined
+
+        /**
+         * submenu item counter
+         * @type {Number}
+         */
+        this.itemCount = 0
+
+        // set hover callback
+        $(this.$el).hover((event) => {
+            // mouse on
+
+            if(this.length > 0) {
+                this.$submenu.css({
+                    display: "block",
+                    top: this.$el.offset().top,
+                    left: this.$el.parent().offset().left + this.$el.parent().width(),
+                })
+
+                this.contextMenu.$el.after(this.$submenu);
+
+                console.log(this.$submenu);
+
+                event.stopPropagation()
+            }
+        }, () => {
+            // mouse out
+            this.$submenu.css({
+                display: "none"
+            })
+
+            // do not stop event propagation, here it is wanted
+            // (because submenu overrides display: none when user moves from this menu item to the submenu)
+        })
     }
 
     /**
@@ -78,12 +111,15 @@ class ContextMenuItem {
      * @param  {ContextMenuItem} item item that will be appended
      */
     appendItem(item) {
-        if(!this.subList) {
-            this.subList = $("<ul>");
-            this.$el.append(this.subList);
+        if(!this.$submenu) {
+            this.$submenu = $("<ul>").addClass("subList");
+            this.$submenu.hover(() => {
+                this.$submenu.css("display", "block");
+            }, () => {
+                this.$submenu.css("display", "none");
+            })
         }
-
-        this.subList.append(item.jQuery);
+        this.$submenu.append(item.$el);
 
         this.itemCount++;
 
@@ -96,6 +132,10 @@ class ContextMenuItem {
      */
     get jQuery() {
         return this.$el;
+    }
+
+    get jQuerySubmenu() {
+        return this.$submenu;
     }
 }
 
@@ -240,7 +280,7 @@ export default class ContextMenu {
 
         // more options will be added in the getLibrary() callback below
         let networkList = new ContextMenuItem("Add a network", this);
-        networkList.appendItem(new ContextMenuItem("paste or load from a file", this, () => {
+        networkList.appendItem(new ContextMenuItem("paste a network", this, () => {
             this.displayImportDialog()
         }));
         this.appendItem(networkList); // always append
@@ -322,7 +362,7 @@ export default class ContextMenu {
     }
 
     /**
-     * display the dialog for importing a network from a clipboard or a file
+     * display the dialog for importing a network from a clipboard
      */
     displayImportDialog() {
         let $popup = $("<div>")
@@ -406,9 +446,13 @@ export default class ContextMenu {
 
         this.$el.css({
             display: 'block',
-            top: y + "px",
-            left: x + "px"
-        });
+            top: y,
+            left: x
+        }).css({
+            // set the width expicitly, or else the menu will widen when displaying a submenu
+            // 2 is to prevent a weird text wrap bug
+            width: this.$el.innerWidth() + 2
+        })
 
         this.resolveConditionalItems($target);
     }
@@ -418,6 +462,7 @@ export default class ContextMenu {
      */
     hide() {
         this.$el.css({display: 'none'});
+        $(".subList").css({display: 'none'});
         this.hideAllConditionalItems();
     }
 }

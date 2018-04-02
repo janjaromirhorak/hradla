@@ -422,7 +422,8 @@ body {
   display: -ms-flexbox;
   display: flex;
   height: 100vh;
-  margin: 0; }
+  margin: 0;
+  overflow: hidden; }
 
 #canvas {
   -webkit-box-flex: 1;
@@ -538,40 +539,27 @@ body {
       .importExport.library ul li a {
         margin: 0.2em; }
 
-#contextMenu, #contextMenu ul {
+ul#contextMenu, ul.subList {
   z-index: 1000;
   position: absolute;
-  background: #edf2f4; }
-
-#contextMenu {
+  background: #edf2f4;
   display: none;
-  min-width: 10em;
   margin: 0;
-  padding: 0.3em 0;
+  padding: 0.2em 0;
   color: #2b2d42; }
-  #contextMenu li {
+  ul#contextMenu li, ul.subList li {
     list-style-type: none;
     margin: 0;
-    padding: 0.2em 0.3em 0.1em 0.3em;
+    padding: 0.2em 8px 0.1em 8px;
     cursor: pointer;
     cursor: hand;
     display: block;
     height: 1.7em;
     -webkit-transition: all 200ms;
     transition: all 200ms; }
-    #contextMenu li > ul {
-      display: none;
-      position: relative;
-      left: 9.7em;
-      margin: -1.6em 0 0 0;
-      padding: 0.3em 0; }
-    #contextMenu li.gateOnly {
-      display: none; }
-    #contextMenu li:hover {
+    ul#contextMenu li:hover, ul.subList li:hover {
       background: #f9dc5c; }
-      #contextMenu li:hover > ul {
-        display: block; }
-    #contextMenu li:active {
+    ul#contextMenu li:active, ul.subList li:active {
       background: #ed254e; }
 
 #canvas {

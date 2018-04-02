@@ -1639,6 +1639,8 @@ var ContextMenuItem = function () {
      * @param {Function} clickFunction callback function that will be called when user clicks this item
      */
     function ContextMenuItem(text, contextMenu, clickFunction) {
+        var _this = this;
+
         _classCallCheck(this, ContextMenuItem);
 
         /**
@@ -1659,12 +1661,6 @@ var ContextMenuItem = function () {
          */
         this.$el = $("<li>").text(text);
 
-        /**
-         * Number of items in this menu (used in the .lenght getter). Conditional items do not count.
-         * @type {Number}
-         */
-        this.itemCount = 0;
-
         // set up click callback if clickFunction is defined
         if (clickFunction !== undefined) {
             $(this.$el).click(function (event) {
@@ -1674,6 +1670,45 @@ var ContextMenuItem = function () {
                 event.stopPropagation();
             });
         }
+
+        /**
+         * jQuery element containing the submenu (or undefined, if item has no subitems)
+         * @type {jQuery.element}
+         */
+        this.$submenu = undefined;
+
+        /**
+         * submenu item counter
+         * @type {Number}
+         */
+        this.itemCount = 0;
+
+        // set hover callback
+        $(this.$el).hover(function (event) {
+            // mouse on
+
+            if (_this.length > 0) {
+                _this.$submenu.css({
+                    display: "block",
+                    top: _this.$el.offset().top,
+                    left: _this.$el.parent().offset().left + _this.$el.parent().width()
+                });
+
+                _this.contextMenu.$el.after(_this.$submenu);
+
+                console.log(_this.$submenu);
+
+                event.stopPropagation();
+            }
+        }, function () {
+            // mouse out
+            _this.$submenu.css({
+                display: "none"
+            });
+
+            // do not stop event propagation, here it is wanted
+            // (because submenu overrides display: none when user moves from this menu item to the submenu)
+        });
     }
 
     /**
@@ -1703,12 +1738,17 @@ var ContextMenuItem = function () {
     }, {
         key: "appendItem",
         value: function appendItem(item) {
-            if (!this.subList) {
-                this.subList = $("<ul>");
-                this.$el.append(this.subList);
-            }
+            var _this2 = this;
 
-            this.subList.append(item.jQuery);
+            if (!this.$submenu) {
+                this.$submenu = $("<ul>").addClass("subList");
+                this.$submenu.hover(function () {
+                    _this2.$submenu.css("display", "block");
+                }, function () {
+                    _this2.$submenu.css("display", "none");
+                });
+            }
+            this.$submenu.append(item.$el);
 
             this.itemCount++;
 
@@ -1735,6 +1775,11 @@ var ContextMenuItem = function () {
         get: function get() {
             return this.$el;
         }
+    }, {
+        key: "jQuerySubmenu",
+        get: function get() {
+            return this.$submenu;
+        }
     }]);
 
     return ContextMenuItem;
@@ -1754,12 +1799,12 @@ var GateMenuItem = function (_ContextMenuItem) {
      * @param {ContextMenu} contextMenu instance of the [ContextMenu](./module-ContextMenu.html) that this item belongs to
      */
     function GateMenuItem(type, contextMenu) {
-        var _this;
+        var _this3;
 
         _classCallCheck(this, GateMenuItem);
 
-        return _this = _possibleConstructorReturn(this, (GateMenuItem.__proto__ || Object.getPrototypeOf(GateMenuItem)).call(this, type + " gate", contextMenu, function () {
-            _this.parentSVG.newGate(type, _this.parentSVG.snapToGrid(_this.parentSVG.viewbox.transformX(contextMenu.position.x)), _this.parentSVG.snapToGrid(_this.parentSVG.viewbox.transformY(contextMenu.position.y)));
+        return _this3 = _possibleConstructorReturn(this, (GateMenuItem.__proto__ || Object.getPrototypeOf(GateMenuItem)).call(this, type + " gate", contextMenu, function () {
+            _this3.parentSVG.newGate(type, _this3.parentSVG.snapToGrid(_this3.parentSVG.viewbox.transformX(contextMenu.position.x)), _this3.parentSVG.snapToGrid(_this3.parentSVG.viewbox.transformY(contextMenu.position.y)));
         }));
     }
 
@@ -1770,11 +1815,11 @@ var BlackboxMenuItem = function (_ContextMenuItem2) {
     _inherits(BlackboxMenuItem, _ContextMenuItem2);
 
     function BlackboxMenuItem(name, file, contextMenu) {
-        var _this2;
+        var _this4;
 
         _classCallCheck(this, BlackboxMenuItem);
 
-        return _this2 = _possibleConstructorReturn(this, (BlackboxMenuItem.__proto__ || Object.getPrototypeOf(BlackboxMenuItem)).call(this, name, contextMenu, function () {
+        return _this4 = _possibleConstructorReturn(this, (BlackboxMenuItem.__proto__ || Object.getPrototypeOf(BlackboxMenuItem)).call(this, name, contextMenu, function () {
             (0, _networkLibrary.getNetworkFromLibrary)(file).then(function (_ref) {
                 var blackbox = _ref.blackbox,
                     name = _ref.name;
@@ -1783,7 +1828,7 @@ var BlackboxMenuItem = function (_ContextMenuItem2) {
                     table = blackbox.table;
 
 
-                _this2.parentSVG.newBlackbox(inputs, outputs, table, name, _this2.parentSVG.snapToGrid(_this2.parentSVG.viewbox.transformX(contextMenu.position.x)), _this2.parentSVG.snapToGrid(_this2.parentSVG.viewbox.transformY(contextMenu.position.y)));
+                _this4.parentSVG.newBlackbox(inputs, outputs, table, name, _this4.parentSVG.snapToGrid(_this4.parentSVG.viewbox.transformX(contextMenu.position.x)), _this4.parentSVG.snapToGrid(_this4.parentSVG.viewbox.transformY(contextMenu.position.y)));
             }).catch(function (error) {
                 console.error(error);
             });
@@ -1797,13 +1842,13 @@ var NetworkMenuItem = function (_ContextMenuItem3) {
     _inherits(NetworkMenuItem, _ContextMenuItem3);
 
     function NetworkMenuItem(name, file, contextMenu) {
-        var _this3;
+        var _this5;
 
         _classCallCheck(this, NetworkMenuItem);
 
-        return _this3 = _possibleConstructorReturn(this, (NetworkMenuItem.__proto__ || Object.getPrototypeOf(NetworkMenuItem)).call(this, name, contextMenu, function () {
+        return _this5 = _possibleConstructorReturn(this, (NetworkMenuItem.__proto__ || Object.getPrototypeOf(NetworkMenuItem)).call(this, name, contextMenu, function () {
             (0, _networkLibrary.getNetworkFromLibrary)(file).then(function (data) {
-                _this3.parentSVG.importData(data, Math.round(_this3.parentSVG.viewbox.transformX(contextMenu.position.x) / _this3.parentSVG.gridSize), Math.round(_this3.parentSVG.viewbox.transformY(contextMenu.position.y) / _this3.parentSVG.gridSize)).then(function () {
+                _this5.parentSVG.importData(data, Math.round(_this5.parentSVG.viewbox.transformX(contextMenu.position.x) / _this5.parentSVG.gridSize), Math.round(_this5.parentSVG.viewbox.transformY(contextMenu.position.y) / _this5.parentSVG.gridSize)).then(function () {
                     console.log('wozaa');
                 });
             }).catch(function (error) {
@@ -1828,7 +1873,7 @@ var ContextMenu = function () {
      * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html) this menu belongs to
      */
     function ContextMenu(parentSVG) {
-        var _this4 = this;
+        var _this6 = this;
 
         _classCallCheck(this, ContextMenu);
 
@@ -1856,8 +1901,8 @@ var ContextMenu = function () {
         // add input box
         this.appendItem(new ContextMenuItem("Input box", this, function () {
             var position = {
-                left: _this4.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this4.position.x)),
-                top: _this4.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this4.position.y))
+                left: _this6.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this6.position.x)),
+                top: _this6.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this6.position.y))
             };
 
             parentSVG.newInput(position.left, position.top);
@@ -1866,8 +1911,8 @@ var ContextMenu = function () {
         // add output box
         this.appendItem(new ContextMenuItem("Output box", this, function () {
             var position = {
-                left: _this4.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this4.position.x)),
-                top: _this4.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this4.position.y))
+                left: _this6.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this6.position.x)),
+                top: _this6.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this6.position.y))
             };
 
             parentSVG.newOutput(position.left, position.top);
@@ -1885,8 +1930,8 @@ var ContextMenu = function () {
 
         // more options will be added in the getLibrary() callback below
         var networkList = new ContextMenuItem("Add a network", this);
-        networkList.appendItem(new ContextMenuItem("paste or load from a file", this, function () {
-            _this4.displayImportDialog();
+        networkList.appendItem(new ContextMenuItem("paste a network", this, function () {
+            _this6.displayImportDialog();
         }));
         this.appendItem(networkList); // always append
 
@@ -1909,12 +1954,12 @@ var ContextMenu = function () {
 
                     // add a network as a blackbox
                     if (hasTable) {
-                        blackboxList.appendItem(new BlackboxMenuItem(name, file, _this4));
+                        blackboxList.appendItem(new BlackboxMenuItem(name, file, _this6));
                     }
 
                     // load a network as a network of components connected with wires
                     if (hasNetwork) {
-                        networkList.appendItem(new NetworkMenuItem(name, file, _this4));
+                        networkList.appendItem(new NetworkMenuItem(name, file, _this6));
                     }
                 }
             } catch (err) {
@@ -1933,7 +1978,7 @@ var ContextMenu = function () {
             }
 
             if (blackboxList.length > 0) {
-                _this4.appendItem(blackboxList);
+                _this6.appendItem(blackboxList);
             }
         }).catch(function (error) {
             console.error(error);
@@ -1941,10 +1986,10 @@ var ContextMenu = function () {
 
         // add conditional items for box and wire removal
         this.appendConditionalItem('box', 'Remove this item', function (id) {
-            _this4.parentSVG.removeBox(id);
+            _this6.parentSVG.removeBox(id);
         });
         this.appendConditionalItem('wire', 'Remove this wire', function (id) {
-            _this4.parentSVG.removeWireById(id);
+            _this6.parentSVG.removeWireById(id);
         });
 
         // add the context menu to the DOM
@@ -1995,13 +2040,13 @@ var ContextMenu = function () {
         }
 
         /**
-         * display the dialog for importing a network from a clipboard or a file
+         * display the dialog for importing a network from a clipboard
          */
 
     }, {
         key: "displayImportDialog",
         value: function displayImportDialog() {
-            var _this5 = this;
+            var _this7 = this;
 
             var $popup = $("<div>").addClass("importExport").addClass("import");
 
@@ -2017,7 +2062,7 @@ var ContextMenu = function () {
                 var data = JSON.parse($('#' + textareaId).val());
 
                 // proccess the imported data
-                _this5.parentSVG.importData(data, Math.round(_this5.parentSVG.viewbox.transformX(_this5.position.x) / _this5.parentSVG.gridSize), Math.round(_this5.parentSVG.viewbox.transformY(_this5.position.y) / _this5.parentSVG.gridSize)).then(function () {
+                _this7.parentSVG.importData(data, Math.round(_this7.parentSVG.viewbox.transformX(_this7.position.x) / _this7.parentSVG.gridSize), Math.round(_this7.parentSVG.viewbox.transformY(_this7.position.y) / _this7.parentSVG.gridSize)).then(function () {
                     // close Lity
                     lityInstance.close();
                 });
@@ -2037,12 +2082,12 @@ var ContextMenu = function () {
     }, {
         key: "resolveConditionalItems",
         value: function resolveConditionalItems($target) {
-            var _this6 = this;
+            var _this8 = this;
 
             var _loop = function _loop(i) {
-                if ($target.hasClass(_this6.conditionalItems[i].itemClass)) {
-                    _this6.appendItem(new ContextMenuItem(_this6.conditionalItems[i].text, _this6, _this6.parentSVG, function () {
-                        _this6.conditionalItems[i].clickFunction($target.attr('id'));
+                if ($target.hasClass(_this8.conditionalItems[i].itemClass)) {
+                    _this8.appendItem(new ContextMenuItem(_this8.conditionalItems[i].text, _this8, _this8.parentSVG, function () {
+                        _this8.conditionalItems[i].clickFunction($target.attr('id'));
                     })).addClass('conditional');
                 }
             };
@@ -2079,8 +2124,12 @@ var ContextMenu = function () {
 
             this.$el.css({
                 display: 'block',
-                top: y + "px",
-                left: x + "px"
+                top: y,
+                left: x
+            }).css({
+                // set the width expicitly, or else the menu will widen when displaying a submenu
+                // 2 is to prevent a weird text wrap bug
+                width: this.$el.innerWidth() + 2
             });
 
             this.resolveConditionalItems($target);
@@ -2094,6 +2143,7 @@ var ContextMenu = function () {
         key: "hide",
         value: function hide() {
             this.$el.css({ display: 'none' });
+            $(".subList").css({ display: 'none' });
             this.hideAllConditionalItems();
         }
     }, {

@@ -152,23 +152,21 @@ $floatingMenuDistance: 0.5em;
 }
 
 /// CONTEXT MENU
-$contextMenuPadding: 0.3em;
+$contextMenuPaddingLeftRight: 8px;
+$contextMenuPaddingTopBottom: 0.2em;
 $menuItemHeight: 1.7em;
 $menuItemWidth: 10em;
 
-#contextMenu, #contextMenu ul {
+ul#contextMenu, ul.subList {
     z-index: 1000;
     position: absolute;
 
     background: $ui_lightCasual;
-}
-#contextMenu {
+
     display: none;
 
-    min-width: $menuItemWidth;
-
     margin: 0;
-    padding: $contextMenuPadding 0;
+    padding: $contextMenuPaddingTopBottom 0;
 
     color: $ui_darkCasual;
 
@@ -176,7 +174,7 @@ $menuItemWidth: 10em;
         list-style-type: none;
 
         margin: 0;
-        padding: 0.2em $contextMenuPadding 0.1em $contextMenuPadding;
+        padding: $contextMenuPaddingTopBottom $contextMenuPaddingLeftRight 0.1em $contextMenuPaddingLeftRight;
 
         cursor: pointer;
         cursor: hand;
@@ -187,25 +185,8 @@ $menuItemWidth: 10em;
 
         transition: $transitionAll;
 
-        > ul {
-            display: none;
-            position: relative;
-            left: ($menuItemWidth - $contextMenuPadding);
-
-            margin: (-1em - (2 * $contextMenuPadding)) 0 0 0;
-            padding: $contextMenuPadding 0;
-        }
-
-        &.gateOnly {
-            display: none;
-        }
-
         &:hover {
             background: $ui_lightAccent;
-
-            > ul {
-                display:block;
-            }
         }
 
         &:active {
