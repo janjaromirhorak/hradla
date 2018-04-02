@@ -81,7 +81,7 @@ export default class FloatingMenu {
 
         this.$el.attr("id", id);
 
-        const $loader = $("<div>").addClass("loader").addClass("hidden");
+        // const $loader = $("<div>").addClass("loader").addClass("hidden");
 
         /* IMPORT */
 
@@ -110,8 +110,8 @@ export default class FloatingMenu {
                     )
                     .append(" import from JSON")
                     .on('click', () => {
-                        $popup.children().addClass("hidden");
-                        $loader.removeClass("hidden");
+                        // $popup.children().addClass("hidden");
+                        // $loader.removeClass("hidden");
 
                         const data = JSON.parse($('#' + textareaId).val());
 
@@ -121,79 +121,12 @@ export default class FloatingMenu {
                             lityInstance.close();
                         })
                     })
-                ).append($loader);
+                );
 
                 lityInstance = lity($popup);
 
                 // focus on the textblock
                 $textblock.focus();
-            }, parentSVG)
-        );
-
-        /* LOAD FROM LIBRARY */
-        this.append(
-            new FloatingButton("library", "Load a network from the library", () => {
-
-                let $popup = $("<div>")
-                    .addClass("importExport")
-                    .addClass("library");
-
-                let $list = $("<ul>")
-                $popup.append($list).append($loader);
-
-                getLibrary().then(networkList => {
-                    for (const networkInfo of networkList) {
-                        if(networkInfo.hasNetwork || networkInfo.hasTable) {
-                            let $listItem = $("<li>")
-                            .append(
-                                $("<span class='name'>")
-                                    .append(networkInfo.name)
-                            );
-
-                            if(networkInfo.hasNetwork) {
-                                $listItem.append(
-                                    $("<a>").append(
-                                        "load as network"
-                                    ).attr("href", "#").on("click", () => {
-                                        $popup.children().addClass("hidden");
-                                        $loader.removeClass("hidden");
-
-                                        getNetworkFromLibrary(networkInfo.file).then(response => {
-                                            // proccess the imported data
-                                            parentSVG.importData(response).then(() => {
-                                                // close Lity
-                                                lityInstance.close();
-                                            })
-                                        })
-                                    })
-                                )
-                            }
-
-                            if(networkInfo.hasTable) {
-                                $listItem.append(
-                                    $("<a>").append(
-                                        "load in blackbox"
-                                    ).attr("href", "#").on("click", () => {
-                                        $popup.children().addClass("hidden");
-                                        $loader.removeClass("hidden");
-
-                                        getNetworkFromLibrary(networkInfo.file).then(response => {
-                                            parentSVG.importBlackbox(response.blackbox, response.name);
-
-                                            // close Lity
-                                            lityInstance.close();
-                                        })
-                                    })
-                                )
-                            }
-                            $list.append($listItem)
-                        }
-                    }
-                })
-
-                $popup.append()
-
-                lityInstance = lity($popup);
             }, parentSVG)
         );
 

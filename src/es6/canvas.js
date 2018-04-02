@@ -425,8 +425,10 @@ export default class Canvas {
     /**
      * Recreate a logic network from the data provided
      * @param  {object} data object containing information about the imported network
+     * @param  {number} [x]  horizontal position of the left top corner of the network in grid pixels
+     * @param  {number} [y]  vertical position of the left top corner of the network in grid pixels
      */
-    importData(data) {
+    importData(data, x, y) {
         return new Promise((resolve, reject) => {
             this.simulationEnabled = false
 
@@ -495,12 +497,13 @@ export default class Canvas {
                                     boxData.transform.items[j].args[0]
                                         - leftTopCorner.x // make it the relative distance from the leftmost element
                                         - Math.round(this.viewbox.leftShift / this.gridSize) // move the element relative to the viewbox shift
-                                        + this.leftTopPadding, // apply padding
+                                        + (x || this.leftTopPadding) // if the position is set, move to this position, else add padding
+                                        ,
 
                                     boxData.transform.items[j].args[1]
                                         - leftTopCorner.y // make it the relative distance from the topmost element
                                         - Math.round(this.viewbox.topShift / this.gridSize) // move the element relative to the viewbox shift
-                                        + this.leftTopPadding // apply padding
+                                        + (y || this.leftTopPadding) // if the position is set, move to this position, else add padding
                                 );
                                 break;
                             case "rotate":
@@ -739,25 +742,6 @@ export default class Canvas {
     }
 
     /**
-     * import a blackbox based on the provided data
-     * @param  {Object} data data describing the object,
-     *                       must contain fields `inputs`, `outputs`
-     *                       (positive integers, determining number of inputs and outputs)
-     *                       and `table` (array of arrays, the inner arrays have `inputs + outputs`
-     *                       items that describe the input and output states of the connectors in order)
-     * @param  {string} name name of the black box
-     * @return {editorElements.Blackbox} instance of {@link Blackbox} that has been added to the [Canvas](./module-Canvas.html)
-     */
-    importBlackbox(data, name) {
-        const {inputs, outputs, table} = data;
-        const padding =  {
-            x: this.snapToGrid(this.leftTopPadding * this.gridSize - this.viewbox.leftShift),
-            y: this.snapToGrid(this.leftTopPadding * this.gridSize - this.viewbox.topShift)
-        };
-        return this.newBlackbox(padding.x, padding.y, inputs, outputs, table, name);
-    }
-
-    /**
      * creates a new blackbox
      * @param  {number} x       horizontal position of the blackbox in SVG pixels
      * @param  {number} y       vertical position of the gate in SVG pixels
@@ -774,8 +758,7 @@ export default class Canvas {
      *
      * @return {editorElements.Blackbox} instance of {@link Blackbox} that has been added to the [Canvas](./module-Canvas.html)
      */
-    newBlackbox(x, y, inputs, outputs, table, name, refresh=true) {
-        const height = Math.max(inputs, outputs) * 2;
+    newBlackbox(inputs, outputs, table, name, x, y, refresh=true) {
         const index = this.boxes.length;
 
         this.boxes[index] = new editorElements.Blackbox(
