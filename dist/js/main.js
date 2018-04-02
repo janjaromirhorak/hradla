@@ -478,6 +478,12 @@ var Canvas = function () {
             var _this2 = this;
 
             return new Promise(function (resolve, reject) {
+                // if the x or y is undefined, set it to leftTopPadding instead
+                // (cannot use x || leftTopPadding because of 0)
+
+                x = x !== undefined ? x : _this2.leftTopPadding;
+                y = y !== undefined ? y : _this2.leftTopPadding;
+
                 _this2.simulationEnabled = false;
 
                 // list of wires to be added
@@ -590,13 +596,11 @@ var Canvas = function () {
                                 switch (_boxData.transform.items[j].name) {
                                     case "translate":
                                         transform.setTranslate(_boxData.transform.items[j].args[0] - leftTopCorner.x // make it the relative distance from the leftmost element
-                                        - Math.round(_this2.viewbox.leftShift / _this2.gridSize) // move the element relative to the viewbox shift
-                                        + (x || _this2.leftTopPadding) // if the position is set, move to this position, else add padding
+                                        + x // apply the position
 
 
                                         , _boxData.transform.items[j].args[1] - leftTopCorner.y // make it the relative distance from the topmost element
-                                        - Math.round(_this2.viewbox.topShift / _this2.gridSize) // move the element relative to the viewbox shift
-                                        + (y || _this2.leftTopPadding) // if the position is set, move to this position, else add padding
+                                        + y // apply the position
                                         );
                                         break;
                                     case "rotate":
@@ -1881,7 +1885,9 @@ var ContextMenu = function () {
 
         // more options will be added in the getLibrary() callback below
         var networkList = new ContextMenuItem("Add a network", this);
-        networkList.appendItem(new ContextMenuItem("paste or load from a file", this));
+        networkList.appendItem(new ContextMenuItem("paste or load from a file", this, function () {
+            _this4.displayImportDialog();
+        }));
         this.appendItem(networkList); // always append
 
         var blackboxList = new ContextMenuItem("Add a blackbox", this); // appends only if contains items (see the callback)
@@ -1989,6 +1995,41 @@ var ContextMenu = function () {
         }
 
         /**
+         * display the dialog for importing a network from a clipboard or a file
+         */
+
+    }, {
+        key: "displayImportDialog",
+        value: function displayImportDialog() {
+            var _this5 = this;
+
+            var $popup = $("<div>").addClass("importExport").addClass("import");
+
+            var textareaId = "importJSON";
+            var $textblock = $("<textarea>").attr('id', textareaId);
+
+            var lityInstance = void 0;
+
+            $popup.append($textblock).append($("<a>").attr({
+                "href": "#",
+                "class": "upload"
+            }).append($("<img>").attr('src', "img/gui/import.svg")).append(" import from JSON").on('click', function () {
+                var data = JSON.parse($('#' + textareaId).val());
+
+                // proccess the imported data
+                _this5.parentSVG.importData(data, Math.round(_this5.parentSVG.viewbox.transformX(_this5.position.x) / _this5.parentSVG.gridSize), Math.round(_this5.parentSVG.viewbox.transformY(_this5.position.y) / _this5.parentSVG.gridSize)).then(function () {
+                    // close Lity
+                    lityInstance.close();
+                });
+            }));
+
+            lityInstance = lity($popup);
+
+            // focus on the textblock
+            $textblock.focus();
+        }
+
+        /**
          * decide whether or not to display specific conditional items
          * @param  {jQuery.element} $target jQuery target of a MouseEvent (element that user clicked on)
          */
@@ -1996,12 +2037,12 @@ var ContextMenu = function () {
     }, {
         key: "resolveConditionalItems",
         value: function resolveConditionalItems($target) {
-            var _this5 = this;
+            var _this6 = this;
 
             var _loop = function _loop(i) {
-                if ($target.hasClass(_this5.conditionalItems[i].itemClass)) {
-                    _this5.appendItem(new ContextMenuItem(_this5.conditionalItems[i].text, _this5, _this5.parentSVG, function () {
-                        _this5.conditionalItems[i].clickFunction($target.attr('id'));
+                if ($target.hasClass(_this6.conditionalItems[i].itemClass)) {
+                    _this6.appendItem(new ContextMenuItem(_this6.conditionalItems[i].text, _this6, _this6.parentSVG, function () {
+                        _this6.conditionalItems[i].clickFunction($target.attr('id'));
                     })).addClass('conditional');
                 }
             };
@@ -4708,39 +4749,6 @@ var FloatingMenu = function () {
 
         // const $loader = $("<div>").addClass("loader").addClass("hidden");
 
-        /* IMPORT */
-
-        // here will be the instance of Lity stored
-        // (we need to store it, because the "import" button also closes Lity)
-        var lityInstance = void 0;
-
-        this.append(new FloatingButton("import", "Import a network from a file", function () {
-            var $popup = $("<div>").addClass("importExport").addClass("import");
-
-            var textareaId = "importJSON";
-            var $textblock = $("<textarea>").attr('id', textareaId);
-
-            $popup.append($textblock).append($("<a>").attr({
-                "href": "#",
-                "class": "upload"
-            }).append($("<img>").attr('src', "img/gui/import.svg")).append(" import from JSON").on('click', function () {
-                // $popup.children().addClass("hidden");
-                // $loader.removeClass("hidden");
-
-                var data = JSON.parse($('#' + textareaId).val());
-
-                // proccess the imported data
-                parentSVG.importData(data).then(function () {
-                    // close Lity
-                    lityInstance.close();
-                });
-            }));
-
-            lityInstance = lity($popup);
-
-            // focus on the textblock
-            $textblock.focus();
-        }, parentSVG));
 
         /* EXPORT */
         this.append(new FloatingButton("export", "Get code for this network", function () {

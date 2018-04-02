@@ -429,6 +429,12 @@ export default class Canvas {
      */
     importData(data, x, y) {
         return new Promise((resolve, reject) => {
+            // if the x or y is undefined, set it to leftTopPadding instead
+            // (cannot use x || leftTopPadding because of 0)
+
+            x = x!==undefined ? x : this.leftTopPadding
+            y = y!==undefined ? y : this.leftTopPadding
+
             this.simulationEnabled = false
 
             // list of wires to be added
@@ -495,14 +501,12 @@ export default class Canvas {
                                 transform.setTranslate(
                                     boxData.transform.items[j].args[0]
                                         - leftTopCorner.x // make it the relative distance from the leftmost element
-                                        - Math.round(this.viewbox.leftShift / this.gridSize) // move the element relative to the viewbox shift
-                                        + (x || this.leftTopPadding) // if the position is set, move to this position, else add padding
+                                        + x // apply the position
                                         ,
 
                                     boxData.transform.items[j].args[1]
                                         - leftTopCorner.y // make it the relative distance from the topmost element
-                                        - Math.round(this.viewbox.topShift / this.gridSize) // move the element relative to the viewbox shift
-                                        + (y || this.leftTopPadding) // if the position is set, move to this position, else add padding
+                                        + y // apply the position
                                 );
                                 break;
                             case "rotate":

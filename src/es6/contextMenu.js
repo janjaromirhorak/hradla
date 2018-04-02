@@ -240,7 +240,9 @@ export default class ContextMenu {
 
         // more options will be added in the getLibrary() callback below
         let networkList = new ContextMenuItem("Add a network", this);
-        networkList.appendItem(new ContextMenuItem("paste or load from a file", this));
+        networkList.appendItem(new ContextMenuItem("paste or load from a file", this, () => {
+            this.displayImportDialog()
+        }));
         this.appendItem(networkList); // always append
 
         let blackboxList = new ContextMenuItem("Add a blackbox", this); // appends only if contains items (see the callback)
@@ -317,6 +319,51 @@ export default class ContextMenu {
             text: text,
             clickFunction: clickFunction
         }
+    }
+
+    /**
+     * display the dialog for importing a network from a clipboard or a file
+     */
+    displayImportDialog() {
+        let $popup = $("<div>")
+            .addClass("importExport")
+            .addClass("import");
+
+        let textareaId = "importJSON";
+        let $textblock = $("<textarea>").attr('id', textareaId);
+
+        let lityInstance;
+
+        $popup.append(
+            $textblock
+        ).append(
+            $("<a>").attr({
+                "href": "#",
+                "class": "upload"
+            })
+            .append(
+                $("<img>").attr('src', "img/gui/import.svg")
+            )
+            .append(" import from JSON")
+            .on('click', () => {
+                const data = JSON.parse($('#' + textareaId).val());
+
+                // proccess the imported data
+                this.parentSVG.importData(
+                    data,
+                    Math.round(this.parentSVG.viewbox.transformX(this.position.x) / this.parentSVG.gridSize),
+                    Math.round(this.parentSVG.viewbox.transformY(this.position.y) / this.parentSVG.gridSize)
+                ).then(() => {
+                    // close Lity
+                    lityInstance.close();
+                })
+            })
+        );
+
+        lityInstance = lity($popup);
+
+        // focus on the textblock
+        $textblock.focus();
     }
 
     /**

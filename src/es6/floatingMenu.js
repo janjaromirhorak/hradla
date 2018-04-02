@@ -78,52 +78,6 @@ export default class FloatingMenu {
 
         // const $loader = $("<div>").addClass("loader").addClass("hidden");
 
-        /* IMPORT */
-
-        // here will be the instance of Lity stored
-        // (we need to store it, because the "import" button also closes Lity)
-        let lityInstance;
-
-        this.append(
-            new FloatingButton("import", "Import a network from a file", () => {
-                let $popup = $("<div>")
-                    .addClass("importExport")
-                    .addClass("import");
-
-                let textareaId = "importJSON";
-                let $textblock = $("<textarea>").attr('id', textareaId);
-
-                $popup.append(
-                    $textblock
-                ).append(
-                    $("<a>").attr({
-                        "href": "#",
-                        "class": "upload"
-                    })
-                    .append(
-                        $("<img>").attr('src', "img/gui/import.svg")
-                    )
-                    .append(" import from JSON")
-                    .on('click', () => {
-                        // $popup.children().addClass("hidden");
-                        // $loader.removeClass("hidden");
-
-                        const data = JSON.parse($('#' + textareaId).val());
-
-                        // proccess the imported data
-                        parentSVG.importData(data).then(() => {
-                            // close Lity
-                            lityInstance.close();
-                        })
-                    })
-                );
-
-                lityInstance = lity($popup);
-
-                // focus on the textblock
-                $textblock.focus();
-            }, parentSVG)
-        );
 
         /* EXPORT */
         this.append(
