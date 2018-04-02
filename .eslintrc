@@ -1,0 +1,16 @@
+{
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 6
+    },
+    "rules": {
+        "no-console": false
+    },
+    "env": {
+        "browser": true,
+        "jquery": true,
+        "commonjs": true,
+        "es6": true
+    },
+    "parser": "babel-eslint"
+}

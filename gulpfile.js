@@ -70,7 +70,8 @@ modules.addModules({
     jsdoc: 'gulp-jsdoc3',
     sass: 'gulp-sass',
     jsoneditor: 'gulp-json-editor',
-    tap: 'gulp-tap'
+    tap: 'gulp-tap',
+    eslint: 'gulp-eslint'
 });
 
 const config = require('./config.json')
@@ -142,8 +143,17 @@ gulp.task('styles', () => {
         .pipe(gulp.dest(outCss))
 });
 
+gulp.task('scripts:lint', () => {
+    const eslint = modules.get('eslint');
+
+    return gulp.src(srcJs + '/**/*.js')
+            .pipe(eslint())
+            .pipe(eslint.format())
+            .pipe(eslint.failAfterError());
+})
+
 // compile and minimize es6
-gulp.task('scripts', () => {
+gulp.task('scripts:build', () => {
     const
         filter = modules.get('filter'),
         browserify = modules.get('browserify'),
@@ -175,6 +185,8 @@ gulp.task('scripts', () => {
         .pipe(gulpif(production, uglify()))
         .pipe(gulp.dest(outJs))
 });
+
+gulp.task('scripts', gulp.series('scripts:lint', 'scripts:build'));
 
 gulp.task('lib-lity-js', () => {
     const changed = modules.get('changed');
