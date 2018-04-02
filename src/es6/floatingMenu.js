@@ -1,10 +1,5 @@
 import { getJSONString } from "./helperFunctions.js";
 
-import {
-    getLibrary,
-    getNetworkFromLibrary
-} from './networkLibrary.js';
-
 /**
  * FloatingButton represents a button that is used in the floating menu in the right bottom corner
  * of the application. It may have a custom tooltip and callback on the click event

@@ -83,7 +83,7 @@ class Tag {
      */
     set id(id) {
         this.addAttr({"id": id});
-    };
+    }
 
     /**
      * get id of this SVG object
@@ -91,7 +91,7 @@ class Tag {
      */
     get id() {
         return this.getAttr("id");
-    };
+    }
 
     /**
      * get jQuery element for this SVG object
@@ -492,8 +492,6 @@ export class Text extends Tag {
      *
      */
     constructor(x, y, w, h, text, size, color = "black") {
-        const lineHeight = size * 1.2;
-
         super("text");
         this.addAttr({
             x: x,

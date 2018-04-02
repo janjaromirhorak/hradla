@@ -4,7 +4,10 @@
         "ecmaVersion": 6
     },
     "rules": {
-        "no-console": false
+        "no-console": 0
+    },
+    "globals": {
+        "lity": true
     },
     "env": {
         "browser": true,

@@ -545,7 +545,7 @@ body {
 
 #contextMenu {
   display: none;
-  width: 10em;
+  min-width: 10em;
   margin: 0;
   padding: 0.3em 0;
   color: #2b2d42; }

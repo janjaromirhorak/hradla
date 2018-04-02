@@ -869,7 +869,7 @@ class Box extends NetworkElement {
      * @return {Transform} {@link Transform} of the element
      */
     getGridPixelTransform() {
-        return getTransform(true);
+        return this.getTransform(true);
     }
 
     /**
@@ -1379,9 +1379,8 @@ export class Blackbox extends Box {
                     }
                     return permutations;
                 default:
-                    const shorterPermutations = getPermutations(length - 1);
                     for (const state of stateList) {
-                        for(const perm of shorterPermutations) {
+                        for(const perm of getPermutations(length - 1)) {
                             permutations.push([state, ...perm])
                         }
                     }
@@ -1813,7 +1812,7 @@ export class Wire extends NetworkElement {
      */
     getCoordinates(connector, snapToGrid = true) {
         // connector.svgObj.id has to be called, else the getCoordinates does not work on the first call in Firefox 55
-        let dummy = connector.svgObj.id;
+        const dummy = connector.svgObj.id; // eslint-disable-line no-unused-vars
 
         let $connector = connector.svgObj.$el;
 

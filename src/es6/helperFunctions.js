@@ -11,7 +11,9 @@
  */
 export function addMouseScrollEventListener(query, func) {
     let MouseWheelHandler = event => {
-        var event = window.event || event; // old IE support
+        // redeclare for old IE support
+        var event = window.event || event; // eslint-disable-line no-redeclare
+
         event.delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
 
         func(event)

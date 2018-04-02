@@ -20,6 +20,10 @@ export function getLibrary() {
             }
         });
 
+        request.addEventListener(["error", "abort"], () => {
+            reject("Failed loading libraries.")
+        });
+
         request.open('GET', libraryFile, true);
         request.responseType = 'json';
         request.send();
@@ -39,6 +43,10 @@ export function getNetworkFromLibrary(networkName) {
             if(this.response) {
                 resolve(this.response);
             }
+        });
+
+        request.addEventListener(["error", "abort"], () => {
+            reject(`Failed loading library ${networkName}.`)
         });
 
         request.open('GET', libraryDir + networkName + '.json', true);

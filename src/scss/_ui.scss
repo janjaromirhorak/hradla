@@ -165,7 +165,7 @@ $menuItemWidth: 10em;
 #contextMenu {
     display: none;
 
-    width: $menuItemWidth;
+    min-width: $menuItemWidth;
 
     margin: 0;
     padding: $contextMenuPadding 0;
