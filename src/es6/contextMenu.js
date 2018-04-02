@@ -1,5 +1,10 @@
 "use strict";
 
+import {
+    getLibrary,
+    getNetworkFromLibrary
+} from './networkLibrary.js';
+
 /**
  * Item in the [ContextMenu](./module-ContextMenu.html). ContextMenuItems can be nested using the appendItem function.
  */
@@ -7,10 +12,9 @@ class ContextMenuItem {
     /**
      * @param {string} text          text on the button
      * @param {ContextMenu} contextMenu instance of the [ContextMenu](./module-ContextMenu.html) this item belongs to
-     * @param {Canvas} parentSVG     instance of [Canvas](./module-Canvas.html) this menu belongs to
      * @param {Function} clickFunction callback function that will be called when user clicks this item
      */
-    constructor(text, contextMenu, parentSVG, clickFunction) {
+    constructor(text, contextMenu, clickFunction) {
         /**
          * text on the button
          * @type {string}
@@ -24,26 +28,73 @@ class ContextMenuItem {
         this.contextMenu = contextMenu;
 
         /**
-         * instance of [Canvas](./module-Canvas.html) this menu belongs to
-         * @type {Canvas}
-         */
-        this.parentSVG = parentSVG;
-
-        /**
          * jQuery element representing DOM content of this menu item
          * @type {jQuery.element}
          */
         this.$el = $("<li>").text(text);
 
         // set up click callback if clickFunction is defined
-        if(clickFunction) {
+        if(clickFunction!==undefined) {
             $(this.$el).click(
-                event => {
-                    clickFunction(event);
+                (event) => {
+                    clickFunction();
                     contextMenu.hide();
+
+                    event.stopPropagation();
                 }
             );
         }
+
+        /**
+         * jQuery element containing the submenu (or undefined, if item has no subitems)
+         * @type {jQuery.element}
+         */
+        this.$submenu = undefined
+
+        /**
+         * submenu item counter
+         * @type {Number}
+         */
+        this.itemCount = 0
+
+        // set hover callback
+        $(this.$el).hover((event) => {
+            // mouse on
+
+            if(this.length > 0) {
+                this.$submenu.css({
+                    display: "block",
+                    top: this.$el.offset().top,
+                    left: this.$el.parent().offset().left + this.$el.parent().width(),
+                })
+
+                this.contextMenu.$el.after(this.$submenu);
+
+                console.log(this.$submenu);
+
+                event.stopPropagation()
+            }
+        }, () => {
+            // mouse out
+            this.$submenu.css({
+                display: "none"
+            })
+
+            // do not stop event propagation, here it is wanted
+            // (because submenu overrides display: none when user moves from this menu item to the submenu)
+        })
+    }
+
+    /**
+     * instance of [Canvas](./module-Canvas.html) this menu belongs to
+     * @type {Canvas}
+     */
+    get parentSVG() {
+        return this.contextMenu.parentSVG;
+    }
+
+    get length() {
+        return this.itemCount;
     }
 
     /**
@@ -60,12 +111,17 @@ class ContextMenuItem {
      * @param  {ContextMenuItem} item item that will be appended
      */
     appendItem(item) {
-        if(!this.subList) {
-            this.subList = $("<ul>");
-            this.$el.append(this.subList);
+        if(!this.$submenu) {
+            this.$submenu = $("<ul>").addClass("subList");
+            this.$submenu.hover(() => {
+                this.$submenu.css("display", "block");
+            }, () => {
+                this.$submenu.css("display", "none");
+            })
         }
+        this.$submenu.append(item.$el);
 
-        this.subList.append(item.jQuery);
+        this.itemCount++;
 
         return item;
     }
@@ -77,6 +133,10 @@ class ContextMenuItem {
     get jQuery() {
         return this.$el;
     }
+
+    get jQuerySubmenu() {
+        return this.$submenu;
+    }
 }
 
 /**
@@ -87,26 +147,66 @@ class GateMenuItem extends ContextMenuItem {
     /**
      * @param {string} type        type of the gate {@link Gate} (and, or, ...)
      * @param {ContextMenu} contextMenu instance of the [ContextMenu](./module-ContextMenu.html) that this item belongs to
-     * @param {Canvas} parentSVG   instance of [Canvas](./module-Canvas.html) this menu belongs to
      */
-    constructor(type, contextMenu, parentSVG) {
+    constructor(type, contextMenu) {
         super(
             `${type} gate`,
             contextMenu,
-            parentSVG,
-            event => {
-                let position = {
-                    left: parentSVG.snapToGrid(parentSVG.viewbox.transformX(contextMenu.position.x)),
-                    top: parentSVG.snapToGrid(parentSVG.viewbox.transformY(contextMenu.position.y))
-                };
-
-                parentSVG.newGate(
+            () => {
+                this.parentSVG.newGate(
                     type,
-                    position.left, // x coordinate
-                    position.top // y coordinate
+                    this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformX(contextMenu.position.x)),
+                    this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformY(contextMenu.position.y))
                 );
             }
         );
+    }
+}
+
+class BlackboxMenuItem extends ContextMenuItem {
+    constructor(name, file, contextMenu) {
+        super(
+            name,
+            contextMenu,
+            () => {
+                getNetworkFromLibrary(file).then(({blackbox, name}) => {
+                    const {inputs, outputs, table} = blackbox;
+
+                    this.parentSVG.newBlackbox(
+                        inputs,
+                        outputs,
+                        table,
+                        name,
+                        this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformX(contextMenu.position.x)),
+                        this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformY(contextMenu.position.y))
+                    );
+                }).catch(error => {
+                    console.error(error);
+                })
+            }
+        )
+    }
+}
+
+class NetworkMenuItem extends ContextMenuItem {
+    constructor(name, file, contextMenu) {
+        super(
+            name,
+            contextMenu,
+            () => {
+                getNetworkFromLibrary(file).then(data => {
+                    this.parentSVG.importData(
+                        data,
+                        Math.round(this.parentSVG.viewbox.transformX(contextMenu.position.x) / this.parentSVG.gridSize),
+                        Math.round(this.parentSVG.viewbox.transformY(contextMenu.position.y) / this.parentSVG.gridSize)
+                    ).then(() => {
+                        console.log('wozaa')
+                    });
+                }).catch(error => {
+                    console.error(error);
+                })
+            }
+        )
     }
 }
 
@@ -127,9 +227,6 @@ export default class ContextMenu {
          */
         this.parentSVG = parentSVG;
 
-        // list of gates that can be added
-        const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
-
         /**
          * Position of the context menu. It is used to add the new elements to the correct position on the Canvas.
          * @type {Object}
@@ -145,18 +242,9 @@ export default class ContextMenu {
         this.$el = $("<ul>");
         this.$el.attr('id', 'contextMenu');
 
-        // add all gates
-        let gateList = new ContextMenuItem("New gate", this, parentSVG);
-        for (let i = 0 ; i < gates.length ; ++i) {
-            gateList.appendItem(
-                new GateMenuItem(gates[i], this, parentSVG)
-            );
-        }
-        this.appendItem(gateList);
-
         // add input box
         this.appendItem(
-            new ContextMenuItem("Input box", this, parentSVG,
+            new ContextMenuItem("Input box", this,
                 () => {
                     let position = {
                         left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
@@ -169,7 +257,7 @@ export default class ContextMenu {
         );
 
         // add output box
-        this.appendItem(new ContextMenuItem("Output box", this, parentSVG, () => {
+        this.appendItem(new ContextMenuItem("Output box", this, () => {
             let position = {
                 left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
                 top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
@@ -178,12 +266,69 @@ export default class ContextMenu {
             parentSVG.newOutput(position.left, position.top);
         }));
 
+        // add all gates
+
+        // list of gates that can be added
+        const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
+        let gateList = new ContextMenuItem("New gate", this, parentSVG);
+        for (let i = 0 ; i < gates.length ; ++i) {
+            gateList.appendItem(
+                new GateMenuItem(gates[i], this)
+            );
+        }
+        this.appendItem(gateList);
+
+        // more options will be added in the getLibrary() callback below
+        let networkList = new ContextMenuItem("Add a network", this);
+        networkList.appendItem(new ContextMenuItem("paste a network", this, () => {
+            this.displayImportDialog()
+        }));
+        this.appendItem(networkList); // always append
+
+        let blackboxList = new ContextMenuItem("Add a blackbox", this); // appends only if contains items (see the callback)
+
+        // network import (blackbox, network)
+        getLibrary().then(networks => {
+
+            for (const {name, file, hasTable, hasNetwork} of networks) {
+                // add a network as a blackbox
+                if(hasTable) {
+                    blackboxList.appendItem(
+                        new BlackboxMenuItem(name, file, this)
+                    );
+                }
+
+                // load a network as a network of components connected with wires
+                if(hasNetwork) {
+                    networkList.appendItem(
+                        new NetworkMenuItem(name, file, this)
+                    );
+                }
+            }
+
+            if(blackboxList.length > 0) {
+                this.appendItem(blackboxList);
+            }
+        }).catch(error => {
+            console.error(error);
+        })
+
         // add conditional items for box and wire removal
         this.appendConditionalItem('box', 'Remove this item', id => {this.parentSVG.removeBox(id)});
         this.appendConditionalItem('wire', 'Remove this wire', id => {this.parentSVG.removeWireById(id)});
 
         // add the context menu to the DOM
         parentSVG.$svg.before(this.$el);
+
+        /**
+         * Number of items in this menu (used in the .lenght getter). Conditional items do not count.
+         * @type {Number}
+         */
+        this.itemCount = 0;
+    }
+
+    get length() {
+        return this.itemCount;
     }
 
     /**
@@ -192,6 +337,9 @@ export default class ContextMenu {
      */
     appendItem(item) {
         this.$el.append(item.jQuery);
+
+        this.itemCount++;
+
         return item;
     }
 
@@ -211,6 +359,51 @@ export default class ContextMenu {
             text: text,
             clickFunction: clickFunction
         }
+    }
+
+    /**
+     * display the dialog for importing a network from a clipboard
+     */
+    displayImportDialog() {
+        let $popup = $("<div>")
+            .addClass("importExport")
+            .addClass("import");
+
+        let textareaId = "importJSON";
+        let $textblock = $("<textarea>").attr('id', textareaId);
+
+        let lityInstance;
+
+        $popup.append(
+            $textblock
+        ).append(
+            $("<a>").attr({
+                "href": "#",
+                "class": "upload"
+            })
+            .append(
+                $("<img>").attr('src', "img/gui/import.svg")
+            )
+            .append(" import from JSON")
+            .on('click', () => {
+                const data = JSON.parse($('#' + textareaId).val());
+
+                // proccess the imported data
+                this.parentSVG.importData(
+                    data,
+                    Math.round(this.parentSVG.viewbox.transformX(this.position.x) / this.parentSVG.gridSize),
+                    Math.round(this.parentSVG.viewbox.transformY(this.position.y) / this.parentSVG.gridSize)
+                ).then(() => {
+                    // close Lity
+                    lityInstance.close();
+                })
+            })
+        );
+
+        lityInstance = lity($popup);
+
+        // focus on the textblock
+        $textblock.focus();
     }
 
     /**
@@ -253,9 +446,13 @@ export default class ContextMenu {
 
         this.$el.css({
             display: 'block',
-            top: y + "px",
-            left: x + "px"
-        });
+            top: y,
+            left: x
+        }).css({
+            // set the width expicitly, or else the menu will widen when displaying a submenu
+            // 2 is to prevent a weird text wrap bug
+            width: this.$el.innerWidth() + 2
+        })
 
         this.resolveConditionalItems($target);
     }
@@ -265,6 +462,7 @@ export default class ContextMenu {
      */
     hide() {
         this.$el.css({display: 'none'});
+        $(".subList").css({display: 'none'});
         this.hideAllConditionalItems();
     }
 }

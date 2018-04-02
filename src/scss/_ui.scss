@@ -3,6 +3,24 @@ $transitionAll: all $transitionTime;
 
 $floatingButtonSize: 1.8em;
 $floatingMenuDistance: 0.5em;
+
+// loader
+.loader {
+    display: block;
+    border: 0.3em solid $ui_darkAccent;
+    border-top: 0.3em solid white; //rgba fallback
+    border-top: 0.3em solid rgba(255, 255, 255, 0);
+    border-radius: 50%;
+    width: 2em;
+    height: 2em;
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /// FLOATING MENU
 #floatingMenu {
     z-index:900;
@@ -52,6 +70,34 @@ $floatingMenuDistance: 0.5em;
     padding: 1em;
 }
 
+.uibutton {
+    transition: $transitionAll;
+
+    font-weight: bold;
+    display:inline-block;
+
+    margin:0.5em 0.5em 0 0;
+    padding: 0.4em;
+
+    text-decoration: none;
+    color: $ui_darkCasual;
+    background: $ui_lightCasual;
+
+    img {
+        height: 1.2em;
+        width: auto;
+        vertical-align: bottom;
+    }
+
+    &:hover {
+        background: $ui_lightAccent;
+    }
+
+    &:active {
+        background: $ui_darkAccent;
+    }
+}
+
 // popup windows
 
 .importExport {
@@ -82,52 +128,45 @@ $floatingMenuDistance: 0.5em;
     }
 
     a.download, a.upload {
-        transition: $transitionAll;
+        @extend .uibutton;
+    }
 
-        font-weight: bold;
-        display:inline-block;
+    &.library {
+        ul {
+            margin: 0;
+            padding: 0;
 
-        margin:0.5em 0.5em 0 0;
-        padding: 0.4em;
+            li {
+                margin: 0;
+                padding: 0;
+                list-style: none;
 
-        text-decoration: none;
-        color: $ui_darkCasual;
-        background: $ui_lightCasual;
+                a {
+                    @extend .uibutton;
 
-        img {
-            height: 1.2em;
-            width: auto;
-            vertical-align: bottom;
-        }
-
-        &:hover {
-            background: $ui_lightAccent;
-        }
-
-        &:active {
-            background: $ui_darkAccent;
+                    margin: 0.2em;
+                }
+            }
         }
     }
 }
 
 /// CONTEXT MENU
-$contextMenuPadding: 0.3em;
+$contextMenuPaddingLeftRight: 8px;
+$contextMenuPaddingTopBottom: 0.2em;
 $menuItemHeight: 1.7em;
 $menuItemWidth: 10em;
 
-#contextMenu, #contextMenu ul {
+ul#contextMenu, ul.subList {
     z-index: 1000;
     position: absolute;
 
     background: $ui_lightCasual;
-}
-#contextMenu {
+
     display: none;
 
-    width: $menuItemWidth;
-
     margin: 0;
-    padding: $contextMenuPadding 0;
+    padding: $contextMenuPaddingTopBottom 0;
 
     color: $ui_darkCasual;
 
@@ -135,7 +174,7 @@ $menuItemWidth: 10em;
         list-style-type: none;
 
         margin: 0;
-        padding: 0.2em $contextMenuPadding 0.1em $contextMenuPadding;
+        padding: $contextMenuPaddingTopBottom $contextMenuPaddingLeftRight 0.1em $contextMenuPaddingLeftRight;
 
         cursor: pointer;
         cursor: hand;
@@ -146,25 +185,8 @@ $menuItemWidth: 10em;
 
         transition: $transitionAll;
 
-        > ul {
-            display: none;
-            position: relative;
-            left: ($menuItemWidth - $contextMenuPadding);
-
-            margin: (-1em - (2 * $contextMenuPadding)) 0 0 0;
-            padding: $contextMenuPadding 0;
-        }
-
-        &.gateOnly {
-            display: none;
-        }
-
         &:hover {
             background: $ui_lightAccent;
-
-            > ul {
-                display:block;
-            }
         }
 
         &:active {

@@ -1,5 +1,10 @@
 import Logic from './logic.js'
 
+/**
+ * @module Simulation
+ */
+
+
 class stateChange {
     constructor(connectorId, state, whoCausedIt) {
         this.connectorId = connectorId
@@ -8,23 +13,52 @@ class stateChange {
     }
 }
 
-// all connectors mentioned here are OUTPUT CONNECTORS
+/**
+ * This class runs the network simulation.
+ *
+ * _note: all connectors that are used in this class are **output connectors**_
+ */
 export default class Simulation {
+    /**
+     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+     */
     constructor(parentSVG) {
+        /**
+         * instance of Canvas this Simulation belongs to
+         * @type {Canvas}
+         */
         this.parentSVG = parentSVG
 
-        // maps each affected output connector to it's directly preceeding output connectors
+        /**
+         * maps each affected output connector to it's directly preceeding output connectors
+         * @type {Map}
+         */
         this.predecessors = new Map();
 
-        // maps waveId -> array of outputConnectors affected
+        /**
+         * maps waveId to an array of affected outputConnectors
+         * @type {Map}
+         */
         this.waves = new Map();
         this.wave = 0
 
+        /**
+         * maps cycled connector id to set of states this connector was in
+         * @type {Map}
+         */
         this.cycledConnectors = new Map()
+
+        /**
+         * set of cycled connectors that have been already resolved
+         * @type {Set}
+         */
         this.resolvedCycledConnectors = new Set()
 
     }
 
+    /**
+     * run the simulation
+     */
     run() {
         this.wave++;
         while(this.waves.has(this.wave)) {
@@ -34,6 +68,11 @@ export default class Simulation {
         }
     }
 
+    /**
+     * one step/wave of the simulation
+     *
+     * determines states of the connectors in the current wave, detects cycles
+     */
     step() {
         for (let {connectorId, state, whoCausedIt} of this.waves.get(this.wave)) {
             // skip resolved cycles
@@ -96,7 +135,11 @@ export default class Simulation {
         this.whoCausedIt = undefined
     }
 
-    // mark a predecessorConnectorId as a predecessor of connectorId
+    /**
+     * mark a predecessorConnectorId as a predecessor of connectorId
+     * @param {string} connectorId ID of a connector
+     * @param {string} predecessorConnectorId predecessor of `connectorId`
+     */
     addPredecessor(connectorId, predecessorConnectorId) {
         if(!this.predecessors.has(connectorId)) {
             this.predecessors.set(connectorId, new Set())
@@ -105,7 +148,11 @@ export default class Simulation {
         this.predecessors.get(connectorId).add(predecessorConnectorId)
     }
 
-    // returns set of all output connectors, that are before this output connector
+    /**
+     * get set of all output connectors that are before this output connector
+     * @param  {string} connectorId ID of a connector
+     * @return {Set}                set of connector ids that are before this output connector
+     */
     getAllPredecessors(connectorId) {
         if(!this.predecessors.has(connectorId)) {
             this.predecessors.set(connectorId, new Set())
@@ -130,6 +177,11 @@ export default class Simulation {
         return all
     }
 
+    /**
+     * Notify a change in the network. This function adds the changed connector to the next wave
+     * @param  {string} connectorId ID of the changed connector
+     * @param  {Logic.state} state  new [Logic.state](./module-Logic.html#.state) of the connector
+     */
     notifyChange(connectorId, state) {
         let waveId = this.wave + 1
 

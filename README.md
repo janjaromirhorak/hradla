@@ -2,7 +2,8 @@
 Logic network simulator that runs in your browser.
 
 ## install
-You will need [npm](https://www.npmjs.com/) to build this project.
+You will need [npm](https://www.npmjs.com/) and [gcc](https://gcc.gnu.org/) (or some other C++ compiler) to build this project. (C++ compiler is required because the current implementation of [gulp-sass](https://github.com/dlmanning/gulp-sass) uses [node-sass](https://github.com/sass/node-sass) which
+is dependent on [LibSass](https://github.com/sass/libsass).)
 
 Use `npm install` to install dependencies, than `npm run gulp` to build the project.
 
@@ -11,11 +12,11 @@ you can run `gulp` instead of `npm run gulp`.
 
 In one command:
 ```bash
-npm install && npm run gulp
+npm i && npm run gulp
 ```
 or, if you have gulp (version 4.0.0 or higher) installed globally on your system
 ```bash
-npm install && gulp
+npm i && gulp
 ```
 
 ## download compiled code

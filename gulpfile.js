@@ -68,7 +68,10 @@ modules.addModules({
     filter: 'gulp-filter',
     gulpif: 'gulp-if',
     jsdoc: 'gulp-jsdoc3',
-    sass: 'gulp-sass'
+    sass: 'gulp-sass',
+    jsoneditor: 'gulp-json-editor',
+    tap: 'gulp-tap',
+    eslint: 'gulp-eslint'
 });
 
 const config = require('./config.json')
@@ -111,7 +114,10 @@ const
 
     docs = 'docs',
     docsOut = out + '/docs',
-    docsCss = docsOut + '/css'
+    docsCss = docsOut + '/css',
+
+    srcLibrary = "library",
+    outLibrary = out + "/library"
 
 let production = false
 
@@ -137,8 +143,17 @@ gulp.task('styles', () => {
         .pipe(gulp.dest(outCss))
 });
 
+gulp.task('scripts:lint', () => {
+    const eslint = modules.get('eslint');
+
+    return gulp.src(srcJs + '/**/*.js')
+            .pipe(eslint())
+            .pipe(eslint.format())
+            .pipe(eslint.failAfterError());
+})
+
 // compile and minimize es6
-gulp.task('scripts', () => {
+gulp.task('scripts:build', () => {
     const
         filter = modules.get('filter'),
         browserify = modules.get('browserify'),
@@ -170,6 +185,8 @@ gulp.task('scripts', () => {
         .pipe(gulpif(production, uglify()))
         .pipe(gulp.dest(outJs))
 });
+
+gulp.task('scripts', gulp.series('scripts:lint', 'scripts:build'));
 
 gulp.task('lib-lity-js', () => {
     const changed = modules.get('changed');
@@ -318,7 +335,7 @@ gulp.task('help', () => {
         .pipe(gulp.dest(outDocs))
 })
 
-gulp.task('jsdoc:generate', () => {
+gulp.task('jsdoc:generate', (done) => {
     const jsdoc = modules.get('jsdoc');
 
     const customCss = production ? "jsdoc.min.css" : "jsdoc.css";
@@ -348,7 +365,7 @@ gulp.task('jsdoc:generate', () => {
         ]
     }
     return gulp.src(['README.md', './' + srcJs + '/**/*.js'], {read: false})
-        .pipe(jsdoc(jsdocConfig));
+        .pipe(jsdoc(jsdocConfig, done));
 });
 
 gulp.task('jsdoc:clean', () => {
@@ -359,6 +376,46 @@ gulp.task('jsdoc:clean', () => {
 gulp.task('jsdoc', gulp.series('jsdoc:clean', 'jsdoc:generate'));
 
 gulp.task('docs', gulp.parallel('help', 'jsdoc'));
+
+// create network library
+// Copy all files to outJson but get their file names and 'name' fields
+// and save them to the 'networks' array. Then serialize this field and save is as JSON
+gulp.task('library', () => {
+    const
+        jsoneditor = modules.get('jsoneditor'),
+        file = modules.get('file'),
+        insert = modules.get('insert'),
+        tap = modules.get('tap');
+
+    let currentFileName;
+
+    let networks = [];
+
+    return gulp.src(srcLibrary + '/*.json')
+        .pipe(tap(function(file, t) {
+            // get the file name
+            currentFileName = file.path.split('/').pop().replace('.json', '');
+        }))
+        .pipe(jsoneditor((json) => {
+            // add info about this network to the networks array
+            networks.push({
+                name: json.name, // name of the network parsed from the network JSON file
+                file: currentFileName, // file name acquired using tap
+                hasNetwork: json.boxes !== undefined, // true if the network has a gate layout defined
+                hasTable: json.blackbox !== undefined // true if the network has a truth table defined
+            });
+
+            return json; // pass the network JSON through without changes
+        }))
+        .pipe(gulp.dest(outLibrary)) // save the networks in the output directory without changes
+        .on('end', () => {
+            // create the network list file from the networks array and save it
+            return file('networkList.json', '', {src: true})
+                .pipe(insert.append(JSON.stringify({networks})))
+                .pipe(gulp.dest(outLibrary));
+        });
+})
+
 
 ///// create archives
 // create a zip archive
@@ -394,7 +451,7 @@ gulp.task('package', gulp.parallel('zip', 'tarball'))
 ///// main scripts
 // build the whole project
 
-gulp.task('build-all', gulp.series('clean', gulp.parallel('scripts', 'styles', 'libraries', 'html', 'images', 'docs')))
+gulp.task('build-all', gulp.series('clean', gulp.parallel('scripts', 'styles', 'library', 'libraries', 'html', 'images', 'docs')))
 gulp.task('build-prod', gulp.series('production', 'build-all', 'package'))
 
 gulp.task('build-dev', gulp.series('build-all'))
