@@ -7,7 +7,8 @@ import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
 import Simulation from './simulation.js'
 import { addMouseScrollEventListener } from './helperFunctions.js'
-import Tutorial from './tutorial';
+import Tutorial from './tutorial.js';
+import {setCookie, cookieExists} from './cookie.js';
 
 /**
  * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
@@ -284,9 +285,14 @@ export default class Canvas {
             event.preventDefault()
         })
 
-        // START THE TUTORIAL
-        this.tutorial = new Tutorial(this);
-        this.tutorial.start();
+        // check if the user visits for the first time
+        if(!cookieExists("userHasVisited")) {
+            this.tutorial = new Tutorial(this);
+            this.tutorial.start();
+        }
+
+        // renew the tutorial countdown
+        setCookie("userHasVisited", "true", 60);
     }
 
     /**
@@ -736,6 +742,7 @@ export default class Canvas {
 
     /**
      * Remove all boxes from the canvas
+     * TODO fix: not all boxes are removed
      */
     cleanCanvas() {
         for (let box of this.boxes) {
