@@ -421,7 +421,7 @@ export default class ContextMenu {
             if($target.hasClass(this.conditionalItems[i].itemClass)) {
                 this.appendItem(
                     new ContextMenuItem(
-                        this.conditionalItems[i].text, this, this.parentSVG,
+                        this.conditionalItems[i].text, this,
                         () => {
                             this.conditionalItems[i].clickFunction($target.attr('id'));
                         }
