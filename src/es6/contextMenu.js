@@ -421,7 +421,7 @@ export default class ContextMenu {
             if($target.hasClass(this.conditionalItems[i].itemClass)) {
                 this.appendItem(
                     new ContextMenuItem(
-                        this.conditionalItems[i].text, this, this.parentSVG,
+                        this.conditionalItems[i].text, this,
                         () => {
                             this.conditionalItems[i].clickFunction($target.attr('id'));
                         }
@@ -450,17 +450,17 @@ export default class ContextMenu {
             y: y
         };
 
+        this.resolveConditionalItems($target);
+
         this.$el.css({
             display: 'block',
             top: y,
             left: x
-        }).css({
-            // set the width expicitly, or else the menu will widen when displaying a submenu
-            // 2 is to prevent a weird text wrap bug
-            width: this.$el.innerWidth() + 2
         })
-
-        this.resolveConditionalItems($target);
+        // set the width expicitly, or else the menu will widen when displaying a submenu
+        // 2 is to prevent a weird text wrap bug
+        .css('width', 'auto')
+        .css('width', this.$el.innerWidth() + 2);
     }
 
     /**
