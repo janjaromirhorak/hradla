@@ -70,8 +70,6 @@ class ContextMenuItem {
 
                 this.contextMenu.$el.after(this.$submenu);
 
-                console.log(this.$submenu);
-
                 event.stopPropagation()
             }
         }, () => {
