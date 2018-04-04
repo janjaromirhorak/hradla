@@ -608,29 +608,28 @@ ul#contextMenu, ul.subList {
     margin: 0;
     padding: 0;
     line-height: 1.5em; }
-  #tutorial .buttons {
-    padding: 0.5em 0 0 0;
-    text-align: right; }
-    #tutorial .buttons a.button {
-      display: inline-block;
-      padding: 0.2em 0.5em 0.3em 0.5em;
-      margin: 0 0.5em 0 0;
+  #tutorial ol.choices {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center; }
+    #tutorial ol.choices li a {
+      margin: 0;
+      padding: 0;
+      display: block;
       text-decoration: none;
       text-transform: uppercase;
-      font-size: 0.9em;
       color: #2b2d42;
       background: #edf2f4;
+      padding: 0.3em 0.5em;
       border-radius: 3px;
-      border: 1px solid #cddbe1; }
-      #tutorial .buttons a.button:last-of-type {
-        margin-right: 0; }
-      #tutorial .buttons a.button.close:hover {
-        background: #cddbe1; }
-      #tutorial .buttons a.button.next {
+      margin: 0.3em;
+      display: inline-block;
+      -webkit-transition: background 200ms;
+      transition: background 200ms; }
+      #tutorial ol.choices li a:hover {
         background: #f9dc5c; }
-        #tutorial .buttons a.button.next:hover {
-          background: #ed254e; }
-      #tutorial .buttons a.button:active {
+      #tutorial ol.choices li a:active, #tutorial ol.choices li a:focus {
         background: #ed254e; }
 
 .grabbable {

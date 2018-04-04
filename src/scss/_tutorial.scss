@@ -17,47 +17,38 @@
         line-height: 1.5em;
     }
 
-    .buttons {
-        padding: 0.5em 0 0 0;
-        text-align: right;
+    ol.choices {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        text-align: center;
 
-        a.button {
-            display: inline-block;
+        li a {
+            margin: 0;
+            padding: 0;
 
-            padding: 0.2em 0.5em 0.3em 0.5em;
-            margin: 0 0.5em 0 0;
+            display: block;
 
             text-decoration: none;
             text-transform: uppercase;
-            font-size: 0.9em;
 
             color: $t_darkCasual;
             background: $t_lightCasual;
+
+            padding: 0.3em 0.5em;
             border-radius: 3px;
-            border: 1px solid darken($t_lightCasual, 10%);
+            margin: 0.3em;
+            display: inline-block;
 
-            &:last-of-type {
-                margin-right: 0;
-            }
+            transition: background 200ms;
 
-            &.close {
-                &:hover {
-                    background: darken($t_lightCasual, 10%);
-                }
-            }
-
-            &.next {
+            &:hover {
                 background: $t_lightAccent;
-
-                &:hover {
-                    background: $t_darkAccent;
-                }
             }
 
-            &:active {
+            &:active, &:focus {
                 background: $t_darkAccent;
             }
-
         }
     }
 }

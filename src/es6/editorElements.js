@@ -1128,6 +1128,10 @@ export class InputBox extends Box {
      */
     onClick() {
         this.on = !this.on;
+
+        if(this.parentSVG.tutorial) {
+            this.parentSVG.tutorial.onChangeInputBoxState();
+        }
     }
 }
 

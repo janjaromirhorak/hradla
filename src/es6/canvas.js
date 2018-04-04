@@ -738,7 +738,7 @@ export default class Canvas {
      * Remove all boxes from the canvas
      */
     cleanCanvas() {
-        for (let box in this.boxes) {
+        for (let box of this.boxes) {
             this.removeBox(box.id);
         }
     }
