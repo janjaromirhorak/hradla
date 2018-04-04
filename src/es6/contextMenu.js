@@ -93,6 +93,10 @@ class ContextMenuItem {
         return this.contextMenu.parentSVG;
     }
 
+    /**
+     * number of items in the submenu
+     * @return {Number}
+     */
     get length() {
         return this.itemCount;
     }
