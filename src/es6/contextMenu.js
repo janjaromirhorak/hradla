@@ -76,9 +76,11 @@ class ContextMenuItem {
             }
         }, () => {
             // mouse out
-            this.$submenu.css({
-                display: "none"
-            })
+            if(this.$submenu) {
+                this.$submenu.css({
+                    display: "none"
+                })
+            }
 
             // do not stop event propagation, here it is wanted
             // (because submenu overrides display: none when user moves from this menu item to the submenu)
