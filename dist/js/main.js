@@ -35,6 +35,10 @@ var _simulation2 = _interopRequireDefault(_simulation);
 
 var _helperFunctions = require('./helperFunctions.js');
 
+var _tutorial = require('./tutorial');
+
+var _tutorial2 = _interopRequireDefault(_tutorial);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -350,6 +354,10 @@ var Canvas = function () {
 
             event.preventDefault();
         });
+
+        // START THE TUTORIAL
+        this.tutorial = new _tutorial2.default(this);
+        this.tutorial.start();
     }
 
     /**
@@ -436,6 +444,11 @@ var Canvas = function () {
             if (this.moveCanvas) {
                 this.$svg.removeClass('grabbed');
                 this.moveCanvas = undefined;
+
+                // if tutorial exists, call tutorial callback
+                if (this.tutorial) {
+                    this.tutorial.onCanvasMoved();
+                }
             }
         }
 
@@ -832,6 +845,11 @@ var Canvas = function () {
 
             this.appendElement(this.boxes[index], refresh);
 
+            // if tutorial exists, call tutorial callback
+            if (this.tutorial) {
+                this.tutorial.onElementAdded(this.boxes[index].name);
+            }
+
             return this.boxes[index];
         }
 
@@ -863,8 +881,25 @@ var Canvas = function () {
                 // remove the gate
                 this.boxes.splice(gateIndex, 1);
                 $gate.remove();
+
+                // if tutorial exists, call tutorial callback
+                if (this.tutorial) {
+                    this.tutorial.onElementRemoved();
+                }
             } else {
                 console.error("Trying to remove an nonexisting box. Box id:", boxId);
+            }
+        }
+
+        /**
+         * Remove all boxes from the canvas
+         */
+
+    }, {
+        key: 'cleanCanvas',
+        value: function cleanCanvas() {
+            for (var box in this.boxes) {
+                this.removeBox(box.id);
             }
         }
 
@@ -1323,6 +1358,11 @@ var Canvas = function () {
         key: 'displayContextMenu',
         value: function displayContextMenu(x, y, $target) {
             this.contextMenu.display(x, y, $target);
+
+            // if tutorial exists, call tutorial callback
+            if (this.tutorial) {
+                this.tutorial.onContextMenuOpened();
+            }
         }
 
         /**
@@ -1554,6 +1594,11 @@ var Canvas = function () {
         set: function set(value) {
             this.viewbox.zoom = value;
             this.applyViewbox();
+
+            // if tutorial exists, call tutorial callback
+            if (this.tutorial) {
+                this.tutorial.onCanvasZoomed();
+            }
         }
 
         /**
@@ -1612,7 +1657,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":7,"./simulation.js":11,"./svgObjects.js":12}],2:[function(require,module,exports){
+},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":7,"./simulation.js":11,"./svgObjects.js":12,"./tutorial":13}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1702,9 +1747,11 @@ var ContextMenuItem = function () {
             }
         }, function () {
             // mouse out
-            _this.$submenu.css({
-                display: "none"
-            });
+            if (_this.$submenu) {
+                _this.$submenu.css({
+                    display: "none"
+                });
+            }
 
             // do not stop event propagation, here it is wanted
             // (because submenu overrides display: none when user moves from this menu item to the submenu)
@@ -1765,6 +1812,12 @@ var ContextMenuItem = function () {
         get: function get() {
             return this.contextMenu.parentSVG;
         }
+
+        /**
+         * number of items in the submenu
+         * @return {Number}
+         */
+
     }, {
         key: "length",
         get: function get() {
@@ -2086,7 +2139,7 @@ var ContextMenu = function () {
 
             var _loop = function _loop(i) {
                 if ($target.hasClass(_this8.conditionalItems[i].itemClass)) {
-                    _this8.appendItem(new ContextMenuItem(_this8.conditionalItems[i].text, _this8, _this8.parentSVG, function () {
+                    _this8.appendItem(new ContextMenuItem(_this8.conditionalItems[i].text, _this8, function () {
                         _this8.conditionalItems[i].clickFunction($target.attr('id'));
                     })).addClass('conditional');
                 }
@@ -2122,17 +2175,16 @@ var ContextMenu = function () {
                 y: y
             };
 
+            this.resolveConditionalItems($target);
+
             this.$el.css({
                 display: 'block',
                 top: y,
                 left: x
-            }).css({
-                // set the width expicitly, or else the menu will widen when displaying a submenu
-                // 2 is to prevent a weird text wrap bug
-                width: this.$el.innerWidth() + 2
-            });
-
-            this.resolveConditionalItems($target);
+            })
+            // set the width expicitly, or else the menu will widen when displaying a submenu
+            // 2 is to prevent a weird text wrap bug
+            .css('width', 'auto').css('width', this.$el.innerWidth() + 2);
         }
 
         /**
@@ -3436,6 +3488,11 @@ var Box = function (_NetworkElement2) {
             this.setTransform(transform);
 
             this.updateWires();
+
+            // if tutorial exists, call tutorial callback
+            if (this.parentSVG.tutorial) {
+                this.parentSVG.tutorial.onBoxMoved();
+            }
         }
 
         /**
@@ -3477,6 +3534,11 @@ var Box = function (_NetworkElement2) {
 
             // update the wires
             this.updateWires();
+
+            // if tutorial exists, call tutorial callback
+            if (this.parentSVG.tutorial) {
+                this.parentSVG.tutorial.onBoxRotated();
+            }
         }
 
         /**
@@ -3766,6 +3828,11 @@ var OutputBox = exports.OutputBox = function (_Box2) {
             switch (state) {
                 case _logic2.default.state.on:
                     this.changeImage("on");
+
+                    // if tutorial exists, call tutorial callback
+                    if (this.parentSVG.tutorial) {
+                        this.parentSVG.tutorial.onOutputBoxTrue();
+                    }
                     break;
                 case _logic2.default.state.off:
                     this.changeImage("off");
@@ -6532,6 +6599,290 @@ var Pattern = exports.Pattern = function (_Tag6) {
     return Pattern;
 }(Tag);
 
-},{"./id.js":6}]},{},[8])
+},{"./id.js":6}],13:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Tutorial = function () {
+    function Tutorial(parentSVG) {
+        _classCallCheck(this, Tutorial);
+
+        this.parentSVG = parentSVG;
+        this.currentStep = 0;
+
+        this.$tutorialWindow;
+        this.$tutorialContent;
+
+        this.resetActions();
+    }
+
+    _createClass(Tutorial, [{
+        key: "resetActions",
+        value: function resetActions() {
+            this.onContextMenuOpened = function () {};
+            this.onElementAdded = function () {};
+            this.onBoxMoved = function () {};
+            this.onBoxRotated = function () {};
+            this.onOutputBoxTrue = function () {};
+            this.onCanvasMoved = function () {};
+            this.onCanvasZoomed = function () {};
+            this.onElementRemoved = function () {};
+        }
+    }, {
+        key: "displayWindow",
+        value: function displayWindow() {
+            this.parentSVG.$svg.after(this.$tutorialWindow);
+        }
+    }, {
+        key: "hideWindow",
+        value: function hideWindow() {
+            this.$tutorialWindow.remove();
+        }
+    }, {
+        key: "windowContent",
+        value: function windowContent() {
+            if (!this.$tutorialWindow) {
+                this.$tutorialWindow = $("<div>").attr("id", "tutorial");
+
+                this.$tutorialContent = $("<div>").addClass("content");
+                this.$tutorialWindow.append(this.$tutorialContent);
+
+                // add buttons
+                /*
+                this.$tutorialWindow.append(
+                    $("<div>").addClass("buttons").append(
+                        $("<a>").addClass("button close").attr("href", "#")
+                        .html("exit")
+                        .click(() => {
+                            this.stop()
+                        })
+                    ).append(
+                        $("<a>").addClass("button next").attr("href", "#")
+                        .html("next")
+                        .click(() => {
+                            this.next()
+                        })
+                    )
+                )
+                */
+            }
+
+            this.$tutorialContent.html("");
+
+            for (var _len = arguments.length, text = Array(_len), _key = 0; _key < _len; _key++) {
+                text[_key] = arguments[_key];
+            }
+
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = text[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var paragraph = _step.value;
+
+                    this.$tutorialContent.append($("<p>").html(paragraph));
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    }, {
+        key: "start",
+        value: function start() {
+            this.step = 1;
+        }
+    }, {
+        key: "next",
+        value: function next() {
+            this.step++;
+        }
+    }, {
+        key: "stop",
+        value: function stop() {
+            this.step = 0;
+        }
+    }, {
+        key: "step",
+        get: function get() {
+            return this.currentStep;
+        },
+        set: function set(value) {
+            var _this = this;
+
+            this.currentStep = value;
+
+            console.log("Tutorial step", this.step);
+
+            switch (this.step) {
+                case 0:
+                    // stop the tutorial
+                    this.hideWindow();
+
+                    // reset all callbacks
+                    this.resetActions();
+
+                    break;
+                case 1:
+                    // welcome to the tutorial
+
+                    this.windowContent("Welcome to Hradla! To get started, click anywhere on the editing area with your right mouse button.");
+
+                    this.onContextMenuOpened = function () {
+                        _this.next();
+
+                        // this function runs only once
+                        _this.onContextMenuOpened = function () {};
+                    };
+
+                    this.displayWindow();
+
+                    break;
+                case 2:
+                    this.windowContent("Great job! Now you know, how to open the editor menu.\n                    Now try to add an <em>Input box</em>, <em>Output box</em> and a <em>NOT gate</em>\n                    to the editing area.");
+
+                    var elementsAdded = {
+                        inputBox: false,
+                        outputBox: false,
+                        notGate: false
+                    };
+
+                    this.onElementAdded = function (name) {
+                        switch (name) {
+                            case "input":
+                                elementsAdded.inputBox = true;
+                                break;
+                            case "output":
+                                elementsAdded.outputBox = true;
+                                break;
+                            case "not":
+                                elementsAdded.notGate = true;
+                                break;
+                            default:
+                                // no action on default
+                                break;
+                        }
+
+                        if (elementsAdded.inputBox && elementsAdded.outputBox && elementsAdded.notGate) {
+                            // remove the action
+                            _this.onElementAdded = function () {};
+
+                            // proceed to the next step of the tutorial
+                            _this.next();
+                        }
+
+                        console.log(elementsAdded);
+                    };
+
+                    break;
+                case 3:
+                    this.windowContent("You can move the editing area (sometimes called canvas) by dragging\n                    with the middle mouse button or by holding the <code>Ctrl</code> key\n                    and dragging with the left mouse button. Check it out.");
+
+                    this.onCanvasMoved = function () {
+                        _this.next();
+                        _this.onCanvasMoved = function () {};
+                    };
+                    break;
+                case 4:
+                    this.windowContent("You can also zoom in and out using <code>Ctrl</code> and the mouse wheel.");
+
+                    this.onCanvasZoomed = function () {
+                        _this.next();
+                        _this.onCanvasZoomed = function () {};
+                    };
+                    break;
+                case 5:
+                    this.windowContent("You can move the elements on the editing canvas by dragging them\n                    using the left mouse button. You can also rotate them using middle click. Try it out.");
+
+                    var boxMoved = false;
+                    var boxRotated = false;
+
+                    var moveRotateCallback = function moveRotateCallback() {
+                        if (boxMoved && boxRotated) {
+                            _this.next();
+                        }
+                    };
+
+                    this.onBoxMoved = function () {
+                        boxMoved = true;
+
+                        _this.onBoxMoved = function () {};
+
+                        moveRotateCallback();
+                    };
+
+                    this.onBoxRotated = function () {
+                        boxRotated = true;
+
+                        _this.onBoxRotated = function () {};
+
+                        moveRotateCallback();
+                    };
+
+                    break;
+                case 6:
+                    this.windowContent("Essential part of logic networks is the wiring. Create a very simple\n                    inverter by connecting the <em>Input box</em> to the input of the <em>NOT gate</em>\n                    and the output of the <em>NOT gate</em> to the input of the <em>Output box</em>.", "To connect two elemnts, simply click on a connector of the first element,\n                    than click on a conector of the second element.");
+
+                    this.onOutputBoxTrue = function () {
+                        _this.next();
+
+                        _this.onOutputBoxTrue = function () {};
+                    };
+
+                    break;
+                case 7:
+                    this.windowContent("When you right click on an element, you can find a new item in the menu,\n                    that allows you to remove the element. This works for wires as well as for gates and other types of boxes.\n                    Try to remove an element!");
+
+                    this.onElementRemoved = function () {
+                        _this.next();
+
+                        _this.onElementRemoved = function () {};
+                    };
+                    break;
+                case 8:
+                    this.windowContent("You're all set, enjoy your stay!", "Do you wish to start with empty canvas?");
+                    this.windowChoice({
+                        text: 'yes, clean the canvas',
+                        func: function func() {
+                            _this.parentSVG.cleanCanvas();
+                            _this.stop();
+                        }
+                    }, {
+                        text: 'no, keep the canvas as it is',
+                        func: function func() {
+                            _this.stop();
+                        }
+                    });
+                default:
+                    // user got through the whole tutorial -> exit the tutorial
+                    this.stop();
+            }
+        }
+    }]);
+
+    return Tutorial;
+}();
+
+exports.default = Tutorial;
+
+},{}]},{},[8])
 
 //# sourceMappingURL=main.js.map

@@ -1,0 +1,63 @@
+#tutorial {
+    position: absolute;
+    left: 1em;
+    top: 1em;
+
+    padding: 1em;
+
+    min-width: 20em;
+    max-width: 35em;
+
+    color: $t_darkCasual;
+    background: white;
+
+    .content {
+        margin: 0;
+        padding: 0;
+        line-height: 1.5em;
+    }
+
+    .buttons {
+        padding: 0.5em 0 0 0;
+        text-align: right;
+
+        a.button {
+            display: inline-block;
+
+            padding: 0.2em 0.5em 0.3em 0.5em;
+            margin: 0 0.5em 0 0;
+
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 0.9em;
+
+            color: $t_darkCasual;
+            background: $t_lightCasual;
+            border-radius: 3px;
+            border: 1px solid darken($t_lightCasual, 10%);
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+
+            &.close {
+                &:hover {
+                    background: darken($t_lightCasual, 10%);
+                }
+            }
+
+            &.next {
+                background: $t_lightAccent;
+
+                &:hover {
+                    background: $t_darkAccent;
+                }
+            }
+
+            &:active {
+                background: $t_darkAccent;
+            }
+
+        }
+    }
+}

@@ -985,6 +985,11 @@ class Box extends NetworkElement {
         this.setTransform(transform);
 
         this.updateWires();
+
+        // if tutorial exists, call tutorial callback
+        if(this.parentSVG.tutorial) {
+            this.parentSVG.tutorial.onBoxMoved();
+        }
     }
 
     /**
@@ -1023,6 +1028,11 @@ class Box extends NetworkElement {
 
         // update the wires
         this.updateWires();
+
+        // if tutorial exists, call tutorial callback
+        if(this.parentSVG.tutorial) {
+            this.parentSVG.tutorial.onBoxRotated();
+        }
     }
 
     /**
@@ -1154,6 +1164,11 @@ export class OutputBox extends Box {
         switch (state) {
             case Logic.state.on:
                 this.changeImage("on");
+
+                // if tutorial exists, call tutorial callback
+                if(this.parentSVG.tutorial) {
+                    this.parentSVG.tutorial.onOutputBoxTrue();
+                }
                 break;
             case Logic.state.off:
                 this.changeImage("off");

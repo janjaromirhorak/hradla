@@ -7,6 +7,7 @@ import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
 import Simulation from './simulation.js'
 import { addMouseScrollEventListener } from './helperFunctions.js'
+import Tutorial from './tutorial';
 
 /**
  * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
@@ -282,6 +283,10 @@ export default class Canvas {
 
             event.preventDefault()
         })
+
+        // START THE TUTORIAL
+        this.tutorial = new Tutorial(this);
+        this.tutorial.start();
     }
 
     /**
@@ -362,6 +367,11 @@ export default class Canvas {
         if(this.moveCanvas) {
             this.$svg.removeClass('grabbed');
             this.moveCanvas = undefined
+
+            // if tutorial exists, call tutorial callback
+            if(this.tutorial) {
+                this.tutorial.onCanvasMoved();
+            }
         }
     }
 
@@ -398,6 +408,11 @@ export default class Canvas {
     set zoom(value) {
         this.viewbox.zoom = value
         this.applyViewbox()
+
+        // if tutorial exists, call tutorial callback
+        if(this.tutorial) {
+            this.tutorial.onCanvasZoomed();
+        }
     }
 
     /**
@@ -676,6 +691,11 @@ export default class Canvas {
 
         this.appendElement(this.boxes[index], refresh);
 
+        // if tutorial exists, call tutorial callback
+        if(this.tutorial) {
+            this.tutorial.onElementAdded(this.boxes[index].name);
+        }
+
         return this.boxes[index];
     }
 
@@ -704,8 +724,22 @@ export default class Canvas {
             // remove the gate
             this.boxes.splice(gateIndex, 1);
             $gate.remove();
+
+            // if tutorial exists, call tutorial callback
+            if(this.tutorial) {
+                this.tutorial.onElementRemoved();
+            }
         } else {
             console.error("Trying to remove an nonexisting box. Box id:", boxId);
+        }
+    }
+
+    /**
+     * Remove all boxes from the canvas
+     */
+    cleanCanvas() {
+        for (let box in this.boxes) {
+            this.removeBox(box.id);
         }
     }
 
@@ -1033,6 +1067,11 @@ export default class Canvas {
      */
     displayContextMenu(x, y, $target) {
         this.contextMenu.display(x, y, $target);
+
+        // if tutorial exists, call tutorial callback
+        if(this.tutorial) {
+            this.tutorial.onContextMenuOpened();
+        }
     }
 
     /**
