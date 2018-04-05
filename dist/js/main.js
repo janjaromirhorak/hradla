@@ -2798,9 +2798,7 @@ var NetworkMenuItem = function (_ContextMenuItem3) {
 
         return _this5 = _possibleConstructorReturn(this, (NetworkMenuItem.__proto__ || Object.getPrototypeOf(NetworkMenuItem)).call(this, name, contextMenu, function () {
             (0, _networkLibrary.getNetworkFromLibrary)(file).then(function (data) {
-                _this5.parentSVG.importData(data, Math.round(_this5.parentSVG.viewbox.transformX(contextMenu.position.x) / _this5.parentSVG.gridSize), Math.round(_this5.parentSVG.viewbox.transformY(contextMenu.position.y) / _this5.parentSVG.gridSize)).then(function () {
-                    console.log('wozaa');
-                });
+                _this5.parentSVG.importData(data, Math.round(_this5.parentSVG.viewbox.transformX(contextMenu.position.x) / _this5.parentSVG.gridSize), Math.round(_this5.parentSVG.viewbox.transformY(contextMenu.position.y) / _this5.parentSVG.gridSize)).then();
             }).catch(function (error) {
                 console.error(error);
             });

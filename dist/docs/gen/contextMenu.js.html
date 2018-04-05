@@ -255,9 +255,7 @@ class NetworkMenuItem extends ContextMenuItem {
                         data,
                         Math.round(this.parentSVG.viewbox.transformX(contextMenu.position.x) / this.parentSVG.gridSize),
                         Math.round(this.parentSVG.viewbox.transformY(contextMenu.position.y) / this.parentSVG.gridSize)
-                    ).then(() => {
-                        console.log('wozaa')
-                    });
+                    ).then();
                 }).catch(error => {
                     console.error(error);
                 })
