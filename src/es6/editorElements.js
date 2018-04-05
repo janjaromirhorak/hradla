@@ -1677,6 +1677,7 @@ export class Wire extends NetworkElement {
             // (but max 50 in each direction)
             for(let direction = 0 ; direction < 4 ; direction++) {
                 let newPoint = Wire.movePoint(currentNode, direction);
+
                 for(let i = 0 ; i < 50 ; i++) {
                     // if newPoint is in the set of non routable points,
                     // don't add it and stop proceeding in this direction
@@ -1688,10 +1689,6 @@ export class Wire extends NetworkElement {
                     // or if it is on the list of non routable nodes
                     if (closedNodes.has(newPoint)) {
                         continue;
-                    }
-
-                    if (!openNodes.has(newPoint)) {
-                        openNodes.add(newPoint);
                     }
 
                     // calculate possible GScore by adding 1 to the score of the node we came from
@@ -1714,6 +1711,11 @@ export class Wire extends NetworkElement {
                     gScore.set(newPoint, possibleGScore);
                     fScore.set(newPoint, possibleGScore + Wire.manhattanDistance(newPoint, end));
 
+                    if (!openNodes.has(newPoint)) {
+                        // add the point to the list of points
+                        openNodes.add(newPoint);
+                    }
+
                     // if newPoint is in the set of punished but routable points,
                     // add it but stop proceeding in this direction
                     if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
@@ -1723,6 +1725,13 @@ export class Wire extends NetworkElement {
                     // move to the next point in the direciton
                     newPoint = Wire.movePoint(newPoint, direction);
                 }
+
+                // process the list of points and artifically prioritize the odd ones
+                // then add them to the set of open points
+                // for (const point of pointsToAdd) {
+                    // openNodes.add(point);
+                // }
+
             }
 
             if(openNodes.size > maxNodeLimit) {

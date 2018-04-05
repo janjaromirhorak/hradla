@@ -49,6 +49,7 @@
         "gulp": "./node_modules/gulp/bin/gulp.js"
     },
     "dependencies": {
+        "heap-min-max": "^1.0.4",
         "npm": "^5.8.0"
     }
 }
