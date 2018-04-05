@@ -1,4 +1,841 @@
 (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
+/**
+ * The DoublyLinkedList class provides the main functionality of a doubly linked list.
+ *
+ * @class DoublyLinkedList
+ */
+var DoublyLinkedList = (function () {
+    function DoublyLinkedList() {
+        /**
+         * Count of elements in list
+         *
+         * @property _length
+         * @type number
+         * @private
+         */
+        this._length = 0;
+        /**
+         * Iteration pointer
+         *
+         * @property _key
+         * @type number
+         * @private
+         */
+        this._key = 0;
+        /**
+         * Reference to head(first) element in list
+         *
+         * @property _head
+         * @type DoublyLinkedListNode
+         * @private
+         */
+        this._head = null;
+        /**
+         * Reference to tail(last) element in list
+         *
+         * @property _tail
+         * @type DoublyLinkedListNode
+         * @private
+         */
+        this._tail = null;
+        /**
+         * Reference to iterated element in list
+         *
+         * @property _current
+         * @type DoublyLinkedListNode
+         * @private
+         */
+        this._current = null;
+    }
+    /**
+     * Insert a new value at the specified index
+     *
+     * @method add
+     * @param index The index where the new value is to be inserted.
+     * @param value The new value for the index.
+     * @return void
+     */
+    DoublyLinkedList.prototype.add = function (index, value) {
+        if (index < 0 || index >= this._length) {
+            throw new Error("Out of bounds");
+        }
+        var i = 0;
+        var current = this._head;
+        while (i < index) {
+            current = current.next;
+            i++;
+        }
+        current.value = value;
+    };
+    /**
+     * Pops a node from the end of the doubly linked list
+     *
+     * @method pop
+     * @return any  The value of the popped node.
+     */
+    DoublyLinkedList.prototype.pop = function () {
+        if (this._length === 0) {
+            throw new Error("Can't pop from an empty data structure");
+        }
+        var value = this._tail.value;
+        this._tail = this._tail.prev;
+        if (this._tail) {
+            delete this._tail.next;
+            this._tail.next = null;
+        }
+        this._length--;
+        if (this._length === 0) {
+            delete this._head;
+            this._head = null;
+        }
+        return value;
+    };
+    /**
+     * Shifts a node from the beginning of the doubly linked list
+     *
+     * @method shift
+     * @return any  The value of the shifted node.
+     */
+    DoublyLinkedList.prototype.shift = function () {
+        if (this._length === 0) {
+            throw new Error("Can't shift from an empty data structure");
+        }
+        var value = this._head.value;
+        this._head = this._head.next;
+        if (this._head) {
+            delete this._head.prev;
+            this._head.prev = null;
+        }
+        this._length--;
+        return value;
+    };
+    /**
+     * Pushes an element at the end of the doubly linked list
+     *
+     * @method push
+     * @param value The value to push.
+     * @return void
+     */
+    DoublyLinkedList.prototype.push = function (value) {
+        // allocate new node
+        var node = {
+            value: value,
+            prev: this._tail,
+            next: null
+        };
+        if (this._length === 0) {
+            this._head = this._tail = node;
+        }
+        else {
+            this._tail.next = node;
+            this._tail = this._tail.next;
+        }
+        this._length++;
+    };
+    /**
+     * Prepends the doubly linked list with an element
+     *
+     * @method unshift
+     * @param value The value to unshift.
+     * @return void
+     */
+    DoublyLinkedList.prototype.unshift = function (value) {
+        // allocate new node
+        var node = {
+            value: value,
+            prev: null,
+            next: this._head
+        };
+        if (this._length === 0) {
+            this._head = this._tail = node;
+        }
+        else {
+            this._head.prev = node;
+            this._head = this._head.prev;
+        }
+        this._length++;
+    };
+    /**
+     * Peeks at the node from the end of the doubly linked list
+     *
+     * @method top
+     * @return any  The value of the last node.
+     */
+    DoublyLinkedList.prototype.top = function () {
+        if (this._tail)
+            return this._tail.value;
+    };
+    /**
+     * Peeks at the node from the beginning of the doubly linked list
+     *
+     * @method bottom
+     * @return any  The value of the first node.
+     */
+    DoublyLinkedList.prototype.bottom = function () {
+        if (this._head)
+            return this._head.value;
+    };
+    /**
+     * Counts the number of elements in the doubly linked list
+     *
+     * @method count
+     * @return number the number of elements in the doubly linked list.
+     */
+    DoublyLinkedList.prototype.count = function () {
+        return this._length;
+    };
+    /**
+     * Checks whether the doubly linked list is empty
+     *
+     * @method isEmpty
+     * @return boolean whether the doubly linked list is empty.
+     */
+    DoublyLinkedList.prototype.isEmpty = function () {
+        return (this._length === 0);
+    };
+    /**
+     * Rewind iterator back to the start
+     *
+     * @method rewind
+     * @return void
+     */
+    DoublyLinkedList.prototype.rewind = function () {
+        this._key = 0;
+        this._current = this._head;
+    };
+    /**
+     * Return current list entry
+     *
+     * @method current
+     * @return any  The current node value.
+     */
+    DoublyLinkedList.prototype.current = function () {
+        if (this._current) {
+            return this._current.value;
+        }
+        return null;
+    };
+    /**
+     * Return current node index
+     *
+     * @method key
+     * @return any  The current node index.
+     */
+    DoublyLinkedList.prototype.key = function () {
+        return this._key;
+    };
+    /**
+     * Move to next entry
+     *
+     * @method next
+     * @return void
+     */
+    DoublyLinkedList.prototype.next = function () {
+        this._current = this._current.next;
+        this._key++;
+    };
+    /**
+     * Move to previous entry
+     *
+     * @method prev
+     * @return void
+     */
+    DoublyLinkedList.prototype.prev = function () {
+        this._current = this._current.prev;
+        this._key--;
+    };
+    /**
+     * Check whether the doubly linked list contains more nodes
+     *
+     * @method valid
+     * @return boolean true if the doubly linked list contains any more nodes, false otherwise.
+     */
+    DoublyLinkedList.prototype.valid = function () {
+        return (this._key >= 0 && this._key < this._length);
+    };
+    /**
+     * Export the list to array
+     *
+     * @method toArray
+     * @return Array   The exported array
+     */
+    DoublyLinkedList.prototype.toArray = function () {
+        var list = [];
+        var current = this._head;
+        while (current) {
+            list.push(current.value);
+            current = current.next;
+        }
+        return list;
+    };
+    /**
+     * Serializes the list to string
+     *
+     * @method toString
+     * @return string   The serialized string.
+     */
+    DoublyLinkedList.prototype.toString = function () {
+        return "{" + this.toArray().join("->") + "}";
+    };
+    return DoublyLinkedList;
+})();
+module.exports = DoublyLinkedList;
+
+},{}],2:[function(require,module,exports){
+/**
+ * The Heap class provides the main functionality of a Heap.
+ *
+ * @class Heap
+ */
+var Heap = (function () {
+    function Heap() {
+        /**
+         * Binary tree storage array
+         *
+         * @property _tree
+         * @type Array
+         * @private
+         */
+        this._tree = [];
+        /**
+         * Heap type
+         *
+         * @property _type
+         * @type number
+         * @private
+         */
+        this._type = Heap.MAX;
+        /**
+         * Iteration pointer
+         *
+         * @property _key
+         * @type number
+         * @private
+         */
+        this._key = 0;
+    }
+    /**
+     * Get index of left child element in binary tree stored in array
+     *
+     * @method _child
+     * @param n
+     * @return number
+     * @private
+     */
+    Heap.prototype._child = function (n) {
+        return 2 * n + 1;
+    };
+    /**
+     * Get index of parent element in binary tree stored in array
+     *
+     * @method _parent
+     * @param n
+     * @return number
+     * @private
+     */
+    Heap.prototype._parent = function (n) {
+        //console.log('n=', n, Math.floor(n / 2));
+        return Math.floor(n / 2);
+    };
+    /**
+     * Swap 2 elements in binary tree
+     *
+     * @method _swap
+     * @param first
+     * @param second
+     * @private
+     */
+    Heap.prototype._swap = function (first, second) {
+        var swap = this._tree[first];
+        this._tree[first] = this._tree[second];
+        this._tree[second] = swap;
+    };
+    /**
+     * Sift elements in binary tree
+     *
+     * @method _siftUp
+     * @param i
+     * @private
+     */
+    Heap.prototype._siftUp = function (i) {
+        while (i > 0) {
+            var parent = this._parent(i);
+            if (this.compare(this._tree[i], this._tree[parent]) * this._type > 0) {
+                this._swap(i, parent);
+                i = parent;
+            }
+            else {
+                break;
+            }
+        }
+    };
+    /**
+     * Sift down elements in binary tree
+     *
+     * @method _siftDown
+     * @param i
+     * @private
+     */
+    Heap.prototype._siftDown = function (i) {
+        while (i < this._tree.length) {
+            var left = this._child(i);
+            var right = left + 1;
+            if ((left < this._tree.length) && (right < this._tree.length) &&
+                (this.compare(this._tree[i], this._tree[left]) * this._type < 0 ||
+                    this.compare(this._tree[i], this._tree[right]) * this._type < 0)) {
+                // there is 2 children and one of them must be swapped
+                // get correct element to sift down
+                var sift = left;
+                if (this.compare(this._tree[left], this._tree[right]) * this._type < 0) {
+                    sift = right;
+                }
+                this._swap(i, sift);
+                i = sift;
+            }
+            else if (left < this._tree.length &&
+                this.compare(this._tree[i], this._tree[left]) * this._type < 0) {
+                // only one child exists
+                this._swap(i, left);
+                i = left;
+            }
+            else {
+                break;
+            }
+        }
+    };
+    /**
+     * Extracts a node from top of the heap and sift up
+     *
+     * @method extract
+     * @return any The value of the extracted node.
+     */
+    Heap.prototype.extract = function () {
+        if (this._tree.length === 0) {
+            throw new Error("Can't extract from an empty data structure");
+        }
+        var extracted = this._tree[0];
+        if (this._tree.length === 1) {
+            this._tree = [];
+        }
+        else {
+            this._tree[0] = this._tree.pop();
+            this._siftDown(0);
+        }
+        return extracted;
+    };
+    /**
+     * Inserts an element in the heap by sifting it up
+     *
+     * @method insert
+     * @param value The value to insert.
+     * @return void
+     */
+    Heap.prototype.insert = function (value) {
+        this._tree.push(value);
+        this._siftUp(this._tree.length - 1);
+    };
+    /**
+     * Peeks at the node from the top of the heap
+     *
+     * @method top
+     * @return any The value of the node on the top.
+     */
+    Heap.prototype.top = function () {
+        if (this._tree.length === 0) {
+            throw new Error("Can't peek at an empty heap");
+        }
+        return this._tree[0];
+    };
+    /**
+     * Counts the number of elements in the heap
+     *
+     * @method count
+     * @return number the number of elements in the heap.
+     */
+    Heap.prototype.count = function () {
+        return this._tree.length;
+    };
+    /**
+     * Checks whether the heap is empty
+     *
+     * @method isEmpty
+     * @return boolean whether the heap is empty.
+     */
+    Heap.prototype.isEmpty = function () {
+        return (this._tree.length === 0);
+    };
+    /**
+     * Rewind iterator back to the start (no-op)
+     *
+     * @method rewind
+     * @return void
+     */
+    Heap.prototype.rewind = function () {
+        this._key = 0;
+    };
+    /**
+     * Return current node pointed by the iterator
+     *
+     * @method current
+     * @return any The current node value.
+     */
+    Heap.prototype.current = function () {
+        return this._tree[this._key];
+    };
+    /**
+     * Return current node index
+     *
+     * @method key
+     * @return any The current node index.
+     */
+    Heap.prototype.key = function () {
+        return this._key;
+    };
+    /**
+     * Move to the next node
+     *
+     * @method next
+     * @return void
+     */
+    Heap.prototype.next = function () {
+        this._key++;
+    };
+    /**
+     * Move to previous entry
+     *
+     * @method prev
+     * @return void
+     */
+    Heap.prototype.prev = function () {
+        this._key--;
+    };
+    /**
+     * Check whether the heap contains more nodes
+     *
+     * @method valid
+     * @return boolean true if the heap contains any more nodes, false otherwise.
+     */
+    Heap.prototype.valid = function () {
+        return (this._key >= 0 && this._key < this._tree.length);
+    };
+    /**
+     * Compare elements in order to place them correctly in the heap while sifting up.
+     *
+     * @method compare
+     * @param first The value of the first node being compared.
+     * @param second The value of the second node being compared.
+     * @return number Result of the comparison, positive integer if first is greater than second, 0 if they are equal, negative integer otherwise.
+     * Having multiple elements with the same value in a Heap is not recommended. They will end up in an arbitrary relative position.
+     */
+    Heap.prototype.compare = function (first, second) {
+        if (first > second) {
+            return 1;
+        }
+        else if (first == second) {
+            return 0;
+        }
+        else {
+            return -1;
+        }
+    };
+    /**
+     * Visually display heap tree
+     *
+     * @method _displayNode
+     * @param node
+     * @param prefix
+     * @param last
+     * @return String
+     * @private
+     */
+    Heap.prototype._displayNode = function (node, prefix, last) {
+        if (prefix === void 0) { prefix = ''; }
+        if (last === void 0) { last = true; }
+        var line = prefix;
+        // get child indexes
+        var left = this._child(node);
+        var right = left + 1;
+        if (last) {
+            line += (prefix ? '└─' : '  ');
+        }
+        else {
+            line += '├─';
+        }
+        line += this._tree[node];
+        prefix += (last ? '  ' : '│ ');
+        if (left < this._tree.length) {
+            line += '\n' + this._displayNode(left, prefix, (this._tree[right] == undefined ? true : false));
+        }
+        if (right < this._tree.length) {
+            line += '\n' + this._displayNode(right, prefix, true);
+        }
+        return line;
+    };
+    /**
+     * Serializes the heap to string
+     *
+     * @method toString
+     * @return string   The serialized string.
+     */
+    Heap.prototype.toString = function () {
+        // start with root and recursively goes to each node
+        return this._displayNode(0);
+    };
+    /**
+     * Serializes the heap to array
+     *
+     * @method toArray
+     * @return Array   The serialized array.
+     */
+    Heap.prototype.toArray = function () {
+        return this._tree;
+    };
+    /**
+     * Max heap flag
+     *
+     * @property MAX
+     * @type number
+     * @static
+     */
+    Heap.MAX = 1;
+    /**
+     * Min heap flag
+     *
+     * @property MIN
+     * @type number
+     * @static
+     */
+    Heap.MIN = -1;
+    return Heap;
+})();
+module.exports = Heap;
+
+},{}],3:[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Heap = require('./Heap');
+/**
+ * The MaxHeap class provides the main functionality of a heap, keeping the maximum on the top.
+ *
+ * @class MaxHeap
+ * @extends Heap
+ */
+var MaxHeap = (function (_super) {
+    __extends(MaxHeap, _super);
+    function MaxHeap() {
+        _super.apply(this, arguments);
+        this._type = Heap.MAX;
+    }
+    return MaxHeap;
+})(Heap);
+module.exports = MaxHeap;
+
+},{"./Heap":2}],4:[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Heap = require('./Heap');
+/**
+ * The MinHeap class provides the main functionality of a heap, keeping the minimum on the top.
+ *
+ * @class MinHeap
+ * @extends Heap
+ */
+var MinHeap = (function (_super) {
+    __extends(MinHeap, _super);
+    function MinHeap() {
+        _super.apply(this, arguments);
+        this._type = Heap.MIN;
+    }
+    return MinHeap;
+})(Heap);
+module.exports = MinHeap;
+
+},{"./Heap":2}],5:[function(require,module,exports){
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var Heap = require('./Heap');
+/**
+ * The PriorityQueue class provides the main functionality of an prioritized queue, implemented using a max heap.
+ *
+ * @class PriorityQueue
+ * @extends Heap
+ */
+var PriorityQueue = (function (_super) {
+    __extends(PriorityQueue, _super);
+    function PriorityQueue() {
+        _super.apply(this, arguments);
+        this._type = Heap.MAX;
+    }
+    /**
+     * Adds an element to the queue
+     *
+     * @method enqueue
+     * @param value The value to enqueue.
+     * @param priority The priority of value.
+     * @return void
+     */
+    PriorityQueue.prototype.enqueue = function (value, priority) {
+        return this.insert(new PriorityQueueNode(value, priority));
+    };
+    /**
+     * Dequeues a node from the queue
+     *
+     * @method dequeue
+     * @return any  The value of the dequeued node.
+     */
+    PriorityQueue.prototype.dequeue = function () {
+        return this.extract().value;
+    };
+    /**
+     * Peeks at the node from the top of the heap
+     *
+     * @method top
+     * @return any The value of the node on the top.
+     */
+    PriorityQueue.prototype.top = function () {
+        return _super.prototype.top.call(this).value;
+    };
+    /**
+     * Compare elements in order to place them correctly in the heap while sifting up.
+     *
+     * @method compare
+     * @param first The value of the first node being compared.
+     * @param second The value of the second node being compared.
+     * @return number Result of the comparison, positive integer if first is greater than second, 0 if they are equal, negative integer otherwise.
+     * Having multiple elements with the same value in a Heap is not recommended. They will end up in an arbitrary relative position.
+     */
+    PriorityQueue.prototype.compare = function (first, second) {
+        if (first.priority > second.priority) {
+            return 1;
+        }
+        else if (first.priority == second.priority) {
+            return 0;
+        }
+        else {
+            return -1;
+        }
+    };
+    return PriorityQueue;
+})(Heap);
+/**
+ * PriorityQueue Node
+ *
+ * @class PriorityQueueNode
+ */
+var PriorityQueueNode = (function () {
+    /**
+     * Constructor
+     *
+     * @method constructor
+     * @param value
+     * @param priority
+     */
+    function PriorityQueueNode(value, priority) {
+        this.value = value;
+        this.priority = priority;
+    }
+    /**
+     * Serializes the node to string
+     *
+     * @method toString
+     * @return string   The serialized string.
+     */
+    PriorityQueueNode.prototype.toString = function () {
+        return this.value + " [" + this.priority + "]";
+    };
+    return PriorityQueueNode;
+})();
+module.exports = PriorityQueue;
+
+},{"./Heap":2}],6:[function(require,module,exports){
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var DoublyLinkedList = require('./DoublyLinkedList');
+/**
+ * The Queue class provides the main functionality of a queue implemented using a doubly linked list.
+ *
+ * @class Queue
+ * @extends DoublyLinkedList
+ */
+var Queue = (function (_super) {
+    __extends(Queue, _super);
+    function Queue() {
+        _super.apply(this, arguments);
+    }
+    /**
+     * Adds an element to the queue
+     *
+     * @method enqueue
+     * @param value The value to enqueue.
+     * @return void
+     */
+    Queue.prototype.enqueue = function (value) {
+        return this.push(value);
+    };
+    /**
+     * Dequeues a node from the queue
+     *
+     * @method dequeue
+     * @return any  The value of the dequeued node.
+     */
+    Queue.prototype.dequeue = function () {
+        return this.shift();
+    };
+    return Queue;
+})(DoublyLinkedList);
+module.exports = Queue;
+
+},{"./DoublyLinkedList":1}],7:[function(require,module,exports){
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var DoublyLinkedList = require('./DoublyLinkedList');
+/**
+ * The Stack class provides the main functionality of a stack implemented using a doubly linked list.
+ *
+ * @class Stack
+ * @extends DoublyLinkedList
+ */
+var Stack = (function (_super) {
+    __extends(Stack, _super);
+    function Stack() {
+        _super.apply(this, arguments);
+    }
+    return Stack;
+})(DoublyLinkedList);
+module.exports = Stack;
+
+},{"./DoublyLinkedList":1}],8:[function(require,module,exports){
+/**
+ * STL
+ * @type {{DoublyLinkedList: exports, Stack: exports, Queue: exports, Heap: exports, MaxHeap: exports, MinHeap: exports, PriorityQueue: exports}}
+ */
+module.exports = {
+	DoublyLinkedList: require('./Datastructures/DoublyLinkedList'),
+	Stack: require('./Datastructures/Stack'),
+	Queue: require('./Datastructures/Queue'),
+	Heap: require('./Datastructures/Heap'),
+	MaxHeap: require('./Datastructures/MaxHeap'),
+	MinHeap: require('./Datastructures/MinHeap'),
+	PriorityQueue: require('./Datastructures/PriorityQueue')
+};
+},{"./Datastructures/DoublyLinkedList":1,"./Datastructures/Heap":2,"./Datastructures/MaxHeap":3,"./Datastructures/MinHeap":4,"./Datastructures/PriorityQueue":5,"./Datastructures/Queue":6,"./Datastructures/Stack":7}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1719,7 +2556,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":7,"./simulation.js":11,"./svgObjects.js":12,"./tutorial.js":13}],2:[function(require,module,exports){
+},{"./contextMenu.js":10,"./editorElements.js":11,"./floatingMenu.js":12,"./helperFunctions.js":13,"./logic.js":15,"./simulation.js":19,"./svgObjects.js":20,"./tutorial.js":21}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2270,7 +3107,7 @@ var ContextMenu = function () {
 
 exports.default = ContextMenu;
 
-},{"./networkLibrary.js":10}],3:[function(require,module,exports){
+},{"./networkLibrary.js":18}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2294,6 +3131,8 @@ var _logic = require('./logic.js');
 
 var _logic2 = _interopRequireDefault(_logic);
 
+var _libstl = require('libstl');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -2305,6 +3144,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// note: imported from a node module
 
 /**
  * mapping of logical states to css classes
@@ -4531,7 +5372,30 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
             var closedNodes = new Set();
             var openNodes = new Set();
-            openNodes.add(start);
+            var openNodeQueue = new _libstl.PriorityQueue();
+
+            // functions for working with open nodes:
+
+            /**
+             * add a new open node to the structure
+             * @param {Object} node   object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
+             * @param {number} fscore fScore of this node
+             */
+            var addOpenNode = function addOpenNode(node, fscore) {
+                openNodes.add(node);
+                // flip the fscore, because PriorityQueue uses max heap
+                openNodeQueue.enqueue(node, 1 / fscore);
+            };
+
+            /**
+             * get the open node with the lowest fScore and remove it
+             * @return {Object} object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
+             */
+            var getOpenNode = function getOpenNode() {
+                var node = openNodeQueue.dequeue();
+                openNodes.delete(node);
+                return node;
+            };
 
             var cameFrom = new Map();
 
@@ -4541,7 +5405,14 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
             // default value: infinity
             var fScore = new _mapWithDefaultValue2.default(Infinity);
-            fScore.set(start, Wire.manhattanDistance(start, end));
+
+            var startFScore = Wire.manhattanDistance(start, end);
+            fScore.set(start, startFScore);
+
+            addOpenNode(start, startFScore);
+
+            openNodes.add(start);
+            openNodeQueue.enqueue(start, 1 / fScore.get(start));
 
             var nonRoutable = this.parentSVG.getNonRoutableNodes();
             var punishedButRoutable = void 0;
@@ -4552,44 +5423,15 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             }
 
             while (openNodes.size > 0) {
-                var currentNode = void 0;
-                var currentNodeFScore = void 0;
+                // get the value from openNodes that has the lowest fScore
+                var currentNode = getOpenNode();
 
-                // find the value from openNodes that has the lowest fScore
-                // (can be implemented effectively using min-heap data structure (maybe TODO sometime)?)
-                var _iteratorNormalCompletion14 = true;
-                var _didIteratorError14 = false;
-                var _iteratorError14 = undefined;
-
-                try {
-                    for (var _iterator14 = openNodes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                        var node = _step14.value;
-
-                        if (!currentNode || fScore.get(node) < currentNodeFScore) {
-                            currentNode = node;
-                            currentNodeFScore = fScore.get(currentNode);
-                        }
-                    }
-                } catch (err) {
-                    _didIteratorError14 = true;
-                    _iteratorError14 = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                            _iterator14.return();
-                        }
-                    } finally {
-                        if (_didIteratorError14) {
-                            throw _iteratorError14;
-                        }
-                    }
-                }
-
+                // if we reached the end point, reconstruct the path and return it
                 if (svgObj.PolylinePoint.equals(currentNode, end)) {
                     return this.reconstructPath(cameFrom, currentNode);
                 }
 
-                openNodes.delete(currentNode);
+                // add this node to the closed nodes
                 closedNodes.add(currentNode);
 
                 // the farthest points accessible without avoiding obstacles in every direction
@@ -4628,11 +5470,14 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
                         cameFrom.set(newPoint, currentNode);
                         gScore.set(newPoint, possibleGScore);
-                        fScore.set(newPoint, possibleGScore + Wire.manhattanDistance(newPoint, end));
+
+                        var newFScore = possibleGScore + Wire.manhattanDistance(newPoint, end);
+
+                        fScore.set(newPoint, newFScore);
 
                         if (!openNodes.has(newPoint)) {
                             // add the point to the list of points
-                            openNodes.add(newPoint);
+                            addOpenNode(newPoint, newFScore);
                         }
 
                         // if newPoint is in the set of punished but routable points,
@@ -4644,15 +5489,10 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         // move to the next point in the direciton
                         newPoint = Wire.movePoint(newPoint, direction);
                     }
-
-                    // process the list of points and artifically prioritize the odd ones
-                    // then add them to the set of open points
-                    // for (const point of pointsToAdd) {
-                    // openNodes.add(point);
-                    // }
                 }
 
                 if (openNodes.size > maxNodeLimit) {
+                    console.log('Number of open nodes (' + openNodes.size + ') exceeded the limit for open nodes (' + maxNodeLimit + '). Giving up...');
                     break;
                 }
             }
@@ -4812,29 +5652,29 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     }, {
         key: 'setHasThisPoint',
         value: function setHasThisPoint(set, point) {
-            var _iteratorNormalCompletion15 = true;
-            var _didIteratorError15 = false;
-            var _iteratorError15 = undefined;
+            var _iteratorNormalCompletion14 = true;
+            var _didIteratorError14 = false;
+            var _iteratorError14 = undefined;
 
             try {
-                for (var _iterator15 = set[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-                    var item = _step15.value;
+                for (var _iterator14 = set[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                    var item = _step14.value;
 
                     if (item.x === point.x && item.y === point.y) {
                         return true;
                     }
                 }
             } catch (err) {
-                _didIteratorError15 = true;
-                _iteratorError15 = err;
+                _didIteratorError14 = true;
+                _iteratorError14 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
-                        _iterator15.return();
+                    if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                        _iterator14.return();
                     }
                 } finally {
-                    if (_didIteratorError15) {
-                        throw _iteratorError15;
+                    if (_didIteratorError14) {
+                        throw _iteratorError14;
                     }
                 }
             }
@@ -4846,7 +5686,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     return Wire;
 }(NetworkElement);
 
-},{"./logic.js":7,"./mapWithDefaultValue.js":9,"./svgObjects.js":12}],4:[function(require,module,exports){
+},{"./logic.js":15,"./mapWithDefaultValue.js":17,"./svgObjects.js":20,"libstl":8}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5004,7 +5844,7 @@ var FloatingMenu = function () {
 
 exports.default = FloatingMenu;
 
-},{"./helperFunctions.js":5}],5:[function(require,module,exports){
+},{"./helperFunctions.js":13}],13:[function(require,module,exports){
 "use strict";
 
 /**
@@ -5080,7 +5920,7 @@ function getJSONString(data) {
     }
 }
 
-},{}],6:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5157,7 +5997,7 @@ var Id = function () {
 
 exports.default = Id;
 
-},{}],7:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 "use strict";
 
 /** @module Logic */
@@ -5369,7 +6209,7 @@ var Logic = function () {
 
 exports.default = Logic;
 
-},{}],8:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 
 var _canvas = require("./canvas.js");
@@ -5385,7 +6225,7 @@ $(function () {
   new _canvas2.default("#canvas", 10);
 });
 
-},{"./canvas.js":1}],9:[function(require,module,exports){
+},{"./canvas.js":9}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5491,7 +6331,7 @@ var MapWithDefaultValue = function () {
 
 exports.default = MapWithDefaultValue;
 
-},{}],10:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5556,7 +6396,7 @@ function getNetworkFromLibrary(networkName) {
     });
 }
 
-},{}],11:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5834,7 +6674,7 @@ var Simulation = function () {
 
 exports.default = Simulation;
 
-},{"./logic.js":7}],12:[function(require,module,exports){
+},{"./logic.js":15}],20:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6678,7 +7518,7 @@ var Pattern = exports.Pattern = function (_Tag6) {
     return Pattern;
 }(Tag);
 
-},{"./id.js":6}],13:[function(require,module,exports){
+},{"./id.js":14}],21:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7227,6 +8067,6 @@ var Tutorial = function () {
 
 exports.default = Tutorial;
 
-},{}]},{},[8])
+},{}]},{},[16])
 
 //# sourceMappingURL=main.js.map
