@@ -1,8 +1,10 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: FloatingButton | Hradla</title>
+    <title>Source: tutorial.js | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -45,414 +47,419 @@
 
 
 
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>FloatingButton<span class="signature">(buttonClass, tooltip, clickEvent, parentSVG)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><p>FloatingButton represents a button that is used in the floating menu in the right bottom corner
-of the application. It may have a custom tooltip and callback on the click event</p></div>
-        
-    
-</header>
-
-<article>
-    
-        <div class="container-overview">
-        
-            
-
-<dt>
-    
-        <h4 class="name" id="FloatingButton">
-            
-                new <span class="type-signature"></span>FloatingButton<span class="signature">(buttonClass, tooltip, clickEvent, parentSVG)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="floatingMenu.js.html">floatingMenu.js</a></code>,
-                <code><a href="floatingMenu.js.html#line7">line 7</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>buttonClass</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Custom string that identifies the SVG icon used on this button. This string is also added as a CSS class to the button.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>tooltip</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>tooltip for the button, that will be displayed on hover and also used as alternative title for the image</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>clickEvent</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>custom callback when user clicks the button</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>parentSVG</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Canvas</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>reference to the parent SVG element</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-        
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        <dl>
-            
-
-<dt>
-<h4 class="name" id="$el">
-    <span class="type-signature"></span>$el<span class="type-signature"> :jQuery.element</span>
-    
-    <div class="container-source members">
-        <code><a href="floatingMenu.js.html">floatingMenu.js</a></code>,
-        <code><a href="floatingMenu.js.html#line19">line 19</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>jQuery element representing the button</p>
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">jQuery.element</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id="$tooltip">
-    <span class="type-signature"></span>$tooltip<span class="type-signature"> :jQuery.element</span>
-    
-    <div class="container-source members">
-        <code><a href="floatingMenu.js.html">floatingMenu.js</a></code>,
-        <code><a href="floatingMenu.js.html#line38">line 38</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>jQuery element representing the tooltip</p>
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">jQuery.element</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        </dl>
-    
-
-    
-
-    
-
     
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module Tutorial */
+/**
+ * Display and manage the tutorial
+ */
+export default class Tutorial {
+    /**
+     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html) for this tutorial
+     * @param {Function} [onTutorialClosed] callback function when user closes or finishes the tutorial
+     */
+    constructor(parentSVG, onTutorialClosed) {
+        /**
+         * instance of [Canvas](./module-Canvas.html) for this tutorial
+         * @type {Canvas}
+         */
+        this.parentSVG = parentSVG;
+
+        /**
+         * helper variable for the `step` property, stores current state of the tutorial (step `0` means that tutorial is closed)
+         * @type {Number}
+         */
+        this.currentStep = 0;
+
+        /**
+         * jQuery element containing the tutorial popup
+         * @type {jQuery.element}
+         */
+        this.$tutorialWindow;
+        /**
+         * jQuery element for the dynamic part of the tutorial popup
+         * (text and buttons that are dependent on the current state of the tutorial)
+         * @type {Array}
+         */
+        this.$tutorialContent;
+
+        /**
+         * array of functions that represent intividual steps in the tutorial
+         * by default populated with step `0` that closes the tutorial
+         * @type {Array}
+         */
+        this.steps = [() => { this.closeWindow(onTutorialClosed) }];
+
+        // set up the tutorial
+        this.setUpTutorial();
+    }
+
+    /**
+     * get the current step of the tutorial, this number corresponds to the index in the `this.steps` array
+     * that contains the function for the last displayed step
+     * @return {Number}
+     */
+    get step() {
+        return this.currentStep;
+    }
+
+    /**
+     * change the current step of the tutorial, `0` means "stop the tutorial"
+     * @param  {Number} value the step of the tutorial to be displayed
+     */
+    set step(value) {
+        this.currentStep = value;
+
+        console.log("Tutorial step", this.step)
+
+        if(this.step &lt; this.steps.length) {
+            this.steps[this.step]();
+
+            if(this.step === 1)
+                this.displayWindow();
+        } else {
+            this.step = 0;
+        }
+    }
+
+    /**
+     * reset all tutorial hooks
+     */
+    resetHooks() {
+        /**
+         * _tutorial hook_, called when the context menu is opened
+         */
+        this.onContextMenuOpened = () => {};
+
+        /**
+         * _tutorial hook_, called when a new element is added
+         */
+        this.onElementAdded = () => {};
+
+        /**
+         * _tutorial hook_, called when a box is moved
+         */
+        this.onBoxMoved = () => {};
+
+        /**
+         * _tutorial hook_, called when a box is rotated
+         */
+        this.onBoxRotated = () => {};
+
+        /**
+         * _tutorial hook_, called when an output box value is set to `on`
+         */
+        this.onOutputBoxTrue = () => {};
+
+        /**
+         * _tutorial hook_, called when the canvas is moved
+         */
+        this.onCanvasMoved = () => {};
+
+        /**
+         * _tutorial hook_, called when the canvas is zoomed
+         */
+        this.onCanvasZoomed = () => {};
+
+        /**
+         * _tutorial hook_, called when a box is removed
+         */
+        this.onElementRemoved = () => {};
+
+        /**
+         * _tutorial hook_, called when user changes the state of an input box
+         */
+        this.onChangeInputBoxState = () => {};
+    }
+
+    /**
+     * set up the tutorial: reset all tutorial hooks and define the order of tutorial steps
+     */
+    setUpTutorial() {
+        this.resetHooks();
+
+        this.steps.push(
+            () => { this.stepWelcome() },
+            () => { this.stepAddBoxes() },
+            () => { this.stepMoveCanvas() },
+            () => { this.stepZoomCanvas() },
+            () => { this.stepMoveBoxes() },
+            () => { this.stepWiring() },
+            () => { this.switchInputBox() },
+            () => { this.stepRemoveBox() },
+            () => { this.stepFinish() }
+        )
+    }
+
+    /**
+     * _tutorial step_: display context menu
+     */
+    stepWelcome() {
+        this.windowContent(
+            `Welcome to Hradla! To get started, click anywhere on the editing area with your right mouse button.`
+        )
+
+        this.onContextMenuOpened = () => {
+            this.next();
+
+            // this function runs only once
+            this.onContextMenuOpened = () => {}
+        }
+    }
+
+    /**
+     * _tutorial step_: add input box, output box and a NOT gate
+     */
+    stepAddBoxes() {
+        this.windowContent(
+            `Great job! Now you know, how to open the editor menu.
+            Now try to add an &lt;em>Input box&lt;/em>, &lt;em>Output box&lt;/em> and a &lt;em>NOT gate&lt;/em>
+            to the editing area.`)
+
+        let elementsAdded = {
+            inputBox: false,
+            outputBox: false,
+            notGate: false
+        }
+
+        this.onElementAdded = (name) => {
+            switch (name) {
+                case "input":
+                    elementsAdded.inputBox = true;
+                    break;
+                case "output":
+                    elementsAdded.outputBox = true;
+                    break;
+                case "not":
+                    elementsAdded.notGate = true;
+                    break;
+                default:
+                    // no action on default
+                    break;
+            }
+
+            if(elementsAdded.inputBox &amp;&amp; elementsAdded.outputBox &amp;&amp; elementsAdded.notGate) {
+                // remove the action
+                this.onElementAdded = () => {}
+
+                // proceed to the next step of the tutorial
+                this.next();
+            }
+        };
+    }
+
+    /**
+     * _tutorial step_: move the canvas
+     */
+    stepMoveCanvas() {
+        this.windowContent(
+            `You can move the editing area (sometimes called canvas) by dragging
+            with the middle mouse button or by holding the &lt;code>Ctrl&lt;/code> key
+            and dragging with the left mouse button. Check it out.`)
+
+        this.onCanvasMoved = () => {
+            this.next();
+            this.onCanvasMoved = () => {}
+        }
+    }
+
+    /**
+     * _tutorial step_: zoom the canvas
+     */
+    stepZoomCanvas() {
+        this.windowContent(
+            `You can also zoom in and out using &lt;code>Ctrl&lt;/code> and the mouse wheel.`
+        )
+
+        this.onCanvasZoomed = () => {
+            this.next();
+            this.onCanvasZoomed = () => {};
+        }
+    }
+
+    /**
+     * _tutorial step_: move the boxes
+     */
+    stepMoveBoxes() {
+        this.windowContent(`You can move the elements on the editing canvas by dragging them
+            using the left mouse button. You can also rotate them using middle click. Try it out.`)
+
+        let boxMoved = false;
+        let boxRotated = false;
+
+        let moveRotateCallback = () => {
+            if(boxMoved &amp;&amp; boxRotated) {
+                this.next();
+            }
+        }
+
+        this.onBoxMoved = () => {
+            boxMoved = true;
+
+            this.onBoxMoved = () => {}
+
+            moveRotateCallback()
+        }
+
+        this.onBoxRotated = () => {
+            boxRotated = true;
+
+            this.onBoxRotated = () => {}
+
+            moveRotateCallback()
+        }
+    }
+
+    /**
+     * _tutorial step_: create an invertor
+     */
+    stepWiring() {
+        this.windowContent(`Essential part of logic networks is the wiring. Create a very simple
+            inverter by connecting the &lt;em>Input box&lt;/em> to the input of the &lt;em>NOT gate&lt;/em>
+            and the output of the &lt;em>NOT gate&lt;/em> to the input of the &lt;em>Output box&lt;/em>.`,
+            `To connect two elemnts, simply click on a connector of the first element,
+            than click on a conector of the second element.`)
+
+        this.onOutputBoxTrue = () => {
+            this.next();
+
+            this.onOutputBoxTrue = () => {};
+        };
+    }
+
+    /**
+     * _tutorial step_: change the state of an input box
+     */
+    switchInputBox() {
+        this.windowContent(`
+            The input boxes can be in two states: &lt;em>ON&lt;/em> and &lt;em>OFF&lt;/em>, signalled
+            by the green and red colors respectively. You can left click on an Input box to
+            switch its state. Try it out!
+        `)
+
+        this.onChangeInputBoxState = () => {
+            this.next();
+
+            this.onChangeInputBoxState = () => {};
+        };
+    }
+
+    /**
+     * _tutorial step_: remove a box
+     */
+    stepRemoveBox() {
+        this.windowContent(
+            `When you right click on an element, you can find a new item in the menu,
+            that allows you to remove the element. This works for wires as well as for gates and other types of boxes.
+            Try to remove an element!`
+        )
+
+        this.onElementRemoved = () => {
+            this.next();
+
+            this.onElementRemoved = () => {};
+        }
+    }
+
+    /**
+     * _tutorial step_: ask the user if they want to clean the canvas before closing the tutorial
+     */
+    stepFinish() {
+        this.windowContent(`You're all set, enjoy your stay!`,
+                           `Do you wish to start with empty canvas?`)
+        this.windowChoice(
+            {
+                text: 'yes, clean the canvas',
+                func: () => {
+                    this.parentSVG.cleanCanvas();
+                    this.stop();
+                }
+            },
+            {
+                text: 'no, keep the canvas as it is',
+                func: () => {
+                    this.stop();
+                }
+            }
+        )
+    }
+
+    /**
+     * display the tutorial window
+     */
+    displayWindow() {
+        this.parentSVG.$svg.after(this.$tutorialWindow)
+    }
+
+    /**
+     * close the tutorial window
+     * @param  {Function} [onTutorialClosed] callback function that is called when the tutorial is closed
+     */
+    closeWindow(onTutorialClosed) {
+        this.$tutorialWindow.remove();
+
+        if(onTutorialClosed!==undefined) {
+            onTutorialClosed();
+        }
+    }
+
+    /**
+     * set the tutorial window text content
+     * @param  {...string} text each string is a separate paragraph
+     */
+    windowContent(...text) {
+        if(!this.$tutorialWindow) {
+            this.$tutorialWindow = $("&lt;div>").attr("id", "tutorial");
+
+            this.$tutorialContent = $("&lt;div>").addClass("content");
+            this.$tutorialWindow.append(this.$tutorialContent);
+        }
+
+        this.$tutorialContent.html("");
+        for (const paragraph of text) {
+            this.$tutorialContent.append(
+                $("&lt;p>").html(paragraph)
+            );
+        }
+    }
+
+    /**
+     * add buttons with choices to the tutorial window
+     * @param  {...object} choices each choice is an object in with a `string` property _text_ and a `function` property _func_
+     */
+    windowChoice(...choices) {
+        let $choices = $("&lt;ol>").addClass("choices");
+        for (const choice of choices) {
+            $choices.append(
+                $("&lt;li>").append(
+                    $("&lt;a>").attr("href", "#").click(() => {
+                        choice.func()
+                    }).html(choice.text)
+                )
+            )
+        }
+        this.$tutorialContent.append($choices);
+    }
+
+    /**
+     * start the tutorial
+     */
+    start() { this.step = 1; }
+
+    /**
+     * go to the next step of the tutorial
+     */
+    next() { this.step++; }
+
+    /**
+     * stop the tutorial
+     */
+    stop() { this.step = 0 }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
@@ -469,7 +476,7 @@ of the application. It may have a custom tooltip and callback on the click event
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'FloatingButton_sub'.replace(/"/g, '_');
+        var id = '_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

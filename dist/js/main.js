@@ -6643,44 +6643,128 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/** @module Tutorial */
+/**
+ * Display and manage the tutorial
+ */
 var Tutorial = function () {
+    /**
+     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html) for this tutorial
+     * @param {Function} [onTutorialClosed] callback function when user closes or finishes the tutorial
+     */
     function Tutorial(parentSVG, onTutorialClosed) {
         var _this = this;
 
         _classCallCheck(this, Tutorial);
 
+        /**
+         * instance of [Canvas](./module-Canvas.html) for this tutorial
+         * @type {Canvas}
+         */
         this.parentSVG = parentSVG;
+
+        /**
+         * helper variable for the `step` property, stores current state of the tutorial (step `0` means that tutorial is closed)
+         * @type {Number}
+         */
         this.currentStep = 0;
 
+        /**
+         * jQuery element containing the tutorial popup
+         * @type {jQuery.element}
+         */
         this.$tutorialWindow;
+        /**
+         * jQuery element for the dynamic part of the tutorial popup
+         * (text and buttons that are dependent on the current state of the tutorial)
+         * @type {Array}
+         */
         this.$tutorialContent;
 
+        /**
+         * array of functions that represent intividual steps in the tutorial
+         * by default populated with step `0` that closes the tutorial
+         * @type {Array}
+         */
         this.steps = [function () {
             _this.closeWindow(onTutorialClosed);
         }];
 
+        // set up the tutorial
         this.setUpTutorial();
-
-        this.resetActions();
     }
 
+    /**
+     * get the current step of the tutorial, this number corresponds to the index in the `this.steps` array
+     * that contains the function for the last displayed step
+     * @return {Number}
+     */
+
+
     _createClass(Tutorial, [{
-        key: "resetActions",
-        value: function resetActions() {
+        key: "resetHooks",
+
+
+        /**
+         * reset all tutorial hooks
+         */
+        value: function resetHooks() {
+            /**
+             * _tutorial hook_, called when the context menu is opened
+             */
             this.onContextMenuOpened = function () {};
+
+            /**
+             * _tutorial hook_, called when a new element is added
+             */
             this.onElementAdded = function () {};
+
+            /**
+             * _tutorial hook_, called when a box is moved
+             */
             this.onBoxMoved = function () {};
+
+            /**
+             * _tutorial hook_, called when a box is rotated
+             */
             this.onBoxRotated = function () {};
+
+            /**
+             * _tutorial hook_, called when an output box value is set to `on`
+             */
             this.onOutputBoxTrue = function () {};
+
+            /**
+             * _tutorial hook_, called when the canvas is moved
+             */
             this.onCanvasMoved = function () {};
+
+            /**
+             * _tutorial hook_, called when the canvas is zoomed
+             */
             this.onCanvasZoomed = function () {};
+
+            /**
+             * _tutorial hook_, called when a box is removed
+             */
             this.onElementRemoved = function () {};
+
+            /**
+             * _tutorial hook_, called when user changes the state of an input box
+             */
             this.onChangeInputBoxState = function () {};
         }
+
+        /**
+         * set up the tutorial: reset all tutorial hooks and define the order of tutorial steps
+         */
+
     }, {
         key: "setUpTutorial",
         value: function setUpTutorial() {
             var _this2 = this;
+
+            this.resetHooks();
 
             this.steps.push(function () {
                 _this2.stepWelcome();
@@ -6702,6 +6786,11 @@ var Tutorial = function () {
                 _this2.stepFinish();
             });
         }
+
+        /**
+         * _tutorial step_: display context menu
+         */
+
     }, {
         key: "stepWelcome",
         value: function stepWelcome() {
@@ -6716,6 +6805,11 @@ var Tutorial = function () {
                 _this3.onContextMenuOpened = function () {};
             };
         }
+
+        /**
+         * _tutorial step_: add input box, output box and a NOT gate
+         */
+
     }, {
         key: "stepAddBoxes",
         value: function stepAddBoxes() {
@@ -6754,6 +6848,11 @@ var Tutorial = function () {
                 }
             };
         }
+
+        /**
+         * _tutorial step_: move the canvas
+         */
+
     }, {
         key: "stepMoveCanvas",
         value: function stepMoveCanvas() {
@@ -6766,6 +6865,11 @@ var Tutorial = function () {
                 _this5.onCanvasMoved = function () {};
             };
         }
+
+        /**
+         * _tutorial step_: zoom the canvas
+         */
+
     }, {
         key: "stepZoomCanvas",
         value: function stepZoomCanvas() {
@@ -6778,6 +6882,11 @@ var Tutorial = function () {
                 _this6.onCanvasZoomed = function () {};
             };
         }
+
+        /**
+         * _tutorial step_: move the boxes
+         */
+
     }, {
         key: "stepMoveBoxes",
         value: function stepMoveBoxes() {
@@ -6810,6 +6919,11 @@ var Tutorial = function () {
                 moveRotateCallback();
             };
         }
+
+        /**
+         * _tutorial step_: create an invertor
+         */
+
     }, {
         key: "stepWiring",
         value: function stepWiring() {
@@ -6823,6 +6937,11 @@ var Tutorial = function () {
                 _this8.onOutputBoxTrue = function () {};
             };
         }
+
+        /**
+         * _tutorial step_: change the state of an input box
+         */
+
     }, {
         key: "switchInputBox",
         value: function switchInputBox() {
@@ -6836,6 +6955,11 @@ var Tutorial = function () {
                 _this9.onChangeInputBoxState = function () {};
             };
         }
+
+        /**
+         * _tutorial step_: remove a box
+         */
+
     }, {
         key: "stepRemoveBox",
         value: function stepRemoveBox() {
@@ -6849,6 +6973,11 @@ var Tutorial = function () {
                 _this10.onElementRemoved = function () {};
             };
         }
+
+        /**
+         * _tutorial step_: ask the user if they want to clean the canvas before closing the tutorial
+         */
+
     }, {
         key: "stepFinish",
         value: function stepFinish() {
@@ -6868,11 +6997,22 @@ var Tutorial = function () {
                 }
             });
         }
+
+        /**
+         * display the tutorial window
+         */
+
     }, {
         key: "displayWindow",
         value: function displayWindow() {
             this.parentSVG.$svg.after(this.$tutorialWindow);
         }
+
+        /**
+         * close the tutorial window
+         * @param  {Function} [onTutorialClosed] callback function that is called when the tutorial is closed
+         */
+
     }, {
         key: "closeWindow",
         value: function closeWindow(onTutorialClosed) {
@@ -6882,6 +7022,12 @@ var Tutorial = function () {
                 onTutorialClosed();
             }
         }
+
+        /**
+         * set the tutorial window text content
+         * @param  {...string} text each string is a separate paragraph
+         */
+
     }, {
         key: "windowContent",
         value: function windowContent() {
@@ -6923,6 +7069,12 @@ var Tutorial = function () {
                 }
             }
         }
+
+        /**
+         * add buttons with choices to the tutorial window
+         * @param  {...object} choices each choice is an object in with a `string` property _text_ and a `function` property _func_
+         */
+
     }, {
         key: "windowChoice",
         value: function windowChoice() {
@@ -6965,16 +7117,31 @@ var Tutorial = function () {
 
             this.$tutorialContent.append($choices);
         }
+
+        /**
+         * start the tutorial
+         */
+
     }, {
         key: "start",
         value: function start() {
             this.step = 1;
         }
+
+        /**
+         * go to the next step of the tutorial
+         */
+
     }, {
         key: "next",
         value: function next() {
             this.step++;
         }
+
+        /**
+         * stop the tutorial
+         */
+
     }, {
         key: "stop",
         value: function stop() {
@@ -6984,7 +7151,13 @@ var Tutorial = function () {
         key: "step",
         get: function get() {
             return this.currentStep;
-        },
+        }
+
+        /**
+         * change the current step of the tutorial, `0` means "stop the tutorial"
+         * @param  {Number} value the step of the tutorial to be displayed
+         */
+        ,
         set: function set(value) {
             this.currentStep = value;
 
