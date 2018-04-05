@@ -121,6 +121,15 @@ export default class FloatingMenu {
             }, parentSVG)
         );
 
+        /* Tutorial */
+        this.append(
+            new FloatingButton("tutorial", "Start the tutorial", () => {
+                parentSVG.startTutorial();
+            }, parentSVG)
+        );
+
+        parentSVG.$svg.after(this.$el);
+
         /* HELP */
 
         let help = new FloatingButton("help", "Display a help page", false, parentSVG);

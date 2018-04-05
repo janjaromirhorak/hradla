@@ -284,14 +284,16 @@ export default class Canvas {
             event.preventDefault()
         })
 
-        // check if the user visits for the first time
+        /**
+         * property containing an instance of [Tutorial](./module-Tutorial.html), if there is any
+         * @type {Tutorial}
+         */
+        this.tutorial;
+
+        // check if the user visits for the first time, if so, start the tutorial
         try {
             if(!localStorage.userHasVisited) {
-                this.tutorial = new Tutorial(this, () => {
-                    // set userHasVisited to true when user closes (or finishes) the tutorial
-                    localStorage.userHasVisited = true;
-                });
-                this.tutorial.start();
+                this.startTutorial();
             }
         } catch (e) {
             console.warn(e);
@@ -422,6 +424,23 @@ export default class Canvas {
         if(this.tutorial) {
             this.tutorial.onCanvasZoomed();
         }
+    }
+
+    /**
+     * start the tutorial
+     */
+    startTutorial() {
+        // instantiate the tutorial
+        this.tutorial = new Tutorial(this, () => {
+            // set userHasVisited to true when user closes (or finishes) the tutorial
+            localStorage.userHasVisited = true;
+
+            // unset the this.tutorial property
+            this.tutorial = undefined;
+        });
+
+        // start the tutorial
+        this.tutorial.start();
     }
 
     /**

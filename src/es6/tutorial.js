@@ -59,8 +59,6 @@ export default class Tutorial {
     set step(value) {
         this.currentStep = value;
 
-        console.log("Tutorial step", this.step)
-
         if(this.step < this.steps.length) {
             this.steps[this.step]();
 
@@ -359,6 +357,14 @@ export default class Tutorial {
     windowContent(...text) {
         if(!this.$tutorialWindow) {
             this.$tutorialWindow = $("<div>").attr("id", "tutorial");
+            this.$tutorialWindow.append(
+                $("<div>").addClass("topButtons").append(
+                    $("<a>").attr("href", "#").addClass("button close")
+                    .click(() => {
+                        this.stop();
+                    })
+                )
+            )
 
             this.$tutorialContent = $("<div>").addClass("content");
             this.$tutorialWindow.append(this.$tutorialContent);

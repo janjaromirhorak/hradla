@@ -11,10 +11,32 @@
     color: $t_darkCasual;
     background: white;
 
+    .topButtons {
+        text-align: right;
+        .button {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+
+            &.close {
+                background: url('../img/gui/close.svg') no-repeat center center;
+                background-size: 1em 1em;
+            }
+        }
+    }
+
     .content {
         margin: 0;
         padding: 0;
         line-height: 1.5em;
+
+        p {
+            margin: 0 0 1em 0;
+
+            &:last-of-type {
+                margin-bottom: 0;
+            }
+        }
     }
 
     ol.choices {

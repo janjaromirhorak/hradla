@@ -355,14 +355,16 @@ var Canvas = function () {
             event.preventDefault();
         });
 
-        // check if the user visits for the first time
+        /**
+         * property containing an instance of [Tutorial](./module-Tutorial.html), if there is any
+         * @type {Tutorial}
+         */
+        this.tutorial;
+
+        // check if the user visits for the first time, if so, start the tutorial
         try {
             if (!localStorage.userHasVisited) {
-                this.tutorial = new _tutorial2.default(this, function () {
-                    // set userHasVisited to true when user closes (or finishes) the tutorial
-                    localStorage.userHasVisited = true;
-                });
-                this.tutorial.start();
+                this.startTutorial();
             }
         } catch (e) {
             console.warn(e);
@@ -487,6 +489,36 @@ var Canvas = function () {
          */
 
     }, {
+        key: 'startTutorial',
+
+
+        /**
+         * start the tutorial
+         */
+        value: function startTutorial() {
+            var _this2 = this;
+
+            // instantiate the tutorial
+            this.tutorial = new _tutorial2.default(this, function () {
+                // set userHasVisited to true when user closes (or finishes) the tutorial
+                localStorage.userHasVisited = true;
+
+                // unset the this.tutorial property
+                _this2.tutorial = undefined;
+            });
+
+            // start the tutorial
+            this.tutorial.start();
+        }
+
+        /**
+         * Generate an object containing export data for the Canvas and all elements.
+         * Data from this function should cover all important information needed to import the
+         * network in a different session.
+         * @return {object} object containing infomration about the network
+         */
+
+    }, {
         key: 'importData',
 
 
@@ -497,16 +529,16 @@ var Canvas = function () {
          * @param  {number} [y]  vertical position of the left top corner of the network in grid pixels
          */
         value: function importData(data, x, y) {
-            var _this2 = this;
+            var _this3 = this;
 
             return new Promise(function (resolve, reject) {
                 // if the x or y is undefined, set it to leftTopPadding instead
                 // (cannot use x || leftTopPadding because of 0)
 
-                x = x !== undefined ? x : _this2.leftTopPadding;
-                y = y !== undefined ? y : _this2.leftTopPadding;
+                x = x !== undefined ? x : _this3.leftTopPadding;
+                y = y !== undefined ? y : _this3.leftTopPadding;
 
-                _this2.simulationEnabled = false;
+                _this3.simulationEnabled = false;
 
                 // list of wires to be added
                 var newWires = new Map();
@@ -586,17 +618,17 @@ var Canvas = function () {
                         switch (_boxData.category) {
                             case "gate":
                                 // add new gate (without reloading the SVG, we will reload it once after the import)
-                                box = _this2.newGate(_boxData.name, 0, 0, false);
+                                box = _this3.newGate(_boxData.name, 0, 0, false);
                                 break;
                             case "io":
                                 switch (_boxData.name) {
                                     case "input":
                                         // add new input (without reloading the SVG, we will reload it once after the import)
-                                        box = _this2.newInput(0, 0, _boxData.isOn, false);
+                                        box = _this3.newInput(0, 0, _boxData.isOn, false);
                                         break;
                                     case "output":
                                         // add new output (without reloading the SVG, we will reload it once after the import)
-                                        box = _this2.newOutput(0, 0, false);
+                                        box = _this3.newOutput(0, 0, false);
                                         break;
                                     default:
                                         reject("Unknown io box name '" + _boxData.name + "'.");
@@ -604,7 +636,7 @@ var Canvas = function () {
                                 }
                                 break;
                             case "blackbox":
-                                box = _this2.newBlackbox(_boxData.inputs, _boxData.outputs, _boxData.table, _boxData.name, 0, 0, false);
+                                box = _this3.newBlackbox(_boxData.inputs, _boxData.outputs, _boxData.table, _boxData.name, 0, 0, false);
                                 break;
                             default:
                                 reject("Unknown box category '" + _boxData.category + "'.");
@@ -634,7 +666,7 @@ var Canvas = function () {
                                 }
                             }
 
-                            transform.toSVGPixels(_this2);
+                            transform.toSVGPixels(_this3);
                             box.setTransform(transform);
 
                             // add all wires to the list of wires to be added
@@ -681,7 +713,7 @@ var Canvas = function () {
                     }
                 }
 
-                _this2.refresh();
+                _this3.refresh();
 
                 // with all boxes added, we can now connect them with wires
                 newWires.forEach(function (item) {
@@ -691,24 +723,24 @@ var Canvas = function () {
 
                         for (var _i = 0; _i < _arr.length; _i++) {
                             var i = _arr[_i];
-                            var box = _this2.getBoxById(item[i].boxId);
+                            var box = _this3.getBoxById(item[i].boxId);
 
                             connectorIds[i] = box.connectors[item[i].index].id;
                         }
                     }
-                    _this2.newWire(connectorIds[0], connectorIds[1], true);
+                    _this3.newWire(connectorIds[0], connectorIds[1], true);
                 });
 
                 // refresh the SVG document
-                _this2.refresh();
+                _this3.refresh();
 
-                _this2.simulationEnabled = true;
+                _this3.simulationEnabled = true;
                 var _iteratorNormalCompletion3 = true;
                 var _didIteratorError3 = false;
                 var _iteratorError3 = undefined;
 
                 try {
-                    for (var _iterator3 = _this2.boxes[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    for (var _iterator3 = _this3.boxes[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
                         var box = _step3.value;
 
                         if (box instanceof editorElements.InputBox) {
@@ -902,21 +934,28 @@ var Canvas = function () {
 
         /**
          * Remove all boxes from the canvas
-         * TODO fix: not all boxes are removed
          */
 
     }, {
         key: 'cleanCanvas',
         value: function cleanCanvas() {
+            // cannot simply iterate through the array because removeBox works with it
+
+            // create an array of ids
+            var ids = this.boxes.map(function (box) {
+                return box.id;
+            });
+
+            // remove all boxes by their ids
             var _iteratorNormalCompletion5 = true;
             var _didIteratorError5 = false;
             var _iteratorError5 = undefined;
 
             try {
-                for (var _iterator5 = this.boxes[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                    var box = _step5.value;
+                for (var _iterator5 = ids[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var id = _step5.value;
 
-                    this.removeBox(box.id);
+                    this.removeBox(id);
                 }
             } catch (err) {
                 _didIteratorError5 = true;
@@ -945,7 +984,7 @@ var Canvas = function () {
     }, {
         key: 'newWire',
         value: function newWire(fromId, toId) {
-            var _this3 = this;
+            var _this4 = this;
 
             var refresh = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
@@ -956,13 +995,13 @@ var Canvas = function () {
 
             // input connectors can be connected to one wire max
             connectors.forEach(function (conn) {
-                if (conn.isInputConnector) _this3.removeWiresByConnectorId(conn.id);
+                if (conn.isInputConnector) _this4.removeWiresByConnectorId(conn.id);
             });
             var index = this.wires.length;
             this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize, refresh);
 
             connectors.forEach(function (conn) {
-                conn.addWireId(_this3.wires[index].svgObj.id);
+                conn.addWireId(_this4.wires[index].svgObj.id);
             });
 
             this.appendElement(this.wires[index], refresh);
@@ -1147,17 +1186,17 @@ var Canvas = function () {
     }, {
         key: 'removeWiresByConnectorId',
         value: function removeWiresByConnectorId(connectorId) {
-            var _this4 = this;
+            var _this5 = this;
 
             var connector = this.getConnectorById(connectorId);
 
             connector.wireIds.forEach(function (wireId) {
-                var wire = _this4.getWireById(wireId);
+                var wire = _this5.getWireById(wireId);
 
                 // get the other connector that is the wire connected to
-                var otherConnector = _this4.getConnectorById(wire.fromId, wire);
+                var otherConnector = _this5.getConnectorById(wire.fromId, wire);
                 if (otherConnector.svgObj.id === connectorId) {
-                    otherConnector = _this4.getConnectorById(wire.toId, wire);
+                    otherConnector = _this5.getConnectorById(wire.toId, wire);
                 }
 
                 // delete the wire record from the other connector
@@ -1168,7 +1207,7 @@ var Canvas = function () {
 
                 // if otherConnector is an input connector, set its state to unknown
                 if (otherConnector.isInputConnector) {
-                    _this4.startNewSimulation(otherConnector, _logic2.default.state.unknown);
+                    _this5.startNewSimulation(otherConnector, _logic2.default.state.unknown);
                 }
             });
 
@@ -1540,7 +1579,7 @@ var Canvas = function () {
     }, {
         key: 'getInconvenientNodes',
         value: function getInconvenientNodes(ignoreWireId) {
-            var _this5 = this;
+            var _this6 = this;
 
             var inconvenientNodes = new Set();
             // for each wire
@@ -1551,7 +1590,7 @@ var Canvas = function () {
                         // cycle through points, for each neigbours add all points that are in between them
                         // i.e.: (0,0) and (0,30) are blocking these nodes: (0,0), (0,10), (0,20), (0,30)
                         var prevPoint = void 0;
-                        _this5.wires[i].points.forEach(function (point) {
+                        _this6.wires[i].points.forEach(function (point) {
                             if (prevPoint === undefined) {
                                 // if the prevPoint is undefined, add the first point
                                 inconvenientNodes.add({ x: point.x, y: point.y });
@@ -1565,7 +1604,7 @@ var Canvas = function () {
 
                                     while (from <= to) {
                                         inconvenientNodes.add({ x: point.x, y: from });
-                                        from += _this5.gridSize;
+                                        from += _this6.gridSize;
                                     }
                                 } else if (prevPoint.y === point.y) {
                                     // if the line is vertical
@@ -1574,7 +1613,7 @@ var Canvas = function () {
 
                                     while (_from <= _to) {
                                         inconvenientNodes.add({ x: _from, y: point.y });
-                                        _from += _this5.gridSize;
+                                        _from += _this6.gridSize;
                                     }
                                 } else {
                                     // line is neither horizontal nor vertical, throw an error for better future debugging
@@ -1631,14 +1670,6 @@ var Canvas = function () {
                 this.tutorial.onCanvasZoomed();
             }
         }
-
-        /**
-         * Generate an object containing export data for the Canvas and all elements.
-         * Data from this function should cover all important information needed to import the
-         * network in a different session.
-         * @return {object} object containing infomration about the network
-         */
-
     }, {
         key: 'exportData',
         get: function get() {
@@ -4928,6 +4959,13 @@ var FloatingMenu = function () {
             $textblock.select();
         }, parentSVG));
 
+        /* Tutorial */
+        this.append(new FloatingButton("tutorial", "Start the tutorial", function () {
+            parentSVG.startTutorial();
+        }, parentSVG));
+
+        parentSVG.$svg.after(this.$el);
+
         /* HELP */
 
         var help = new FloatingButton("help", "Display a help page", false, parentSVG);
@@ -7031,8 +7069,13 @@ var Tutorial = function () {
     }, {
         key: "windowContent",
         value: function windowContent() {
+            var _this12 = this;
+
             if (!this.$tutorialWindow) {
                 this.$tutorialWindow = $("<div>").attr("id", "tutorial");
+                this.$tutorialWindow.append($("<div>").addClass("topButtons").append($("<a>").attr("href", "#").addClass("button close").click(function () {
+                    _this12.stop();
+                })));
 
                 this.$tutorialContent = $("<div>").addClass("content");
                 this.$tutorialWindow.append(this.$tutorialContent);
@@ -7160,8 +7203,6 @@ var Tutorial = function () {
         ,
         set: function set(value) {
             this.currentStep = value;
-
-            console.log("Tutorial step", this.step);
 
             if (this.step < this.steps.length) {
                 this.steps[this.step]();
