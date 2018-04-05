@@ -60,7 +60,6 @@ import FloatingMenu from './floatingMenu.js'
 import Simulation from './simulation.js'
 import { addMouseScrollEventListener } from './helperFunctions.js'
 import Tutorial from './tutorial.js';
-import {setCookie, cookieExists} from './cookie.js';
 
 /**
  * ViewBox provides an api for oprerating with the viewBox argument of the &lt;svg> DOM element.
@@ -338,13 +337,17 @@ export default class Canvas {
         })
 
         // check if the user visits for the first time
-        if(!cookieExists("userHasVisited")) {
-            this.tutorial = new Tutorial(this);
-            this.tutorial.start();
+        try {
+            if(!localStorage.userHasVisited) {
+                this.tutorial = new Tutorial(this, () => {
+                    // set userHasVisited to true when user closes (or finishes) the tutorial
+                    localStorage.userHasVisited = true;
+                });
+                this.tutorial.start();
+            }
+        } catch (e) {
+            console.warn(e);
         }
-
-        // renew the tutorial countdown
-        setCookie("userHasVisited", "true", 60);
     }
 
     /**

@@ -39,8 +39,6 @@ var _tutorial = require('./tutorial.js');
 
 var _tutorial2 = _interopRequireDefault(_tutorial);
 
-var _cookie = require('./cookie.js');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -358,13 +356,17 @@ var Canvas = function () {
         });
 
         // check if the user visits for the first time
-        if (!(0, _cookie.cookieExists)("userHasVisited")) {
-            this.tutorial = new _tutorial2.default(this);
-            this.tutorial.start();
+        try {
+            if (!localStorage.userHasVisited) {
+                this.tutorial = new _tutorial2.default(this, function () {
+                    // set userHasVisited to true when user closes (or finishes) the tutorial
+                    localStorage.userHasVisited = true;
+                });
+                this.tutorial.start();
+            }
+        } catch (e) {
+            console.warn(e);
         }
-
-        // renew the tutorial countdown
-        (0, _cookie.setCookie)("userHasVisited", "true", 60);
     }
 
     /**
@@ -1686,7 +1688,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu.js":2,"./cookie.js":3,"./editorElements.js":4,"./floatingMenu.js":5,"./helperFunctions.js":6,"./logic.js":8,"./simulation.js":12,"./svgObjects.js":13,"./tutorial.js":14}],2:[function(require,module,exports){
+},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":7,"./simulation.js":11,"./svgObjects.js":12,"./tutorial.js":13}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2237,96 +2239,7 @@ var ContextMenu = function () {
 
 exports.default = ContextMenu;
 
-},{"./networkLibrary.js":11}],3:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.setCookie = setCookie;
-exports.getCookie = getCookie;
-exports.cookieExists = cookieExists;
-function setCookie(name, value, daysToLive) {
-    var date = new Date();
-    date.setTime(date.getTime() + daysToLive * 24 * 60 * 60 * 1000);
-    var expires = "expires=" + date.toUTCString();
-
-    document.cookie = name + "=" + value + ";" + expires + ";path=/";
-}
-
-function getCookie(name) {
-    name += "=";
-    var cookieStrings = decodeURIComponent(document.cookie).split(";");
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = cookieStrings[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var cookieString = _step.value;
-
-            if (cookieString.charAt(0) === ' ') {
-                cookieString = cookieString.substring(1);
-            }
-            if (cookieString.substring(0, name.length) === name) {
-                return cookieString.substring(name.length);
-            }
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return undefined;
-}
-
-function cookieExists(name) {
-    name += "=";
-    var cookieStrings = decodeURIComponent(document.cookie).split(";");
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-        for (var _iterator2 = cookieStrings[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var cookieString = _step2.value;
-
-            if (cookieString.charAt(0) === ' ') {
-                cookieString = cookieString.substring(1);
-            }
-            if (cookieString.substring(0, name.length) === name) {
-                return true;
-            }
-        }
-    } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                _iterator2.return();
-            }
-        } finally {
-            if (_didIteratorError2) {
-                throw _iteratorError2;
-            }
-        }
-    }
-
-    return false;
-}
-
-},{}],4:[function(require,module,exports){
+},{"./networkLibrary.js":10}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4894,7 +4807,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     return Wire;
 }(NetworkElement);
 
-},{"./logic.js":8,"./mapWithDefaultValue.js":10,"./svgObjects.js":13}],5:[function(require,module,exports){
+},{"./logic.js":7,"./mapWithDefaultValue.js":9,"./svgObjects.js":12}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5045,7 +4958,7 @@ var FloatingMenu = function () {
 
 exports.default = FloatingMenu;
 
-},{"./helperFunctions.js":6}],6:[function(require,module,exports){
+},{"./helperFunctions.js":5}],5:[function(require,module,exports){
 "use strict";
 
 /**
@@ -5121,7 +5034,7 @@ function getJSONString(data) {
     }
 }
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5198,7 +5111,7 @@ var Id = function () {
 
 exports.default = Id;
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 
 /** @module Logic */
@@ -5410,7 +5323,7 @@ var Logic = function () {
 
 exports.default = Logic;
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 var _canvas = require("./canvas.js");
@@ -5426,7 +5339,7 @@ $(function () {
   new _canvas2.default("#canvas", 10);
 });
 
-},{"./canvas.js":1}],10:[function(require,module,exports){
+},{"./canvas.js":1}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5532,7 +5445,7 @@ var MapWithDefaultValue = function () {
 
 exports.default = MapWithDefaultValue;
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5597,7 +5510,7 @@ function getNetworkFromLibrary(networkName) {
     });
 }
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5875,7 +5788,7 @@ var Simulation = function () {
 
 exports.default = Simulation;
 
-},{"./logic.js":8}],13:[function(require,module,exports){
+},{"./logic.js":7}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6719,7 +6632,7 @@ var Pattern = exports.Pattern = function (_Tag6) {
     return Pattern;
 }(Tag);
 
-},{"./id.js":7}],14:[function(require,module,exports){
+},{"./id.js":6}],13:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7092,6 +7005,6 @@ var Tutorial = function () {
 
 exports.default = Tutorial;
 
-},{}]},{},[9])
+},{}]},{},[8])
 
 //# sourceMappingURL=main.js.map
