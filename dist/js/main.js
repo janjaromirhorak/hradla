@@ -35,6 +35,10 @@ var _simulation2 = _interopRequireDefault(_simulation);
 
 var _helperFunctions = require('./helperFunctions.js');
 
+var _tutorial = require('./tutorial.js');
+
+var _tutorial2 = _interopRequireDefault(_tutorial);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -350,6 +354,21 @@ var Canvas = function () {
 
             event.preventDefault();
         });
+
+        /**
+         * property containing an instance of [Tutorial](./module-Tutorial.html), if there is any
+         * @type {Tutorial}
+         */
+        this.tutorial;
+
+        // check if the user visits for the first time, if so, start the tutorial
+        try {
+            if (!localStorage.userHasVisited) {
+                this.startTutorial();
+            }
+        } catch (e) {
+            console.warn(e);
+        }
     }
 
     /**
@@ -436,6 +455,11 @@ var Canvas = function () {
             if (this.moveCanvas) {
                 this.$svg.removeClass('grabbed');
                 this.moveCanvas = undefined;
+
+                // if tutorial exists, call tutorial callback
+                if (this.tutorial) {
+                    this.tutorial.onCanvasMoved();
+                }
             }
         }
 
@@ -465,6 +489,36 @@ var Canvas = function () {
          */
 
     }, {
+        key: 'startTutorial',
+
+
+        /**
+         * start the tutorial
+         */
+        value: function startTutorial() {
+            var _this2 = this;
+
+            // instantiate the tutorial
+            this.tutorial = new _tutorial2.default(this, function () {
+                // set userHasVisited to true when user closes (or finishes) the tutorial
+                localStorage.userHasVisited = true;
+
+                // unset the this.tutorial property
+                _this2.tutorial = undefined;
+            });
+
+            // start the tutorial
+            this.tutorial.start();
+        }
+
+        /**
+         * Generate an object containing export data for the Canvas and all elements.
+         * Data from this function should cover all important information needed to import the
+         * network in a different session.
+         * @return {object} object containing infomration about the network
+         */
+
+    }, {
         key: 'importData',
 
 
@@ -475,16 +529,16 @@ var Canvas = function () {
          * @param  {number} [y]  vertical position of the left top corner of the network in grid pixels
          */
         value: function importData(data, x, y) {
-            var _this2 = this;
+            var _this3 = this;
 
             return new Promise(function (resolve, reject) {
                 // if the x or y is undefined, set it to leftTopPadding instead
                 // (cannot use x || leftTopPadding because of 0)
 
-                x = x !== undefined ? x : _this2.leftTopPadding;
-                y = y !== undefined ? y : _this2.leftTopPadding;
+                x = x !== undefined ? x : _this3.leftTopPadding;
+                y = y !== undefined ? y : _this3.leftTopPadding;
 
-                _this2.simulationEnabled = false;
+                _this3.simulationEnabled = false;
 
                 // list of wires to be added
                 var newWires = new Map();
@@ -564,17 +618,17 @@ var Canvas = function () {
                         switch (_boxData.category) {
                             case "gate":
                                 // add new gate (without reloading the SVG, we will reload it once after the import)
-                                box = _this2.newGate(_boxData.name, 0, 0, false);
+                                box = _this3.newGate(_boxData.name, 0, 0, false);
                                 break;
                             case "io":
                                 switch (_boxData.name) {
                                     case "input":
                                         // add new input (without reloading the SVG, we will reload it once after the import)
-                                        box = _this2.newInput(0, 0, _boxData.isOn, false);
+                                        box = _this3.newInput(0, 0, _boxData.isOn, false);
                                         break;
                                     case "output":
                                         // add new output (without reloading the SVG, we will reload it once after the import)
-                                        box = _this2.newOutput(0, 0, false);
+                                        box = _this3.newOutput(0, 0, false);
                                         break;
                                     default:
                                         reject("Unknown io box name '" + _boxData.name + "'.");
@@ -582,7 +636,7 @@ var Canvas = function () {
                                 }
                                 break;
                             case "blackbox":
-                                box = _this2.newBlackbox(_boxData.inputs, _boxData.outputs, _boxData.table, _boxData.name, 0, 0, false);
+                                box = _this3.newBlackbox(_boxData.inputs, _boxData.outputs, _boxData.table, _boxData.name, 0, 0, false);
                                 break;
                             default:
                                 reject("Unknown box category '" + _boxData.category + "'.");
@@ -612,7 +666,7 @@ var Canvas = function () {
                                 }
                             }
 
-                            transform.toSVGPixels(_this2);
+                            transform.toSVGPixels(_this3);
                             box.setTransform(transform);
 
                             // add all wires to the list of wires to be added
@@ -659,7 +713,7 @@ var Canvas = function () {
                     }
                 }
 
-                _this2.refresh();
+                _this3.refresh();
 
                 // with all boxes added, we can now connect them with wires
                 newWires.forEach(function (item) {
@@ -669,24 +723,24 @@ var Canvas = function () {
 
                         for (var _i = 0; _i < _arr.length; _i++) {
                             var i = _arr[_i];
-                            var box = _this2.getBoxById(item[i].boxId);
+                            var box = _this3.getBoxById(item[i].boxId);
 
                             connectorIds[i] = box.connectors[item[i].index].id;
                         }
                     }
-                    _this2.newWire(connectorIds[0], connectorIds[1], true);
+                    _this3.newWire(connectorIds[0], connectorIds[1], true);
                 });
 
                 // refresh the SVG document
-                _this2.refresh();
+                _this3.refresh();
 
-                _this2.simulationEnabled = true;
+                _this3.simulationEnabled = true;
                 var _iteratorNormalCompletion3 = true;
                 var _didIteratorError3 = false;
                 var _iteratorError3 = undefined;
 
                 try {
-                    for (var _iterator3 = _this2.boxes[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    for (var _iterator3 = _this3.boxes[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
                         var box = _step3.value;
 
                         if (box instanceof editorElements.InputBox) {
@@ -832,6 +886,11 @@ var Canvas = function () {
 
             this.appendElement(this.boxes[index], refresh);
 
+            // if tutorial exists, call tutorial callback
+            if (this.tutorial) {
+                this.tutorial.onElementAdded(this.boxes[index].name);
+            }
+
             return this.boxes[index];
         }
 
@@ -863,8 +922,54 @@ var Canvas = function () {
                 // remove the gate
                 this.boxes.splice(gateIndex, 1);
                 $gate.remove();
+
+                // if tutorial exists, call tutorial callback
+                if (this.tutorial) {
+                    this.tutorial.onElementRemoved();
+                }
             } else {
                 console.error("Trying to remove an nonexisting box. Box id:", boxId);
+            }
+        }
+
+        /**
+         * Remove all boxes from the canvas
+         */
+
+    }, {
+        key: 'cleanCanvas',
+        value: function cleanCanvas() {
+            // cannot simply iterate through the array because removeBox works with it
+
+            // create an array of ids
+            var ids = this.boxes.map(function (box) {
+                return box.id;
+            });
+
+            // remove all boxes by their ids
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
+
+            try {
+                for (var _iterator5 = ids[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var id = _step5.value;
+
+                    this.removeBox(id);
+                }
+            } catch (err) {
+                _didIteratorError5 = true;
+                _iteratorError5 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                        _iterator5.return();
+                    }
+                } finally {
+                    if (_didIteratorError5) {
+                        throw _iteratorError5;
+                    }
+                }
             }
         }
 
@@ -879,7 +984,7 @@ var Canvas = function () {
     }, {
         key: 'newWire',
         value: function newWire(fromId, toId) {
-            var _this3 = this;
+            var _this4 = this;
 
             var refresh = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
@@ -890,13 +995,13 @@ var Canvas = function () {
 
             // input connectors can be connected to one wire max
             connectors.forEach(function (conn) {
-                if (conn.isInputConnector) _this3.removeWiresByConnectorId(conn.id);
+                if (conn.isInputConnector) _this4.removeWiresByConnectorId(conn.id);
             });
             var index = this.wires.length;
             this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize, refresh);
 
             connectors.forEach(function (conn) {
-                conn.addWireId(_this3.wires[index].svgObj.id);
+                conn.addWireId(_this4.wires[index].svgObj.id);
             });
 
             this.appendElement(this.wires[index], refresh);
@@ -951,13 +1056,13 @@ var Canvas = function () {
                     }
                 };
 
-                var _iteratorNormalCompletion5 = true;
-                var _didIteratorError5 = false;
-                var _iteratorError5 = undefined;
+                var _iteratorNormalCompletion6 = true;
+                var _didIteratorError6 = false;
+                var _iteratorError6 = undefined;
 
                 try {
-                    for (var _iterator5 = table[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                        var line = _step5.value;
+                    for (var _iterator6 = table[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                        var line = _step6.value;
 
                         var _ret = _loop(line);
 
@@ -965,16 +1070,16 @@ var Canvas = function () {
                     }
                     // if nothing matches, set all outputs to undefined
                 } catch (err) {
-                    _didIteratorError5 = true;
-                    _iteratorError5 = err;
+                    _didIteratorError6 = true;
+                    _iteratorError6 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                            _iterator5.return();
+                        if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                            _iterator6.return();
                         }
                     } finally {
-                        if (_didIteratorError5) {
-                            throw _iteratorError5;
+                        if (_didIteratorError6) {
+                            throw _iteratorError6;
                         }
                     }
                 }
@@ -1005,29 +1110,29 @@ var Canvas = function () {
     }, {
         key: 'getWireById',
         value: function getWireById(wireId) {
-            var _iteratorNormalCompletion6 = true;
-            var _didIteratorError6 = false;
-            var _iteratorError6 = undefined;
+            var _iteratorNormalCompletion7 = true;
+            var _didIteratorError7 = false;
+            var _iteratorError7 = undefined;
 
             try {
-                for (var _iterator6 = this.wires[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                    var wire = _step6.value;
+                for (var _iterator7 = this.wires[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                    var wire = _step7.value;
 
                     if (wire.svgObj.id === wireId) {
                         return wire;
                     }
                 }
             } catch (err) {
-                _didIteratorError6 = true;
-                _iteratorError6 = err;
+                _didIteratorError7 = true;
+                _iteratorError7 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion6 && _iterator6.return) {
-                        _iterator6.return();
+                    if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                        _iterator7.return();
                     }
                 } finally {
-                    if (_didIteratorError6) {
-                        throw _iteratorError6;
+                    if (_didIteratorError7) {
+                        throw _iteratorError7;
                     }
                 }
             }
@@ -1081,17 +1186,17 @@ var Canvas = function () {
     }, {
         key: 'removeWiresByConnectorId',
         value: function removeWiresByConnectorId(connectorId) {
-            var _this4 = this;
+            var _this5 = this;
 
             var connector = this.getConnectorById(connectorId);
 
             connector.wireIds.forEach(function (wireId) {
-                var wire = _this4.getWireById(wireId);
+                var wire = _this5.getWireById(wireId);
 
                 // get the other connector that is the wire connected to
-                var otherConnector = _this4.getConnectorById(wire.fromId, wire);
+                var otherConnector = _this5.getConnectorById(wire.fromId, wire);
                 if (otherConnector.svgObj.id === connectorId) {
-                    otherConnector = _this4.getConnectorById(wire.toId, wire);
+                    otherConnector = _this5.getConnectorById(wire.toId, wire);
                 }
 
                 // delete the wire record from the other connector
@@ -1102,7 +1207,7 @@ var Canvas = function () {
 
                 // if otherConnector is an input connector, set its state to unknown
                 if (otherConnector.isInputConnector) {
-                    _this4.startNewSimulation(otherConnector, _logic2.default.state.unknown);
+                    _this5.startNewSimulation(otherConnector, _logic2.default.state.unknown);
                 }
             });
 
@@ -1173,13 +1278,13 @@ var Canvas = function () {
                 return connector;
             } else {
                 // we do not know the wire -- we have to check all gates
-                var _iteratorNormalCompletion7 = true;
-                var _didIteratorError7 = false;
-                var _iteratorError7 = undefined;
+                var _iteratorNormalCompletion8 = true;
+                var _didIteratorError8 = false;
+                var _iteratorError8 = undefined;
 
                 try {
-                    for (var _iterator7 = this.boxes[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                        var box = _step7.value;
+                    for (var _iterator8 = this.boxes[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                        var box = _step8.value;
 
                         var _connector = box.getConnectorById(connectorId);
                         if (_connector) {
@@ -1187,16 +1292,16 @@ var Canvas = function () {
                         }
                     }
                 } catch (err) {
-                    _didIteratorError7 = true;
-                    _iteratorError7 = err;
+                    _didIteratorError8 = true;
+                    _iteratorError8 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                            _iterator7.return();
+                        if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                            _iterator8.return();
                         }
                     } finally {
-                        if (_didIteratorError7) {
-                            throw _iteratorError7;
+                        if (_didIteratorError8) {
+                            throw _iteratorError8;
                         }
                     }
                 }
@@ -1323,6 +1428,11 @@ var Canvas = function () {
         key: 'displayContextMenu',
         value: function displayContextMenu(x, y, $target) {
             this.contextMenu.display(x, y, $target);
+
+            // if tutorial exists, call tutorial callback
+            if (this.tutorial) {
+                this.tutorial.onContextMenuOpened();
+            }
         }
 
         /**
@@ -1424,13 +1534,13 @@ var Canvas = function () {
                 // for each item in blockedNodes (set of blocked nodes with coordinates relative
                 // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
                 // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-                var _iteratorNormalCompletion8 = true;
-                var _didIteratorError8 = false;
-                var _iteratorError8 = undefined;
+                var _iteratorNormalCompletion9 = true;
+                var _didIteratorError9 = false;
+                var _iteratorError9 = undefined;
 
                 try {
-                    for (var _iterator8 = this.boxes[i].blockedNodes[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                        var item = _step8.value;
+                    for (var _iterator9 = this.boxes[i].blockedNodes[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                        var item = _step9.value;
 
                         var absoluteX = position.left + item.x * this.gridSize;
                         var absoluteY = position.top + item.y * this.gridSize;
@@ -1441,16 +1551,16 @@ var Canvas = function () {
                         });
                     }
                 } catch (err) {
-                    _didIteratorError8 = true;
-                    _iteratorError8 = err;
+                    _didIteratorError9 = true;
+                    _iteratorError9 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion8 && _iterator8.return) {
-                            _iterator8.return();
+                        if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                            _iterator9.return();
                         }
                     } finally {
-                        if (_didIteratorError8) {
-                            throw _iteratorError8;
+                        if (_didIteratorError9) {
+                            throw _iteratorError9;
                         }
                     }
                 }
@@ -1469,7 +1579,7 @@ var Canvas = function () {
     }, {
         key: 'getInconvenientNodes',
         value: function getInconvenientNodes(ignoreWireId) {
-            var _this5 = this;
+            var _this6 = this;
 
             var inconvenientNodes = new Set();
             // for each wire
@@ -1480,7 +1590,7 @@ var Canvas = function () {
                         // cycle through points, for each neigbours add all points that are in between them
                         // i.e.: (0,0) and (0,30) are blocking these nodes: (0,0), (0,10), (0,20), (0,30)
                         var prevPoint = void 0;
-                        _this5.wires[i].points.forEach(function (point) {
+                        _this6.wires[i].points.forEach(function (point) {
                             if (prevPoint === undefined) {
                                 // if the prevPoint is undefined, add the first point
                                 inconvenientNodes.add({ x: point.x, y: point.y });
@@ -1494,7 +1604,7 @@ var Canvas = function () {
 
                                     while (from <= to) {
                                         inconvenientNodes.add({ x: point.x, y: from });
-                                        from += _this5.gridSize;
+                                        from += _this6.gridSize;
                                     }
                                 } else if (prevPoint.y === point.y) {
                                     // if the line is vertical
@@ -1503,7 +1613,7 @@ var Canvas = function () {
 
                                     while (_from <= _to) {
                                         inconvenientNodes.add({ x: _from, y: point.y });
-                                        _from += _this5.gridSize;
+                                        _from += _this6.gridSize;
                                     }
                                 } else {
                                     // line is neither horizontal nor vertical, throw an error for better future debugging
@@ -1554,15 +1664,12 @@ var Canvas = function () {
         set: function set(value) {
             this.viewbox.zoom = value;
             this.applyViewbox();
+
+            // if tutorial exists, call tutorial callback
+            if (this.tutorial) {
+                this.tutorial.onCanvasZoomed();
+            }
         }
-
-        /**
-         * Generate an object containing export data for the Canvas and all elements.
-         * Data from this function should cover all important information needed to import the
-         * network in a different session.
-         * @return {object} object containing infomration about the network
-         */
-
     }, {
         key: 'exportData',
         get: function get() {
@@ -1573,27 +1680,27 @@ var Canvas = function () {
                 boxes: []
             };
 
-            var _iteratorNormalCompletion9 = true;
-            var _didIteratorError9 = false;
-            var _iteratorError9 = undefined;
+            var _iteratorNormalCompletion10 = true;
+            var _didIteratorError10 = false;
+            var _iteratorError10 = undefined;
 
             try {
-                for (var _iterator9 = this.boxes[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                    var box = _step9.value;
+                for (var _iterator10 = this.boxes[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                    var box = _step10.value;
 
                     data.boxes.push(box.exportData);
                 }
             } catch (err) {
-                _didIteratorError9 = true;
-                _iteratorError9 = err;
+                _didIteratorError10 = true;
+                _iteratorError10 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                        _iterator9.return();
+                    if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                        _iterator10.return();
                     }
                 } finally {
-                    if (_didIteratorError9) {
-                        throw _iteratorError9;
+                    if (_didIteratorError10) {
+                        throw _iteratorError10;
                     }
                 }
             }
@@ -1612,7 +1719,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":7,"./simulation.js":11,"./svgObjects.js":12}],2:[function(require,module,exports){
+},{"./contextMenu.js":2,"./editorElements.js":3,"./floatingMenu.js":4,"./helperFunctions.js":5,"./logic.js":7,"./simulation.js":11,"./svgObjects.js":12,"./tutorial.js":13}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1696,15 +1803,15 @@ var ContextMenuItem = function () {
 
                 _this.contextMenu.$el.after(_this.$submenu);
 
-                console.log(_this.$submenu);
-
                 event.stopPropagation();
             }
         }, function () {
             // mouse out
-            _this.$submenu.css({
-                display: "none"
-            });
+            if (_this.$submenu) {
+                _this.$submenu.css({
+                    display: "none"
+                });
+            }
 
             // do not stop event propagation, here it is wanted
             // (because submenu overrides display: none when user moves from this menu item to the submenu)
@@ -1765,6 +1872,12 @@ var ContextMenuItem = function () {
         get: function get() {
             return this.contextMenu.parentSVG;
         }
+
+        /**
+         * number of items in the submenu
+         * @return {Number}
+         */
+
     }, {
         key: "length",
         get: function get() {
@@ -2086,7 +2199,7 @@ var ContextMenu = function () {
 
             var _loop = function _loop(i) {
                 if ($target.hasClass(_this8.conditionalItems[i].itemClass)) {
-                    _this8.appendItem(new ContextMenuItem(_this8.conditionalItems[i].text, _this8, _this8.parentSVG, function () {
+                    _this8.appendItem(new ContextMenuItem(_this8.conditionalItems[i].text, _this8, function () {
                         _this8.conditionalItems[i].clickFunction($target.attr('id'));
                     })).addClass('conditional');
                 }
@@ -2122,17 +2235,16 @@ var ContextMenu = function () {
                 y: y
             };
 
+            this.resolveConditionalItems($target);
+
             this.$el.css({
                 display: 'block',
                 top: y,
                 left: x
-            }).css({
-                // set the width expicitly, or else the menu will widen when displaying a submenu
-                // 2 is to prevent a weird text wrap bug
-                width: this.$el.innerWidth() + 2
-            });
-
-            this.resolveConditionalItems($target);
+            })
+            // set the width expicitly, or else the menu will widen when displaying a submenu
+            // 2 is to prevent a weird text wrap bug
+            .css('width', 'auto').css('width', this.$el.innerWidth() + 2);
         }
 
         /**
@@ -3436,6 +3548,11 @@ var Box = function (_NetworkElement2) {
             this.setTransform(transform);
 
             this.updateWires();
+
+            // if tutorial exists, call tutorial callback
+            if (this.parentSVG.tutorial) {
+                this.parentSVG.tutorial.onBoxMoved();
+            }
         }
 
         /**
@@ -3477,6 +3594,11 @@ var Box = function (_NetworkElement2) {
 
             // update the wires
             this.updateWires();
+
+            // if tutorial exists, call tutorial callback
+            if (this.parentSVG.tutorial) {
+                this.parentSVG.tutorial.onBoxRotated();
+            }
         }
 
         /**
@@ -3680,6 +3802,10 @@ var InputBox = exports.InputBox = function (_Box) {
          */
         value: function onClick() {
             this.on = !this.on;
+
+            if (this.parentSVG.tutorial) {
+                this.parentSVG.tutorial.onChangeInputBoxState();
+            }
         }
     }, {
         key: 'exportData',
@@ -3766,6 +3892,11 @@ var OutputBox = exports.OutputBox = function (_Box2) {
             switch (state) {
                 case _logic2.default.state.on:
                     this.changeImage("on");
+
+                    // if tutorial exists, call tutorial callback
+                    if (this.parentSVG.tutorial) {
+                        this.parentSVG.tutorial.onOutputBoxTrue();
+                    }
                     break;
                 case _logic2.default.state.off:
                     this.changeImage("off");
@@ -4827,6 +4958,13 @@ var FloatingMenu = function () {
             // highlight the text in the textblock
             $textblock.select();
         }, parentSVG));
+
+        /* Tutorial */
+        this.append(new FloatingButton("tutorial", "Start the tutorial", function () {
+            parentSVG.startTutorial();
+        }, parentSVG));
+
+        parentSVG.$svg.after(this.$el);
 
         /* HELP */
 
@@ -6532,6 +6670,555 @@ var Pattern = exports.Pattern = function (_Tag6) {
     return Pattern;
 }(Tag);
 
-},{"./id.js":6}]},{},[8])
+},{"./id.js":6}],13:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/** @module Tutorial */
+/**
+ * Display and manage the tutorial
+ */
+var Tutorial = function () {
+    /**
+     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html) for this tutorial
+     * @param {Function} [onTutorialClosed] callback function when user closes or finishes the tutorial
+     */
+    function Tutorial(parentSVG, onTutorialClosed) {
+        var _this = this;
+
+        _classCallCheck(this, Tutorial);
+
+        /**
+         * instance of [Canvas](./module-Canvas.html) for this tutorial
+         * @type {Canvas}
+         */
+        this.parentSVG = parentSVG;
+
+        /**
+         * helper variable for the `step` property, stores current state of the tutorial (step `0` means that tutorial is closed)
+         * @type {Number}
+         */
+        this.currentStep = 0;
+
+        /**
+         * jQuery element containing the tutorial popup
+         * @type {jQuery.element}
+         */
+        this.$tutorialWindow;
+        /**
+         * jQuery element for the dynamic part of the tutorial popup
+         * (text and buttons that are dependent on the current state of the tutorial)
+         * @type {Array}
+         */
+        this.$tutorialContent;
+
+        /**
+         * array of functions that represent intividual steps in the tutorial
+         * by default populated with step `0` that closes the tutorial
+         * @type {Array}
+         */
+        this.steps = [function () {
+            _this.closeWindow(onTutorialClosed);
+        }];
+
+        // set up the tutorial
+        this.setUpTutorial();
+    }
+
+    /**
+     * get the current step of the tutorial, this number corresponds to the index in the `this.steps` array
+     * that contains the function for the last displayed step
+     * @return {Number}
+     */
+
+
+    _createClass(Tutorial, [{
+        key: "resetHooks",
+
+
+        /**
+         * reset all tutorial hooks
+         */
+        value: function resetHooks() {
+            /**
+             * _tutorial hook_, called when the context menu is opened
+             */
+            this.onContextMenuOpened = function () {};
+
+            /**
+             * _tutorial hook_, called when a new element is added
+             */
+            this.onElementAdded = function () {};
+
+            /**
+             * _tutorial hook_, called when a box is moved
+             */
+            this.onBoxMoved = function () {};
+
+            /**
+             * _tutorial hook_, called when a box is rotated
+             */
+            this.onBoxRotated = function () {};
+
+            /**
+             * _tutorial hook_, called when an output box value is set to `on`
+             */
+            this.onOutputBoxTrue = function () {};
+
+            /**
+             * _tutorial hook_, called when the canvas is moved
+             */
+            this.onCanvasMoved = function () {};
+
+            /**
+             * _tutorial hook_, called when the canvas is zoomed
+             */
+            this.onCanvasZoomed = function () {};
+
+            /**
+             * _tutorial hook_, called when a box is removed
+             */
+            this.onElementRemoved = function () {};
+
+            /**
+             * _tutorial hook_, called when user changes the state of an input box
+             */
+            this.onChangeInputBoxState = function () {};
+        }
+
+        /**
+         * set up the tutorial: reset all tutorial hooks and define the order of tutorial steps
+         */
+
+    }, {
+        key: "setUpTutorial",
+        value: function setUpTutorial() {
+            var _this2 = this;
+
+            this.resetHooks();
+
+            this.steps.push(function () {
+                _this2.stepWelcome();
+            }, function () {
+                _this2.stepAddBoxes();
+            }, function () {
+                _this2.stepMoveCanvas();
+            }, function () {
+                _this2.stepZoomCanvas();
+            }, function () {
+                _this2.stepMoveBoxes();
+            }, function () {
+                _this2.stepWiring();
+            }, function () {
+                _this2.switchInputBox();
+            }, function () {
+                _this2.stepRemoveBox();
+            }, function () {
+                _this2.stepFinish();
+            });
+        }
+
+        /**
+         * _tutorial step_: display context menu
+         */
+
+    }, {
+        key: "stepWelcome",
+        value: function stepWelcome() {
+            var _this3 = this;
+
+            this.windowContent("Welcome to Hradla! To get started, click anywhere on the editing area with your right mouse button.");
+
+            this.onContextMenuOpened = function () {
+                _this3.next();
+
+                // this function runs only once
+                _this3.onContextMenuOpened = function () {};
+            };
+        }
+
+        /**
+         * _tutorial step_: add input box, output box and a NOT gate
+         */
+
+    }, {
+        key: "stepAddBoxes",
+        value: function stepAddBoxes() {
+            var _this4 = this;
+
+            this.windowContent("Great job! Now you know, how to open the editor menu.\n            Now try to add an <em>Input box</em>, <em>Output box</em> and a <em>NOT gate</em>\n            to the editing area.");
+
+            var elementsAdded = {
+                inputBox: false,
+                outputBox: false,
+                notGate: false
+            };
+
+            this.onElementAdded = function (name) {
+                switch (name) {
+                    case "input":
+                        elementsAdded.inputBox = true;
+                        break;
+                    case "output":
+                        elementsAdded.outputBox = true;
+                        break;
+                    case "not":
+                        elementsAdded.notGate = true;
+                        break;
+                    default:
+                        // no action on default
+                        break;
+                }
+
+                if (elementsAdded.inputBox && elementsAdded.outputBox && elementsAdded.notGate) {
+                    // remove the action
+                    _this4.onElementAdded = function () {};
+
+                    // proceed to the next step of the tutorial
+                    _this4.next();
+                }
+            };
+        }
+
+        /**
+         * _tutorial step_: move the canvas
+         */
+
+    }, {
+        key: "stepMoveCanvas",
+        value: function stepMoveCanvas() {
+            var _this5 = this;
+
+            this.windowContent("You can move the editing area (sometimes called canvas) by dragging\n            with the middle mouse button or by holding the <code>Ctrl</code> key\n            and dragging with the left mouse button. Check it out.");
+
+            this.onCanvasMoved = function () {
+                _this5.next();
+                _this5.onCanvasMoved = function () {};
+            };
+        }
+
+        /**
+         * _tutorial step_: zoom the canvas
+         */
+
+    }, {
+        key: "stepZoomCanvas",
+        value: function stepZoomCanvas() {
+            var _this6 = this;
+
+            this.windowContent("You can also zoom in and out using <code>Ctrl</code> and the mouse wheel.");
+
+            this.onCanvasZoomed = function () {
+                _this6.next();
+                _this6.onCanvasZoomed = function () {};
+            };
+        }
+
+        /**
+         * _tutorial step_: move the boxes
+         */
+
+    }, {
+        key: "stepMoveBoxes",
+        value: function stepMoveBoxes() {
+            var _this7 = this;
+
+            this.windowContent("You can move the elements on the editing canvas by dragging them\n            using the left mouse button. You can also rotate them using middle click. Try it out.");
+
+            var boxMoved = false;
+            var boxRotated = false;
+
+            var moveRotateCallback = function moveRotateCallback() {
+                if (boxMoved && boxRotated) {
+                    _this7.next();
+                }
+            };
+
+            this.onBoxMoved = function () {
+                boxMoved = true;
+
+                _this7.onBoxMoved = function () {};
+
+                moveRotateCallback();
+            };
+
+            this.onBoxRotated = function () {
+                boxRotated = true;
+
+                _this7.onBoxRotated = function () {};
+
+                moveRotateCallback();
+            };
+        }
+
+        /**
+         * _tutorial step_: create an invertor
+         */
+
+    }, {
+        key: "stepWiring",
+        value: function stepWiring() {
+            var _this8 = this;
+
+            this.windowContent("Essential part of logic networks is the wiring. Create a very simple\n            inverter by connecting the <em>Input box</em> to the input of the <em>NOT gate</em>\n            and the output of the <em>NOT gate</em> to the input of the <em>Output box</em>.", "To connect two elemnts, simply click on a connector of the first element,\n            than click on a conector of the second element.");
+
+            this.onOutputBoxTrue = function () {
+                _this8.next();
+
+                _this8.onOutputBoxTrue = function () {};
+            };
+        }
+
+        /**
+         * _tutorial step_: change the state of an input box
+         */
+
+    }, {
+        key: "switchInputBox",
+        value: function switchInputBox() {
+            var _this9 = this;
+
+            this.windowContent("\n            The input boxes can be in two states: <em>ON</em> and <em>OFF</em>, signalled\n            by the green and red colors respectively. You can left click on an Input box to\n            switch its state. Try it out!\n        ");
+
+            this.onChangeInputBoxState = function () {
+                _this9.next();
+
+                _this9.onChangeInputBoxState = function () {};
+            };
+        }
+
+        /**
+         * _tutorial step_: remove a box
+         */
+
+    }, {
+        key: "stepRemoveBox",
+        value: function stepRemoveBox() {
+            var _this10 = this;
+
+            this.windowContent("When you right click on an element, you can find a new item in the menu,\n            that allows you to remove the element. This works for wires as well as for gates and other types of boxes.\n            Try to remove an element!");
+
+            this.onElementRemoved = function () {
+                _this10.next();
+
+                _this10.onElementRemoved = function () {};
+            };
+        }
+
+        /**
+         * _tutorial step_: ask the user if they want to clean the canvas before closing the tutorial
+         */
+
+    }, {
+        key: "stepFinish",
+        value: function stepFinish() {
+            var _this11 = this;
+
+            this.windowContent("You're all set, enjoy your stay!", "Do you wish to start with empty canvas?");
+            this.windowChoice({
+                text: 'yes, clean the canvas',
+                func: function func() {
+                    _this11.parentSVG.cleanCanvas();
+                    _this11.stop();
+                }
+            }, {
+                text: 'no, keep the canvas as it is',
+                func: function func() {
+                    _this11.stop();
+                }
+            });
+        }
+
+        /**
+         * display the tutorial window
+         */
+
+    }, {
+        key: "displayWindow",
+        value: function displayWindow() {
+            this.parentSVG.$svg.after(this.$tutorialWindow);
+        }
+
+        /**
+         * close the tutorial window
+         * @param  {Function} [onTutorialClosed] callback function that is called when the tutorial is closed
+         */
+
+    }, {
+        key: "closeWindow",
+        value: function closeWindow(onTutorialClosed) {
+            this.$tutorialWindow.remove();
+
+            if (onTutorialClosed !== undefined) {
+                onTutorialClosed();
+            }
+        }
+
+        /**
+         * set the tutorial window text content
+         * @param  {...string} text each string is a separate paragraph
+         */
+
+    }, {
+        key: "windowContent",
+        value: function windowContent() {
+            var _this12 = this;
+
+            if (!this.$tutorialWindow) {
+                this.$tutorialWindow = $("<div>").attr("id", "tutorial");
+                this.$tutorialWindow.append($("<div>").addClass("topButtons").append($("<a>").attr("href", "#").addClass("button close").click(function () {
+                    _this12.stop();
+                })));
+
+                this.$tutorialContent = $("<div>").addClass("content");
+                this.$tutorialWindow.append(this.$tutorialContent);
+            }
+
+            this.$tutorialContent.html("");
+
+            for (var _len = arguments.length, text = Array(_len), _key = 0; _key < _len; _key++) {
+                text[_key] = arguments[_key];
+            }
+
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = text[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var paragraph = _step.value;
+
+                    this.$tutorialContent.append($("<p>").html(paragraph));
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+
+        /**
+         * add buttons with choices to the tutorial window
+         * @param  {...object} choices each choice is an object in with a `string` property _text_ and a `function` property _func_
+         */
+
+    }, {
+        key: "windowChoice",
+        value: function windowChoice() {
+            var $choices = $("<ol>").addClass("choices");
+
+            for (var _len2 = arguments.length, choices = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                choices[_key2] = arguments[_key2];
+            }
+
+            var _loop = function _loop(choice) {
+                $choices.append($("<li>").append($("<a>").attr("href", "#").click(function () {
+                    choice.func();
+                }).html(choice.text)));
+            };
+
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = choices[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var choice = _step2.value;
+
+                    _loop(choice);
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+
+            this.$tutorialContent.append($choices);
+        }
+
+        /**
+         * start the tutorial
+         */
+
+    }, {
+        key: "start",
+        value: function start() {
+            this.step = 1;
+        }
+
+        /**
+         * go to the next step of the tutorial
+         */
+
+    }, {
+        key: "next",
+        value: function next() {
+            this.step++;
+        }
+
+        /**
+         * stop the tutorial
+         */
+
+    }, {
+        key: "stop",
+        value: function stop() {
+            this.step = 0;
+        }
+    }, {
+        key: "step",
+        get: function get() {
+            return this.currentStep;
+        }
+
+        /**
+         * change the current step of the tutorial, `0` means "stop the tutorial"
+         * @param  {Number} value the step of the tutorial to be displayed
+         */
+        ,
+        set: function set(value) {
+            this.currentStep = value;
+
+            if (this.step < this.steps.length) {
+                this.steps[this.step]();
+
+                if (this.step === 1) this.displayWindow();
+            } else {
+                this.step = 0;
+            }
+        }
+    }]);
+
+    return Tutorial;
+}();
+
+exports.default = Tutorial;
+
+},{}]},{},[8])
 
 //# sourceMappingURL=main.js.map

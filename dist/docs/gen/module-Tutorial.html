@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: PolyLine | Hradla</title>
+    <title>Class: module:Tutorial | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,9 +50,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>PolyLine<span class="signature">(points, color, strokeWidth)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>module:Tutorial<span class="signature">(parentSVG, onTutorialClosed<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>SVG polyline (a path defined by sequence of points on plane)</p></div>
+            <div class="class-description"><p>Display and manage the tutorial</p></div>
         
     
 </header>
@@ -65,14 +65,14 @@
 
 <dt>
     
-        <h4 class="name" id="PolyLine">
+        <h4 class="name" id="module:Tutorial">
             
-                new <span class="type-signature"></span>PolyLine<span class="signature">(points, color, strokeWidth)</span><span class="type-signature"></span>
+                new <span class="type-signature"></span>module:Tutorial<span class="signature">(parentSVG, onTutorialClosed<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line451">line 451</a></code>
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line5">line 5</a></code>
             </div>
             
         </h4>
@@ -104,6 +104,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -116,69 +118,64 @@
 
         <tr>
             
-                <td class="name"><code>points</code></td>
+                <td class="name"><code>parentSVG</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="PolylinePoints.html">PolylinePoints</a></span>
+<span class="param-type">Canvas</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last"><p>points describing this polyline</p></td>
+            <td class="description last"><p>instance of <a href="./module-Canvas.html">Canvas</a> for this tutorial</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>color</code></td>
+                <td class="name"><code>onTutorialClosed</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">function</span>
 
 
             
             </td>
 
             
-
-            
-
-            <td class="description last"><p>CSS color of this polyline</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>strokeWidth</code></td>
-            
-
-            <td class="type">
-            
+                <td class="attributes">
                 
-<span class="param-type">number</span>
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
+            
 
             
-            </td>
 
-            
-
-            
-
-            <td class="description last"><p>width of the stroke for this polyline in SVG pixels</p></td>
+            <td class="description last"><p>callback function when user closes or finishes the tutorial</p></td>
         </tr>
 
     
@@ -246,17 +243,6 @@
     
 
     
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="Tag.html">Tag</a></li>
-    </ul>
-
-
-    
 
     
 
@@ -275,12 +261,12 @@
             
 
 <dt>
-<h4 class="name" id="$el">
-    <span class="type-signature"></span>$el<span class="type-signature"> :jQuery.element</span>
+<h4 class="name" id="$tutorialContent">
+    <span class="type-signature"></span>$tutorialContent<span class="type-signature"> :Array</span>
     
     <div class="container-source members">
-        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-        <code><a href="svgObjects.js.html#line21">line 21</a></code>
+        <code><a href="tutorial.js.html">tutorial.js</a></code>,
+        <code><a href="tutorial.js.html#line33">line 33</a></code>
     </div>
     
 </h4>
@@ -290,7 +276,87 @@
 <dd>
     
     <div class="description">
-        <p>jQuery element for this tag</p>
+        <p>jQuery element for the dynamic part of the tutorial popup
+(text and buttons that are dependent on the current state of the tutorial)</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Array</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="$tutorialWindow">
+    <span class="type-signature"></span>$tutorialWindow<span class="type-signature"> :jQuery.element</span>
+    
+    <div class="container-source members">
+        <code><a href="tutorial.js.html">tutorial.js</a></code>,
+        <code><a href="tutorial.js.html#line27">line 27</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>jQuery element containing the tutorial popup</p>
     </div>
     
 
@@ -318,10 +384,84 @@
     
 
     
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#$el">Tag#$el</a>
-    </li></ul></dd>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="currentStep">
+    <span class="type-signature"></span>currentStep<span class="type-signature"> :Number</span>
+    
+    <div class="container-source members">
+        <code><a href="tutorial.js.html">tutorial.js</a></code>,
+        <code><a href="tutorial.js.html#line21">line 21</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>helper variable for the <code>step</code> property, stores current state of the tutorial (step <code>0</code> means that tutorial is closed)</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
     
 
     
@@ -359,12 +499,12 @@
             
 
 <dt>
-<h4 class="name" id="id">
-    <span class="type-signature"></span>id<span class="type-signature"> :string</span>
+<h4 class="name" id="parentSVG">
+    <span class="type-signature"></span>parentSVG<span class="type-signature"> :Canvas</span>
     
     <div class="container-source members">
-        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-        <code><a href="svgObjects.js.html#line27">line 27</a></code>
+        <code><a href="tutorial.js.html">tutorial.js</a></code>,
+        <code><a href="tutorial.js.html#line15">line 15</a></code>
     </div>
     
 </h4>
@@ -374,7 +514,7 @@
 <dd>
     
     <div class="description">
-        <p>unique ID of this SVG object</p>
+        <p>instance of <a href="./module-Canvas.html">Canvas</a> for this tutorial</p>
     </div>
     
 
@@ -384,7 +524,7 @@
         <ul>
             <li>
                 
-<span class="param-type">string</span>
+<span class="param-type">Canvas</span>
 
 
             </li>
@@ -403,11 +543,6 @@
 
     
 
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="Tag.html#id">Tag#id</a>
-    </li></ul></dd>
     
 
     
@@ -443,12 +578,12 @@
             
 
 <dt>
-<h4 class="name" id="tagName">
-    <span class="type-signature"></span>tagName<span class="type-signature"> :string</span>
+<h4 class="name" id="step">
+    <span class="type-signature"></span>step<span class="type-signature"></span>
     
     <div class="container-source members">
-        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-        <code><a href="svgObjects.js.html#line15">line 15</a></code>
+        <code><a href="tutorial.js.html">tutorial.js</a></code>,
+        <code><a href="tutorial.js.html#line59">line 59</a></code>
     </div>
     
 </h4>
@@ -458,7 +593,147 @@
 <dd>
     
     <div class="description">
-        <p>SVG tag identifier (<code>rect</code>, <code>image</code>, <code>polyline</code>)</p>
+        <p>change the current step of the tutorial, <code>0</code> means &quot;stop the tutorial&quot;</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="step">
+    <span class="type-signature"></span>step<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="tutorial.js.html">tutorial.js</a></code>,
+        <code><a href="tutorial.js.html#line51">line 51</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>get the current step of the tutorial, this number corresponds to the index in the <code>this.steps</code> array
+that contains the function for the last displayed step</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="steps">
+    <span class="type-signature"></span>steps<span class="type-signature"> :Array</span>
+    
+    <div class="container-source members">
+        <code><a href="tutorial.js.html">tutorial.js</a></code>,
+        <code><a href="tutorial.js.html#line40">line 40</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>array of functions that represent intividual steps in the tutorial
+by default populated with step <code>0</code> that closes the tutorial</p>
     </div>
     
 
@@ -468,7 +743,7 @@
         <ul>
             <li>
                 
-<span class="param-type">string</span>
+<span class="param-type">Array</span>
 
 
             </li>
@@ -485,11 +760,6 @@
 
     
 
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#tagName">Tag#tagName</a>
-    </li></ul></dd>
     
 
     
@@ -534,14 +804,14 @@
 
 <dt>
     
-        <h4 class="name" id="addAttr">
+        <h4 class="name" id="closeWindow">
             
-                <span class="type-signature"></span>addAttr<span class="signature">(assoc)</span><span class="type-signature"></span>
+                <span class="type-signature"></span>closeWindow<span class="signature">(onTutorialClosed<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line52">line 52</a></code>
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line345">line 345</a></code>
             </div>
             
         </h4>
@@ -553,811 +823,7 @@
 
     
     <div class="description">
-        <p>set attributes of this element</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>assoc</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>javascript object that will be mapped into attributes (<code>{key: value}</code> -&gt; <code>key=&quot;value&quot;</code>)</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#addAttr">Tag#addAttr</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="addClass">
-            
-                <span class="type-signature"></span>addClass<span class="signature">(name)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line34">line 34</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>add a class to this element</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>class name to be added</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#addClass">Tag#addClass</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="checkIfElementExistsInDOM">
-            
-                <span class="type-signature"></span>checkIfElementExistsInDOM<span class="signature">()</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line108">line 108</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>check if the element exists in dom, if so, refetch it from DOM using jQuery</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#checkIfElementExistsInDOM">Tag#checkIfElementExistsInDOM</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="get">
-            
-                <span class="type-signature"></span>get<span class="signature">()</span><span class="type-signature"> &rarr; {jQuery.element}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line100">line 100</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get jQuery element for this SVG object</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">jQuery.element</span>
-
-
-
-
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#get">Tag#get</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="getAttr">
-            
-                <span class="type-signature"></span>getAttr<span class="signature">(name)</span><span class="type-signature"> &rarr; {string}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line64">line 64</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get attribute value by name</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>name of the attribute</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">string</span>
-
-
-
-
-
-- <p>value of the attribute</p>
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#getAttr">Tag#getAttr</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="removeAttr">
-            
-                <span class="type-signature"></span>removeAttr<span class="signature">(name)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line74">line 74</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>remove attribute by value</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>name of the attribute to be removed</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#removeAttr">Tag#removeAttr</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="removeClasses">
-            
-                <span class="type-signature"></span>removeClasses<span class="signature">(&hellip;classes)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line42">line 42</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>remove class names from this element</p>
+        <p>close the tutorial window</p>
     </div>
     
 
@@ -1395,13 +861,13 @@
 
         <tr>
             
-                <td class="name"><code>classes</code></td>
+                <td class="name"><code>onTutorialClosed</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">function</span>
 
 
             
@@ -1410,18 +876,18 @@
             
                 <td class="attributes">
                 
-
+                    &lt;optional><br>
                 
 
                 
-                    &lt;repeatable><br>
+
                 
                 </td>
             
 
             
 
-            <td class="description last"><p>class names to be removed</p></td>
+            <td class="description last"><p>callback function that is called when the tutorial is closed</p></td>
         </tr>
 
     
@@ -1452,11 +918,6 @@
 
     
 
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#removeClasses">Tag#removeClasses</a>
-    </li></ul></dd>
     
 
     
@@ -1494,14 +955,14 @@
 
 <dt>
     
-        <h4 class="name" id="updatePoints">
+        <h4 class="name" id="displayWindow">
             
-                <span class="type-signature"></span>updatePoints<span class="signature">(points)</span><span class="type-signature"></span>
+                <span class="type-signature"></span>displayWindow<span class="signature">()</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line472">line 472</a></code>
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line337">line 337</a></code>
             </div>
             
         </h4>
@@ -1513,7 +974,2143 @@
 
     
     <div class="description">
-        <p>update points of this polyline</p>
+        <p>display the tutorial window</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="next">
+            
+                <span class="type-signature"></span>next<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line407">line 407</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>go to the next step of the tutorial</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="onBoxMoved">
+            
+                <span class="type-signature"></span>onBoxMoved<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line89">line 89</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial hook</em>, called when a box is moved</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="onBoxRotated">
+            
+                <span class="type-signature"></span>onBoxRotated<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line94">line 94</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial hook</em>, called when a box is rotated</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="onCanvasMoved">
+            
+                <span class="type-signature"></span>onCanvasMoved<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line104">line 104</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial hook</em>, called when the canvas is moved</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="onCanvasZoomed">
+            
+                <span class="type-signature"></span>onCanvasZoomed<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line109">line 109</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial hook</em>, called when the canvas is zoomed</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="onChangeInputBoxState">
+            
+                <span class="type-signature"></span>onChangeInputBoxState<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line119">line 119</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial hook</em>, called when user changes the state of an input box</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="onContextMenuOpened">
+            
+                <span class="type-signature"></span>onContextMenuOpened<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line79">line 79</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial hook</em>, called when the context menu is opened</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="onElementAdded">
+            
+                <span class="type-signature"></span>onElementAdded<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line84">line 84</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial hook</em>, called when a new element is added</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="onElementRemoved">
+            
+                <span class="type-signature"></span>onElementRemoved<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line114">line 114</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial hook</em>, called when a box is removed</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="onOutputBoxTrue">
+            
+                <span class="type-signature"></span>onOutputBoxTrue<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line99">line 99</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial hook</em>, called when an output box value is set to <code>on</code></p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="resetHooks">
+            
+                <span class="type-signature"></span>resetHooks<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line75">line 75</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>reset all tutorial hooks</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="setUpTutorial">
+            
+                <span class="type-signature"></span>setUpTutorial<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line125">line 125</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>set up the tutorial: reset all tutorial hooks and define the order of tutorial steps</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="start">
+            
+                <span class="type-signature"></span>start<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line402">line 402</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>start the tutorial</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="stepAddBoxes">
+            
+                <span class="type-signature"></span>stepAddBoxes<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line160">line 160</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial step</em>: add input box, output box and a NOT gate</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="stepFinish">
+            
+                <span class="type-signature"></span>stepFinish<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line314">line 314</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial step</em>: ask the user if they want to clean the canvas before closing the tutorial</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="stepMoveBoxes">
+            
+                <span class="type-signature"></span>stepMoveBoxes<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line230">line 230</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial step</em>: move the boxes</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="stepMoveCanvas">
+            
+                <span class="type-signature"></span>stepMoveCanvas<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line201">line 201</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial step</em>: move the canvas</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="stepRemoveBox">
+            
+                <span class="type-signature"></span>stepRemoveBox<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line297">line 297</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial step</em>: remove a box</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="stepWelcome">
+            
+                <span class="type-signature"></span>stepWelcome<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line144">line 144</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial step</em>: display context menu</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="stepWiring">
+            
+                <span class="type-signature"></span>stepWiring<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line263">line 263</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial step</em>: create an invertor</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="stepZoomCanvas">
+            
+                <span class="type-signature"></span>stepZoomCanvas<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line216">line 216</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial step</em>: zoom the canvas</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="stop">
+            
+                <span class="type-signature"></span>stop<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line412">line 412</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>stop the tutorial</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="switchInputBox">
+            
+                <span class="type-signature"></span>switchInputBox<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line280">line 280</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p><em>tutorial step</em>: change the state of an input box</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="windowChoice">
+            
+                <span class="type-signature"></span>windowChoice<span class="signature">(&hellip;choices)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line385">line 385</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>add buttons with choices to the tutorial window</p>
     </div>
     
 
@@ -1537,6 +3134,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -1549,23 +3148,184 @@
 
         <tr>
             
-                <td class="name"><code>points</code></td>
+                <td class="name"><code>choices</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="PolylinePoints.html">PolylinePoints</a></span>
+<span class="param-type">object</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
 
             
 
-            <td class="description last"><p>new set of points describing this polyline</p></td>
+            <td class="description last"><p>each choice is an object in with a <code>string</code> property <em>text</em> and a <code>function</code> property <em>func</em></p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="windowContent">
+            
+                <span class="type-signature"></span>windowContent<span class="signature">(&hellip;text)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="tutorial.js.html">tutorial.js</a></code>,
+                <code><a href="tutorial.js.html#line357">line 357</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>set the tutorial window text content</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>each string is a separate paragraph</p></td>
         </tr>
 
     
@@ -1653,7 +3413,7 @@
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'PolyLine_sub'.replace(/"/g, '_');
+        var id = 'module:Tutorial_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

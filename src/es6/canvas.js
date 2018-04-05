@@ -7,6 +7,7 @@ import ContextMenu from './contextMenu.js'
 import FloatingMenu from './floatingMenu.js'
 import Simulation from './simulation.js'
 import { addMouseScrollEventListener } from './helperFunctions.js'
+import Tutorial from './tutorial.js';
 
 /**
  * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
@@ -282,6 +283,21 @@ export default class Canvas {
 
             event.preventDefault()
         })
+
+        /**
+         * property containing an instance of [Tutorial](./module-Tutorial.html), if there is any
+         * @type {Tutorial}
+         */
+        this.tutorial;
+
+        // check if the user visits for the first time, if so, start the tutorial
+        try {
+            if(!localStorage.userHasVisited) {
+                this.startTutorial();
+            }
+        } catch (e) {
+            console.warn(e);
+        }
     }
 
     /**
@@ -362,6 +378,11 @@ export default class Canvas {
         if(this.moveCanvas) {
             this.$svg.removeClass('grabbed');
             this.moveCanvas = undefined
+
+            // if tutorial exists, call tutorial callback
+            if(this.tutorial) {
+                this.tutorial.onCanvasMoved();
+            }
         }
     }
 
@@ -398,6 +419,28 @@ export default class Canvas {
     set zoom(value) {
         this.viewbox.zoom = value
         this.applyViewbox()
+
+        // if tutorial exists, call tutorial callback
+        if(this.tutorial) {
+            this.tutorial.onCanvasZoomed();
+        }
+    }
+
+    /**
+     * start the tutorial
+     */
+    startTutorial() {
+        // instantiate the tutorial
+        this.tutorial = new Tutorial(this, () => {
+            // set userHasVisited to true when user closes (or finishes) the tutorial
+            localStorage.userHasVisited = true;
+
+            // unset the this.tutorial property
+            this.tutorial = undefined;
+        });
+
+        // start the tutorial
+        this.tutorial.start();
     }
 
     /**
@@ -676,6 +719,11 @@ export default class Canvas {
 
         this.appendElement(this.boxes[index], refresh);
 
+        // if tutorial exists, call tutorial callback
+        if(this.tutorial) {
+            this.tutorial.onElementAdded(this.boxes[index].name);
+        }
+
         return this.boxes[index];
     }
 
@@ -704,8 +752,28 @@ export default class Canvas {
             // remove the gate
             this.boxes.splice(gateIndex, 1);
             $gate.remove();
+
+            // if tutorial exists, call tutorial callback
+            if(this.tutorial) {
+                this.tutorial.onElementRemoved();
+            }
         } else {
             console.error("Trying to remove an nonexisting box. Box id:", boxId);
+        }
+    }
+
+    /**
+     * Remove all boxes from the canvas
+     */
+    cleanCanvas() {
+        // cannot simply iterate through the array because removeBox works with it
+
+        // create an array of ids
+        const ids = this.boxes.map(box => box.id);
+
+        // remove all boxes by their ids
+        for (const id of ids) {
+            this.removeBox(id);
         }
     }
 
@@ -1033,6 +1101,11 @@ export default class Canvas {
      */
     displayContextMenu(x, y, $target) {
         this.contextMenu.display(x, y, $target);
+
+        // if tutorial exists, call tutorial callback
+        if(this.tutorial) {
+            this.tutorial.onContextMenuOpened();
+        }
     }
 
     /**

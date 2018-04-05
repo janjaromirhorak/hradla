@@ -595,6 +595,56 @@ ul#contextMenu, ul.subList {
     padding: 0;
     text-align: center; }
 
+#tutorial {
+  position: absolute;
+  left: 1em;
+  top: 1em;
+  padding: 1em;
+  min-width: 20em;
+  max-width: 35em;
+  color: #2b2d42;
+  background: white; }
+  #tutorial .topButtons {
+    text-align: right; }
+    #tutorial .topButtons .button {
+      display: inline-block;
+      width: 1em;
+      height: 1em; }
+      #tutorial .topButtons .button.close {
+        background: url("../img/gui/close.svg") no-repeat center center;
+        background-size: 1em 1em; }
+  #tutorial .content {
+    margin: 0;
+    padding: 0;
+    line-height: 1.5em; }
+    #tutorial .content p {
+      margin: 0 0 1em 0; }
+      #tutorial .content p:last-of-type {
+        margin-bottom: 0; }
+  #tutorial ol.choices {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center; }
+    #tutorial ol.choices li a {
+      margin: 0;
+      padding: 0;
+      display: block;
+      text-decoration: none;
+      text-transform: uppercase;
+      color: #2b2d42;
+      background: #edf2f4;
+      padding: 0.3em 0.5em;
+      border-radius: 3px;
+      margin: 0.3em;
+      display: inline-block;
+      -webkit-transition: background 200ms;
+      transition: background 200ms; }
+      #tutorial ol.choices li a:hover {
+        background: #f9dc5c; }
+      #tutorial ol.choices li a:active, #tutorial ol.choices li a:focus {
+        background: #ed254e; }
+
 .grabbable {
   cursor: -webkit-grab !important;
   cursor: grab !important; }
