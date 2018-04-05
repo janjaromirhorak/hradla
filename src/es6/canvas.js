@@ -764,11 +764,16 @@ export default class Canvas {
 
     /**
      * Remove all boxes from the canvas
-     * TODO fix: not all boxes are removed
      */
     cleanCanvas() {
-        for (let box of this.boxes) {
-            this.removeBox(box.id);
+        // cannot simply iterate through the array because removeBox works with it
+
+        // create an array of ids
+        const ids = this.boxes.map(box => box.id);
+
+        // remove all boxes by their ids
+        for (const id of ids) {
+            this.removeBox(id);
         }
     }
 
