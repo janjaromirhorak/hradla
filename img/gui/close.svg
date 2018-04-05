@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="help.svg">
+   sodipodi:docname="close.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="18.37866"
-     inkscape:cy="56.038257"
+     inkscape:zoom="4"
+     inkscape:cx="27.634041"
+     inkscape:cy="32.962514"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -69,26 +69,10 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-992.3622)">
-    <rect
-       style="fill:#011936;fill-opacity:1;stroke:none;stroke-opacity:1"
-       id="rect4275"
-       width="48.561554"
-       height="10.393475"
-       x="5.719223"
-       y="1017.1655" />
-    <rect
-       style="fill:#011936;fill-opacity:1;stroke:none;stroke-opacity:1"
-       id="rect4275-3"
-       width="43.611805"
-       height="10.393475"
-       x="5.719223"
-       y="1033.6056" />
-    <rect
-       style="fill:#011936;fill-opacity:1;stroke:none;stroke-opacity:1"
-       id="rect4275-6"
-       width="37.601398"
-       height="10.393475"
-       x="5.719223"
-       y="1000.7253" />
+    <path
+       style="opacity:1;fill:#011936;fill-opacity:1;stroke:none;stroke-width:2.53408957;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 9.0657726,1008.9272 13.4350294,13.435 -13.4350294,13.435 7.4991984,7.4992 L 30,1029.8614 l 13.435029,13.435 7.499198,-7.4992 -13.435029,-13.435 13.435029,-13.435 -7.499198,-7.4992 L 30,1014.863 l -13.435029,-13.435 -7.4991984,7.4992 z"
+       id="path895"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>

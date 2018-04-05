@@ -40,6 +40,7 @@
         "gulp-zip": "^4.1.0",
         "jquery": "^3.3.1",
         "jsdoc": "^3.5.5",
+        "libstl": "^0.1.22",
         "lity": "^2.3.0",
         "tui-jsdoc-template": "^1.2.2",
         "vinyl-buffer": "^1.0.1",

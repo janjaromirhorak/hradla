@@ -70,15 +70,15 @@ class ContextMenuItem {
 
                 this.contextMenu.$el.after(this.$submenu);
 
-                console.log(this.$submenu);
-
                 event.stopPropagation()
             }
         }, () => {
             // mouse out
-            this.$submenu.css({
-                display: "none"
-            })
+            if(this.$submenu) {
+                this.$submenu.css({
+                    display: "none"
+                })
+            }
 
             // do not stop event propagation, here it is wanted
             // (because submenu overrides display: none when user moves from this menu item to the submenu)
@@ -93,6 +93,10 @@ class ContextMenuItem {
         return this.contextMenu.parentSVG;
     }
 
+    /**
+     * number of items in the submenu
+     * @return {Number}
+     */
     get length() {
         return this.itemCount;
     }
@@ -199,9 +203,7 @@ class NetworkMenuItem extends ContextMenuItem {
                         data,
                         Math.round(this.parentSVG.viewbox.transformX(contextMenu.position.x) / this.parentSVG.gridSize),
                         Math.round(this.parentSVG.viewbox.transformY(contextMenu.position.y) / this.parentSVG.gridSize)
-                    ).then(() => {
-                        console.log('wozaa')
-                    });
+                    ).then();
                 }).catch(error => {
                     console.error(error);
                 })
@@ -415,7 +417,7 @@ export default class ContextMenu {
             if($target.hasClass(this.conditionalItems[i].itemClass)) {
                 this.appendItem(
                     new ContextMenuItem(
-                        this.conditionalItems[i].text, this, this.parentSVG,
+                        this.conditionalItems[i].text, this,
                         () => {
                             this.conditionalItems[i].clickFunction($target.attr('id'));
                         }
@@ -444,17 +446,17 @@ export default class ContextMenu {
             y: y
         };
 
+        this.resolveConditionalItems($target);
+
         this.$el.css({
             display: 'block',
             top: y,
             left: x
-        }).css({
-            // set the width expicitly, or else the menu will widen when displaying a submenu
-            // 2 is to prevent a weird text wrap bug
-            width: this.$el.innerWidth() + 2
         })
-
-        this.resolveConditionalItems($target);
+        // set the width expicitly, or else the menu will widen when displaying a submenu
+        // 2 is to prevent a weird text wrap bug
+        .css('width', 'auto')
+        .css('width', this.$el.innerWidth() + 2);
     }
 
     /**

@@ -2,6 +2,8 @@ import * as svgObj from './svgObjects.js'
 import MapWithDefaultValue from './mapWithDefaultValue.js'
 import Logic from './logic.js'
 
+import { PriorityQueue } from 'libstl'; // note: imported from a node module
+
 /**
  * mapping of logical states to css classes
  * @type {Object}
@@ -985,6 +987,11 @@ class Box extends NetworkElement {
         this.setTransform(transform);
 
         this.updateWires();
+
+        // if tutorial exists, call tutorial callback
+        if(this.parentSVG.tutorial) {
+            this.parentSVG.tutorial.onBoxMoved();
+        }
     }
 
     /**
@@ -1023,6 +1030,11 @@ class Box extends NetworkElement {
 
         // update the wires
         this.updateWires();
+
+        // if tutorial exists, call tutorial callback
+        if(this.parentSVG.tutorial) {
+            this.parentSVG.tutorial.onBoxRotated();
+        }
     }
 
     /**
@@ -1118,6 +1130,10 @@ export class InputBox extends Box {
      */
     onClick() {
         this.on = !this.on;
+
+        if(this.parentSVG.tutorial) {
+            this.parentSVG.tutorial.onChangeInputBoxState();
+        }
     }
 }
 
@@ -1154,6 +1170,11 @@ export class OutputBox extends Box {
         switch (state) {
             case Logic.state.on:
                 this.changeImage("on");
+
+                // if tutorial exists, call tutorial callback
+                if(this.parentSVG.tutorial) {
+                    this.parentSVG.tutorial.onOutputBoxTrue();
+                }
                 break;
             case Logic.state.off:
                 this.changeImage("off");
@@ -1614,7 +1635,30 @@ export class Wire extends NetworkElement {
 
         let closedNodes = new Set();
         let openNodes = new Set();
-        openNodes.add(start);
+        let openNodeQueue = new PriorityQueue();
+
+        // functions for working with open nodes:
+
+        /**
+         * add a new open node to the structure
+         * @param {Object} node   object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
+         * @param {number} fscore fScore of this node
+         */
+        const addOpenNode = (node, fscore) => {
+            openNodes.add(node);
+            // flip the fscore, because PriorityQueue uses max heap
+            openNodeQueue.enqueue(node, 1 / fscore);
+        }
+
+        /**
+         * get the open node with the lowest fScore and remove it
+         * @return {Object} object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
+         */
+        const getOpenNode = () => {
+            const node = openNodeQueue.dequeue();
+            openNodes.delete(node);
+            return node;
+        }
 
         let cameFrom = new Map();
 
@@ -1624,7 +1668,14 @@ export class Wire extends NetworkElement {
 
         // default value: infinity
         let fScore = new MapWithDefaultValue(Infinity);
-        fScore.set(start, Wire.manhattanDistance(start, end));
+
+        let startFScore = Wire.manhattanDistance(start, end);
+        fScore.set(start, startFScore);
+
+        addOpenNode(start, startFScore);
+
+        openNodes.add(start);
+        openNodeQueue.enqueue(start, 1 / fScore.get(start));
 
         let nonRoutable = this.parentSVG.getNonRoutableNodes();
         let punishedButRoutable;
@@ -1635,29 +1686,22 @@ export class Wire extends NetworkElement {
         }
 
         while (openNodes.size > 0) {
-            let currentNode;
-            let currentNodeFScore;
+            // get the value from openNodes that has the lowest fScore
+            const currentNode = getOpenNode();
 
-            // find the value from openNodes that has the lowest fScore
-            // (can be implemented effectively using min-heap data structure (maybe TODO sometime)?)
-            for (const node of openNodes) {
-                if(!currentNode || fScore.get(node) < currentNodeFScore) {
-                    currentNode = node;
-                    currentNodeFScore = fScore.get(currentNode)
-                }
-            }
-
+            // if we reached the end point, reconstruct the path and return it
             if(svgObj.PolylinePoint.equals(currentNode, end)) {
                 return this.reconstructPath(cameFrom, currentNode);
             }
 
-            openNodes.delete(currentNode);
+            // add this node to the closed nodes
             closedNodes.add(currentNode);
 
             // the farthest points accessible without avoiding obstacles in every direction
             // (but max 50 in each direction)
             for(let direction = 0 ; direction < 4 ; direction++) {
                 let newPoint = Wire.movePoint(currentNode, direction);
+
                 for(let i = 0 ; i < 50 ; i++) {
                     // if newPoint is in the set of non routable points,
                     // don't add it and stop proceeding in this direction
@@ -1669,10 +1713,6 @@ export class Wire extends NetworkElement {
                     // or if it is on the list of non routable nodes
                     if (closedNodes.has(newPoint)) {
                         continue;
-                    }
-
-                    if (!openNodes.has(newPoint)) {
-                        openNodes.add(newPoint);
                     }
 
                     // calculate possible GScore by adding 1 to the score of the node we came from
@@ -1693,7 +1733,15 @@ export class Wire extends NetworkElement {
 
                     cameFrom.set(newPoint, currentNode);
                     gScore.set(newPoint, possibleGScore);
-                    fScore.set(newPoint, possibleGScore + Wire.manhattanDistance(newPoint, end));
+
+                    const newFScore = possibleGScore + Wire.manhattanDistance(newPoint, end);
+
+                    fScore.set(newPoint, newFScore);
+
+                    if (!openNodes.has(newPoint)) {
+                        // add the point to the list of points
+                        addOpenNode(newPoint, newFScore);
+                    }
 
                     // if newPoint is in the set of punished but routable points,
                     // add it but stop proceeding in this direction
@@ -1707,6 +1755,7 @@ export class Wire extends NetworkElement {
             }
 
             if(openNodes.size > maxNodeLimit) {
+                console.log(`Number of open nodes (${openNodes.size}) exceeded the limit for open nodes (${maxNodeLimit}). Giving up...`)
                 break;
             }
         }
