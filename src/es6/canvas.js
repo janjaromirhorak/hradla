@@ -1199,8 +1199,29 @@ export default class Canvas {
                 });
             }
         }
-        // TODO ensure that this.refresh() is really unnecessary
-        // this.refresh();
+
+        // FOR DEBUG ONLY: display the non routable nodes
+        /*
+
+        if(this.nodeDisplay) {
+            for (const rectangleId of this.nodeDisplay) {
+                $(`#${rectangleId}`).remove();
+            }
+        }
+
+        this.nodeDisplay = [];
+
+        for (const {x, y} of blockedNodes) {
+            const nodeRectangle = new svgObj.Rectangle(x - 2, y - 2, 4, 4, "red", "none")
+            this.nodeDisplay.push(nodeRectangle.id);
+            this.appendElement(nodeRectangle, false);
+        }
+
+        this.refresh();
+
+        */
+        // END FOR DEBUG ONLY
+
         // return the set
         return blockedNodes;
     }

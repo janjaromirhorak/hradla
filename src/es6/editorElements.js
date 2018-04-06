@@ -149,8 +149,8 @@ export class Transform {
         let args = this.getArguments(this.getIndex("translate"));
 
         return {
-            x: args[0],
-            y: args[1]
+            x: Number(args[0]),
+            y: Number(args[1])
         }
     }
 
@@ -162,9 +162,9 @@ export class Transform {
         let args = this.getArguments(this.getIndex("rotate"));
 
         return {
-            deg: args[0],
-            centreX: args[1],
-            centreY: args[2]
+            deg: Number(args[0]),
+            centreX: Number(args[1]),
+            centreY: Number(args[2])
         }
     }
 
@@ -766,7 +766,7 @@ class Box extends NetworkElement {
     }
 
     /**
-     * remove a specific onde from the set of blocked nodes
+     * remove a specific node from the set of blocked nodes
      * @param  {number} x horizontal position of the blocked node in grid pixels
      * @param  {number} y vertical position of the blocked node in grid pixels
      */
@@ -780,35 +780,73 @@ class Box extends NetworkElement {
     }
 
     /**
+     * rotate the set of blocked nodes by 90 degrees to the right or to the left, depending on the parameter
+     *
+     * used to rotate the nodes when the object itself is rotated
+     * @param  {boolean} right rotate clockwise if true, counterclockwise if false
+     */
+    rotateBlockedNodes(right) {
+        if(this.rotationParity===undefined) {
+            this.rotationParity = false;
+        }
+
+        this.rotationParity = !this.rotationParity;
+
+        let newBlockedNodes = new Set();
+
+        // rotate the node
+
+        for (const node of this.blockedNodes) {
+            let newNode;
+
+            if(this.rotationParity) {
+                if(right) {
+                    newNode = {
+                        x: Math.abs(node.y - this.gridHeight),
+                        y: node.x
+                    };
+                } else {
+                    newNode = {
+                        x: node.y,
+                        y: Math.abs(node.x - this.gridWidth)
+                    };
+                }
+            } else {
+                if(right) {
+                    newNode = {
+                        x: Math.abs(node.y - this.gridWidth),
+                        y: node.x
+                    };
+                } else {
+                    newNode = {
+                        x: node.y,
+                        y: Math.abs(node.x - this.gridHeight)
+                    };
+                }
+            }
+
+            newBlockedNodes.add(newNode);
+        }
+
+        this.blockedNodes = newBlockedNodes;
+    }
+
+    /**
      * rotate the set of blocked nodes to the right
      *
      * used to rotate the nodes when the object itself is rotated
      */
     rotateBlockedNodesRight() {
-        if(this.rotation===undefined || this.rotation===4) {
-            this.rotation = 0;
-        }
-        this.rotation++;
+        this.rotateBlockedNodes(true);
+    }
 
-        if(this.rotation === 1 || this.rotation === 3) {
-            let newBlockedNodes = new Set();
-            this.blockedNodes.forEach(item => {
-                newBlockedNodes.add({
-                    x: Math.abs(item.y - this.gridHeight),
-                    y: item.x
-                });
-            });
-            this.blockedNodes = newBlockedNodes;
-        } else if(this.rotation === 2 || this.rotation === 4) {
-            let newBlockedNodes = new Set();
-            this.blockedNodes.forEach(item => {
-                newBlockedNodes.add({
-                    x: Math.abs(item.y - this.gridWidth),
-                    y: item.x
-                });
-            });
-            this.blockedNodes = newBlockedNodes;
-        }
+    /**
+     * rotate the set of blocked nodes to the right
+     *
+     * used to rotate the nodes when the object itself is rotated
+     */
+    rotateBlockedNodesLeft() {
+        this.rotateBlockedNodes(false);
     }
 
     /**
@@ -1039,15 +1077,9 @@ class Box extends NetworkElement {
 
         // apply the rotation to the transform object
         if(event.ctrlKey) {
-            transform.rotateLeft(
-                centreX,
-                centreY
-            );
+            transform.rotateLeft(centreX, centreY);
         } else {
-            transform.rotateRight(
-                centreX,
-                centreY
-            );
+            transform.rotateRight(centreX, centreY);
         }
 
 
@@ -1055,7 +1087,11 @@ class Box extends NetworkElement {
         this.svgObj.addAttr({"transform": transform.get()});
 
         // rotate also the blocked nodes
-        this.rotateBlockedNodesRight();
+        if(event.ctrlKey) {
+            this.rotateBlockedNodesLeft();
+        } else {
+            this.rotateBlockedNodesRight();
+        }
 
         // update the wires
         this.updateWires();
