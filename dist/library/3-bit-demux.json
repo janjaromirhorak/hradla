@@ -1,0 +1,900 @@
+{
+    "name": "3-bit demultiplexer",
+    "boxes": [{
+            "name": "input",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        27,
+                        52
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 0
+                },
+                {
+                    "index": 0,
+                    "wireId": 1
+                },
+                {
+                    "index": 0,
+                    "wireId": 2
+                },
+                {
+                    "index": 0,
+                    "wireId": 3
+                },
+                {
+                    "index": 0,
+                    "wireId": 4
+                }
+            ],
+            "isOn": false
+        },
+        {
+            "name": "input",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        27,
+                        67
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 5
+                },
+                {
+                    "index": 0,
+                    "wireId": 6
+                },
+                {
+                    "index": 0,
+                    "wireId": 7
+                },
+                {
+                    "index": 0,
+                    "wireId": 8
+                },
+                {
+                    "index": 0,
+                    "wireId": 9
+                }
+            ],
+            "isOn": false
+        },
+        {
+            "name": "input",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        27,
+                        82
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 10
+                },
+                {
+                    "index": 0,
+                    "wireId": 11
+                },
+                {
+                    "index": 0,
+                    "wireId": 12
+                },
+                {
+                    "index": 0,
+                    "wireId": 13
+                },
+                {
+                    "index": 0,
+                    "wireId": 14
+                }
+            ],
+            "isOn": false
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                        "name": "translate",
+                        "args": [
+                            97,
+                            123
+                        ]
+                    },
+                    {
+                        "name": "rotate",
+                        "args": [
+                            "0",
+                            1,
+                            4
+                        ]
+                    }
+                ]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 15
+                },
+                {
+                    "index": 1,
+                    "wireId": 9
+                },
+                {
+                    "index": 2,
+                    "wireId": 14
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        109,
+                        122
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 16
+                },
+                {
+                    "index": 1,
+                    "wireId": 4
+                },
+                {
+                    "index": 2,
+                    "wireId": 15
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        109,
+                        111
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 17
+                },
+                {
+                    "index": 1,
+                    "wireId": 18
+                },
+                {
+                    "index": 2,
+                    "wireId": 19
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        97,
+                        112
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 19
+                },
+                {
+                    "index": 1,
+                    "wireId": 8
+                },
+                {
+                    "index": 2,
+                    "wireId": 13
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        109,
+                        94
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 20
+                },
+                {
+                    "index": 1,
+                    "wireId": 3
+                },
+                {
+                    "index": 2,
+                    "wireId": 21
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        96,
+                        95
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 21
+                },
+                {
+                    "index": 1,
+                    "wireId": 22
+                },
+                {
+                    "index": 2,
+                    "wireId": 12
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        109,
+                        80
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 23
+                },
+                {
+                    "index": 1,
+                    "wireId": 24
+                },
+                {
+                    "index": 2,
+                    "wireId": 25
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        97,
+                        81
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 25
+                },
+                {
+                    "index": 1,
+                    "wireId": 26
+                },
+                {
+                    "index": 2,
+                    "wireId": 11
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        109,
+                        67
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 27
+                },
+                {
+                    "index": 1,
+                    "wireId": 2
+                },
+                {
+                    "index": 2,
+                    "wireId": 28
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        96,
+                        69
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 28
+                },
+                {
+                    "index": 1,
+                    "wireId": 7
+                },
+                {
+                    "index": 2,
+                    "wireId": 29
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        108,
+                        56
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 30
+                },
+                {
+                    "index": 1,
+                    "wireId": 31
+                },
+                {
+                    "index": 2,
+                    "wireId": 32
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        95,
+                        57
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 32
+                },
+                {
+                    "index": 1,
+                    "wireId": 6
+                },
+                {
+                    "index": 2,
+                    "wireId": 33
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        109,
+                        45
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 34
+                },
+                {
+                    "index": 1,
+                    "wireId": 1
+                },
+                {
+                    "index": 2,
+                    "wireId": 35
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        95,
+                        46
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 35
+                },
+                {
+                    "index": 1,
+                    "wireId": 36
+                },
+                {
+                    "index": 2,
+                    "wireId": 37
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        110,
+                        30
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 38
+                },
+                {
+                    "index": 1,
+                    "wireId": 39
+                },
+                {
+                    "index": 2,
+                    "wireId": 40
+                }
+            ]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        95,
+                        32
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 40
+                },
+                {
+                    "index": 1,
+                    "wireId": 41
+                },
+                {
+                    "index": 2,
+                    "wireId": 42
+                }
+            ]
+        },
+        {
+            "name": "output",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        124,
+                        122
+                    ]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 16
+            }]
+        },
+        {
+            "name": "output",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        125,
+                        110
+                    ]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 17
+            }]
+        },
+        {
+            "name": "output",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        125,
+                        94
+                    ]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 20
+            }]
+        },
+        {
+            "name": "output",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        123,
+                        81
+                    ]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 23
+            }]
+        },
+        {
+            "name": "output",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        123,
+                        67
+                    ]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 27
+            }]
+        },
+        {
+            "name": "output",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        123,
+                        57
+                    ]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 30
+            }]
+        },
+        {
+            "name": "output",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        123,
+                        45
+                    ]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 34
+            }]
+        },
+        {
+            "name": "output",
+            "category": "io",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        124,
+                        30
+                    ]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 38
+            }]
+        },
+        {
+            "name": "not",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                        "name": "translate",
+                        "args": [
+                            44,
+                            52
+                        ]
+                    },
+                    {
+                        "name": "rotate",
+                        "args": [
+                            "0",
+                            1,
+                            3
+                        ]
+                    }
+                ]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 39
+                },
+                {
+                    "index": 0,
+                    "wireId": 31
+                },
+                {
+                    "index": 0,
+                    "wireId": 24
+                },
+                {
+                    "index": 0,
+                    "wireId": 18
+                },
+                {
+                    "index": 1,
+                    "wireId": 0
+                }
+            ]
+        },
+        {
+            "name": "not",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                        "name": "translate",
+                        "args": [
+                            44,
+                            67
+                        ]
+                    },
+                    {
+                        "name": "rotate",
+                        "args": [
+                            "0",
+                            1,
+                            3
+                        ]
+                    }
+                ]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 41
+                },
+                {
+                    "index": 0,
+                    "wireId": 36
+                },
+                {
+                    "index": 0,
+                    "wireId": 26
+                },
+                {
+                    "index": 0,
+                    "wireId": 22
+                },
+                {
+                    "index": 1,
+                    "wireId": 5
+                }
+            ]
+        },
+        {
+            "name": "not",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        44,
+                        82
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 42
+                },
+                {
+                    "index": 0,
+                    "wireId": 37
+                },
+                {
+                    "index": 0,
+                    "wireId": 33
+                },
+                {
+                    "index": 0,
+                    "wireId": 29
+                },
+                {
+                    "index": 1,
+                    "wireId": 10
+                }
+            ]
+        }
+    ],
+    "blackbox": {
+        "inputs": 3,
+        "outputs": 8,
+        "table": [
+            [
+                2,
+                2,
+                2,
+                1,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+            ],
+            [
+                1,
+                2,
+                2,
+                2,
+                1,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+            ],
+            [
+                2,
+                1,
+                2,
+                2,
+                2,
+                1,
+                2,
+                2,
+                2,
+                2,
+                2
+            ],
+            [
+                1,
+                1,
+                2,
+                2,
+                2,
+                2,
+                1,
+                2,
+                2,
+                2,
+                2
+            ],
+            [
+                2,
+                2,
+                1,
+                2,
+                2,
+                2,
+                2,
+                1,
+                2,
+                2,
+                2
+            ],
+            [
+                1,
+                2,
+                1,
+                2,
+                2,
+                2,
+                2,
+                2,
+                1,
+                2,
+                2
+            ],
+            [
+                2,
+                1,
+                1,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                1,
+                2
+            ],
+            [
+                1,
+                1,
+                1,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                1
+            ]
+        ]
+    }
+}
