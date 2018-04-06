@@ -1399,8 +1399,8 @@ export class Blackbox extends Box {
                     new svgObj.PolylinePoint(0, pixelPosition),
                     new svgObj.PolylinePoint(connectorPinLenght, pixelPosition),
                 ]),
-                "black",
-                1
+                1,
+                "black"
             )
 
             this.svgObj.addChild(pin);
@@ -1419,8 +1419,8 @@ export class Blackbox extends Box {
                     new svgObj.PolylinePoint(this.width - connectorPinLenght, pixelPosition),
                     new svgObj.PolylinePoint(this.width, pixelPosition),
                 ]),
-                "black",
-                1
+                1,
+                "black"
             )
 
             this.svgObj.addChild(pin);
@@ -1670,9 +1670,22 @@ export class Wire extends NetworkElement {
     setWirePath(points) {
         // set the line
         if(this.svgObj!==undefined) {
-            this.svgObj.updatePoints(points);
+            // this.svgObj.updatePoints(points);
+            for (let child of this.svgObj.children) {
+                child.updatePoints(points);
+            }
         } else {
-            this.svgObj = new svgObj.PolyLine(points, "#8b8b8b", 2);
+            // this.svgObj = new svgObj.PolyLine(points, 2, "#8b8b8b");
+            this.svgObj = new svgObj.Group();
+
+            let hitbox = new svgObj.PolyLine(points, 10, 'white');
+            hitbox.addClass("hitbox");
+            hitbox.addAttr({opacity: 0});
+            this.svgObj.addChild(hitbox);
+
+            let mainLine = new svgObj.PolyLine(points, 2);
+            mainLine.addClass("main", "stateUnknown");
+            this.svgObj.addChild(mainLine);
         }
 
         this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);

@@ -1113,7 +1113,7 @@ var Canvas = function () {
 
         var patternPoints = new svgObj.PolylinePoints().append(new svgObj.PolylinePoint(0, 0)).append(new svgObj.PolylinePoint(this.gridSize, 0)).append(new svgObj.PolylinePoint(this.gridSize, this.gridSize));
 
-        pattern.addChild(new svgObj.PolyLine(patternPoints, "#a3a4d2", 2));
+        pattern.addChild(new svgObj.PolyLine(patternPoints, 2, "#a3a4d2"));
         this.addPattern(pattern.get());
 
         this.background = new svgObj.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
@@ -1131,10 +1131,12 @@ var Canvas = function () {
         // CONSTRUCT FLOATING MENU
         this.floatingMenu = new _floatingMenu2.default(this);
 
-        // ALL EVENT CALLBACKS
         var target = void 0;
+
+        // ALL EVENT CALLBACKS
         this.$svg.on('mousedown', function (event) {
             target = _this.getRealTarget(event.target);
+
             if (target !== undefined) {
                 // propagate mousedown to the real target
                 target.onMouseDown(event);
@@ -2179,6 +2181,10 @@ var Canvas = function () {
     }, {
         key: 'getRealTarget',
         value: function getRealTarget(target) {
+            if (target === undefined) {
+                return undefined;
+            }
+
             // eventy se museji zpracovat tady, protoze v SVG se eventy nepropaguji
             var $target = $(target);
 
@@ -2194,10 +2200,20 @@ var Canvas = function () {
                     $parentGroup = $parentGroup.parent();
                 }
 
-                return this.getBoxById($parentGroup.attr('id'));
-            } else if ($target.hasClass("wire")) {
-                return this.getWireById($target.attr('id'));
+                // try to match the jQuery element to the logical element using DOM classes
+
+                if ($parentGroup.hasClass("box")) {
+                    // return the corresponding box
+                    return this.getBoxById($parentGroup.attr('id'));
+                } else if ($parentGroup.hasClass("wire")) {
+                    // return the corresponding wire
+                    return this.getWireById($parentGroup.attr('id'));
+                } else {
+                    // found a group that contains the target, but this group does not match any known element types
+                    return undefined;
+                }
             } else {
+                // element does not match any known element types
                 return undefined;
             }
         }
@@ -5026,7 +5042,7 @@ var Blackbox = exports.Blackbox = function (_Box4) {
             var gridPosition = i * 2 + 1;
             var pixelPosition = gridPosition * _this9.gridSize;
 
-            var pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(0, pixelPosition), new svgObj.PolylinePoint(connectorPinLenght, pixelPosition)]), "black", 1);
+            var pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(0, pixelPosition), new svgObj.PolylinePoint(connectorPinLenght, pixelPosition)]), 1, "black");
 
             _this9.svgObj.addChild(pin);
 
@@ -5039,7 +5055,7 @@ var Blackbox = exports.Blackbox = function (_Box4) {
             var _gridPosition = _i * 2 + 1;
             var _pixelPosition = _gridPosition * _this9.gridSize;
 
-            var _pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(_this9.width - connectorPinLenght, _pixelPosition), new svgObj.PolylinePoint(_this9.width, _pixelPosition)]), "black", 1);
+            var _pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(_this9.width - connectorPinLenght, _pixelPosition), new svgObj.PolylinePoint(_this9.width, _pixelPosition)]), 1, "black");
 
             _this9.svgObj.addChild(_pin);
 
@@ -5451,9 +5467,43 @@ var Wire = exports.Wire = function (_NetworkElement3) {
         value: function setWirePath(points) {
             // set the line
             if (this.svgObj !== undefined) {
-                this.svgObj.updatePoints(points);
+                // this.svgObj.updatePoints(points);
+                var _iteratorNormalCompletion15 = true;
+                var _didIteratorError15 = false;
+                var _iteratorError15 = undefined;
+
+                try {
+                    for (var _iterator15 = this.svgObj.children[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                        var child = _step15.value;
+
+                        child.updatePoints(points);
+                    }
+                } catch (err) {
+                    _didIteratorError15 = true;
+                    _iteratorError15 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion15 && _iterator15.return) {
+                            _iterator15.return();
+                        }
+                    } finally {
+                        if (_didIteratorError15) {
+                            throw _iteratorError15;
+                        }
+                    }
+                }
             } else {
-                this.svgObj = new svgObj.PolyLine(points, "#8b8b8b", 2);
+                // this.svgObj = new svgObj.PolyLine(points, 2, "#8b8b8b");
+                this.svgObj = new svgObj.Group();
+
+                var hitbox = new svgObj.PolyLine(points, 10, 'white');
+                hitbox.addClass("hitbox");
+                hitbox.addAttr({ opacity: 0 });
+                this.svgObj.addChild(hitbox);
+
+                var mainLine = new svgObj.PolyLine(points, 2);
+                mainLine.addClass("main", "stateUnknown");
+                this.svgObj.addChild(mainLine);
             }
 
             this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
@@ -5769,29 +5819,29 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     }, {
         key: 'setHasThisPoint',
         value: function setHasThisPoint(set, point) {
-            var _iteratorNormalCompletion15 = true;
-            var _didIteratorError15 = false;
-            var _iteratorError15 = undefined;
+            var _iteratorNormalCompletion16 = true;
+            var _didIteratorError16 = false;
+            var _iteratorError16 = undefined;
 
             try {
-                for (var _iterator15 = set[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-                    var item = _step15.value;
+                for (var _iterator16 = set[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
+                    var item = _step16.value;
 
                     if (item.x === point.x && item.y === point.y) {
                         return true;
                     }
                 }
             } catch (err) {
-                _didIteratorError15 = true;
-                _iteratorError15 = err;
+                _didIteratorError16 = true;
+                _iteratorError16 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
-                        _iterator15.return();
+                    if (!_iteratorNormalCompletion16 && _iterator16.return) {
+                        _iterator16.return();
                     }
                 } finally {
-                    if (_didIteratorError15) {
-                        throw _iteratorError15;
+                    if (_didIteratorError16) {
+                        throw _iteratorError16;
                     }
                 }
             }
@@ -7102,7 +7152,10 @@ var Group = exports.Group = function (_Tag2) {
     function Group() {
         _classCallCheck(this, Group);
 
-        return _possibleConstructorReturn(this, (Group.__proto__ || Object.getPrototypeOf(Group)).call(this, "g"));
+        var _this4 = _possibleConstructorReturn(this, (Group.__proto__ || Object.getPrototypeOf(Group)).call(this, "g"));
+
+        _this4.children = [];
+        return _this4;
     }
 
     /**
@@ -7114,6 +7167,8 @@ var Group = exports.Group = function (_Tag2) {
     _createClass(Group, [{
         key: "addChild",
         value: function addChild(el) {
+            this.children.push(el);
+
             this.$el.append(el.$el);
             return el; // pro jednodussi "let rect = g.addChild(new Rectangle(..."
         }
@@ -7454,20 +7509,25 @@ var PolyLine = exports.PolyLine = function (_Tag3) {
 
     /**
      * @param {PolylinePoints} points points describing this polyline
-     * @param {string} color CSS color of this polyline
-     * @param {number} strokeWidth width of the stroke for this polyline in SVG pixels
+     * @param {number} [strokeWidth] width of the stroke for this polyline in SVG pixels
+     * @param {string} [color] CSS color of this polyline
      */
-    function PolyLine(points, color, strokeWidth) {
+    function PolyLine(points, strokeWidth, color) {
         _classCallCheck(this, PolyLine);
 
         var _this6 = _possibleConstructorReturn(this, (PolyLine.__proto__ || Object.getPrototypeOf(PolyLine)).call(this, "polyline"));
 
-        _this6.addAttr({
+        var attributes = {
             points: points.string,
-            stroke: color,
             fill: "none",
             "stroke-width": strokeWidth
-        });
+        };
+
+        if (color !== undefined) {
+            attributes.stroke = color;
+        }
+
+        _this6.addAttr(attributes);
         return _this6;
     }
 

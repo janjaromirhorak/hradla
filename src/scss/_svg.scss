@@ -24,22 +24,36 @@
         }
 
         &:hover {
-            fill: yellow;
+            fill: $hoverColor;
         }
     }
 
     .wire {
-        &.stateOn {
+        cursor: hand;
+        cursor: pointer;
+
+        &.stateOn .main {
             stroke: $onColor;
         }
-        &.stateOff {
+        &.stateOff .main {
             stroke: $offColor;
         }
-        &.stateUnknown {
+        &.stateUnknown .main {
             stroke: $unknownColor;
         }
-        &.stateOscillating {
+        &.stateOscillating .main {
             stroke: $oscillatingColor;
+        }
+
+        &:hover {
+            .main {
+                stroke: black;
+            }
+
+            .hitbox {
+                stroke: $hoverColor;
+                opacity: 0.5;
+            }
         }
     }
 

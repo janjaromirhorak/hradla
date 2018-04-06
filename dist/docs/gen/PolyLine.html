@@ -50,7 +50,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>PolyLine<span class="signature">(points, color, strokeWidth)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>PolyLine<span class="signature">(points, strokeWidth<span class="signature-attributes">opt</span>, color<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
             <div class="class-description"><p>SVG polyline (a path defined by sequence of points on plane)</p></div>
         
@@ -67,12 +67,12 @@
     
         <h4 class="name" id="PolyLine">
             
-                new <span class="type-signature"></span>PolyLine<span class="signature">(points, color, strokeWidth)</span><span class="type-signature"></span>
+                new <span class="type-signature"></span>PolyLine<span class="signature">(points, strokeWidth<span class="signature-attributes">opt</span>, color<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
                 <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line459">line 459</a></code>
+                <code><a href="svgObjects.js.html#line463">line 463</a></code>
             </div>
             
         </h4>
@@ -104,6 +104,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -129,33 +131,18 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last"><p>points describing this polyline</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>color</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>CSS color of this polyline</p></td>
         </tr>
 
     
@@ -175,10 +162,53 @@
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last"><p>width of the stroke for this polyline in SVG pixels</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>color</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>CSS color of this polyline</p></td>
         </tr>
 
     
@@ -1501,7 +1531,7 @@
             
             <div class="container-source members">
                 <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line480">line 480</a></code>
+                <code><a href="svgObjects.js.html#line489">line 489</a></code>
             </div>
             
         </h4>

@@ -257,7 +257,7 @@ export default class Canvas {
             .append(new svgObj.PolylinePoint(this.gridSize, 0))
             .append(new svgObj.PolylinePoint(this.gridSize, this.gridSize));
 
-        pattern.addChild(new svgObj.PolyLine(patternPoints, "#a3a4d2", 2));
+        pattern.addChild(new svgObj.PolyLine(patternPoints, 2, "#a3a4d2"));
         this.addPattern(pattern.get());
 
         this.background = new svgObj.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
@@ -275,10 +275,12 @@ export default class Canvas {
         // CONSTRUCT FLOATING MENU
         this.floatingMenu = new FloatingMenu(this);
 
-        // ALL EVENT CALLBACKS
         let target;
+
+        // ALL EVENT CALLBACKS
         this.$svg.on('mousedown', event => {
             target = this.getRealTarget(event.target);
+
             if(target!==undefined) {
                 // propagate mousedown to the real target
                 target.onMouseDown(event);
@@ -298,7 +300,7 @@ export default class Canvas {
             }
 
             event.preventDefault();
-        }).on('mouseup', (event) => {
+        }).on('mouseup', event => {
             if(target!==undefined) {
                 target.onMouseUp(event);
             } else {
@@ -1085,6 +1087,10 @@ export default class Canvas {
      * @return {editorElements.NetworkElement} instance of an object derived from editorElements.NetworkElement that the user interacted with
      */
     getRealTarget(target) {
+        if (target===undefined) {
+            return undefined;
+        }
+
         // eventy se museji zpracovat tady, protoze v SVG se eventy nepropaguji
         let $target = $(target);
 
@@ -1100,10 +1106,20 @@ export default class Canvas {
                 $parentGroup = $parentGroup.parent();
             }
 
-            return this.getBoxById($parentGroup.attr('id'));
-        } else if ($target.hasClass("wire")) {
-            return this.getWireById($target.attr('id'));
+            // try to match the jQuery element to the logical element using DOM classes
+            
+            if($parentGroup.hasClass("box")) {
+                // return the corresponding box
+                return this.getBoxById($parentGroup.attr('id'));
+            } else if($parentGroup.hasClass("wire")) {
+                // return the corresponding wire
+                return this.getWireById($parentGroup.attr('id'));
+            } else {
+                // found a group that contains the target, but this group does not match any known element types
+                return undefined;
+            }
         } else {
+            // element does not match any known element types
             return undefined;
         }
     }

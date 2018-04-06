@@ -581,15 +581,23 @@ ul#contextMenu, ul.subList {
     #canvas .connector.stateOscillating {
       fill: #0000ff; }
     #canvas .connector:hover {
-      fill: yellow; }
-  #canvas .wire.stateOn {
-    stroke: #00ff00; }
-  #canvas .wire.stateOff {
-    stroke: #ff0000; }
-  #canvas .wire.stateUnknown {
-    stroke: #8b8b8b; }
-  #canvas .wire.stateOscillating {
-    stroke: #0000ff; }
+      fill: #ffd800; }
+  #canvas .wire {
+    cursor: hand;
+    cursor: pointer; }
+    #canvas .wire.stateOn .main {
+      stroke: #00ff00; }
+    #canvas .wire.stateOff .main {
+      stroke: #ff0000; }
+    #canvas .wire.stateUnknown .main {
+      stroke: #8b8b8b; }
+    #canvas .wire.stateOscillating .main {
+      stroke: #0000ff; }
+    #canvas .wire:hover .main {
+      stroke: black; }
+    #canvas .wire:hover .hitbox {
+      stroke: #ffd800;
+      opacity: 0.5; }
   #canvas .multilinetext {
     margin: 0;
     padding: 0;
