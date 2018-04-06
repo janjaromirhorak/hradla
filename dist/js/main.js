@@ -846,33 +846,33 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _svgObjects = require('./svgObjects.js');
+var _svgObjects = require('./svgObjects');
 
 var svgObj = _interopRequireWildcard(_svgObjects);
 
-var _editorElements = require('./editorElements.js');
+var _editorElements = require('./editorElements');
 
 var editorElements = _interopRequireWildcard(_editorElements);
 
-var _logic = require('./logic.js');
+var _logic = require('./logic');
 
 var _logic2 = _interopRequireDefault(_logic);
 
-var _contextMenu = require('./contextMenu.js');
+var _contextMenu = require('./contextMenu');
 
 var _contextMenu2 = _interopRequireDefault(_contextMenu);
 
-var _floatingMenu = require('./floatingMenu.js');
+var _floatingMenu = require('./floatingMenu');
 
 var _floatingMenu2 = _interopRequireDefault(_floatingMenu);
 
-var _simulation = require('./simulation.js');
+var _simulation = require('./simulation');
 
 var _simulation2 = _interopRequireDefault(_simulation);
 
-var _helperFunctions = require('./helperFunctions.js');
+var _helperFunctions = require('./helperFunctions');
 
-var _tutorial = require('./tutorial.js');
+var _tutorial = require('./tutorial');
 
 var _tutorial2 = _interopRequireDefault(_tutorial);
 
@@ -2572,7 +2572,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu.js":10,"./editorElements.js":11,"./floatingMenu.js":12,"./helperFunctions.js":13,"./logic.js":15,"./simulation.js":19,"./svgObjects.js":20,"./tutorial.js":21}],10:[function(require,module,exports){
+},{"./contextMenu":10,"./editorElements":11,"./floatingMenu":12,"./helperFunctions":13,"./logic":15,"./simulation":19,"./svgObjects":20,"./tutorial":21}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2581,7 +2581,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _networkLibrary = require("./networkLibrary.js");
+var _networkLibrary = require("./networkLibrary");
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
@@ -3121,7 +3121,7 @@ var ContextMenu = function () {
 
 exports.default = ContextMenu;
 
-},{"./networkLibrary.js":18}],11:[function(require,module,exports){
+},{"./networkLibrary":18}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3133,15 +3133,15 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _svgObjects = require('./svgObjects.js');
+var _svgObjects = require('./svgObjects');
 
 var svgObj = _interopRequireWildcard(_svgObjects);
 
-var _mapWithDefaultValue = require('./mapWithDefaultValue.js');
+var _mapWithDefaultValue = require('./mapWithDefaultValue');
 
 var _mapWithDefaultValue2 = _interopRequireDefault(_mapWithDefaultValue);
 
-var _logic = require('./logic.js');
+var _logic = require('./logic');
 
 var _logic2 = _interopRequireDefault(_logic);
 
@@ -5798,7 +5798,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     return Wire;
 }(NetworkElement);
 
-},{"./logic.js":15,"./mapWithDefaultValue.js":17,"./svgObjects.js":20,"libstl":8}],12:[function(require,module,exports){
+},{"./logic":15,"./mapWithDefaultValue":17,"./svgObjects":20,"libstl":8}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5807,7 +5807,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _helperFunctions = require("./helperFunctions.js");
+var _helperFunctions = require("./helperFunctions");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -5956,7 +5956,7 @@ var FloatingMenu = function () {
 
 exports.default = FloatingMenu;
 
-},{"./helperFunctions.js":13}],13:[function(require,module,exports){
+},{"./helperFunctions":13}],13:[function(require,module,exports){
 "use strict";
 
 /**
@@ -6324,7 +6324,7 @@ exports.default = Logic;
 },{}],16:[function(require,module,exports){
 "use strict";
 
-var _canvas = require("./canvas.js");
+var _canvas = require("./canvas");
 
 var _canvas2 = _interopRequireDefault(_canvas);
 
@@ -6337,7 +6337,7 @@ $(function () {
   new _canvas2.default("#canvas", 10);
 });
 
-},{"./canvas.js":9}],17:[function(require,module,exports){
+},{"./canvas":9}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6517,7 +6517,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _logic = require('./logic.js');
+var _logic = require('./logic');
 
 var _logic2 = _interopRequireDefault(_logic);
 
@@ -6786,7 +6786,7 @@ var Simulation = function () {
 
 exports.default = Simulation;
 
-},{"./logic.js":15}],20:[function(require,module,exports){
+},{"./logic":15}],20:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6798,7 +6798,7 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _id = require("./id.js");
+var _id = require("./id");
 
 var _id2 = _interopRequireDefault(_id);
 
@@ -7638,7 +7638,7 @@ var Pattern = exports.Pattern = function (_Tag6) {
     return Pattern;
 }(Tag);
 
-},{"./id.js":14}],21:[function(require,module,exports){
+},{"./id":14}],21:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

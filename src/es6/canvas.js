@@ -1,13 +1,13 @@
 "use strict";
 
-import * as svgObj from './svgObjects.js'
-import * as editorElements from './editorElements.js'
-import Logic from './logic.js'
-import ContextMenu from './contextMenu.js'
-import FloatingMenu from './floatingMenu.js'
-import Simulation from './simulation.js'
-import { addMouseScrollEventListener } from './helperFunctions.js'
-import Tutorial from './tutorial.js';
+import * as svgObj from './svgObjects'
+import * as editorElements from './editorElements'
+import Logic from './logic'
+import ContextMenu from './contextMenu'
+import FloatingMenu from './floatingMenu'
+import Simulation from './simulation'
+import { addMouseScrollEventListener } from './helperFunctions'
+import Tutorial from './tutorial';
 
 /**
  * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.

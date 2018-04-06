@@ -1,4 +1,4 @@
-import Id from './id.js'
+import Id from './id'
 
 /**
  * Parent class for all svgObjects

@@ -3,7 +3,7 @@
 import {
     getLibrary,
     getNetworkFromLibrary
-} from './networkLibrary.js';
+} from './networkLibrary';
 
 /**
  * Item in the [ContextMenu](./module-ContextMenu.html). ContextMenuItems can be nested using the appendItem function.

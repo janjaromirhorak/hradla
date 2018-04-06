@@ -1,6 +1,6 @@
-import * as svgObj from './svgObjects.js'
-import MapWithDefaultValue from './mapWithDefaultValue.js'
-import Logic from './logic.js'
+import * as svgObj from './svgObjects'
+import MapWithDefaultValue from './mapWithDefaultValue'
+import Logic from './logic'
 
 import { PriorityQueue } from 'libstl'; // note: imported from a node module
 
