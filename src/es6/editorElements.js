@@ -1691,7 +1691,7 @@ export class Wire extends NetworkElement {
      * @return {PolylinePoints} instance of {@link PolylinePoints}
      */
     aStar(start, end) {
-        const wireCrossPunishment = 2;
+        const wireCrossPunishment = 1;
         const wireBendPunishment = 1;
 
         // number of nodes, that can be opened at once
@@ -1767,6 +1767,8 @@ export class Wire extends NetworkElement {
             for(let direction = 0 ; direction < 4 ; direction++) {
                 let newPoint = Wire.movePoint(currentNode, direction);
 
+                let wiresCrossed = 0;
+
                 for(let i = 0 ; i < 50 ; i++) {
                     // if newPoint is in the set of non routable points,
                     // don't add it and stop proceeding in this direction
@@ -1780,26 +1782,29 @@ export class Wire extends NetworkElement {
                         continue;
                     }
 
-                    // calculate possible GScore by adding 1 to the score of the node we came from
-                    // (we prioritize to minimize the number of nodes and not the distance,
-                    //  so we are adding 1 on all nodes, even if the euclidean / mannhatan distance may vary)
-                    let increment = wireBendPunishment;
-                    let possibleGScore = gScore.get(currentNode) + increment;
+                    // calculate possible GScore by applying a punishment for each node ("bend") in the path
+                    let newGScore = wireBendPunishment + gScore.get(currentNode);
 
                     if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
-                        // if the node is in the set of punished node, punish it by adding to the GScore
-                        possibleGScore += wireCrossPunishment;
+                        // if the node is in the set of punished nodes, apply the punishment
+                        wiresCrossed++;
                     }
 
+                    // apply the punishment for each wire crossed in this direction
+                    // note: we are counting the wires crossed when exporting this direction, not the wires
+                    // crossed in the final path, there will be probably only at most of these nodes in the
+                    // final path, not multiple
+                    newGScore += wiresCrossed * wireCrossPunishment;
+
                     // skip this node if it has worst estimage gscore than in the gscore table
-                    if (possibleGScore >= gScore.get(newPoint)) {
+                    if (newGScore >= gScore.get(newPoint)) {
                         continue;
                     }
 
                     cameFrom.set(newPoint, currentNode);
-                    gScore.set(newPoint, possibleGScore);
+                    gScore.set(newPoint, newGScore);
 
-                    const newFScore = possibleGScore + Wire.manhattanDistance(newPoint, end);
+                    const newFScore = newGScore + Wire.manhattanDistance(newPoint, end);
 
                     fScore.set(newPoint, newFScore);
 
@@ -1809,7 +1814,7 @@ export class Wire extends NetworkElement {
                     }
 
                     // if newPoint is in the set of punished but routable points,
-                    // add it but stop proceeding in this direction
+                    // add this one but stop proceeding in this direction
                     if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
                         break;
                     }
