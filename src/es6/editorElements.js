@@ -188,15 +188,18 @@ export class Transform {
     }
 
     /**
-     * rotate by 90 degrees to the right
-     * @param  {number} centreX horizontal position of the centre of the rotation
-     * @param  {number} centreY vertical position of the centre of the rotation
+     * rotate by 90 degrees to the right or left, depending on the parameter `right`
+     * @param {number} centreX horizontal position of the centre of the rotation
+     * @param {number} centreY vertical position of the centre of the rotation
+     * @param {boolean} right rotate to the right if `true`, to the left if `false`
      */
-    rotateRight(centreX, centreY) {
+    rotateRightAngle(centreX, centreY, right) {
+        const amount = right ? 90 : 270;
+
         if(this.getIndex("rotate")===-1) {
-            this.setRotate(90, centreX, centreY);
+            this.setRotate(amount, centreX, centreY);
         } else {
-            let newRotation = (parseInt(this.getRotate().deg) + 90) % 360;
+            let newRotation = (parseInt(this.getRotate().deg) + amount) % 360;
 
             if(newRotation===180) {
                 // swap centre coordinates
@@ -212,6 +215,24 @@ export class Transform {
                 centreY
             );
         }
+    }
+
+    /**
+     * rotate by 90 degrees to the right
+     * @param  {number} centreX horizontal position of the centre of the rotation
+     * @param  {number} centreY vertical position of the centre of the rotation
+     */
+    rotateRight(centreX, centreY) {
+        this.rotateRightAngle(centreX, centreY, true);
+    }
+
+    /**
+     * rotate by 90 degrees to the left
+     * @param  {number} centreX horizontal position of the centre of the rotation
+     * @param  {number} centreY vertical position of the centre of the rotation
+     */
+    rotateLeft(centreX, centreY) {
+        this.rotateRightAngle(centreX, centreY, false);
     }
 
     /**
@@ -960,7 +981,7 @@ class Box extends NetworkElement {
                 this.onClick();
             }
         } else if (event.which === 2 ) {
-            this.onClickMiddle();
+            this.onClickMiddle(event);
         }
 
         this.svgObj.$el.removeClass('grabbed');
@@ -1002,7 +1023,7 @@ class Box extends NetworkElement {
     /**
      * custom callback function for middle click that rotates the box by 90 degrees to the right
      */
-    onClickMiddle() {
+    onClickMiddle(event) {
         // get the transform value for this box
         let transform = this.getTransform();
 
@@ -1017,10 +1038,18 @@ class Box extends NetworkElement {
         centreY -= centreY % this.gridSize;
 
         // apply the rotation to the transform object
-        transform.rotateRight(
-            centreX,
-            centreY
-        );
+        if(event.ctrlKey) {
+            transform.rotateLeft(
+                centreX,
+                centreY
+            );
+        } else {
+            transform.rotateRight(
+                centreX,
+                centreY
+            );
+        }
+
 
         // apply the modified transform object ot the svgObj
         this.svgObj.addAttr({"transform": transform.get()});

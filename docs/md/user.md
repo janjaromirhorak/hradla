@@ -8,7 +8,8 @@ Logic network simulator
 | zoom the canvas | `ctrl + middle wheel` or `ctrl + + / ctrl + -` |
 | open the context menu (add elements) | `right click` |
 | open the context menu for an element (add/remove elements) | `right click` on the element |
-| rotate an element | `middle click` |
+| rotate an element clockwise | `middle click` |
+| rotate an element counterclockwise | `ctrl + middle click` |
 | set element state (enable / disable input on an input box) | `left click` on the element |
 | add a wire | `left click` on the first connector, than `left click` on the second connector |
 
