@@ -1634,8 +1634,8 @@ export class Wire extends NetworkElement {
      * route the wire using the temporary wire points
      */
     temporaryWire() {
-        this.wireStart = this.getCoordinates(this.startConnector, false);
-        this.wireEnd = this.getCoordinates(this.endConnector, false);
+        this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, false);
+        this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, false);
 
         this.setWirePath(this.getTemporaryWirePoints());
     }
@@ -1644,8 +1644,8 @@ export class Wire extends NetworkElement {
      * route the wire using the modified A* wire routing algorithm
      */
     routeWire(snapToGrid = true, refresh = true) {
-        this.wireStart = this.getCoordinates(this.startConnector, snapToGrid);
-        this.wireEnd = this.getCoordinates(this.endConnector, snapToGrid);
+        this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, snapToGrid);
+        this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, snapToGrid);
 
         this.points = this.aStar(
             {
@@ -1661,6 +1661,9 @@ export class Wire extends NetworkElement {
 
         if (refresh)
             this.updateWireState();
+
+        // regenerate inconvenint nodes
+        this.generateInconvenientNodes();
     }
 
     /**
@@ -1704,12 +1707,14 @@ export class Wire extends NetworkElement {
      * @return {PolylinePoints} instance of {@link PolylinePoints}
      */
     aStar(start, end) {
+        const distanceFunction = (a, b) => Wire.manhattanDistance(a, b);
+
         const wireCrossPunishment = 1;
         const wireBendPunishment = 1;
 
         // number of nodes, that can be opened at once
         // once is this limit exceeded, aStar will fail and getTemporaryWirePoints will be used instead
-        const maxNodeLimit = 50000;
+        const maxNodeLimit = 100000;
 
         let closedNodes = new Set();
         let openNodes = new Set();
@@ -1747,7 +1752,7 @@ export class Wire extends NetworkElement {
         // default value: infinity
         let fScore = new MapWithDefaultValue(Infinity);
 
-        let startFScore = Wire.manhattanDistance(start, end);
+        let startFScore = distanceFunction(start, end);
         fScore.set(start, startFScore);
 
         addOpenNode(start, startFScore);
@@ -1817,7 +1822,7 @@ export class Wire extends NetworkElement {
                     cameFrom.set(newPoint, currentNode);
                     gScore.set(newPoint, newGScore);
 
-                    const newFScore = newGScore + Wire.manhattanDistance(newPoint, end);
+                    const newFScore = newGScore + distanceFunction(newPoint, end);
 
                     fScore.set(newPoint, newFScore);
 
@@ -1828,9 +1833,9 @@ export class Wire extends NetworkElement {
 
                     // if newPoint is in the set of punished but routable points,
                     // add this one but stop proceeding in this direction
-                    if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
-                        break;
-                    }
+                    // if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
+                        // break;
+                    // }
 
                     // move to the next point in the direciton
                     newPoint = Wire.movePoint(newPoint, direction);
@@ -1937,35 +1942,50 @@ export class Wire extends NetworkElement {
     }
 
     /**
-     * get the coordinates of the specified connector
-     * @param  {Connector}  connector      instance of {@link Connector}
-     * @param  {Boolean} [snapToGrid=true] if true, the connector position will be snapped to the grid
-     * @return {Object}                    point - object containing numeric attributes `x` and `y`
+     * generate a set of nodes, that are inconvenient for wiring, but can be used, just are not preferred
+     * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
      */
-    getCoordinates(connector, snapToGrid = true) {
-        // connector.svgObj.id has to be called, else the getCoordinates does not work on the first call in Firefox 55
-        const dummy = connector.svgObj.id; // eslint-disable-line no-unused-vars
+    generateInconvenientNodes() {
+        this.inconvenientNodes = new Set();
 
-        let $connector = connector.svgObj.$el;
+        let prevPoint;
 
-        let position = $connector.position();
+        this.points.forEach(point => {
+            if (prevPoint === undefined) {
+                // if the prevPoint is undefined, add the first point
+                this.inconvenientNodes.add({x: point.x, y: point.y});
+            } else {
+                // else add all the point between the prevPoint (excluded) and point (included)
 
-        position.left = this.parentSVG.viewbox.transformX(position.left)
-        position.top = this.parentSVG.viewbox.transformY(position.top)
+                if(prevPoint.x===point.x) {
+                    // if the line is horizontal
+                    let from = Math.min(prevPoint.y, point.y);
+                    let to = Math.max(prevPoint.y, point.y);
 
-        let width = $connector.attr("width");
-        let height = $connector.attr("height");
+                    while(from <= to) {
+                        this.inconvenientNodes.add({x: point.x, y: from});
+                        from += this.gridSize;
+                    }
+                } else if(prevPoint.y===point.y) {
+                    // if the line is vertical
+                    let from = Math.min(prevPoint.x, point.x);
+                    let to = Math.max(prevPoint.x, point.x);
 
-        let x = position.left + width / 2;
-        let y = position.top + height / 2;
-        if(snapToGrid) {
-            x = this.parentSVG.snapToGrid(x);
-            y = this.parentSVG.snapToGrid(y);
-        }
+                    while(from <= to) {
+                        this.inconvenientNodes.add({x: from, y: point.y});
+                        from += this.gridSize;
+                    }
+                } else {
+                    // line is neither horizontal nor vertical, throw an error for better future debugging
+                    // console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
+                }
+            }
 
-        return {
-            x: x,
-            y: y
-        };
+            // set new prevPoint
+            prevPoint = {
+                x: point.x,
+                y: point.y
+            };
+        });
     }
 }

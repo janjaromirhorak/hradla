@@ -876,11 +876,17 @@ var _tutorial = require('./tutorial');
 
 var _tutorial2 = _interopRequireDefault(_tutorial);
 
+var _libstl = require('libstl');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// note: imported from a node module
 
 /**
  * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
@@ -1392,13 +1398,13 @@ var Canvas = function () {
                 try {
                     for (var _iterator = data.boxes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                         var boxData = _step.value;
-                        var _iteratorNormalCompletion4 = true;
-                        var _didIteratorError4 = false;
-                        var _iteratorError4 = undefined;
+                        var _iteratorNormalCompletion5 = true;
+                        var _didIteratorError5 = false;
+                        var _iteratorError5 = undefined;
 
                         try {
-                            for (var _iterator4 = boxData.transform.items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                                var transformInfo = _step4.value;
+                            for (var _iterator5 = boxData.transform.items[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                                var transformInfo = _step5.value;
 
                                 if (transformInfo.name === "translate") {
                                     if (leftTopCorner) {
@@ -1415,16 +1421,16 @@ var Canvas = function () {
                                 }
                             }
                         } catch (err) {
-                            _didIteratorError4 = true;
-                            _iteratorError4 = err;
+                            _didIteratorError5 = true;
+                            _iteratorError5 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                                    _iterator4.return();
+                                if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                                    _iterator5.return();
                                 }
                             } finally {
-                                if (_didIteratorError4) {
-                                    throw _iteratorError4;
+                                if (_didIteratorError5) {
+                                    throw _iteratorError5;
                                 }
                             }
                         }
@@ -1516,7 +1522,6 @@ var Canvas = function () {
                                 // pass the values got from json into a variable that will be added into the map
                                 var value = {
                                     index: _boxData.connections[_j].index,
-                                    type: _boxData.connections[_j].type,
                                     boxId: box.id
                                 };
 
@@ -1525,7 +1530,7 @@ var Canvas = function () {
                                     // if there already is a wire with this id in the map,
                                     // add the value to the end of the array of values
                                     var mapValue = newWires.get(wireId);
-                                    mapValue[mapValue.length] = value;
+                                    mapValue.push(value);
                                     newWires.set(wireId, mapValue);
                                 } else {
                                     // if there is no wire with this id in the map
@@ -1555,32 +1560,96 @@ var Canvas = function () {
                 _this3.refresh();
 
                 // with all boxes added, we can now connect them with wires
-                newWires.forEach(function (item) {
-                    var connectorIds = [];
-                    if (item[0] && item[1]) {
-                        var _arr = [0, 1];
 
-                        for (var _i = 0; _i < _arr.length; _i++) {
-                            var i = _arr[_i];
-                            var box = _this3.getBoxById(item[i].boxId);
+                // priority queue for the new wires, priority being (1 / manhattanDistance) between the conenctors, higher is better
+                var wireQueue = new _libstl.PriorityQueue();
 
-                            connectorIds[i] = box.connectors[item[i].index].id;
-                        }
-                    }
-                    _this3.newWire(connectorIds[0], connectorIds[1], true);
-                });
-
-                // refresh the SVG document
-                _this3.refresh();
-
-                _this3.simulationEnabled = true;
+                // get all ids for lal the
                 var _iteratorNormalCompletion3 = true;
                 var _didIteratorError3 = false;
                 var _iteratorError3 = undefined;
 
                 try {
-                    for (var _iterator3 = _this3.boxes[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                        var box = _step3.value;
+                    for (var _iterator3 = newWires.values()[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                        var _editorElements$Wire;
+
+                        var wireInfo = _step3.value;
+
+                        var connectorIds = [];
+
+                        // create an array [connector1Id, connector2Id]
+                        var _iteratorNormalCompletion6 = true;
+                        var _didIteratorError6 = false;
+                        var _iteratorError6 = undefined;
+
+                        try {
+                            for (var _iterator6 = wireInfo[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                                var _ref = _step6.value;
+                                var boxId = _ref.boxId;
+                                var index = _ref.index;
+
+                                connectorIds.push(_this3.getBoxById(boxId).connectors[index].id);
+                            }
+
+                            // create and array [{x, y}, {x, y}] containing positions for connectors 1 and 2
+                        } catch (err) {
+                            _didIteratorError6 = true;
+                            _iteratorError6 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                                    _iterator6.return();
+                                }
+                            } finally {
+                                if (_didIteratorError6) {
+                                    throw _iteratorError6;
+                                }
+                            }
+                        }
+
+                        var connectorsPositions = connectorIds.map(function (connectorId) {
+                            return _this3.getConnectorPosition(_this3.getConnectorById(connectorId), true);
+                        });
+
+                        // get the manhattan distance between these two connectors
+                        var distance = (_editorElements$Wire = editorElements.Wire).manhattanDistance.apply(_editorElements$Wire, _toConsumableArray(connectorsPositions));
+
+                        // add connectorids to the priority queue
+                        wireQueue.enqueue(connectorIds, 1 / distance);
+                    }
+
+                    // add wire in the order from short to long
+                } catch (err) {
+                    _didIteratorError3 = true;
+                    _iteratorError3 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                            _iterator3.return();
+                        }
+                    } finally {
+                        if (_didIteratorError3) {
+                            throw _iteratorError3;
+                        }
+                    }
+                }
+
+                while (!wireQueue.isEmpty()) {
+                    var connectors = wireQueue.dequeue();
+                    _this3.newWire.apply(_this3, _toConsumableArray(connectors).concat([false]));
+                }
+
+                // refresh the SVG document
+                _this3.refresh();
+
+                _this3.simulationEnabled = true;
+                var _iteratorNormalCompletion4 = true;
+                var _didIteratorError4 = false;
+                var _iteratorError4 = undefined;
+
+                try {
+                    for (var _iterator4 = _this3.boxes[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                        var box = _step4.value;
 
                         if (box instanceof editorElements.InputBox) {
                             // switch the input box state to the oposit and back, for some reason calling box.refreshState()
@@ -1593,16 +1662,16 @@ var Canvas = function () {
                         }
                     }
                 } catch (err) {
-                    _didIteratorError3 = true;
-                    _iteratorError3 = err;
+                    _didIteratorError4 = true;
+                    _iteratorError4 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                            _iterator3.return();
+                        if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                            _iterator4.return();
                         }
                     } finally {
-                        if (_didIteratorError3) {
-                            throw _iteratorError3;
+                        if (_didIteratorError4) {
+                            throw _iteratorError4;
                         }
                     }
                 }
@@ -1754,8 +1823,8 @@ var Canvas = function () {
 
             if (gateIndex > -1) {
                 // remove all wires connected to this gate
-                for (var _i2 = 0; _i2 < this.boxes[gateIndex].connectors.length; _i2++) {
-                    this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[_i2].svgObj.id);
+                for (var _i = 0; _i < this.boxes[gateIndex].connectors.length; _i++) {
+                    this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[_i].svgObj.id);
                 }
 
                 // remove the gate
@@ -1786,27 +1855,27 @@ var Canvas = function () {
             });
 
             // remove all boxes by their ids
-            var _iteratorNormalCompletion5 = true;
-            var _didIteratorError5 = false;
-            var _iteratorError5 = undefined;
+            var _iteratorNormalCompletion7 = true;
+            var _didIteratorError7 = false;
+            var _iteratorError7 = undefined;
 
             try {
-                for (var _iterator5 = ids[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                    var id = _step5.value;
+                for (var _iterator7 = ids[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                    var id = _step7.value;
 
                     this.removeBox(id);
                 }
             } catch (err) {
-                _didIteratorError5 = true;
-                _iteratorError5 = err;
+                _didIteratorError7 = true;
+                _iteratorError7 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                        _iterator5.return();
+                    if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                        _iterator7.return();
                     }
                 } finally {
-                    if (_didIteratorError5) {
-                        throw _iteratorError5;
+                    if (_didIteratorError7) {
+                        throw _iteratorError7;
                     }
                 }
             }
@@ -1849,6 +1918,44 @@ var Canvas = function () {
             if (refresh) this.wires[index].updateWireState();
 
             return this.wires[index];
+        }
+
+        /**
+         * get the coordinates of the specified connector
+         * @param  {Connector}  connector      instance of {@link Connector}
+         * @param  {Boolean} [snapToGrid=true] if true, the connector position will be snapped to the grid
+         * @return {Object}                    point - object containing numeric attributes `x` and `y`
+         */
+
+    }, {
+        key: 'getConnectorPosition',
+        value: function getConnectorPosition(connector) {
+            var snapToGrid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+            // connector.svgObj.id has to be called, else the getCoordinates does not work on the first call in Firefox 55
+            var dummy = connector.svgObj.id; // eslint-disable-line no-unused-vars
+
+            var $connector = connector.svgObj.$el;
+
+            var position = $connector.position();
+
+            position.left = this.viewbox.transformX(position.left);
+            position.top = this.viewbox.transformY(position.top);
+
+            var width = $connector.attr("width");
+            var height = $connector.attr("height");
+
+            var x = position.left + width / 2;
+            var y = position.top + height / 2;
+            if (snapToGrid) {
+                x = this.snapToGrid(x);
+                y = this.snapToGrid(y);
+            }
+
+            return {
+                x: x,
+                y: y
+            };
         }
 
         /**
@@ -1895,13 +2002,13 @@ var Canvas = function () {
                     }
                 };
 
-                var _iteratorNormalCompletion6 = true;
-                var _didIteratorError6 = false;
-                var _iteratorError6 = undefined;
+                var _iteratorNormalCompletion8 = true;
+                var _didIteratorError8 = false;
+                var _iteratorError8 = undefined;
 
                 try {
-                    for (var _iterator6 = table[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                        var line = _step6.value;
+                    for (var _iterator8 = table[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                        var line = _step8.value;
 
                         var _ret = _loop(line);
 
@@ -1909,16 +2016,16 @@ var Canvas = function () {
                     }
                     // if nothing matches, set all outputs to undefined
                 } catch (err) {
-                    _didIteratorError6 = true;
-                    _iteratorError6 = err;
+                    _didIteratorError8 = true;
+                    _iteratorError8 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion6 && _iterator6.return) {
-                            _iterator6.return();
+                        if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                            _iterator8.return();
                         }
                     } finally {
-                        if (_didIteratorError6) {
-                            throw _iteratorError6;
+                        if (_didIteratorError8) {
+                            throw _iteratorError8;
                         }
                     }
                 }
@@ -1949,29 +2056,29 @@ var Canvas = function () {
     }, {
         key: 'getWireById',
         value: function getWireById(wireId) {
-            var _iteratorNormalCompletion7 = true;
-            var _didIteratorError7 = false;
-            var _iteratorError7 = undefined;
+            var _iteratorNormalCompletion9 = true;
+            var _didIteratorError9 = false;
+            var _iteratorError9 = undefined;
 
             try {
-                for (var _iterator7 = this.wires[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                    var wire = _step7.value;
+                for (var _iterator9 = this.wires[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                    var wire = _step9.value;
 
                     if (wire.svgObj.id === wireId) {
                         return wire;
                     }
                 }
             } catch (err) {
-                _didIteratorError7 = true;
-                _iteratorError7 = err;
+                _didIteratorError9 = true;
+                _iteratorError9 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                        _iterator7.return();
+                    if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                        _iterator9.return();
                     }
                 } finally {
-                    if (_didIteratorError7) {
-                        throw _iteratorError7;
+                    if (_didIteratorError9) {
+                        throw _iteratorError9;
                     }
                 }
             }
@@ -2117,13 +2224,13 @@ var Canvas = function () {
                 return connector;
             } else {
                 // we do not know the wire -- we have to check all gates
-                var _iteratorNormalCompletion8 = true;
-                var _didIteratorError8 = false;
-                var _iteratorError8 = undefined;
+                var _iteratorNormalCompletion10 = true;
+                var _didIteratorError10 = false;
+                var _iteratorError10 = undefined;
 
                 try {
-                    for (var _iterator8 = this.boxes[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                        var box = _step8.value;
+                    for (var _iterator10 = this.boxes[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                        var box = _step10.value;
 
                         var _connector = box.getConnectorById(connectorId);
                         if (_connector) {
@@ -2131,16 +2238,16 @@ var Canvas = function () {
                         }
                     }
                 } catch (err) {
-                    _didIteratorError8 = true;
-                    _iteratorError8 = err;
+                    _didIteratorError10 = true;
+                    _iteratorError10 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion8 && _iterator8.return) {
-                            _iterator8.return();
+                        if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                            _iterator10.return();
                         }
                     } finally {
-                        if (_didIteratorError8) {
-                            throw _iteratorError8;
+                        if (_didIteratorError10) {
+                            throw _iteratorError10;
                         }
                     }
                 }
@@ -2387,13 +2494,13 @@ var Canvas = function () {
                 // for each item in blockedNodes (set of blocked nodes with coordinates relative
                 // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
                 // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-                var _iteratorNormalCompletion9 = true;
-                var _didIteratorError9 = false;
-                var _iteratorError9 = undefined;
+                var _iteratorNormalCompletion11 = true;
+                var _didIteratorError11 = false;
+                var _iteratorError11 = undefined;
 
                 try {
-                    for (var _iterator9 = this.boxes[i].blockedNodes[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                        var item = _step9.value;
+                    for (var _iterator11 = this.boxes[i].blockedNodes[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                        var item = _step11.value;
 
                         var absoluteX = position.left + item.x * this.gridSize;
                         var absoluteY = position.top + item.y * this.gridSize;
@@ -2404,16 +2511,16 @@ var Canvas = function () {
                         });
                     }
                 } catch (err) {
-                    _didIteratorError9 = true;
-                    _iteratorError9 = err;
+                    _didIteratorError11 = true;
+                    _iteratorError11 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                            _iterator9.return();
+                        if (!_iteratorNormalCompletion11 && _iterator11.return) {
+                            _iterator11.return();
                         }
                     } finally {
-                        if (_didIteratorError9) {
-                            throw _iteratorError9;
+                        if (_didIteratorError11) {
+                            throw _iteratorError11;
                         }
                     }
                 }
@@ -2448,58 +2555,61 @@ var Canvas = function () {
     }, {
         key: 'getInconvenientNodes',
         value: function getInconvenientNodes(ignoreWireId) {
-            var _this6 = this;
-
             var inconvenientNodes = new Set();
             // for each wire
-            for (var i = 0; i < this.wires.length; ++i) {
-                // (ignore the wire that is specified in the ignoreWireId argument (if any))
-                if (ignoreWireId === undefined || ignoreWireId !== this.wires[i].svgObj.id) {
-                    (function () {
-                        // cycle through points, for each neigbours add all points that are in between them
-                        // i.e.: (0,0) and (0,30) are blocking these nodes: (0,0), (0,10), (0,20), (0,30)
-                        var prevPoint = void 0;
-                        _this6.wires[i].points.forEach(function (point) {
-                            if (prevPoint === undefined) {
-                                // if the prevPoint is undefined, add the first point
-                                inconvenientNodes.add({ x: point.x, y: point.y });
-                            } else {
-                                // else add all the point between the prevPoint (excluded) and point (included)
 
-                                if (prevPoint.x === point.x) {
-                                    // if the line is horizontal
-                                    var from = Math.min(prevPoint.y, point.y);
-                                    var to = Math.max(prevPoint.y, point.y);
+            var _iteratorNormalCompletion12 = true;
+            var _didIteratorError12 = false;
+            var _iteratorError12 = undefined;
 
-                                    while (from <= to) {
-                                        inconvenientNodes.add({ x: point.x, y: from });
-                                        from += _this6.gridSize;
-                                    }
-                                } else if (prevPoint.y === point.y) {
-                                    // if the line is vertical
-                                    var _from = Math.min(prevPoint.x, point.x);
-                                    var _to = Math.max(prevPoint.x, point.x);
+            try {
+                for (var _iterator12 = this.wires[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                    var wire = _step12.value;
 
-                                    while (_from <= _to) {
-                                        inconvenientNodes.add({ x: _from, y: point.y });
-                                        _from += _this6.gridSize;
-                                    }
-                                } else {
-                                    // line is neither horizontal nor vertical, throw an error for better future debugging
-                                    console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
+                    if (ignoreWireId === undefined || ignoreWireId !== wire.id) {
+                        var _iteratorNormalCompletion13 = true;
+                        var _didIteratorError13 = false;
+                        var _iteratorError13 = undefined;
+
+                        try {
+                            for (var _iterator13 = wire.inconvenientNodes[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                                var node = _step13.value;
+
+                                inconvenientNodes.add(node);
+                            }
+                        } catch (err) {
+                            _didIteratorError13 = true;
+                            _iteratorError13 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion13 && _iterator13.return) {
+                                    _iterator13.return();
+                                }
+                            } finally {
+                                if (_didIteratorError13) {
+                                    throw _iteratorError13;
                                 }
                             }
+                        }
+                    }
+                }
 
-                            // set new prevPoint
-                            prevPoint = {
-                                x: point.x,
-                                y: point.y
-                            };
-                        });
-                    })();
+                // return the set
+            } catch (err) {
+                _didIteratorError12 = true;
+                _iteratorError12 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion12 && _iterator12.return) {
+                        _iterator12.return();
+                    }
+                } finally {
+                    if (_didIteratorError12) {
+                        throw _iteratorError12;
+                    }
                 }
             }
-            // return the set
+
             return inconvenientNodes;
         }
     }, {
@@ -2549,27 +2659,27 @@ var Canvas = function () {
                 boxes: []
             };
 
-            var _iteratorNormalCompletion10 = true;
-            var _didIteratorError10 = false;
-            var _iteratorError10 = undefined;
+            var _iteratorNormalCompletion14 = true;
+            var _didIteratorError14 = false;
+            var _iteratorError14 = undefined;
 
             try {
-                for (var _iterator10 = this.boxes[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-                    var box = _step10.value;
+                for (var _iterator14 = this.boxes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                    var box = _step14.value;
 
                     data.boxes.push(box.exportData);
                 }
             } catch (err) {
-                _didIteratorError10 = true;
-                _iteratorError10 = err;
+                _didIteratorError14 = true;
+                _iteratorError14 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion10 && _iterator10.return) {
-                        _iterator10.return();
+                    if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                        _iterator14.return();
                     }
                 } finally {
-                    if (_didIteratorError10) {
-                        throw _iteratorError10;
+                    if (_didIteratorError14) {
+                        throw _iteratorError14;
                     }
                 }
             }
@@ -2588,7 +2698,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu":10,"./editorElements":11,"./floatingMenu":12,"./helperFunctions":13,"./logic":15,"./simulation":19,"./svgObjects":20,"./tutorial":21}],10:[function(require,module,exports){
+},{"./contextMenu":10,"./editorElements":11,"./floatingMenu":12,"./helperFunctions":13,"./logic":15,"./simulation":19,"./svgObjects":20,"./tutorial":21,"libstl":8}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5425,8 +5535,8 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     }, {
         key: 'temporaryWire',
         value: function temporaryWire() {
-            this.wireStart = this.getCoordinates(this.startConnector, false);
-            this.wireEnd = this.getCoordinates(this.endConnector, false);
+            this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, false);
+            this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, false);
 
             this.setWirePath(this.getTemporaryWirePoints());
         }
@@ -5441,8 +5551,8 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             var snapToGrid = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
             var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
-            this.wireStart = this.getCoordinates(this.startConnector, snapToGrid);
-            this.wireEnd = this.getCoordinates(this.endConnector, snapToGrid);
+            this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, snapToGrid);
+            this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, snapToGrid);
 
             this.points = this.aStar({
                 x: this.wireStart.x / this.gridSize,
@@ -5455,6 +5565,9 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             this.setWirePath(this.points);
 
             if (refresh) this.updateWireState();
+
+            // regenerate inconvenint nodes
+            this.generateInconvenientNodes();
         }
 
         /**
@@ -5525,12 +5638,16 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     }, {
         key: 'aStar',
         value: function aStar(start, end) {
+            var distanceFunction = function distanceFunction(a, b) {
+                return Wire.manhattanDistance(a, b);
+            };
+
             var wireCrossPunishment = 1;
             var wireBendPunishment = 1;
 
             // number of nodes, that can be opened at once
             // once is this limit exceeded, aStar will fail and getTemporaryWirePoints will be used instead
-            var maxNodeLimit = 50000;
+            var maxNodeLimit = 100000;
 
             var closedNodes = new Set();
             var openNodes = new Set();
@@ -5568,7 +5685,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             // default value: infinity
             var fScore = new _mapWithDefaultValue2.default(Infinity);
 
-            var startFScore = Wire.manhattanDistance(start, end);
+            var startFScore = distanceFunction(start, end);
             fScore.set(start, startFScore);
 
             addOpenNode(start, startFScore);
@@ -5638,7 +5755,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         cameFrom.set(newPoint, currentNode);
                         gScore.set(newPoint, newGScore);
 
-                        var newFScore = newGScore + Wire.manhattanDistance(newPoint, end);
+                        var newFScore = newGScore + distanceFunction(newPoint, end);
 
                         fScore.set(newPoint, newFScore);
 
@@ -5649,9 +5766,9 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
                         // if newPoint is in the set of punished but routable points,
                         // add this one but stop proceeding in this direction
-                        if (Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
-                            break;
-                        }
+                        // if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
+                        // break;
+                        // }
 
                         // move to the next point in the direciton
                         newPoint = Wire.movePoint(newPoint, direction);
@@ -5723,42 +5840,57 @@ var Wire = exports.Wire = function (_NetworkElement3) {
          */
 
     }, {
-        key: 'getCoordinates',
+        key: 'generateInconvenientNodes',
 
 
         /**
-         * get the coordinates of the specified connector
-         * @param  {Connector}  connector      instance of {@link Connector}
-         * @param  {Boolean} [snapToGrid=true] if true, the connector position will be snapped to the grid
-         * @return {Object}                    point - object containing numeric attributes `x` and `y`
+         * generate a set of nodes, that are inconvenient for wiring, but can be used, just are not preferred
+         * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
          */
-        value: function getCoordinates(connector) {
-            var snapToGrid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+        value: function generateInconvenientNodes() {
+            var _this11 = this;
 
-            // connector.svgObj.id has to be called, else the getCoordinates does not work on the first call in Firefox 55
-            var dummy = connector.svgObj.id; // eslint-disable-line no-unused-vars
+            this.inconvenientNodes = new Set();
 
-            var $connector = connector.svgObj.$el;
+            var prevPoint = void 0;
 
-            var position = $connector.position();
+            this.points.forEach(function (point) {
+                if (prevPoint === undefined) {
+                    // if the prevPoint is undefined, add the first point
+                    _this11.inconvenientNodes.add({ x: point.x, y: point.y });
+                } else {
+                    // else add all the point between the prevPoint (excluded) and point (included)
 
-            position.left = this.parentSVG.viewbox.transformX(position.left);
-            position.top = this.parentSVG.viewbox.transformY(position.top);
+                    if (prevPoint.x === point.x) {
+                        // if the line is horizontal
+                        var from = Math.min(prevPoint.y, point.y);
+                        var to = Math.max(prevPoint.y, point.y);
 
-            var width = $connector.attr("width");
-            var height = $connector.attr("height");
+                        while (from <= to) {
+                            _this11.inconvenientNodes.add({ x: point.x, y: from });
+                            from += _this11.gridSize;
+                        }
+                    } else if (prevPoint.y === point.y) {
+                        // if the line is vertical
+                        var _from = Math.min(prevPoint.x, point.x);
+                        var _to = Math.max(prevPoint.x, point.x);
 
-            var x = position.left + width / 2;
-            var y = position.top + height / 2;
-            if (snapToGrid) {
-                x = this.parentSVG.snapToGrid(x);
-                y = this.parentSVG.snapToGrid(y);
-            }
+                        while (_from <= _to) {
+                            _this11.inconvenientNodes.add({ x: _from, y: point.y });
+                            _from += _this11.gridSize;
+                        }
+                    } else {
+                        // line is neither horizontal nor vertical, throw an error for better future debugging
+                        // console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
+                    }
+                }
 
-            return {
-                x: x,
-                y: y
-            };
+                // set new prevPoint
+                prevPoint = {
+                    x: point.x,
+                    y: point.y
+                };
+            });
         }
     }, {
         key: 'exportData',

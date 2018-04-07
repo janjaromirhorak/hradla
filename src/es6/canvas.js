@@ -9,6 +9,8 @@ import Simulation from './simulation'
 import { addMouseScrollEventListener } from './helperFunctions'
 import Tutorial from './tutorial';
 
+import { PriorityQueue } from 'libstl'; // note: imported from a node module
+
 /**
  * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
  */
@@ -578,7 +580,6 @@ export default class Canvas {
                         // pass the values got from json into a variable that will be added into the map
                         let value = {
                             index: boxData.connections[j].index,
-                            type: boxData.connections[j].type,
                             boxId: box.id
                         };
 
@@ -587,7 +588,7 @@ export default class Canvas {
                             // if there already is a wire with this id in the map,
                             // add the value to the end of the array of values
                             let mapValue = newWires.get(wireId);
-                            mapValue[mapValue.length] = value;
+                            mapValue.push(value);
                             newWires.set(wireId, mapValue);
                         } else {
                             // if there is no wire with this id in the map
@@ -602,17 +603,40 @@ export default class Canvas {
             this.refresh();
 
             // with all boxes added, we can now connect them with wires
-            newWires.forEach(item => {
-                let connectorIds = [];
-                if(item[0] && item[1]) {
-                    for (const i of [0, 1]) {
-                        let box = this.getBoxById(item[i].boxId);
 
-                        connectorIds[i] = box.connectors[item[i].index].id;
-                    }
+            // priority queue for the new wires, priority being (1 / manhattanDistance) between the conenctors, higher is better
+            let wireQueue = new PriorityQueue();
+
+            // get all ids for lal the
+            for (const wireInfo of newWires.values()) {
+                let connectorIds = [];
+
+                // create an array [connector1Id, connector2Id]
+                for (const {boxId, index} of wireInfo) {
+                    connectorIds.push(
+                        this.getBoxById(boxId).connectors[index].id
+                    )
                 }
-                this.newWire(connectorIds[0], connectorIds[1], true);
-            });
+
+                // create and array [{x, y}, {x, y}] containing positions for connectors 1 and 2
+                const connectorsPositions = connectorIds.map(
+                    connectorId => this.getConnectorPosition(
+                        this.getConnectorById(connectorId),
+                        true)
+                    )
+
+                // get the manhattan distance between these two connectors
+                const distance = editorElements.Wire.manhattanDistance(...connectorsPositions);
+
+                // add connectorids to the priority queue
+                wireQueue.enqueue(connectorIds, 1 / distance);
+            }
+
+            // add wire in the order from short to long
+            while(!wireQueue.isEmpty()) {
+                const connectors = wireQueue.dequeue();
+                this.newWire(...connectors, false);
+            }
 
             // refresh the SVG document
             this.refresh();
@@ -812,6 +836,39 @@ export default class Canvas {
             this.wires[index].updateWireState()
 
         return this.wires[index];
+    }
+
+    /**
+     * get the coordinates of the specified connector
+     * @param  {Connector}  connector      instance of {@link Connector}
+     * @param  {Boolean} [snapToGrid=true] if true, the connector position will be snapped to the grid
+     * @return {Object}                    point - object containing numeric attributes `x` and `y`
+     */
+    getConnectorPosition(connector, snapToGrid = true) {
+        // connector.svgObj.id has to be called, else the getCoordinates does not work on the first call in Firefox 55
+        const dummy = connector.svgObj.id; // eslint-disable-line no-unused-vars
+
+        let $connector = connector.svgObj.$el;
+
+        let position = $connector.position();
+
+        position.left = this.viewbox.transformX(position.left)
+        position.top = this.viewbox.transformY(position.top)
+
+        let width = $connector.attr("width");
+        let height = $connector.attr("height");
+
+        let x = position.left + width / 2;
+        let y = position.top + height / 2;
+        if(snapToGrid) {
+            x = this.snapToGrid(x);
+            y = this.snapToGrid(y);
+        }
+
+        return {
+            x: x,
+            y: y
+        };
     }
 
     /**
@@ -1055,7 +1112,7 @@ export default class Canvas {
             }
 
             // try to match the jQuery element to the logical element using DOM classes
-            
+
             if($parentGroup.hasClass("box")) {
                 // return the corresponding box
                 return this.getBoxById($parentGroup.attr('id'));
@@ -1247,56 +1304,17 @@ export default class Canvas {
      * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
      */
     getInconvenientNodes(ignoreWireId) {
-
         let inconvenientNodes = new Set();
         // for each wire
-        for(let i = 0 ; i < this.wires.length ; ++i) {
-            // (ignore the wire that is specified in the ignoreWireId argument (if any))
-            if(ignoreWireId===undefined || ignoreWireId!==this.wires[i].svgObj.id) {
-                // cycle through points, for each neigbours add all points that are in between them
-                // i.e.: (0,0) and (0,30) are blocking these nodes: (0,0), (0,10), (0,20), (0,30)
-                let prevPoint;
-                this.wires[i].points.forEach(point => {
-                    if (prevPoint === undefined) {
-                        // if the prevPoint is undefined, add the first point
-                        inconvenientNodes.add({x: point.x, y: point.y});
-                    } else {
-                        // else add all the point between the prevPoint (excluded) and point (included)
 
-                        if(prevPoint.x===point.x) {
-                            // if the line is horizontal
-                            let from = Math.min(prevPoint.y, point.y);
-                            let to = Math.max(prevPoint.y, point.y);
-
-                            while(from <= to) {
-                                inconvenientNodes.add({x: point.x, y: from});
-                                from += this.gridSize;
-                            }
-                        } else if(prevPoint.y===point.y) {
-                            // if the line is vertical
-                            let from = Math.min(prevPoint.x, point.x);
-                            let to = Math.max(prevPoint.x, point.x);
-
-                            while(from <= to) {
-                                inconvenientNodes.add({x: from, y: point.y});
-                                from += this.gridSize;
-                            }
-                        } else {
-                            // line is neither horizontal nor vertical, throw an error for better future debugging
-                            console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
-                        }
-                    }
-
-                    // set new prevPoint
-                    prevPoint = {
-                        x: point.x,
-                        y: point.y
-                    };
-                });
-
-
+        for(const wire of this.wires) {
+            if(ignoreWireId===undefined || ignoreWireId!==wire.id) {
+                for (const node of wire.inconvenientNodes) {
+                    inconvenientNodes.add(node);
+                }
             }
         }
+
         // return the set
         return inconvenientNodes;
     }
