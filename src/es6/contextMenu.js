@@ -284,7 +284,7 @@ export default class ContextMenu {
         // add all gates
 
         // list of gates that can be added
-        const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor", "repeater"];
+        const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
         let gateList = new ContextMenuItem("New gate", this, parentSVG);
         for (let i = 0 ; i < gates.length ; ++i) {
             gateList.appendItem(

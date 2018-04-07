@@ -1465,7 +1465,7 @@ var Canvas = function () {
                                 // add new gate (without reloading the SVG, we will reload it once after the import)
                                 box = _this3.newGate(_boxData.name, 0, 0, false);
                                 break;
-                            case "io":
+                            case "other":
                                 switch (_boxData.name) {
                                     case "input":
                                         // add new input (without reloading the SVG, we will reload it once after the import)
@@ -1474,6 +1474,10 @@ var Canvas = function () {
                                     case "output":
                                         // add new output (without reloading the SVG, we will reload it once after the import)
                                         box = _this3.newOutput(0, 0, false);
+                                        break;
+                                    case "repeater":
+                                        // add new output (without reloading the SVG, we will reload it once after the import)
+                                        box = _this3.newRepeater(0, 0, false);
                                         break;
                                     default:
                                         reject("Unknown io box name '" + _boxData.name + "'.");
@@ -3031,7 +3035,7 @@ var ContextMenu = function () {
         // add all gates
 
         // list of gates that can be added
-        var gates = ["not", "and", "or", "nand", "nor", "xor", "xnor", "repeater"];
+        var gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
         var gateList = new ContextMenuItem("New gate", this, parentSVG);
         for (var i = 0; i < gates.length; ++i) {
             gateList.appendItem(new GateMenuItem(gates[i], this));
