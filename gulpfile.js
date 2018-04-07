@@ -271,7 +271,7 @@ gulp.task('images', () => {
         changed = modules.get('changed'),
         imagemin = modules.get('imagemin');
 
-    return gulp.src('img/*/*.svg')
+    return gulp.src('img/**/*.svg')
         .pipe(changed(outImg))
         .pipe(imagemin([
             imagemin.svgo({

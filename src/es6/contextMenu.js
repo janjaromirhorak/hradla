@@ -244,8 +244,10 @@ export default class ContextMenu {
         this.$el = $("<ul>");
         this.$el.attr('id', 'contextMenu');
 
+        let special = new ContextMenuItem("Special elements", this);
+
         // add input box
-        this.appendItem(
+        special.appendItem(
             new ContextMenuItem("Input box", this,
                 () => {
                     let position = {
@@ -259,7 +261,7 @@ export default class ContextMenu {
         );
 
         // add output box
-        this.appendItem(new ContextMenuItem("Output box", this, () => {
+        special.appendItem(new ContextMenuItem("Output box", this, () => {
             let position = {
                 left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
                 top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
@@ -268,10 +270,21 @@ export default class ContextMenu {
             parentSVG.newOutput(position.left, position.top);
         }));
 
+        special.appendItem(new ContextMenuItem("Repeater", this, () => {
+            let position = {
+                left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
+                top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
+            };
+
+            parentSVG.newRepeater(position.left, position.top);
+        }))
+
+        this.appendItem(special);
+
         // add all gates
 
         // list of gates that can be added
-        const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
+        const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor", "repeater"];
         let gateList = new ContextMenuItem("New gate", this, parentSVG);
         for (let i = 0 ; i < gates.length ; ++i) {
             gateList.appendItem(

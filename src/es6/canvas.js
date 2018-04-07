@@ -722,6 +722,10 @@ export default class Canvas {
         return this.newBox(x, y, new editorElements.OutputBox(this), refresh);
     }
 
+    newRepeater(x, y, refresh = true) {
+        return this.newBox(x, y, new editorElements.Repeater(this), refresh);
+    }
+
     /**
      * Add a new Box to the Canvas
      * @param  {number}  x              horizontal position of the box in SVG pixels

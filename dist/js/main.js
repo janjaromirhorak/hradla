@@ -1765,6 +1765,13 @@ var Canvas = function () {
 
             return this.newBox(x, y, new editorElements.OutputBox(this), refresh);
         }
+    }, {
+        key: 'newRepeater',
+        value: function newRepeater(x, y) {
+            var refresh = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
+            return this.newBox(x, y, new editorElements.Repeater(this), refresh);
+        }
 
         /**
          * Add a new Box to the Canvas
@@ -2988,8 +2995,10 @@ var ContextMenu = function () {
         this.$el = $("<ul>");
         this.$el.attr('id', 'contextMenu');
 
+        var special = new ContextMenuItem("Special elements", this);
+
         // add input box
-        this.appendItem(new ContextMenuItem("Input box", this, function () {
+        special.appendItem(new ContextMenuItem("Input box", this, function () {
             var position = {
                 left: _this6.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this6.position.x)),
                 top: _this6.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this6.position.y))
@@ -2999,7 +3008,7 @@ var ContextMenu = function () {
         }));
 
         // add output box
-        this.appendItem(new ContextMenuItem("Output box", this, function () {
+        special.appendItem(new ContextMenuItem("Output box", this, function () {
             var position = {
                 left: _this6.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this6.position.x)),
                 top: _this6.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this6.position.y))
@@ -3008,10 +3017,21 @@ var ContextMenu = function () {
             parentSVG.newOutput(position.left, position.top);
         }));
 
+        special.appendItem(new ContextMenuItem("Repeater", this, function () {
+            var position = {
+                left: _this6.parentSVG.snapToGrid(parentSVG.viewbox.transformX(_this6.position.x)),
+                top: _this6.parentSVG.snapToGrid(parentSVG.viewbox.transformY(_this6.position.y))
+            };
+
+            parentSVG.newRepeater(position.left, position.top);
+        }));
+
+        this.appendItem(special);
+
         // add all gates
 
         // list of gates that can be added
-        var gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
+        var gates = ["not", "and", "or", "nand", "nor", "xor", "xnor", "repeater"];
         var gateList = new ContextMenuItem("New gate", this, parentSVG);
         for (var i = 0; i < gates.length; ++i) {
             gateList.appendItem(new GateMenuItem(gates[i], this));
@@ -3253,7 +3273,7 @@ exports.default = ContextMenu;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.Wire = exports.Blackbox = exports.Gate = exports.OutputBox = exports.InputBox = exports.OutputConnector = exports.InputConnector = exports.Transform = undefined;
+exports.Wire = exports.Blackbox = exports.Gate = exports.OutputBox = exports.InputBox = exports.Repeater = exports.OutputConnector = exports.InputConnector = exports.Transform = undefined;
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
@@ -4072,12 +4092,6 @@ var Box = function (_NetworkElement2) {
         _this4.gridSize = _this4.parentSVG.gridSize;
 
         /**
-         * url of the image depicting this object
-         * @type {string}
-         */
-        _this4.url = "img/" + _this4.category + "/" + _this4.name + ".svg";
-
-        /**
          * array of connectors of this box
          * @type {Array}
          */
@@ -4116,6 +4130,7 @@ var Box = function (_NetworkElement2) {
         rectangle.$el.addClass('rect');
 
         _this4.svgObj.addChild(rectangle);
+
         // image of the element
         _this4.image = new svgObj.SvgImage(0, 0, _this4.width, _this4.height, _this4.url);
         _this4.svgObj.addChild(_this4.image);
@@ -4131,8 +4146,8 @@ var Box = function (_NetworkElement2) {
     }
 
     /**
-     * get all input connectors of this box
-     * @return {Array} array of input connectors
+     * url of the image depicting this object
+     * @type {string}
      */
 
 
@@ -4218,11 +4233,10 @@ var Box = function (_NetworkElement2) {
         key: 'changeImage',
         value: function changeImage(suffix) {
             if (suffix === undefined || suffix === "") {
-                suffix = "";
+                this.imgSuffix = "";
             } else {
-                suffix = "-" + suffix;
+                this.imgSuffix = "-" + suffix;
             }
-            this.url = "img/" + this.category + "/" + this.name + suffix + ".svg";
 
             this.image.changeUrl(this.url);
         }
@@ -4705,6 +4719,21 @@ var Box = function (_NetworkElement2) {
             });
         }
     }, {
+        key: 'url',
+        get: function get() {
+            var category = this.category || "",
+                name = this.name || "",
+                suffix = this.imgSuffix || "";
+
+            return 'img/svg/' + category + '/' + name + suffix + '.svg';
+        }
+
+        /**
+         * get all input connectors of this box
+         * @return {Array} array of input connectors
+         */
+
+    }, {
         key: 'inputConnectors',
         get: function get() {
             return this.connectors.filter(function (conn) {
@@ -4816,14 +4845,53 @@ var Box = function (_NetworkElement2) {
     return Box;
 }(NetworkElement);
 
+var Repeater = exports.Repeater = function (_Box) {
+    _inherits(Repeater, _Box);
+
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     */
+    function Repeater(parentSVG) {
+        _classCallCheck(this, Repeater);
+
+        var height = 4;
+        var width = 9;
+
+        var _this6 = _possibleConstructorReturn(this, (Repeater.__proto__ || Object.getPrototypeOf(Repeater)).call(this, parentSVG, "repeater", "other", width, height));
+
+        _this6.addInputConnector(0, height / 2);
+        _this6.addOutputConnector(width, height / 2);
+        return _this6;
+    }
+
+    /**
+     * Set the output conenctor state to match the state of the input connector
+     */
+
+
+    _createClass(Repeater, [{
+        key: 'refreshState',
+        value: function refreshState() {
+            this.parentSVG.simulation.notifyChange(this.connectors[1].id, this.connectors[0].state);
+        }
+    }, {
+        key: 'generateBlockNodes',
+        value: function generateBlockNodes() {
+            _get(Repeater.prototype.__proto__ || Object.getPrototypeOf(Repeater.prototype), 'generateBlockNodes', this).call(this, 0, 1, 0, 1);
+        }
+    }]);
+
+    return Repeater;
+}(Box);
+
 /**
  * InputBox has only output connectors and is used to set the input states for the logic network.
  * @extends Box
  */
 
 
-var InputBox = exports.InputBox = function (_Box) {
-    _inherits(InputBox, _Box);
+var InputBox = exports.InputBox = function (_Box2) {
+    _inherits(InputBox, _Box2);
 
     /**
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
@@ -4837,12 +4905,12 @@ var InputBox = exports.InputBox = function (_Box) {
         var width = 7;
         var height = 4;
 
-        var _this6 = _possibleConstructorReturn(this, (InputBox.__proto__ || Object.getPrototypeOf(InputBox)).call(this, parentSVG, "input", "io", width, height));
+        var _this7 = _possibleConstructorReturn(this, (InputBox.__proto__ || Object.getPrototypeOf(InputBox)).call(this, parentSVG, "input", "other", width, height));
 
-        _this6.addConnector(width, height / 2, false);
+        _this7.addConnector(width, height / 2, false);
 
-        _this6.on = isOn;
-        return _this6;
+        _this7.on = isOn;
+        return _this7;
     }
 
     /**
@@ -4930,8 +4998,8 @@ var InputBox = exports.InputBox = function (_Box) {
  */
 
 
-var OutputBox = exports.OutputBox = function (_Box2) {
-    _inherits(OutputBox, _Box2);
+var OutputBox = exports.OutputBox = function (_Box3) {
+    _inherits(OutputBox, _Box3);
 
     /**
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
@@ -4942,10 +5010,10 @@ var OutputBox = exports.OutputBox = function (_Box2) {
         var height = 4;
         var width = 5;
 
-        var _this7 = _possibleConstructorReturn(this, (OutputBox.__proto__ || Object.getPrototypeOf(OutputBox)).call(this, parentSVG, "output", "io", width, height));
+        var _this8 = _possibleConstructorReturn(this, (OutputBox.__proto__ || Object.getPrototypeOf(OutputBox)).call(this, parentSVG, "output", "other", width, height));
 
-        _this7.addConnector(0, height / 2, true);
-        return _this7;
+        _this8.addConnector(0, height / 2, true);
+        return _this8;
     }
 
     /**
@@ -5004,8 +5072,8 @@ var OutputBox = exports.OutputBox = function (_Box2) {
  */
 
 
-var Gate = exports.Gate = function (_Box3) {
-    _inherits(Gate, _Box3);
+var Gate = exports.Gate = function (_Box4) {
+    _inherits(Gate, _Box4);
 
     /**
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
@@ -5018,28 +5086,28 @@ var Gate = exports.Gate = function (_Box3) {
         var height = 4;
 
         // output
-        var _this8 = _possibleConstructorReturn(this, (Gate.__proto__ || Object.getPrototypeOf(Gate)).call(this, parentSVG, name, "gate", width, height));
+        var _this9 = _possibleConstructorReturn(this, (Gate.__proto__ || Object.getPrototypeOf(Gate)).call(this, parentSVG, name, "gate", width, height));
 
-        _this8.addConnector(width, height / 2, false);
+        _this9.addConnector(width, height / 2, false);
 
-        if (_this8.name === "not") {
+        if (_this9.name === "not") {
             // input
-            _this8.addConnector(0, height / 2, true);
+            _this9.addConnector(0, height / 2, true);
         } else {
             // input
-            _this8.addConnector(0, height / 4, true);
-            _this8.addConnector(0, height / (4 / 3), true);
+            _this9.addConnector(0, height / 4, true);
+            _this9.addConnector(0, height / (4 / 3), true);
 
             // add one blockedNode between the inputs (for better looking wiring)
             // and regenerate blocked nodes
-            _this8.generateBlockNodes({
+            _this9.generateBlockNodes({
                 x: 0,
                 y: height / 2
             });
         }
 
-        _this8.refreshState();
-        return _this8;
+        _this9.refreshState();
+        return _this9;
     }
 
     _createClass(Gate, [{
@@ -5098,8 +5166,8 @@ var Gate = exports.Gate = function (_Box3) {
  */
 
 
-var Blackbox = exports.Blackbox = function (_Box4) {
-    _inherits(Blackbox, _Box4);
+var Blackbox = exports.Blackbox = function (_Box5) {
+    _inherits(Blackbox, _Box5);
 
     /**
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
@@ -5117,69 +5185,69 @@ var Blackbox = exports.Blackbox = function (_Box4) {
         var width = 11;
         var height = Math.max(inputConnectors, outputConnectors) * 2;
 
-        var _this9 = _possibleConstructorReturn(this, (Blackbox.__proto__ || Object.getPrototypeOf(Blackbox)).call(this, parentSVG, name, "blackbox", width, height));
+        var _this10 = _possibleConstructorReturn(this, (Blackbox.__proto__ || Object.getPrototypeOf(Blackbox)).call(this, parentSVG, name, "blackbox", width, height));
 
-        var connectorPinLenght = 2.5 * _this9.gridSize;
+        var connectorPinLenght = 2.5 * _this10.gridSize;
 
         // override default svgObj structure
-        _this9.svgObj = new svgObj.Group();
+        _this10.svgObj = new svgObj.Group();
 
         // transparent background rectangle
-        var hitbox = new svgObj.Rectangle(0, 0, _this9.width, _this9.height, "none", "none");
+        var hitbox = new svgObj.Rectangle(0, 0, _this10.width, _this10.height, "none", "none");
         hitbox.$el.addClass('rect');
 
-        _this9.svgObj.addChild(hitbox);
+        _this10.svgObj.addChild(hitbox);
 
         // main rectangle
-        var bodyWidth = _this9.width - 2 * connectorPinLenght;
+        var bodyWidth = _this10.width - 2 * connectorPinLenght;
 
-        var rectangle = new svgObj.Rectangle(connectorPinLenght, 0, bodyWidth, _this9.height, "white", "black");
+        var rectangle = new svgObj.Rectangle(connectorPinLenght, 0, bodyWidth, _this10.height, "white", "black");
         rectangle.addAttr({ 'stroke-width': '2.5' });
         rectangle.$el.addClass('rect');
 
-        _this9.svgObj.addChild(rectangle);
+        _this10.svgObj.addChild(rectangle);
 
         // text description of the box
-        var textWidth = bodyWidth - _this9.gridSize;
-        var textHeight = _this9.height - _this9.gridSize;
-        var text = new svgObj.MultiLineText((_this9.width - textWidth) / 2, // horizontal centering
-        (_this9.height - textHeight) / 2, // vertical centering
-        textWidth, _this9.height, name.toUpperCase(), _this9.gridSize * 1.2);
-        _this9.svgObj.addChild(text);
+        var textWidth = bodyWidth - _this10.gridSize;
+        var textHeight = _this10.height - _this10.gridSize;
+        var text = new svgObj.MultiLineText((_this10.width - textWidth) / 2, // horizontal centering
+        (_this10.height - textHeight) / 2, // vertical centering
+        textWidth, _this10.height, name.toUpperCase(), _this10.gridSize * 1.2);
+        _this10.svgObj.addChild(text);
 
         // add input connectors
         for (var i = 0; i < inputConnectors; ++i) {
             var gridPosition = i * 2 + 1;
-            var pixelPosition = gridPosition * _this9.gridSize;
+            var pixelPosition = gridPosition * _this10.gridSize;
 
             var pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(0, pixelPosition), new svgObj.PolylinePoint(connectorPinLenght, pixelPosition)]), 1, "black");
 
-            _this9.svgObj.addChild(pin);
+            _this10.svgObj.addChild(pin);
 
             // add the connector
-            _this9.addInputConnector(0, gridPosition);
+            _this10.addInputConnector(0, gridPosition);
         }
 
         // add output connectors
         for (var _i = 0; _i < outputConnectors; ++_i) {
             var _gridPosition = _i * 2 + 1;
-            var _pixelPosition = _gridPosition * _this9.gridSize;
+            var _pixelPosition = _gridPosition * _this10.gridSize;
 
-            var _pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(_this9.width - connectorPinLenght, _pixelPosition), new svgObj.PolylinePoint(_this9.width, _pixelPosition)]), 1, "black");
+            var _pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(_this10.width - connectorPinLenght, _pixelPosition), new svgObj.PolylinePoint(_this10.width, _pixelPosition)]), 1, "black");
 
-            _this9.svgObj.addChild(_pin);
+            _this10.svgObj.addChild(_pin);
 
-            _this9.addOutputConnector(width, _gridPosition);
+            _this10.addOutputConnector(width, _gridPosition);
         }
 
-        _this9.svgObj.$el.addClass("box");
+        _this10.svgObj.$el.addClass("box");
 
         /**
          * function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
          * and returns `outputConnectors` Logic.states.
          */
-        _this9.evalFunction = evalFunction;
-        return _this9;
+        _this10.evalFunction = evalFunction;
+        return _this10;
     }
 
     /**
@@ -5370,37 +5438,37 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
         _classCallCheck(this, Wire);
 
-        var _this10 = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this, parentSVG));
+        var _this11 = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this, parentSVG));
         // small TODO: rework start... end... to arrays? (not important)
 
-        _this10.gridSize = gridSize;
+        _this11.gridSize = gridSize;
 
-        _this10.fromId = fromId;
-        _this10.toId = toId;
+        _this11.fromId = fromId;
+        _this11.toId = toId;
 
-        _this10.startBox = _this10.parentSVG.getBoxByConnectorId(fromId);
-        _this10.endBox = _this10.parentSVG.getBoxByConnectorId(toId);
+        _this11.startBox = _this11.parentSVG.getBoxByConnectorId(fromId);
+        _this11.endBox = _this11.parentSVG.getBoxByConnectorId(toId);
 
-        _this10.boxes = [_this10.startBox, _this10.endBox];
+        _this11.boxes = [_this11.startBox, _this11.endBox];
 
-        _this10.startConnector = _this10.parentSVG.getConnectorById(fromId);
-        _this10.endConnector = _this10.parentSVG.getConnectorById(toId);
+        _this11.startConnector = _this11.parentSVG.getConnectorById(fromId);
+        _this11.endConnector = _this11.parentSVG.getConnectorById(toId);
 
-        _this10.connectors = [_this10.startConnector, _this10.endConnector];
-        _this10.routeWire(true, refresh);
+        _this11.connectors = [_this11.startConnector, _this11.endConnector];
+        _this11.routeWire(true, refresh);
 
-        _this10.elementState = _logic2.default.state.unknown;
+        _this11.elementState = _logic2.default.state.unknown;
 
         var _iteratorNormalCompletion13 = true;
         var _didIteratorError13 = false;
         var _iteratorError13 = undefined;
 
         try {
-            for (var _iterator13 = _this10.connectors[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+            for (var _iterator13 = _this11.connectors[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
                 var connector = _step13.value;
 
                 if (connector.isOutputConnector) {
-                    _this10.setState(connector.state);
+                    _this11.setState(connector.state);
                 }
             }
         } catch (err) {
@@ -5418,8 +5486,8 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             }
         }
 
-        _this10.svgObj.$el.addClass("wire");
-        return _this10;
+        _this11.svgObj.$el.addClass("wire");
+        return _this11;
     }
 
     /**
@@ -5848,7 +5916,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
          * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
          */
         value: function generateInconvenientNodes() {
-            var _this11 = this;
+            var _this12 = this;
 
             this.inconvenientNodes = new Set();
 
@@ -5857,7 +5925,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             this.points.forEach(function (point) {
                 if (prevPoint === undefined) {
                     // if the prevPoint is undefined, add the first point
-                    _this11.inconvenientNodes.add({ x: point.x, y: point.y });
+                    _this12.inconvenientNodes.add({ x: point.x, y: point.y });
                 } else {
                     // else add all the point between the prevPoint (excluded) and point (included)
 
@@ -5867,8 +5935,8 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         var to = Math.max(prevPoint.y, point.y);
 
                         while (from <= to) {
-                            _this11.inconvenientNodes.add({ x: point.x, y: from });
-                            from += _this11.gridSize;
+                            _this12.inconvenientNodes.add({ x: point.x, y: from });
+                            from += _this12.gridSize;
                         }
                     } else if (prevPoint.y === point.y) {
                         // if the line is vertical
@@ -5876,8 +5944,8 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         var _to = Math.max(prevPoint.x, point.x);
 
                         while (_from <= _to) {
-                            _this11.inconvenientNodes.add({ x: _from, y: point.y });
-                            _from += _this11.gridSize;
+                            _this12.inconvenientNodes.add({ x: _from, y: point.y });
+                            _from += _this12.gridSize;
                         }
                     } else {
                         // line is neither horizontal nor vertical, throw an error for better future debugging

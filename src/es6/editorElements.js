@@ -591,12 +591,6 @@ class Box extends NetworkElement {
         this.gridSize = this.parentSVG.gridSize;
 
         /**
-         * url of the image depicting this object
-         * @type {string}
-         */
-        this.url = "img/" + this.category + "/" + this.name + ".svg";
-
-        /**
          * array of connectors of this box
          * @type {Array}
          */
@@ -635,6 +629,7 @@ class Box extends NetworkElement {
         rectangle.$el.addClass('rect');
 
         this.svgObj.addChild(rectangle);
+
         // image of the element
         this.image = new svgObj.SvgImage(0, 0, this.width, this.height, this.url);
         this.svgObj.addChild(this.image);
@@ -646,6 +641,19 @@ class Box extends NetworkElement {
         this.svgObj.$el.addClass(category);
 
         this.generateBlockNodes();
+    }
+
+    /**
+     * url of the image depicting this object
+     * @type {string}
+     */
+    get url() {
+        const
+            category = this.category || "",
+            name = this.name || "",
+            suffix = this.imgSuffix || "";
+
+        return `img/svg/${category}/${name}${suffix}.svg`;
     }
 
     /**
@@ -748,11 +756,10 @@ class Box extends NetworkElement {
      */
     changeImage(suffix) {
         if(suffix === undefined || suffix === "") {
-            suffix = "";
+            this.imgSuffix = "";
         } else {
-            suffix = "-" + suffix;
+            this.imgSuffix = "-" + suffix;
         }
-        this.url = "img/" + this.category + "/" + this.name + suffix + ".svg";
 
         this.image.changeUrl(this.url);
     }
@@ -1121,6 +1128,32 @@ class Box extends NetworkElement {
     }
 }
 
+export class Repeater extends Box {
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     */
+    constructor(parentSVG) {
+        const height = 4;
+        const width = 9;
+
+        super(parentSVG, "repeater", "other", width, height);
+
+        this.addInputConnector(0, height / 2);
+        this.addOutputConnector(width, height / 2);
+    }
+
+    /**
+     * Set the output conenctor state to match the state of the input connector
+     */
+    refreshState() {
+        this.parentSVG.simulation.notifyChange(this.connectors[1].id, this.connectors[0].state)
+    }
+
+    generateBlockNodes() {
+        super.generateBlockNodes(0, 1, 0, 1);
+    }
+}
+
 /**
  * InputBox has only output connectors and is used to set the input states for the logic network.
  * @extends Box
@@ -1134,7 +1167,7 @@ export class InputBox extends Box {
         const width = 7;
         const height = 4;
 
-        super(parentSVG, "input", "io", width, height);
+        super(parentSVG, "input", "other", width, height);
 
         this.addConnector(width, height / 2, false);
 
@@ -1214,7 +1247,7 @@ export class OutputBox extends Box {
         const height = 4;
         const width = 5;
 
-        super(parentSVG, "output", "io", width, height);
+        super(parentSVG, "output", "other", width, height);
 
         this.addConnector(0, height / 2, true);
     }
@@ -1311,25 +1344,25 @@ export class Gate extends Box {
         let state = Logic.state.unknown
         switch (this.name) {
             case "and":
-                state =  Logic.and(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.and(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "nand":
-                state =  Logic.nand(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.nand(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "nor":
-                state =  Logic.nor(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.nor(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "not":
-                state =  Logic.not(this.connectors[1].state)
+                state = Logic.not(this.connectors[1].state)
                 break;
             case "or":
-                state =  Logic.or(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.or(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "xnor":
-                state =  Logic.xnor(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.xnor(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "xor":
-                state =  Logic.xor(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.xor(this.connectors[1].state, this.connectors[2].state)
                 break;
         }
         // notify the simulator about this change
