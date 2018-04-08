@@ -1,4 +1,98 @@
 (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
+function stringify (obj, options) {
+  options = options || {}
+  var indent = JSON.stringify([1], null, get(options, 'indent', 2)).slice(2, -3)
+  var addMargin = get(options, 'margins', false)
+  var maxLength = (indent === '' ? Infinity : get(options, 'maxLength', 80))
+
+  return (function _stringify (obj, currentIndent, reserved) {
+    if (obj && typeof obj.toJSON === 'function') {
+      obj = obj.toJSON()
+    }
+
+    var string = JSON.stringify(obj)
+
+    if (string === undefined) {
+      return string
+    }
+
+    var length = maxLength - currentIndent.length - reserved
+
+    if (string.length <= length) {
+      var prettified = prettify(string, addMargin)
+      if (prettified.length <= length) {
+        return prettified
+      }
+    }
+
+    if (typeof obj === 'object' && obj !== null) {
+      var nextIndent = currentIndent + indent
+      var items = []
+      var delimiters
+      var comma = function (array, index) {
+        return (index === array.length - 1 ? 0 : 1)
+      }
+
+      if (Array.isArray(obj)) {
+        for (var index = 0; index < obj.length; index++) {
+          items.push(
+            _stringify(obj[index], nextIndent, comma(obj, index)) || 'null'
+          )
+        }
+        delimiters = '[]'
+      } else {
+        Object.keys(obj).forEach(function (key, index, array) {
+          var keyPart = JSON.stringify(key) + ': '
+          var value = _stringify(obj[key], nextIndent,
+                                 keyPart.length + comma(array, index))
+          if (value !== undefined) {
+            items.push(keyPart + value)
+          }
+        })
+        delimiters = '{}'
+      }
+
+      if (items.length > 0) {
+        return [
+          delimiters[0],
+          indent + items.join(',\n' + nextIndent),
+          delimiters[1]
+        ].join('\n' + currentIndent)
+      }
+    }
+
+    return string
+  }(obj, '', 0))
+}
+
+// Note: This regex matches even invalid JSON strings, but since we’re
+// working on the output of `JSON.stringify` we know that only valid strings
+// are present (unless the user supplied a weird `options.indent` but in
+// that case we don’t care since the output would be invalid anyway).
+var stringOrChar = /("(?:[^\\"]|\\.)*")|[:,\][}{]/g
+
+function prettify (string, addMargin) {
+  var m = addMargin ? ' ' : ''
+  var tokens = {
+    '{': '{' + m,
+    '[': '[' + m,
+    '}': m + '}',
+    ']': m + ']',
+    ',': ', ',
+    ':': ': '
+  }
+  return string.replace(stringOrChar, function (match, string) {
+    return string ? match : tokens[match]
+  })
+}
+
+function get (options, name, defaultValue) {
+  return (name in options ? options[name] : defaultValue)
+}
+
+module.exports = stringify
+
+},{}],2:[function(require,module,exports){
 /**
  * The DoublyLinkedList class provides the main functionality of a doubly linked list.
  *
@@ -281,7 +375,7 @@ var DoublyLinkedList = (function () {
 })();
 module.exports = DoublyLinkedList;
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 /**
  * The Heap class provides the main functionality of a Heap.
  *
@@ -610,7 +704,7 @@ var Heap = (function () {
 })();
 module.exports = Heap;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -634,7 +728,7 @@ var MaxHeap = (function (_super) {
 })(Heap);
 module.exports = MaxHeap;
 
-},{"./Heap":2}],4:[function(require,module,exports){
+},{"./Heap":3}],5:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -658,7 +752,7 @@ var MinHeap = (function (_super) {
 })(Heap);
 module.exports = MinHeap;
 
-},{"./Heap":2}],5:[function(require,module,exports){
+},{"./Heap":3}],6:[function(require,module,exports){
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -758,7 +852,7 @@ var PriorityQueueNode = (function () {
 })();
 module.exports = PriorityQueue;
 
-},{"./Heap":2}],6:[function(require,module,exports){
+},{"./Heap":3}],7:[function(require,module,exports){
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -799,7 +893,7 @@ var Queue = (function (_super) {
 })(DoublyLinkedList);
 module.exports = Queue;
 
-},{"./DoublyLinkedList":1}],7:[function(require,module,exports){
+},{"./DoublyLinkedList":2}],8:[function(require,module,exports){
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -821,7 +915,7 @@ var Stack = (function (_super) {
 })(DoublyLinkedList);
 module.exports = Stack;
 
-},{"./DoublyLinkedList":1}],8:[function(require,module,exports){
+},{"./DoublyLinkedList":2}],9:[function(require,module,exports){
 /**
  * STL
  * @type {{DoublyLinkedList: exports, Stack: exports, Queue: exports, Heap: exports, MaxHeap: exports, MinHeap: exports, PriorityQueue: exports}}
@@ -835,7 +929,7 @@ module.exports = {
 	MinHeap: require('./Datastructures/MinHeap'),
 	PriorityQueue: require('./Datastructures/PriorityQueue')
 };
-},{"./Datastructures/DoublyLinkedList":1,"./Datastructures/Heap":2,"./Datastructures/MaxHeap":3,"./Datastructures/MinHeap":4,"./Datastructures/PriorityQueue":5,"./Datastructures/Queue":6,"./Datastructures/Stack":7}],9:[function(require,module,exports){
+},{"./Datastructures/DoublyLinkedList":2,"./Datastructures/Heap":3,"./Datastructures/MaxHeap":4,"./Datastructures/MinHeap":5,"./Datastructures/PriorityQueue":6,"./Datastructures/Queue":7,"./Datastructures/Stack":8}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2709,7 +2803,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu":10,"./editorElements":11,"./floatingMenu":12,"./helperFunctions":13,"./logic":15,"./simulation":19,"./svgObjects":20,"./tutorial":21,"libstl":8}],10:[function(require,module,exports){
+},{"./contextMenu":11,"./editorElements":12,"./floatingMenu":13,"./helperFunctions":14,"./logic":16,"./simulation":20,"./svgObjects":21,"./tutorial":22,"libstl":9}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3271,7 +3365,7 @@ var ContextMenu = function () {
 
 exports.default = ContextMenu;
 
-},{"./networkLibrary":18}],11:[function(require,module,exports){
+},{"./networkLibrary":19}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6083,7 +6177,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     return Wire;
 }(NetworkElement);
 
-},{"./logic":15,"./mapWithDefaultValue":17,"./svgObjects":20,"libstl":8}],12:[function(require,module,exports){
+},{"./logic":16,"./mapWithDefaultValue":18,"./svgObjects":21,"libstl":9}],13:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6241,17 +6335,11 @@ var FloatingMenu = function () {
 
 exports.default = FloatingMenu;
 
-},{"./helperFunctions":13}],13:[function(require,module,exports){
+},{"./helperFunctions":14}],14:[function(require,module,exports){
 "use strict";
 
 /**
  * @module HelperFunctions
- */
-
-/**
- * add a cross browser event listener on a mouse scroll
- * @param {string} query DOM query of the element that the listener will be added to
- * @param {Function} func  Function that will be called when the event occurs. The function takes as a parameter an event object.
  */
 
 Object.defineProperty(exports, "__esModule", {
@@ -6259,6 +6347,20 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.addMouseScrollEventListener = addMouseScrollEventListener;
 exports.getJSONString = getJSONString;
+
+var _jsonStringifyPrettyCompact = require("json-stringify-pretty-compact");
+
+var _jsonStringifyPrettyCompact2 = _interopRequireDefault(_jsonStringifyPrettyCompact);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// note: imported from a module
+
+/**
+ * add a cross browser event listener on a mouse scroll
+ * @param {string} query DOM query of the element that the listener will be added to
+ * @param {Function} func  Function that will be called when the event occurs. The function takes as a parameter an event object.
+ */
 function addMouseScrollEventListener(query, func) {
     var MouseWheelHandler = function MouseWheelHandler(event) {
         // redeclare for old IE support
@@ -6310,14 +6412,14 @@ function getJSONString(data) {
     } else {
         switch (pretty) {
             case true:
-                return JSON.stringify(data, null, 2);
+                return (0, _jsonStringifyPrettyCompact2.default)(data, { maxLength: 50 });
             case false:
                 return JSON.stringify(data);
         }
     }
 }
 
-},{}],14:[function(require,module,exports){
+},{"json-stringify-pretty-compact":1}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6394,7 +6496,7 @@ var Id = function () {
 
 exports.default = Id;
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 
 /** @module Logic */
@@ -6606,7 +6708,7 @@ var Logic = function () {
 
 exports.default = Logic;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 
 var _canvas = require("./canvas");
@@ -6622,7 +6724,7 @@ $(function () {
   new _canvas2.default("#canvas", 10);
 });
 
-},{"./canvas":9}],17:[function(require,module,exports){
+},{"./canvas":10}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6728,7 +6830,7 @@ var MapWithDefaultValue = function () {
 
 exports.default = MapWithDefaultValue;
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6793,7 +6895,7 @@ function getNetworkFromLibrary(networkName) {
     });
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7071,7 +7173,7 @@ var Simulation = function () {
 
 exports.default = Simulation;
 
-},{"./logic":15}],20:[function(require,module,exports){
+},{"./logic":16}],21:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7933,7 +8035,7 @@ var Pattern = exports.Pattern = function (_Tag6) {
     return Pattern;
 }(Tag);
 
-},{"./id":14}],21:[function(require,module,exports){
+},{"./id":15}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8482,6 +8584,6 @@ var Tutorial = function () {
 
 exports.default = Tutorial;
 
-},{}]},{},[16])
+},{}]},{},[17])
 
 //# sourceMappingURL=main.js.map
