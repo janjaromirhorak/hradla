@@ -568,7 +568,7 @@ export default class Canvas {
                         // add new gate (without reloading the SVG, we will reload it once after the import)
                         box = this.newGate(boxData.name, 0, 0, false);
                         break;
-                    case "io":
+                    case "other":
                         switch (boxData.name) {
                             case "input":
                                 // add new input (without reloading the SVG, we will reload it once after the import)
@@ -577,6 +577,10 @@ export default class Canvas {
                             case "output":
                                 // add new output (without reloading the SVG, we will reload it once after the import)
                                 box = this.newOutput(0, 0, false);
+                                break;
+                            case "repeater":
+                                // add new output (without reloading the SVG, we will reload it once after the import)
+                                box = this.newRepeater(0, 0, false);
                                 break;
                             default:
                                 reject("Unknown io box name '"+boxData.name+"'.");

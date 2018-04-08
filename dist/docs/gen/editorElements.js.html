@@ -682,9 +682,6 @@ class Box extends NetworkElement {
 
         this.svgObj.addChild(rectangle);
 
-        // suffix used in the image (see the url getter)
-        this.imgSuffix = "";
-
         // image of the element
         this.image = new svgObj.SvgImage(0, 0, this.width, this.height, this.url);
         this.svgObj.addChild(this.image);
@@ -703,7 +700,12 @@ class Box extends NetworkElement {
      * @type {string}
      */
     get url() {
-        "img/svg/" + this.category + "/" + this.name + this.imgSuffix + ".svg";
+        const
+            category = this.category || "",
+            name = this.name || "",
+            suffix = this.imgSuffix || "";
+
+        return `img/svg/${category}/${name}${suffix}.svg`;
     }
 
     /**
@@ -1518,6 +1520,9 @@ export class Blackbox extends Box {
          * and returns `outputConnectors` Logic.states.
          */
         this.evalFunction = evalFunction;
+
+        // regenerate the blocked nodes after adding all the connectors
+        this.generateBlockNodes();
     }
 
     /**
@@ -1587,6 +1592,26 @@ export class Blackbox extends Box {
         for (let i = 0; i &lt; outputStates.length ; ++i) {
             this.outputConnectors[i].setState(outputStates[i]);
         }
+    }
+
+    generateBlockNodes() {
+        // add blocked nodes into the spaces between the connectors
+
+        let specialNodes = []
+        for (let i = 0 ; i &lt; this.inputConnectors.length - 1 ; ++i) {
+            specialNodes.push({
+                x: 0,
+                y: (i * 2) + 2
+            })
+        }
+        for (let i = 0 ; i &lt; this.outputConnectors.length - 1 ; ++i) {
+            specialNodes.push({
+                x: this.gridWidth,
+                y: (i * 2) + 2
+            })
+        }
+
+        super.generateBlockNodes(0, 1, 0, 1, ...specialNodes);
     }
 }
 

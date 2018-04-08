@@ -2,7 +2,7 @@
   "name": "XOR, AND, OR subtractor",
   "boxes": [{
       "name": "input",
-      "category": "io",
+      "category": "other",
       "transform": {
         "items": [{
           "name": "translate",
@@ -24,7 +24,7 @@
     },
     {
       "name": "input",
-      "category": "io",
+      "category": "other",
       "transform": {
         "items": [{
           "name": "translate",
@@ -47,7 +47,7 @@
     },
     {
       "name": "input",
-      "category": "io",
+      "category": "other",
       "transform": {
         "items": [{
           "name": "translate",
@@ -255,7 +255,7 @@
     },
     {
       "name": "output",
-      "category": "io",
+      "category": "other",
       "transform": {
         "items": [{
           "name": "translate",
@@ -271,7 +271,7 @@
     },
     {
       "name": "output",
-      "category": "io",
+      "category": "other",
       "transform": {
         "items": [{
           "name": "translate",

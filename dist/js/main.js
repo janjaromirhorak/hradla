@@ -5251,6 +5251,9 @@ var Blackbox = exports.Blackbox = function (_Box5) {
          * and returns `outputConnectors` Logic.states.
          */
         _this10.evalFunction = evalFunction;
+
+        // regenerate the blocked nodes after adding all the connectors
+        _this10.generateBlockNodes();
         return _this10;
     }
 
@@ -5279,6 +5282,29 @@ var Blackbox = exports.Blackbox = function (_Box5) {
             for (var i = 0; i < outputStates.length; ++i) {
                 this.outputConnectors[i].setState(outputStates[i]);
             }
+        }
+    }, {
+        key: 'generateBlockNodes',
+        value: function generateBlockNodes() {
+            var _get2;
+
+            // add blocked nodes into the spaces between the connectors
+
+            var specialNodes = [];
+            for (var i = 0; i < this.inputConnectors.length - 1; ++i) {
+                specialNodes.push({
+                    x: 0,
+                    y: i * 2 + 2
+                });
+            }
+            for (var _i2 = 0; _i2 < this.outputConnectors.length - 1; ++_i2) {
+                specialNodes.push({
+                    x: this.gridWidth,
+                    y: _i2 * 2 + 2
+                });
+            }
+
+            (_get2 = _get(Blackbox.prototype.__proto__ || Object.getPrototypeOf(Blackbox.prototype), 'generateBlockNodes', this)).call.apply(_get2, [this, 0, 1, 0, 1].concat(specialNodes));
         }
     }, {
         key: 'exportData',
