@@ -1468,6 +1468,9 @@ export class Blackbox extends Box {
          * and returns `outputConnectors` Logic.states.
          */
         this.evalFunction = evalFunction;
+
+        // regenerate the blocked nodes after adding all the connectors
+        this.generateBlockNodes();
     }
 
     /**
@@ -1537,6 +1540,26 @@ export class Blackbox extends Box {
         for (let i = 0; i < outputStates.length ; ++i) {
             this.outputConnectors[i].setState(outputStates[i]);
         }
+    }
+
+    generateBlockNodes() {
+        // add blocked nodes into the spaces between the connectors
+
+        let specialNodes = []
+        for (let i = 0 ; i < this.inputConnectors.length - 1 ; ++i) {
+            specialNodes.push({
+                x: 0,
+                y: (i * 2) + 2
+            })
+        }
+        for (let i = 0 ; i < this.outputConnectors.length - 1 ; ++i) {
+            specialNodes.push({
+                x: this.gridWidth,
+                y: (i * 2) + 2
+            })
+        }
+
+        super.generateBlockNodes(0, 1, 0, 1, ...specialNodes);
     }
 }
 
