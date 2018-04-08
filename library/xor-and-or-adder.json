@@ -1,274 +1,255 @@
 {
-  "name": "XOR, AND, OR adder",
-  "boxes": [
-    {
-      "name": "input",
-      "category": "other",
-      "transform": {
-        "items": [
-          {
-            "name": "translate",
-            "args": [
-              16,
-              6
+    "name": "XOR, AND, OR adder",
+    "boxes": [{
+            "name": "input",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        16,
+                        6
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 0
+                },
+                {
+                    "index": 0,
+                    "wireId": 1
+                }
+            ],
+            "isOn": false
+        },
+        {
+            "name": "input",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        16,
+                        15
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 2
+                },
+                {
+                    "index": 0,
+                    "wireId": 3
+                }
+            ],
+            "isOn": false
+        },
+        {
+            "name": "input",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        16,
+                        24
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 4
+                },
+                {
+                    "index": 0,
+                    "wireId": 5
+                }
+            ],
+            "isOn": false
+        },
+        {
+            "name": "xor",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        28,
+                        7
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 6
+                },
+                {
+                    "index": 0,
+                    "wireId": 7
+                },
+                {
+                    "index": 1,
+                    "wireId": 0
+                },
+                {
+                    "index": 2,
+                    "wireId": 2
+                }
             ]
-          }
-        ]
-      },
-      "connections": [
-        {
-          "index": 0,
-          "wireId": 0
         },
         {
-          "index": 0,
-          "wireId": 1
-        }
-      ],
-      "isOn": false
-    },
-    {
-      "name": "input",
-      "category": "other",
-      "transform": {
-        "items": [
-          {
-            "name": "translate",
-            "args": [
-              16,
-              15
+            "name": "xor",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        43,
+                        8
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 8
+                },
+                {
+                    "index": 1,
+                    "wireId": 6
+                },
+                {
+                    "index": 2,
+                    "wireId": 4
+                }
             ]
-          }
-        ]
-      },
-      "connections": [
-        {
-          "index": 0,
-          "wireId": 2
         },
         {
-          "index": 0,
-          "wireId": 3
-        }
-      ],
-      "isOn": false
-    },
-    {
-      "name": "input",
-      "category": "other",
-      "transform": {
-        "items": [
-          {
-            "name": "translate",
-            "args": [
-              16,
-              24
+            "name": "output",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        66,
+                        8
+                    ]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 8
+            }]
+        },
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        42,
+                        23
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 9
+                },
+                {
+                    "index": 1,
+                    "wireId": 7
+                },
+                {
+                    "index": 2,
+                    "wireId": 5
+                }
             ]
-          }
-        ]
-      },
-      "connections": [
-        {
-          "index": 0,
-          "wireId": 4
         },
         {
-          "index": 0,
-          "wireId": 5
-        }
-      ],
-      "isOn": false
-    },
-    {
-      "name": "xor",
-      "category": "gate",
-      "transform": {
-        "items": [
-          {
-            "name": "translate",
-            "args": [
-              28,
-              7
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        42,
+                        15
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 10
+                },
+                {
+                    "index": 1,
+                    "wireId": 1
+                },
+                {
+                    "index": 2,
+                    "wireId": 3
+                }
             ]
-          }
-        ]
-      },
-      "connections": [
-        {
-          "index": 0,
-          "wireId": 6
         },
         {
-          "index": 0,
-          "wireId": 7
-        },
-        {
-          "index": 1,
-          "wireId": 0
-        },
-        {
-          "index": 2,
-          "wireId": 2
-        }
-      ]
-    },
-    {
-      "name": "xor",
-      "category": "gate",
-      "transform": {
-        "items": [
-          {
-            "name": "translate",
-            "args": [
-              43,
-              8
+            "name": "or",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        53,
+                        19
+                    ]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 11
+                },
+                {
+                    "index": 1,
+                    "wireId": 10
+                },
+                {
+                    "index": 2,
+                    "wireId": 9
+                }
             ]
-          }
-        ]
-      },
-      "connections": [
-        {
-          "index": 0,
-          "wireId": 8
         },
         {
-          "index": 1,
-          "wireId": 6
-        },
-        {
-          "index": 2,
-          "wireId": 4
+            "name": "output",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [
+                        66,
+                        19
+                    ]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 11
+            }]
         }
-      ]
-    },
-    {
-      "name": "output",
-      "category": "other",
-      "transform": {
-        "items": [
-          {
-            "name": "translate",
-            "args": [
-              66,
-              8
-            ]
-          }
+    ],
+    "blackbox": {
+        "inputs": 3,
+        "outputs": 2,
+        "table": [
+            [2, 2, 2, 2, 2],
+            [2, 2, 1, 1, 2],
+            [2, 1, 2, 1, 2],
+            [2, 1, 1, 2, 1],
+            [1, 2, 2, 1, 2],
+            [1, 2, 1, 2, 1],
+            [1, 1, 2, 2, 1],
+            [1, 1, 1, 1, 1]
         ]
-      },
-      "connections": [
-        {
-          "index": 0,
-          "wireId": 8
-        }
-      ]
-    },
-    {
-      "name": "and",
-      "category": "gate",
-      "transform": {
-        "items": [
-          {
-            "name": "translate",
-            "args": [
-              42,
-              23
-            ]
-          }
-        ]
-      },
-      "connections": [
-        {
-          "index": 0,
-          "wireId": 9
-        },
-        {
-          "index": 1,
-          "wireId": 7
-        },
-        {
-          "index": 2,
-          "wireId": 5
-        }
-      ]
-    },
-    {
-      "name": "and",
-      "category": "gate",
-      "transform": {
-        "items": [
-          {
-            "name": "translate",
-            "args": [
-              42,
-              15
-            ]
-          }
-        ]
-      },
-      "connections": [
-        {
-          "index": 0,
-          "wireId": 10
-        },
-        {
-          "index": 1,
-          "wireId": 1
-        },
-        {
-          "index": 2,
-          "wireId": 3
-        }
-      ]
-    },
-    {
-      "name": "or",
-      "category": "gate",
-      "transform": {
-        "items": [
-          {
-            "name": "translate",
-            "args": [
-              53,
-              19
-            ]
-          }
-        ]
-      },
-      "connections": [
-        {
-          "index": 0,
-          "wireId": 11
-        },
-        {
-          "index": 1,
-          "wireId": 10
-        },
-        {
-          "index": 2,
-          "wireId": 9
-        }
-      ]
-    },
-    {
-      "name": "output",
-      "category": "other",
-      "transform": {
-        "items": [
-          {
-            "name": "translate",
-            "args": [
-              66,
-              19
-            ]
-          }
-        ]
-      },
-      "connections": [
-        {
-          "index": 0,
-          "wireId": 11
-        }
-      ]
     }
-  ]
 }
