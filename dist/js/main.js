@@ -2586,69 +2586,85 @@ var Canvas = function () {
         value: function getNonRoutableNodes() {
             var blockedNodes = new Set();
             // for each box
-            for (var i = 0; i < this.boxes.length; ++i) {
-                // get the jQuery child with class .rect ("hitbox")
-                var rect = $('#' + this.boxes[i].svgObj.id).children(".rect")[0];
-                // get the position of the rectangle
-                var position = $(rect).position();
+            var _iteratorNormalCompletion11 = true;
+            var _didIteratorError11 = false;
+            var _iteratorError11 = undefined;
 
-                // snap the position to the grid
-                position.left = this.snapToGrid(position.left);
-                position.top = this.snapToGrid(position.top);
+            try {
+                for (var _iterator11 = this.boxes[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                    var box = _step11.value;
 
-                // for each item in blockedNodes (set of blocked nodes with coordinates relative
-                // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
-                // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-                var _iteratorNormalCompletion11 = true;
-                var _didIteratorError11 = false;
-                var _iteratorError11 = undefined;
+                    var translate = box.getGridPixelTransform().getTranslate();
 
-                try {
-                    for (var _iterator11 = this.boxes[i].blockedNodes[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-                        var item = _step11.value;
+                    // for each item in blockedNodes (set of blocked nodes with coordinates relative
+                    // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
+                    // to absolute (multiple with gridSize and add position of rect) and add the result to the set
+                    var _iteratorNormalCompletion12 = true;
+                    var _didIteratorError12 = false;
+                    var _iteratorError12 = undefined;
 
-                        var absoluteX = position.left + item.x * this.gridSize;
-                        var absoluteY = position.top + item.y * this.gridSize;
-
-                        blockedNodes.add({
-                            x: absoluteX,
-                            y: absoluteY
-                        });
-                    }
-                } catch (err) {
-                    _didIteratorError11 = true;
-                    _iteratorError11 = err;
-                } finally {
                     try {
-                        if (!_iteratorNormalCompletion11 && _iterator11.return) {
-                            _iterator11.return();
+                        for (var _iterator12 = box.blockedNodes[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                            var node = _step12.value;
+
+                            blockedNodes.add({
+                                x: translate.x + node.x,
+                                y: translate.y + node.y
+                            });
                         }
+                    } catch (err) {
+                        _didIteratorError12 = true;
+                        _iteratorError12 = err;
                     } finally {
-                        if (_didIteratorError11) {
-                            throw _iteratorError11;
+                        try {
+                            if (!_iteratorNormalCompletion12 && _iterator12.return) {
+                                _iterator12.return();
+                            }
+                        } finally {
+                            if (_didIteratorError12) {
+                                throw _iteratorError12;
+                            }
                         }
+                    }
+                }
+
+                // FOR DEBUG ONLY: display the non routable nodes
+                /*
+                 if(this.nodeDisplay) {
+                    for (const rectangleId of this.nodeDisplay) {
+                        $(`#${rectangleId}`).remove();
+                    }
+                }
+                 this.nodeDisplay = [];
+                 for (const node of blockedNodes) {
+                    const x = this.gridToSVG(node.x);
+                    const y = this.gridToSVG(node.y);
+                     const w = 4;
+                    const p = w / 2;
+                     const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "red", "none")
+                    this.nodeDisplay.push(nodeRectangle.id);
+                    this.appendElement(nodeRectangle, false);
+                }
+                 this.refresh();
+                 */
+                // END FOR DEBUG ONLY
+
+                // return the set
+            } catch (err) {
+                _didIteratorError11 = true;
+                _iteratorError11 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion11 && _iterator11.return) {
+                        _iterator11.return();
+                    }
+                } finally {
+                    if (_didIteratorError11) {
+                        throw _iteratorError11;
                     }
                 }
             }
 
-            // FOR DEBUG ONLY: display the non routable nodes
-            /*
-             if(this.nodeDisplay) {
-                for (const rectangleId of this.nodeDisplay) {
-                    $(`#${rectangleId}`).remove();
-                }
-            }
-             this.nodeDisplay = [];
-             for (const {x, y} of blockedNodes) {
-                const nodeRectangle = new svgObj.Rectangle(x - 2, y - 2, 4, 4, "red", "none")
-                this.nodeDisplay.push(nodeRectangle.id);
-                this.appendElement(nodeRectangle, false);
-            }
-             this.refresh();
-             */
-            // END FOR DEBUG ONLY
-
-            // return the set
             return blockedNodes;
         }
 
@@ -2663,54 +2679,75 @@ var Canvas = function () {
             var inconvenientNodes = new Set();
             // for each wire
 
-            var _iteratorNormalCompletion12 = true;
-            var _didIteratorError12 = false;
-            var _iteratorError12 = undefined;
+            var _iteratorNormalCompletion13 = true;
+            var _didIteratorError13 = false;
+            var _iteratorError13 = undefined;
 
             try {
-                for (var _iterator12 = this.wires[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-                    var wire = _step12.value;
+                for (var _iterator13 = this.wires[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                    var wire = _step13.value;
 
                     if (ignoreWireId === undefined || ignoreWireId !== wire.id) {
-                        var _iteratorNormalCompletion13 = true;
-                        var _didIteratorError13 = false;
-                        var _iteratorError13 = undefined;
+                        var _iteratorNormalCompletion14 = true;
+                        var _didIteratorError14 = false;
+                        var _iteratorError14 = undefined;
 
                         try {
-                            for (var _iterator13 = wire.inconvenientNodes[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-                                var node = _step13.value;
+                            for (var _iterator14 = wire.inconvenientNodes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                                var node = _step14.value;
 
                                 inconvenientNodes.add(node);
                             }
                         } catch (err) {
-                            _didIteratorError13 = true;
-                            _iteratorError13 = err;
+                            _didIteratorError14 = true;
+                            _iteratorError14 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion13 && _iterator13.return) {
-                                    _iterator13.return();
+                                if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                                    _iterator14.return();
                                 }
                             } finally {
-                                if (_didIteratorError13) {
-                                    throw _iteratorError13;
+                                if (_didIteratorError14) {
+                                    throw _iteratorError14;
                                 }
                             }
                         }
                     }
                 }
 
+                // FOR DEBUG ONLY: display the inconvenient nodes
+                /*
+                 if(this.inconvenientNodeDisplay) {
+                    for (const rectangleId of this.inconvenientNodeDisplay) {
+                        $(`#${rectangleId}`).remove();
+                    }
+                }
+                 this.inconvenientNodeDisplay = [];
+                 for (const node of inconvenientNodes) {
+                    const x = this.gridToSVG(node.x);
+                    const y = this.gridToSVG(node.y);
+                     const w = 4;
+                    const p = w / 2;
+                     const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "orange", "none")
+                    this.inconvenientNodeDisplay.push(nodeRectangle.id);
+                    this.appendElement(nodeRectangle, false);
+                }
+                 this.refresh();
+                 */
+                // END FOR DEBUG ONLY
+
                 // return the set
             } catch (err) {
-                _didIteratorError12 = true;
-                _iteratorError12 = err;
+                _didIteratorError13 = true;
+                _iteratorError13 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion12 && _iterator12.return) {
-                        _iterator12.return();
+                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
+                        _iterator13.return();
                     }
                 } finally {
-                    if (_didIteratorError12) {
-                        throw _iteratorError12;
+                    if (_didIteratorError13) {
+                        throw _iteratorError13;
                     }
                 }
             }
@@ -2764,27 +2801,27 @@ var Canvas = function () {
                 boxes: []
             };
 
-            var _iteratorNormalCompletion14 = true;
-            var _didIteratorError14 = false;
-            var _iteratorError14 = undefined;
+            var _iteratorNormalCompletion15 = true;
+            var _didIteratorError15 = false;
+            var _iteratorError15 = undefined;
 
             try {
-                for (var _iterator14 = this.boxes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                    var box = _step14.value;
+                for (var _iterator15 = this.boxes[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                    var box = _step15.value;
 
                     data.boxes.push(box.exportData);
                 }
             } catch (err) {
-                _didIteratorError14 = true;
-                _iteratorError14 = err;
+                _didIteratorError15 = true;
+                _iteratorError15 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                        _iterator14.return();
+                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
+                        _iterator15.return();
                     }
                 } finally {
-                    if (_didIteratorError14) {
-                        throw _iteratorError14;
+                    if (_didIteratorError15) {
+                        throw _iteratorError15;
                     }
                 }
             }
@@ -4952,18 +4989,18 @@ var Repeater = exports.Repeater = function (_Box) {
     function Repeater(parentSVG) {
         _classCallCheck(this, Repeater);
 
-        var height = 4;
-        var width = 9;
+        var gridHeight = 4;
+        var gridWidth = 9;
 
-        var _this6 = _possibleConstructorReturn(this, (Repeater.__proto__ || Object.getPrototypeOf(Repeater)).call(this, parentSVG, "repeater", "other", width, height));
+        var _this6 = _possibleConstructorReturn(this, (Repeater.__proto__ || Object.getPrototypeOf(Repeater)).call(this, parentSVG, "repeater", "other", gridWidth, gridHeight));
 
-        _this6.addInputConnector(0, height / 2);
-        _this6.addOutputConnector(width, height / 2);
+        _this6.addInputConnector(0, gridHeight / 2);
+        _this6.addOutputConnector(gridWidth, gridHeight / 2);
         return _this6;
     }
 
     /**
-     * Set the output conenctor state to match the state of the input connector
+     * Set the output connector state to match the state of the input connector
      */
 
 
@@ -4975,7 +5012,10 @@ var Repeater = exports.Repeater = function (_Box) {
     }, {
         key: 'generateBlockNodes',
         value: function generateBlockNodes() {
-            _get(Repeater.prototype.__proto__ || Object.getPrototypeOf(Repeater.prototype), 'generateBlockNodes', this).call(this, 0, 1, 0, 1);
+            var _get2;
+
+            var specialNodes = [{ x: 0, y: this.gridHeight / 2 }, { x: this.gridWidth, y: this.gridHeight / 2 }];
+            (_get2 = _get(Repeater.prototype.__proto__ || Object.getPrototypeOf(Repeater.prototype), 'generateBlockNodes', this)).call.apply(_get2, [this, 0, 1, 0, 1].concat(specialNodes));
         }
     }]);
 
@@ -5380,7 +5420,7 @@ var Blackbox = exports.Blackbox = function (_Box5) {
     }, {
         key: 'generateBlockNodes',
         value: function generateBlockNodes() {
-            var _get2;
+            var _get3;
 
             // add blocked nodes into the spaces between the connectors
 
@@ -5398,7 +5438,7 @@ var Blackbox = exports.Blackbox = function (_Box5) {
                 });
             }
 
-            (_get2 = _get(Blackbox.prototype.__proto__ || Object.getPrototypeOf(Blackbox.prototype), 'generateBlockNodes', this)).call.apply(_get2, [this, 0, 1, 0, 1].concat(specialNodes));
+            (_get3 = _get(Blackbox.prototype.__proto__ || Object.getPrototypeOf(Blackbox.prototype), 'generateBlockNodes', this)).call.apply(_get3, [this, 0, 1, 0, 1].concat(specialNodes));
         }
     }, {
         key: 'exportData',
@@ -5758,7 +5798,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
             if (refresh) this.updateWireState();
 
-            // regenerate inconvenint nodes
+            // regenerate inconvenient nodes
             this.generateInconvenientNodes();
         }
 
@@ -5822,8 +5862,8 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
         /**
          * Heavily modified implementation of the A* algorithm
-         * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-         * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire
+         * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
+         * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
          * @return {PolylinePoints} instance of {@link PolylinePoints}
          */
 
@@ -5915,7 +5955,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                     for (var i = 0; i < 50; i++) {
                         // if newPoint is in the set of non routable points,
                         // don't add it and stop proceeding in this direction
-                        if (Wire.setHasThisPoint(nonRoutable, this.scalePointToGrid(newPoint))) {
+                        if (Wire.setHasThisPoint(nonRoutable, newPoint)) {
                             break;
                         }
 
@@ -5928,7 +5968,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         // calculate possible GScore by applying a punishment for each node ("bend") in the path
                         var newGScore = wireBendPunishment + gScore.get(currentNode);
 
-                        if (Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
+                        if (Wire.setHasThisPoint(punishedButRoutable, newPoint)) {
                             // if the node is in the set of punished nodes, apply the punishment
                             wiresCrossed++;
                         }
@@ -5988,20 +6028,8 @@ var Wire = exports.Wire = function (_NetworkElement3) {
          */
 
     }, {
-        key: 'scalePointToGrid',
+        key: 'reconstructPath',
 
-
-        /**
-         * multiply the point coordinates by the grid size
-         * @param  {Object} point object containing numeric attributes `x` and `y` in grid pixels
-         * @return {Object}       the same point but containing numeric attributes `x` and `y` in SVG pixels
-         */
-        value: function scalePointToGrid(point) {
-            return {
-                x: point.x * this.gridSize,
-                y: point.y * this.gridSize
-            };
-        }
 
         /**
          * helper backtracking function used by the aStar algorithm to construct the final {@link PolylinePoints}
@@ -6009,9 +6037,6 @@ var Wire = exports.Wire = function (_NetworkElement3) {
          * @param  {Object} currentNode object containing numeric attributes `x` and `y`
          * @return {PolylinePoints}     instance of {@link PolylinePoints} that represents the path found by the aStar algorithm
          */
-
-    }, {
-        key: 'reconstructPath',
         value: function reconstructPath(cameFrom, currentNode) {
             var totalPath = new svgObj.PolylinePoints();
             totalPath.append(new svgObj.PolylinePoint(currentNode.x * this.gridSize, currentNode.y * this.gridSize));
@@ -6047,29 +6072,32 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             var prevPoint = void 0;
 
             this.points.forEach(function (point) {
+                var x = _this12.parentSVG.SVGToGrid(point.x),
+                    y = _this12.parentSVG.SVGToGrid(point.y);
+
                 if (prevPoint === undefined) {
                     // if the prevPoint is undefined, add the first point
-                    _this12.inconvenientNodes.add({ x: point.x, y: point.y });
+                    _this12.inconvenientNodes.add({ x: x, y: y });
                 } else {
                     // else add all the point between the prevPoint (excluded) and point (included)
 
-                    if (prevPoint.x === point.x) {
+                    if (prevPoint.x === x) {
                         // if the line is horizontal
-                        var from = Math.min(prevPoint.y, point.y);
-                        var to = Math.max(prevPoint.y, point.y);
+                        var from = Math.min(prevPoint.y, y);
+                        var to = Math.max(prevPoint.y, y);
 
                         while (from <= to) {
-                            _this12.inconvenientNodes.add({ x: point.x, y: from });
-                            from += _this12.gridSize;
+                            _this12.inconvenientNodes.add({ x: x, y: from });
+                            from++;
                         }
-                    } else if (prevPoint.y === point.y) {
+                    } else if (prevPoint.y === y) {
                         // if the line is vertical
-                        var _from = Math.min(prevPoint.x, point.x);
-                        var _to = Math.max(prevPoint.x, point.x);
+                        var _from = Math.min(prevPoint.x, x);
+                        var _to = Math.max(prevPoint.x, x);
 
                         while (_from <= _to) {
-                            _this12.inconvenientNodes.add({ x: _from, y: point.y });
-                            _from += _this12.gridSize;
+                            _this12.inconvenientNodes.add({ x: _from, y: y });
+                            _from++;
                         }
                     } else {
                         // line is neither horizontal nor vertical, throw an error for better future debugging
@@ -6078,10 +6106,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                 }
 
                 // set new prevPoint
-                prevPoint = {
-                    x: point.x,
-                    y: point.y
-                };
+                prevPoint = { x: x, y: y };
             });
         }
     }, {

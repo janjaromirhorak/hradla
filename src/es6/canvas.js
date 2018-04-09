@@ -1257,26 +1257,16 @@ export default class Canvas {
     getNonRoutableNodes() {
         let blockedNodes = new Set();
         // for each box
-        for(let i = 0 ; i < this.boxes.length ; ++i) {
-            // get the jQuery child with class .rect ("hitbox")
-            let rect = $('#' + this.boxes[i].svgObj.id).children(".rect")[0];
-            // get the position of the rectangle
-            let position = $(rect).position();
-
-            // snap the position to the grid
-            position.left = this.snapToGrid(position.left);
-            position.top = this.snapToGrid(position.top);
+        for(const box of this.boxes) {
+            const translate = box.getGridPixelTransform().getTranslate();
 
             // for each item in blockedNodes (set of blocked nodes with coordinates relative
             // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
             // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-            for(let item of this.boxes[i].blockedNodes) {
-                let absoluteX = position.left + item.x * this.gridSize;
-                let absoluteY = position.top + item.y * this.gridSize;
-
+            for(const node of box.blockedNodes) {
                 blockedNodes.add({
-                    x: absoluteX,
-                    y: absoluteY
+                    x: translate.x + node.x,
+                    y: translate.y + node.y
                 });
             }
         }
@@ -1292,8 +1282,14 @@ export default class Canvas {
 
         this.nodeDisplay = [];
 
-        for (const {x, y} of blockedNodes) {
-            const nodeRectangle = new svgObj.Rectangle(x - 2, y - 2, 4, 4, "red", "none")
+        for (const node of blockedNodes) {
+            const x = this.gridToSVG(node.x);
+            const y = this.gridToSVG(node.y);
+
+            const w = 4;
+            const p = w / 2;
+
+            const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "red", "none")
             this.nodeDisplay.push(nodeRectangle.id);
             this.appendElement(nodeRectangle, false);
         }
@@ -1322,6 +1318,34 @@ export default class Canvas {
                 }
             }
         }
+
+        // FOR DEBUG ONLY: display the inconvenient nodes
+        /*
+
+        if(this.inconvenientNodeDisplay) {
+            for (const rectangleId of this.inconvenientNodeDisplay) {
+                $(`#${rectangleId}`).remove();
+            }
+        }
+
+        this.inconvenientNodeDisplay = [];
+
+        for (const node of inconvenientNodes) {
+            const x = this.gridToSVG(node.x);
+            const y = this.gridToSVG(node.y);
+
+            const w = 4;
+            const p = w / 2;
+
+            const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "orange", "none")
+            this.inconvenientNodeDisplay.push(nodeRectangle.id);
+            this.appendElement(nodeRectangle, false);
+        }
+
+        this.refresh();
+
+        */
+        // END FOR DEBUG ONLY
 
         // return the set
         return inconvenientNodes;

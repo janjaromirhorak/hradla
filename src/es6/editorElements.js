@@ -1150,7 +1150,11 @@ export class Repeater extends Box {
     }
 
     generateBlockNodes() {
-        super.generateBlockNodes(0, 1, 0, 1);
+        const specialNodes = [
+            {x: 0, y: this.gridHeight / 2},
+            {x: this.gridWidth, y: this.gridHeight / 2}
+        ]
+        super.generateBlockNodes(0, 1, 0, 1, ...specialNodes);
     }
 }
 
@@ -1846,7 +1850,7 @@ export class Wire extends NetworkElement {
                 for(let i = 0 ; i < 50 ; i++) {
                     // if newPoint is in the set of non routable points,
                     // don't add it and stop proceeding in this direction
-                    if(Wire.setHasThisPoint(nonRoutable, this.scalePointToGrid(newPoint))) {
+                    if(Wire.setHasThisPoint(nonRoutable, newPoint)) {
                         break;
                     }
 
@@ -1859,7 +1863,7 @@ export class Wire extends NetworkElement {
                     // calculate possible GScore by applying a punishment for each node ("bend") in the path
                     let newGScore = wireBendPunishment + gScore.get(currentNode);
 
-                    if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
+                    if(Wire.setHasThisPoint(punishedButRoutable, newPoint)) {
                         // if the node is in the set of punished nodes, apply the punishment
                         wiresCrossed++;
                     }
@@ -1943,18 +1947,6 @@ export class Wire extends NetworkElement {
     }
 
     /**
-     * multiply the point coordinates by the grid size
-     * @param  {Object} point object containing numeric attributes `x` and `y` in grid pixels
-     * @return {Object}       the same point but containing numeric attributes `x` and `y` in SVG pixels
-     */
-    scalePointToGrid(point) {
-        return {
-            x: point.x * this.gridSize,
-            y: point.y * this.gridSize
-        }
-    }
-
-    /**
      * helper backtracking function used by the aStar algorithm to construct the final {@link PolylinePoints}
      * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
      * @param  {Object} currentNode object containing numeric attributes `x` and `y`
@@ -2007,29 +1999,33 @@ export class Wire extends NetworkElement {
         let prevPoint;
 
         this.points.forEach(point => {
+            const
+                x = this.parentSVG.SVGToGrid(point.x),
+                y = this.parentSVG.SVGToGrid(point.y);
+
             if (prevPoint === undefined) {
                 // if the prevPoint is undefined, add the first point
-                this.inconvenientNodes.add({x: point.x, y: point.y});
+                this.inconvenientNodes.add({x, y});
             } else {
                 // else add all the point between the prevPoint (excluded) and point (included)
 
-                if(prevPoint.x===point.x) {
+                if(prevPoint.x === x) {
                     // if the line is horizontal
-                    let from = Math.min(prevPoint.y, point.y);
-                    let to = Math.max(prevPoint.y, point.y);
+                    let from = Math.min(prevPoint.y, y);
+                    let to = Math.max(prevPoint.y, y);
 
                     while(from <= to) {
-                        this.inconvenientNodes.add({x: point.x, y: from});
-                        from += this.gridSize;
+                        this.inconvenientNodes.add({x: x, y: from});
+                        from++;
                     }
-                } else if(prevPoint.y===point.y) {
+                } else if(prevPoint.y === y) {
                     // if the line is vertical
-                    let from = Math.min(prevPoint.x, point.x);
-                    let to = Math.max(prevPoint.x, point.x);
+                    let from = Math.min(prevPoint.x, x);
+                    let to = Math.max(prevPoint.x, x);
 
                     while(from <= to) {
-                        this.inconvenientNodes.add({x: from, y: point.y});
-                        from += this.gridSize;
+                        this.inconvenientNodes.add({x: from, y: y});
+                        from++;
                     }
                 } else {
                     // line is neither horizontal nor vertical, throw an error for better future debugging
@@ -2038,10 +2034,7 @@ export class Wire extends NetworkElement {
             }
 
             // set new prevPoint
-            prevPoint = {
-                x: point.x,
-                y: point.y
-            };
+            prevPoint = {x, y};
         });
     }
 }
