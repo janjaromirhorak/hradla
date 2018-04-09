@@ -1133,17 +1133,17 @@ export class Repeater extends Box {
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
      */
     constructor(parentSVG) {
-        const height = 4;
-        const width = 9;
+        const gridHeight = 4;
+        const gridWidth = 9;
 
-        super(parentSVG, "repeater", "other", width, height);
+        super(parentSVG, "repeater", "other", gridWidth, gridHeight);
 
-        this.addInputConnector(0, height / 2);
-        this.addOutputConnector(width, height / 2);
+        this.addInputConnector(0, gridHeight / 2);
+        this.addOutputConnector(gridWidth, gridHeight / 2);
     }
 
     /**
-     * Set the output conenctor state to match the state of the input connector
+     * Set the output connector state to match the state of the input connector
      */
     refreshState() {
         this.parentSVG.simulation.notifyChange(this.connectors[1].id, this.connectors[0].state)
@@ -1718,7 +1718,7 @@ export class Wire extends NetworkElement {
         if (refresh)
             this.updateWireState();
 
-        // regenerate inconvenint nodes
+        // regenerate inconvenient nodes
         this.generateInconvenientNodes();
     }
 
@@ -1758,8 +1758,8 @@ export class Wire extends NetworkElement {
 
     /**
      * Heavily modified implementation of the A* algorithm
-     * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-     * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire
+     * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
+     * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
      * @return {PolylinePoints} instance of {@link PolylinePoints}
      */
     aStar(start, end) {
