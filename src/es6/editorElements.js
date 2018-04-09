@@ -1793,7 +1793,7 @@ export class Wire extends NetworkElement {
      * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
      * @return {PolylinePoints} instance of {@link PolylinePoints}
      */
-    aStar(start, end) {
+    aStar(start, end, ignoreBlockedNodes = false) {
         const distanceFunction = (a, b) => Wire.manhattanDistance(a, b);
 
         const wireCrossPunishment = 1;
@@ -1847,12 +1847,22 @@ export class Wire extends NetworkElement {
         openNodes.add(start);
         openNodeQueue.enqueue(start, 1 / fScore.get(start));
 
-        let nonRoutable = this.parentSVG.getNonRoutableNodes();
+        // set of nodes that the wire is forbidden to visit
+        let nonRoutable;
+
+        // set of nodes that are not optimal to route through
         let punishedButRoutable;
-        if(this.svgObj===undefined) {
-            punishedButRoutable = this.parentSVG.getInconvenientNodes();
+
+        if(!ignoreBlockedNodes) {
+            nonRoutable = this.parentSVG.getNonRoutableNodes();
+            if(this.svgObj===undefined) {
+                punishedButRoutable = this.parentSVG.getInconvenientNodes();
+            } else {
+                punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
+            }
         } else {
-            punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
+            // if the ignoreBlockedNodes is set to true, populate the variables with an empty set
+            nonRoutable = punishedButRoutable = new Set();
         }
 
         while (openNodes.size > 0) {
@@ -1921,24 +1931,27 @@ export class Wire extends NetworkElement {
                         addOpenNode(newPoint, newFScore);
                     }
 
-                    // if newPoint is in the set of punished but routable points,
-                    // add this one but stop proceeding in this direction
-                    // if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
-                        // break;
-                    // }
-
                     // move to the next point in the direciton
                     newPoint = Wire.movePoint(newPoint, direction);
                 }
             }
 
             if(openNodes.size > maxNodeLimit) {
-                console.log(`Number of open nodes (${openNodes.size}) exceeded the limit for open nodes (${maxNodeLimit}). Giving up...`)
+                console.log(`aStar: Number of open nodes (${openNodes.size}) exceeded the limit for open nodes (${maxNodeLimit}).`)
                 break;
             }
         }
-        // if we got here, the path does not exist -> let's use temporary path ignoring all colisions
-        return this.getTemporaryWirePoints();
+        // if we got here, the path was not found
+
+        if(!ignoreBlockedNodes) {
+            console.log(`aStar: Trying again, ignoring blocked nodes...`);
+            // try the aStar again but don't take into account the blocked nodes
+            return this.aStar(start, end, true);
+        } else {
+            console.log(`aStar: Giving up and returning temporary wire points instead.`);
+            // if the astar without blocked nodes did not work either, return temporary points
+            return this.getTemporaryWirePoints();
+        }
     }
 
     /**
