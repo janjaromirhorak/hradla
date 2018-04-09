@@ -639,8 +639,6 @@ class Box extends NetworkElement {
 
         this.svgObj.$el.addClass("box");
         this.svgObj.$el.addClass(category);
-
-        this.generateBlockNodes();
     }
 
     /**
@@ -773,20 +771,6 @@ class Box extends NetworkElement {
     }
 
     /**
-     * remove a specific node from the set of blocked nodes
-     * @param  {number} x horizontal position of the blocked node in grid pixels
-     * @param  {number} y vertical position of the blocked node in grid pixels
-     */
-    removeBlockedNode(x, y) {
-        for(let item of this.blockedNodes) {
-            if(item.x===x && item.y===y) {
-                this.blockedNodes.delete(item);
-                break;
-            }
-        }
-    }
-
-    /**
      * rotate the set of blocked nodes by 90 degrees to the right or to the left, depending on the parameter
      *
      * used to rotate the nodes when the object itself is rotated
@@ -870,8 +854,6 @@ class Box extends NetworkElement {
             this.connectors[index] = new OutputConnector(this.parentSVG, this.gridSize, left, top);
         }
         this.svgObj.addChild(this.connectors[index].get());
-
-        this.removeBlockedNode(left, top);
     }
 
     /**
@@ -1140,6 +1122,9 @@ export class Repeater extends Box {
 
         this.addInputConnector(0, gridHeight / 2);
         this.addOutputConnector(gridWidth, gridHeight / 2);
+
+        // regenerate blocked nodes
+        this.generateBlockNodes();
     }
 
     /**
@@ -1150,6 +1135,7 @@ export class Repeater extends Box {
     }
 
     generateBlockNodes() {
+        // block the input and output connector nodes
         const specialNodes = [
             {x: 0, y: this.gridHeight / 2},
             {x: this.gridWidth, y: this.gridHeight / 2}
@@ -1168,14 +1154,16 @@ export class InputBox extends Box {
      * @param {Boolean} [isOn=false] the initial state of the inputbox (`true` is *on*, `false` is *off*)
      */
     constructor(parentSVG, isOn = false) {
-        const width = 7;
-        const height = 4;
+        const gridWidth = 7;
+        const gridHeight = 4;
 
-        super(parentSVG, "input", "other", width, height);
+        super(parentSVG, "input", "other", gridWidth, gridHeight);
 
-        this.addConnector(width, height / 2, false);
+        this.addConnector(gridWidth, gridHeight / 2, false);
 
         this.on = isOn;
+
+        this.generateBlockNodes();
     }
 
     /**
@@ -1185,11 +1173,17 @@ export class InputBox extends Box {
     get exportData() {
         let data = super.exportData;
         data.isOn = this.isOn;
+
         return data;
     }
 
     generateBlockNodes() {
-        super.generateBlockNodes(0, 1, 1, 0);
+        // block the input connector node
+        const specialNode = {
+            x: this.gridWidth,
+            y: this.gridHeight / 2
+        }
+        super.generateBlockNodes(0, 1, 1, 0, specialNode);
     }
 
     /**
@@ -1248,12 +1242,14 @@ export class OutputBox extends Box {
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
      */
     constructor(parentSVG) {
-        const height = 4;
-        const width = 5;
+        const gridHeight = 4;
+        const gridWidth = 5;
 
-        super(parentSVG, "output", "other", width, height);
+        super(parentSVG, "output", "other", gridWidth, gridHeight);
 
-        this.addConnector(0, height / 2, true);
+        this.addConnector(0, gridHeight / 2, true);
+
+        this.generateBlockNodes();
     }
 
     /**
@@ -1291,7 +1287,12 @@ export class OutputBox extends Box {
     }
 
     generateBlockNodes() {
-        super.generateBlockNodes(0, 0, 0, 1);
+        // block the input connector node
+        const specialNode = {
+            x: 0,
+            y: this.gridHeight / 2
+        }
+        super.generateBlockNodes(0, 0, 0, 1, specialNode);
     }
 }
 
@@ -1310,31 +1311,57 @@ export class Gate extends Box {
 
         super(parentSVG, name, "gate", width, height);
 
+        // ADD CONNECTORS
+
+        let specialNodes = [];
+
         // output
         this.addConnector(width, height / 2, false);
+
+        // block the output connector
+        specialNodes.push({
+            x: width,
+            y: height / 2
+        });
 
         if(this.name==="not") {
             // input
             this.addConnector(0, height / 2, true);
+            // block the input connector
+            specialNodes.push({
+                x: 0,
+                y: height / 2
+            });
         } else {
             // input
             this.addConnector(0, height / 4, true);
             this.addConnector(0, height / (4/3), true);
 
-            // add one blockedNode between the inputs (for better looking wiring)
-            // and regenerate blocked nodes
-            this.generateBlockNodes({
+            // block the input connectors
+            specialNodes.push({
+                x: 0,
+                y: height / 4
+            })
+            specialNodes.push({
+                x: 0,
+                y: height / (4/3)
+            });
+
+            // add one blocked node between the inputs (for better looking wiring)
+            specialNodes.push({
                 x: 0,
                 y: height / 2
             });
         }
 
+        this.generateBlockNodes(...specialNodes);
+
         this.refreshState();
     }
 
-    generateBlockNodes(specialNode) {
-        if(specialNode!==undefined) {
-            super.generateBlockNodes(0, 1, 0, 1, specialNode);
+    generateBlockNodes(...specialNodes) {
+        if(specialNodes!==undefined) {
+            super.generateBlockNodes(0, 1, 0, 1, ...specialNodes);
         } else {
             super.generateBlockNodes(0, 1, 0, 1);
         }
@@ -1547,19 +1574,19 @@ export class Blackbox extends Box {
     }
 
     generateBlockNodes() {
-        // add blocked nodes into the spaces between the connectors
+        // add blocked nodes on the connectors and between them as well
 
         let specialNodes = []
-        for (let i = 0 ; i < this.inputConnectors.length - 1 ; ++i) {
+        for (let i = 1 ; i < this.inputConnectors.length * 2 ; ++i) {
             specialNodes.push({
                 x: 0,
-                y: (i * 2) + 2
+                y: i
             })
         }
-        for (let i = 0 ; i < this.outputConnectors.length - 1 ; ++i) {
+        for (let i = 1 ; i < this.outputConnectors.length * 2 ; ++i) {
             specialNodes.push({
                 x: this.gridWidth,
-                y: (i * 2) + 2
+                y: i
             })
         }
 
@@ -1851,7 +1878,10 @@ export class Wire extends NetworkElement {
                     // if newPoint is in the set of non routable points,
                     // don't add it and stop proceeding in this direction
                     if(Wire.setHasThisPoint(nonRoutable, newPoint)) {
-                        break;
+                        // if this not the end point, break
+                        if(newPoint.x !== end.x || newPoint.y !== end.y) {
+                            break;
+                        }
                     }
 
                     // skip this node, if it has been already closed
