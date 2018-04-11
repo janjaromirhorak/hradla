@@ -1716,7 +1716,7 @@ var Canvas = function () {
                         wireQueue.enqueue(connectorIds, 1 / distance);
                     }
 
-                    // add wire in the order from short to long
+                    // add wires in the order from short to long
                 } catch (err) {
                     _didIteratorError3 = true;
                     _iteratorError3 = err;
@@ -1750,11 +1750,12 @@ var Canvas = function () {
                         var box = _step4.value;
 
                         if (box instanceof editorElements.InputBox) {
-                            // switch the input box state to the oposit and back, for some reason calling box.refreshState()
+                            // switch the input box state to the opposite and back:
+                            // for some reason calling box.refreshState()
                             // results in weird unfinished simulation
                             // this causes update of the output connector and a start of a new simulation
 
-                            // TODO find better solution instead of this workaround
+                            // TODO find better solution instead of this workaround, if there is any
                             box.on = !box.on;
                             box.on = !box.on;
                         }
@@ -3037,7 +3038,7 @@ var GateMenuItem = function (_ContextMenuItem) {
 
         _classCallCheck(this, GateMenuItem);
 
-        return _this3 = _possibleConstructorReturn(this, (GateMenuItem.__proto__ || Object.getPrototypeOf(GateMenuItem)).call(this, type + " gate", contextMenu, function () {
+        return _this3 = _possibleConstructorReturn(this, (GateMenuItem.__proto__ || Object.getPrototypeOf(GateMenuItem)).call(this, type.toUpperCase() + " gate", contextMenu, function () {
             _this3.parentSVG.newGate(type, _this3.parentSVG.snapToGrid(_this3.parentSVG.viewbox.transformX(contextMenu.position.x)), _this3.parentSVG.snapToGrid(_this3.parentSVG.viewbox.transformY(contextMenu.position.y)));
         }));
     }
@@ -3168,9 +3169,31 @@ var ContextMenu = function () {
         // list of gates that can be added
         var gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
         var gateList = new ContextMenuItem("New gate", this, parentSVG);
-        for (var i = 0; i < gates.length; ++i) {
-            gateList.appendItem(new GateMenuItem(gates[i], this));
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = gates[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var name = _step.value;
+
+                gateList.appendItem(new GateMenuItem(name, this));
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
         }
+
         this.appendItem(gateList);
 
         // more options will be added in the getLibrary() callback below
@@ -3184,40 +3207,40 @@ var ContextMenu = function () {
 
         // network import (blackbox, network)
         (0, _networkLibrary.getLibrary)().then(function (networks) {
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
 
             try {
 
-                for (var _iterator = networks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var _ref2 = _step.value;
-                    var name = _ref2.name;
+                for (var _iterator2 = networks[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var _ref2 = _step2.value;
+                    var _name = _ref2.name;
                     var file = _ref2.file;
                     var hasTable = _ref2.hasTable;
                     var hasNetwork = _ref2.hasNetwork;
 
                     // add a network as a blackbox
                     if (hasTable) {
-                        blackboxList.appendItem(new BlackboxMenuItem(name, file, _this6));
+                        blackboxList.appendItem(new BlackboxMenuItem(_name, file, _this6));
                     }
 
                     // load a network as a network of components connected with wires
                     if (hasNetwork) {
-                        networkList.appendItem(new NetworkMenuItem(name, file, _this6));
+                        networkList.appendItem(new NetworkMenuItem(_name, file, _this6));
                     }
                 }
             } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
                     }
                 } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
                     }
                 }
             }
