@@ -154,7 +154,7 @@ class GateMenuItem extends ContextMenuItem {
      */
     constructor(type, contextMenu) {
         super(
-            `${type} gate`,
+            `${type.toUpperCase()} gate`,
             contextMenu,
             () => {
                 this.parentSVG.newGate(
@@ -286,9 +286,9 @@ export default class ContextMenu {
         // list of gates that can be added
         const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
         let gateList = new ContextMenuItem("New gate", this, parentSVG);
-        for (let i = 0 ; i < gates.length ; ++i) {
+        for (const name of gates) {
             gateList.appendItem(
-                new GateMenuItem(gates[i], this)
+                new GateMenuItem(name, this)
             );
         }
         this.appendItem(gateList);
