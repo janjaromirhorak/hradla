@@ -636,7 +636,7 @@ export default class Canvas {
                 wireQueue.enqueue(connectorIds, 1 / distance);
             }
 
-            // add wire in the order from short to long
+            // add wires in the order from short to long
             while(!wireQueue.isEmpty()) {
                 const connectors = wireQueue.dequeue();
                 this.newWire(...connectors, false);
@@ -648,11 +648,12 @@ export default class Canvas {
             this.simulationEnabled = true;
             for (let box of this.boxes) {
                 if (box instanceof editorElements.InputBox) {
-                    // switch the input box state to the oposit and back, for some reason calling box.refreshState()
+                    // switch the input box state to the opposite and back:
+                    // for some reason calling box.refreshState()
                     // results in weird unfinished simulation
                     // this causes update of the output connector and a start of a new simulation
 
-                    // TODO find better solution instead of this workaround
+                    // TODO find better solution instead of this workaround, if there is any
                     box.on = !box.on
                     box.on = !box.on
                 }
