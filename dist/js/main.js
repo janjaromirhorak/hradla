@@ -2285,7 +2285,7 @@ var Canvas = function () {
                     return this.boxes[i];
                 }
             }
-            return false;
+            return undefined;
         }
 
         /**
@@ -3352,16 +3352,37 @@ var ContextMenu = function () {
         value: function resolveConditionalItems($target) {
             var _this8 = this;
 
-            var _loop = function _loop(i) {
-                if ($target.hasClass(_this8.conditionalItems[i].itemClass)) {
-                    _this8.appendItem(new ContextMenuItem(_this8.conditionalItems[i].text, _this8, function () {
-                        _this8.conditionalItems[i].clickFunction($target.attr('id'));
+            var _loop = function _loop(item) {
+                if ($target.hasClass(item.itemClass)) {
+                    _this8.appendItem(new ContextMenuItem(item.text, _this8, function () {
+                        item.clickFunction($target.attr('id'));
                     })).addClass('conditional');
                 }
             };
 
-            for (var i = 0; i < this.conditionalItems.length; ++i) {
-                _loop(i);
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+                for (var _iterator3 = this.conditionalItems[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var item = _step3.value;
+
+                    _loop(item);
+                }
+            } catch (err) {
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                        _iterator3.return();
+                    }
+                } finally {
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
+                    }
+                }
             }
         }
 
@@ -3555,38 +3576,17 @@ var Transform = exports.Transform = function () {
         this.items = [];
 
         if (string !== undefined) {
-            var splitItems = string.split(")");
-
-            for (var i = 0; i < splitItems.length; i++) {
-                if (splitItems[i]) {
-                    // if not empty
-                    this.items.push(new Property(splitItems[i] + ")"));
-                }
-            }
-        }
-    }
-
-    /**
-     * convert distances from SVG pixels to grid pixels
-     * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
-     */
-
-
-    _createClass(Transform, [{
-        key: 'toGridPixels',
-        value: function toGridPixels(parentSVG) {
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
             var _iteratorError = undefined;
 
             try {
-                for (var _iterator = this.items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                for (var _iterator = string.split(")")[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                     var item = _step.value;
 
-                    if (item.name === "translate") {
-                        item.args = [parentSVG.SVGToGrid(item.args[0]), parentSVG.SVGToGrid(item.args[1])];
-                    } else if (item.name === "rotate") {
-                        item.args = [item.args[0], parentSVG.SVGToGrid(item.args[1]), parentSVG.SVGToGrid(item.args[2])];
+                    if (item) {
+                        // if not empty
+                        this.items.push(new Property(item + ")"));
                     }
                 }
             } catch (err) {
@@ -3604,15 +3604,17 @@ var Transform = exports.Transform = function () {
                 }
             }
         }
+    }
 
-        /**
-         * convert distances from grid pixels to SVG pixels
-         * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
-         */
+    /**
+     * convert distances from SVG pixels to grid pixels
+     * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+     */
 
-    }, {
-        key: 'toSVGPixels',
-        value: function toSVGPixels(parentSVG) {
+
+    _createClass(Transform, [{
+        key: 'toGridPixels',
+        value: function toGridPixels(parentSVG) {
             var _iteratorNormalCompletion2 = true;
             var _didIteratorError2 = false;
             var _iteratorError2 = undefined;
@@ -3622,9 +3624,9 @@ var Transform = exports.Transform = function () {
                     var item = _step2.value;
 
                     if (item.name === "translate") {
-                        item.args = [parentSVG.gridToSVG(item.args[0]), parentSVG.gridToSVG(item.args[1])];
+                        item.args = [parentSVG.SVGToGrid(item.args[0]), parentSVG.SVGToGrid(item.args[1])];
                     } else if (item.name === "rotate") {
-                        item.args = [item.args[0], parentSVG.gridToSVG(item.args[1]), parentSVG.gridToSVG(item.args[2])];
+                        item.args = [item.args[0], parentSVG.SVGToGrid(item.args[1]), parentSVG.SVGToGrid(item.args[2])];
                     }
                 }
             } catch (err) {
@@ -3638,6 +3640,44 @@ var Transform = exports.Transform = function () {
                 } finally {
                     if (_didIteratorError2) {
                         throw _iteratorError2;
+                    }
+                }
+            }
+        }
+
+        /**
+         * convert distances from grid pixels to SVG pixels
+         * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+         */
+
+    }, {
+        key: 'toSVGPixels',
+        value: function toSVGPixels(parentSVG) {
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+                for (var _iterator3 = this.items[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var item = _step3.value;
+
+                    if (item.name === "translate") {
+                        item.args = [parentSVG.gridToSVG(item.args[0]), parentSVG.gridToSVG(item.args[1])];
+                    } else if (item.name === "rotate") {
+                        item.args = [item.args[0], parentSVG.gridToSVG(item.args[1]), parentSVG.gridToSVG(item.args[2])];
+                    }
+                }
+            } catch (err) {
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                        _iterator3.return();
+                    }
+                } finally {
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
                     }
                 }
             }
@@ -3780,13 +3820,36 @@ var Transform = exports.Transform = function () {
     }, {
         key: 'get',
         value: function get() {
-            var retVal = "";
-            for (var i = 0; i < this.items.length; i++) {
-                if (i !== 0) {
-                    retVal += " ";
+            var retVal = void 0;
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = this.items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var item = _step4.value;
+
+                    if (retVal) {
+                        retVal += " " + item.get();
+                    } else {
+                        retVal = item.get();
+                    }
                 }
-                retVal += this.items[i].get();
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
             }
+
             return retVal;
         }
 
@@ -4179,27 +4242,27 @@ var OutputConnector = exports.OutputConnector = function (_Connector2) {
         value: function setState(state) {
             _get(OutputConnector.prototype.__proto__ || Object.getPrototypeOf(OutputConnector.prototype), 'setState', this).call(this, state);
 
-            var _iteratorNormalCompletion3 = true;
-            var _didIteratorError3 = false;
-            var _iteratorError3 = undefined;
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
 
             try {
-                for (var _iterator3 = this.wireIds[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                    var wireId = _step3.value;
+                for (var _iterator5 = this.wireIds[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var wireId = _step5.value;
 
                     this.parentSVG.getWireById(wireId).setState(state);
                 }
             } catch (err) {
-                _didIteratorError3 = true;
-                _iteratorError3 = err;
+                _didIteratorError5 = true;
+                _iteratorError5 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                        _iterator3.return();
+                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                        _iterator5.return();
                     }
                 } finally {
-                    if (_didIteratorError3) {
-                        throw _iteratorError3;
+                    if (_didIteratorError5) {
+                        throw _iteratorError5;
                     }
                 }
             }
@@ -4340,27 +4403,27 @@ var Box = function (_NetworkElement2) {
                 specialNodes[_key - 4] = arguments[_key];
             }
 
-            var _iteratorNormalCompletion4 = true;
-            var _didIteratorError4 = false;
-            var _iteratorError4 = undefined;
+            var _iteratorNormalCompletion6 = true;
+            var _didIteratorError6 = false;
+            var _iteratorError6 = undefined;
 
             try {
-                for (var _iterator4 = specialNodes[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                    var node = _step4.value;
+                for (var _iterator6 = specialNodes[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                    var node = _step6.value;
 
                     this.blockedNodes.add(node);
                 }
             } catch (err) {
-                _didIteratorError4 = true;
-                _iteratorError4 = err;
+                _didIteratorError6 = true;
+                _iteratorError6 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                        _iterator4.return();
+                    if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                        _iterator6.return();
                     }
                 } finally {
-                    if (_didIteratorError4) {
-                        throw _iteratorError4;
+                    if (_didIteratorError6) {
+                        throw _iteratorError6;
                     }
                 }
             }
@@ -4428,13 +4491,13 @@ var Box = function (_NetworkElement2) {
 
             // rotate the node
 
-            var _iteratorNormalCompletion5 = true;
-            var _didIteratorError5 = false;
-            var _iteratorError5 = undefined;
+            var _iteratorNormalCompletion7 = true;
+            var _didIteratorError7 = false;
+            var _iteratorError7 = undefined;
 
             try {
-                for (var _iterator5 = this.blockedNodes[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                    var node = _step5.value;
+                for (var _iterator7 = this.blockedNodes[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                    var node = _step7.value;
 
                     var newNode = void 0;
 
@@ -4467,16 +4530,16 @@ var Box = function (_NetworkElement2) {
                     newBlockedNodes.add(newNode);
                 }
             } catch (err) {
-                _didIteratorError5 = true;
-                _iteratorError5 = err;
+                _didIteratorError7 = true;
+                _iteratorError7 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                        _iterator5.return();
+                    if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                        _iterator7.return();
                     }
                 } finally {
-                    if (_didIteratorError5) {
-                        throw _iteratorError5;
+                    if (_didIteratorError7) {
+                        throw _iteratorError7;
                     }
                 }
             }
@@ -4882,22 +4945,22 @@ var Box = function (_NetworkElement2) {
 
             // go through all connectors
             var counter = 0;
-            var _iteratorNormalCompletion6 = true;
-            var _didIteratorError6 = false;
-            var _iteratorError6 = undefined;
+            var _iteratorNormalCompletion8 = true;
+            var _didIteratorError8 = false;
+            var _iteratorError8 = undefined;
 
             try {
-                for (var _iterator6 = this.connectors[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                    var conn = _step6.value;
+                for (var _iterator8 = this.connectors[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                    var conn = _step8.value;
 
                     // go through each its wire id
-                    var _iteratorNormalCompletion7 = true;
-                    var _didIteratorError7 = false;
-                    var _iteratorError7 = undefined;
+                    var _iteratorNormalCompletion9 = true;
+                    var _didIteratorError9 = false;
+                    var _iteratorError9 = undefined;
 
                     try {
-                        for (var _iterator7 = conn.wireIds[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                            var item = _step7.value;
+                        for (var _iterator9 = conn.wireIds[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                            var item = _step9.value;
 
                             var thisWireId = void 0;
                             if (!this.parentSVG.exportWireIdMap.has(item)) {
@@ -4918,16 +4981,16 @@ var Box = function (_NetworkElement2) {
                             };
                         }
                     } catch (err) {
-                        _didIteratorError7 = true;
-                        _iteratorError7 = err;
+                        _didIteratorError9 = true;
+                        _iteratorError9 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                                _iterator7.return();
+                            if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                                _iterator9.return();
                             }
                         } finally {
-                            if (_didIteratorError7) {
-                                throw _iteratorError7;
+                            if (_didIteratorError9) {
+                                throw _iteratorError9;
                             }
                         }
                     }
@@ -4935,16 +4998,16 @@ var Box = function (_NetworkElement2) {
                     counter++;
                 }
             } catch (err) {
-                _didIteratorError6 = true;
-                _iteratorError6 = err;
+                _didIteratorError8 = true;
+                _iteratorError8 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion6 && _iterator6.return) {
-                        _iterator6.return();
+                    if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                        _iterator8.return();
                     }
                 } finally {
-                    if (_didIteratorError6) {
-                        throw _iteratorError6;
+                    if (_didIteratorError8) {
+                        throw _iteratorError8;
                     }
                 }
             }
@@ -5493,76 +5556,76 @@ var Blackbox = exports.Blackbox = function (_Box5) {
                     case 0:
                         return [];
                     case 1:
-                        var _iteratorNormalCompletion8 = true;
-                        var _didIteratorError8 = false;
-                        var _iteratorError8 = undefined;
+                        var _iteratorNormalCompletion10 = true;
+                        var _didIteratorError10 = false;
+                        var _iteratorError10 = undefined;
 
                         try {
-                            for (var _iterator8 = stateList[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                                var state = _step8.value;
+                            for (var _iterator10 = stateList[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                                var state = _step10.value;
 
                                 permutations.push([state]);
                             }
                         } catch (err) {
-                            _didIteratorError8 = true;
-                            _iteratorError8 = err;
+                            _didIteratorError10 = true;
+                            _iteratorError10 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion8 && _iterator8.return) {
-                                    _iterator8.return();
+                                if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                                    _iterator10.return();
                                 }
                             } finally {
-                                if (_didIteratorError8) {
-                                    throw _iteratorError8;
+                                if (_didIteratorError10) {
+                                    throw _iteratorError10;
                                 }
                             }
                         }
 
                         return permutations;
                     default:
-                        var _iteratorNormalCompletion9 = true;
-                        var _didIteratorError9 = false;
-                        var _iteratorError9 = undefined;
+                        var _iteratorNormalCompletion11 = true;
+                        var _didIteratorError11 = false;
+                        var _iteratorError11 = undefined;
 
                         try {
-                            for (var _iterator9 = stateList[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                                var _state = _step9.value;
-                                var _iteratorNormalCompletion10 = true;
-                                var _didIteratorError10 = false;
-                                var _iteratorError10 = undefined;
+                            for (var _iterator11 = stateList[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                                var _state = _step11.value;
+                                var _iteratorNormalCompletion12 = true;
+                                var _didIteratorError12 = false;
+                                var _iteratorError12 = undefined;
 
                                 try {
-                                    for (var _iterator10 = getPermutations(length - 1)[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-                                        var perm = _step10.value;
+                                    for (var _iterator12 = getPermutations(length - 1)[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                                        var perm = _step12.value;
 
                                         permutations.push([_state].concat(_toConsumableArray(perm)));
                                     }
                                 } catch (err) {
-                                    _didIteratorError10 = true;
-                                    _iteratorError10 = err;
+                                    _didIteratorError12 = true;
+                                    _iteratorError12 = err;
                                 } finally {
                                     try {
-                                        if (!_iteratorNormalCompletion10 && _iterator10.return) {
-                                            _iterator10.return();
+                                        if (!_iteratorNormalCompletion12 && _iterator12.return) {
+                                            _iterator12.return();
                                         }
                                     } finally {
-                                        if (_didIteratorError10) {
-                                            throw _iteratorError10;
+                                        if (_didIteratorError12) {
+                                            throw _iteratorError12;
                                         }
                                     }
                                 }
                             }
                         } catch (err) {
-                            _didIteratorError9 = true;
-                            _iteratorError9 = err;
+                            _didIteratorError11 = true;
+                            _iteratorError11 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                                    _iterator9.return();
+                                if (!_iteratorNormalCompletion11 && _iterator11.return) {
+                                    _iterator11.return();
                                 }
                             } finally {
-                                if (_didIteratorError9) {
-                                    throw _iteratorError9;
+                                if (_didIteratorError11) {
+                                    throw _iteratorError11;
                                 }
                             }
                         }
@@ -5572,13 +5635,13 @@ var Blackbox = exports.Blackbox = function (_Box5) {
             };
 
             // generate outputs for all the possible inputs
-            var _iteratorNormalCompletion11 = true;
-            var _didIteratorError11 = false;
-            var _iteratorError11 = undefined;
+            var _iteratorNormalCompletion13 = true;
+            var _didIteratorError13 = false;
+            var _iteratorError13 = undefined;
 
             try {
-                for (var _iterator11 = getPermutations(data.inputs)[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-                    var inputValues = _step11.value;
+                for (var _iterator13 = getPermutations(data.inputs)[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                    var inputValues = _step13.value;
 
                     var outputValues = this.evalFunction.apply(this, _toConsumableArray(inputValues));
 
@@ -5592,16 +5655,16 @@ var Blackbox = exports.Blackbox = function (_Box5) {
                     }
                 }
             } catch (err) {
-                _didIteratorError11 = true;
-                _iteratorError11 = err;
+                _didIteratorError13 = true;
+                _iteratorError13 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion11 && _iterator11.return) {
-                        _iterator11.return();
+                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
+                        _iterator13.return();
                     }
                 } finally {
-                    if (_didIteratorError11) {
-                        throw _iteratorError11;
+                    if (_didIteratorError13) {
+                        throw _iteratorError13;
                     }
                 }
             }
@@ -5655,29 +5718,29 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
         _this11.elementState = _logic2.default.state.unknown;
 
-        var _iteratorNormalCompletion12 = true;
-        var _didIteratorError12 = false;
-        var _iteratorError12 = undefined;
+        var _iteratorNormalCompletion14 = true;
+        var _didIteratorError14 = false;
+        var _iteratorError14 = undefined;
 
         try {
-            for (var _iterator12 = _this11.connectors[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-                var connector = _step12.value;
+            for (var _iterator14 = _this11.connectors[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                var connector = _step14.value;
 
                 if (connector.isOutputConnector) {
                     _this11.setState(connector.state);
                 }
             }
         } catch (err) {
-            _didIteratorError12 = true;
-            _iteratorError12 = err;
+            _didIteratorError14 = true;
+            _iteratorError14 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion12 && _iterator12.return) {
-                    _iterator12.return();
+                if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                    _iterator14.return();
                 }
             } finally {
-                if (_didIteratorError12) {
-                    throw _iteratorError12;
+                if (_didIteratorError14) {
+                    throw _iteratorError14;
                 }
             }
         }
@@ -5741,27 +5804,27 @@ var Wire = exports.Wire = function (_NetworkElement3) {
          * update the state of this wire
          */
         value: function updateWireState() {
-            var _iteratorNormalCompletion13 = true;
-            var _didIteratorError13 = false;
-            var _iteratorError13 = undefined;
+            var _iteratorNormalCompletion15 = true;
+            var _didIteratorError15 = false;
+            var _iteratorError15 = undefined;
 
             try {
-                for (var _iterator13 = this.boxes[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-                    var box = _step13.value;
+                for (var _iterator15 = this.boxes[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                    var box = _step15.value;
 
                     box.refreshState();
                 }
             } catch (err) {
-                _didIteratorError13 = true;
-                _iteratorError13 = err;
+                _didIteratorError15 = true;
+                _iteratorError15 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
-                        _iterator13.return();
+                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
+                        _iterator15.return();
                     }
                 } finally {
-                    if (_didIteratorError13) {
-                        throw _iteratorError13;
+                    if (_didIteratorError15) {
+                        throw _iteratorError15;
                     }
                 }
             }
@@ -5845,27 +5908,27 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             // set the line
             if (this.svgObj !== undefined) {
                 // this.svgObj.updatePoints(points);
-                var _iteratorNormalCompletion14 = true;
-                var _didIteratorError14 = false;
-                var _iteratorError14 = undefined;
+                var _iteratorNormalCompletion16 = true;
+                var _didIteratorError16 = false;
+                var _iteratorError16 = undefined;
 
                 try {
-                    for (var _iterator14 = this.svgObj.children[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                        var child = _step14.value;
+                    for (var _iterator16 = this.svgObj.children[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
+                        var child = _step16.value;
 
                         child.updatePoints(points);
                     }
                 } catch (err) {
-                    _didIteratorError14 = true;
-                    _iteratorError14 = err;
+                    _didIteratorError16 = true;
+                    _iteratorError16 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                            _iterator14.return();
+                        if (!_iteratorNormalCompletion16 && _iterator16.return) {
+                            _iterator16.return();
                         }
                     } finally {
-                        if (_didIteratorError14) {
-                            throw _iteratorError14;
+                        if (_didIteratorError16) {
+                            throw _iteratorError16;
                         }
                     }
                 }
@@ -6218,29 +6281,29 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     }, {
         key: 'setHasThisPoint',
         value: function setHasThisPoint(set, point) {
-            var _iteratorNormalCompletion15 = true;
-            var _didIteratorError15 = false;
-            var _iteratorError15 = undefined;
+            var _iteratorNormalCompletion17 = true;
+            var _didIteratorError17 = false;
+            var _iteratorError17 = undefined;
 
             try {
-                for (var _iterator15 = set[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-                    var item = _step15.value;
+                for (var _iterator17 = set[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
+                    var item = _step17.value;
 
                     if (item.x === point.x && item.y === point.y) {
                         return true;
                     }
                 }
             } catch (err) {
-                _didIteratorError15 = true;
-                _iteratorError15 = err;
+                _didIteratorError17 = true;
+                _iteratorError17 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
-                        _iterator15.return();
+                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
+                        _iterator17.return();
                     }
                 } finally {
-                    if (_didIteratorError15) {
-                        throw _iteratorError15;
+                    if (_didIteratorError17) {
+                        throw _iteratorError17;
                     }
                 }
             }

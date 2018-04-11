@@ -1026,7 +1026,7 @@ export default class Canvas {
                 return this.boxes[i];
             }
         }
-        return false;
+        return undefined;
     }
 
     /**

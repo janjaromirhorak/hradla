@@ -478,13 +478,13 @@ export default class ContextMenu {
      * @param  {jQuery.element} $target jQuery target of a MouseEvent (element that user clicked on)
      */
     resolveConditionalItems($target) {
-        for(let i = 0; i &lt; this.conditionalItems.length; ++i) {
-            if($target.hasClass(this.conditionalItems[i].itemClass)) {
+        for(let item of this.conditionalItems) {
+            if($target.hasClass(item.itemClass)) {
                 this.appendItem(
                     new ContextMenuItem(
-                        this.conditionalItems[i].text, this,
+                        item.text, this,
                         () => {
-                            this.conditionalItems[i].clickFunction($target.attr('id'));
+                            item.clickFunction($target.attr('id'));
                         }
                     )
                 ).addClass('conditional');

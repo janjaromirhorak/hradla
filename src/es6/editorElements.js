@@ -74,11 +74,9 @@ export class Transform {
         this.items = [];
 
         if(string!==undefined) {
-            let splitItems = string.split(")");
-
-            for (let i = 0 ; i < splitItems.length ; i++) {
-                if(splitItems[i]) { // if not empty
-                    this.items.push(new Property(splitItems[i] + ")"));
+            for (const item of string.split(")")) {
+                if(item) { // if not empty
+                    this.items.push(new Property(item + ")"));
                 }
             }
         }
@@ -240,12 +238,13 @@ export class Transform {
      * @return {string} string that can be used as a value for the transform property of a SVG element
      */
     get() {
-        let retVal = "";
-        for(let i = 0 ; i < this.items.length ; i++) {
-            if(i!==0) {
-                retVal += " ";
+        let retVal;
+        for(const item of this.items) {
+            if(retVal) {
+                retVal += " " + item.get();
+            } else {
+                retVal = item.get();
             }
-            retVal += this.items[i].get();
         }
         return retVal;
     }
