@@ -6011,17 +6011,12 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             var gScore = new _mapWithDefaultValue2.default(Infinity);
             gScore.set(start, 0);
 
-            // default value: infinity
-            var fScore = new _mapWithDefaultValue2.default(Infinity);
-
-            // TODO do we even need fscore?
             var startFScore = distanceFunction(start, end);
-            fScore.set(start, startFScore);
 
             addOpenNode(start, startFScore);
 
             openNodes.add(start);
-            openNodeQueue.enqueue(start, 1 / fScore.getWithDefault(start));
+            openNodeQueue.enqueue(start, 1 / startFScore);
 
             // set of nodes that the wire is forbidden to visit
             var nonRoutable = void 0;
@@ -6099,8 +6094,6 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         gScore.set(newPoint, newGScore);
 
                         var newFScore = newGScore + distanceFunction(newPoint, end);
-
-                        fScore.set(newPoint, newFScore);
 
                         if (!openNodes.has(newPoint)) {
                             // add the point to the list of points

@@ -1887,17 +1887,12 @@ export class Wire extends NetworkElement {
         let gScore = new MapWithDefaultValue(Infinity);
         gScore.set(start, 0);
 
-        // default value: infinity
-        let fScore = new MapWithDefaultValue(Infinity);
-
-        // TODO do we even need fscore?
         let startFScore = distanceFunction(start, end);
-        fScore.set(start, startFScore);
 
         addOpenNode(start, startFScore);
 
         openNodes.add(start);
-        openNodeQueue.enqueue(start, 1 / fScore.getWithDefault(start));
+        openNodeQueue.enqueue(start, 1 / startFScore);
 
         // set of nodes that the wire is forbidden to visit
         let nonRoutable;
@@ -1975,8 +1970,6 @@ export class Wire extends NetworkElement {
                     gScore.set(newPoint, newGScore);
 
                     const newFScore = newGScore + distanceFunction(newPoint, end);
-
-                    fScore.set(newPoint, newFScore);
 
                     if (!openNodes.has(newPoint)) {
                         // add the point to the list of points
