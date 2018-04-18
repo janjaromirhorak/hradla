@@ -1838,13 +1838,14 @@ export class Wire extends NetworkElement {
         // default value: infinity
         let fScore = new MapWithDefaultValue(Infinity);
 
+        // TODO do we even need fscore?
         let startFScore = distanceFunction(start, end);
         fScore.set(start, startFScore);
 
         addOpenNode(start, startFScore);
 
         openNodes.add(start);
-        openNodeQueue.enqueue(start, 1 / fScore.get(start));
+        openNodeQueue.enqueue(start, 1 / fScore.getWithDefault(start));
 
         // set of nodes that the wire is forbidden to visit
         let nonRoutable;
@@ -1900,7 +1901,7 @@ export class Wire extends NetworkElement {
                     }
 
                     // calculate possible GScore by applying a punishment for each node ("bend") in the path
-                    let newGScore = wireBendPunishment + gScore.get(currentNode);
+                    let newGScore = wireBendPunishment + gScore.getWithDefault(currentNode);
 
                     if(Wire.setHasThisPoint(punishedButRoutable, newPoint)) {
                         // if the node is in the set of punished nodes, apply the punishment
@@ -1914,7 +1915,7 @@ export class Wire extends NetworkElement {
                     newGScore += wiresCrossed * wireCrossPunishment;
 
                     // skip this node if it has worst estimage gscore than in the gscore table
-                    if (newGScore >= gScore.get(newPoint)) {
+                    if (newGScore >= gScore.getWithDefault(newPoint)) {
                         continue;
                     }
 

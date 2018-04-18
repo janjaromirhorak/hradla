@@ -6014,13 +6014,14 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             // default value: infinity
             var fScore = new _mapWithDefaultValue2.default(Infinity);
 
+            // TODO do we even need fscore?
             var startFScore = distanceFunction(start, end);
             fScore.set(start, startFScore);
 
             addOpenNode(start, startFScore);
 
             openNodes.add(start);
-            openNodeQueue.enqueue(start, 1 / fScore.get(start));
+            openNodeQueue.enqueue(start, 1 / fScore.getWithDefault(start));
 
             // set of nodes that the wire is forbidden to visit
             var nonRoutable = void 0;
@@ -6076,7 +6077,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         }
 
                         // calculate possible GScore by applying a punishment for each node ("bend") in the path
-                        var newGScore = wireBendPunishment + gScore.get(currentNode);
+                        var newGScore = wireBendPunishment + gScore.getWithDefault(currentNode);
 
                         if (Wire.setHasThisPoint(punishedButRoutable, newPoint)) {
                             // if the node is in the set of punished nodes, apply the punishment
@@ -6090,7 +6091,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         newGScore += wiresCrossed * wireCrossPunishment;
 
                         // skip this node if it has worst estimage gscore than in the gscore table
-                        if (newGScore >= gScore.get(newPoint)) {
+                        if (newGScore >= gScore.getWithDefault(newPoint)) {
                             continue;
                         }
 
@@ -6869,104 +6870,13 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/** @module MapWithDefaultValue */
-/**
- * Map that has a default value specified in the constructor.
- *
- * For the complete documentation of the Map see [Map in the MDN web docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)
- *
- * _Note: This version is written specially for ES6 compiled into ES5. In non-compiled ES6 is the implementation far simpler:_
- *
- * ```JavaScript
- export class MapWithDefaultValue extends Map {
-     constructor(defaultValue) {
-         super();
-
-         this.default = defaultValue;
-     }
-
-     get(key) {
-         if(this.has(key)) {
-             return super.get(key);
-         } else {
-             return this.default;
-         }
-     }
- }```
- */
-var MapWithDefaultValue = function () {
-    /**
-     * @param defaultValue the value that will be returned on get(key) when the key is not found in the map
-     */
-    function MapWithDefaultValue(defaultValue) {
-        _classCallCheck(this, MapWithDefaultValue);
-
-        this.map = new Map();
-        this.default = defaultValue;
-    }
-
-    _createClass(MapWithDefaultValue, [{
-        key: "clear",
-        value: function clear() {
-            return this.map.clear();
-        }
-    }, {
-        key: "forEach",
-        value: function forEach() {
-            var _map;
-
-            return (_map = this.map).forEach.apply(_map, arguments);
-        }
-    }, {
-        key: "get",
-        value: function get(key) {
-            return this.map.get(key);
-        }
-    }, {
-        key: "delete",
-        value: function _delete(key) {
-            return this.map.delete(key);
-        }
-    }, {
-        key: "set",
-        value: function set(key, value) {
-            return this.map.set(key, value);
-        }
-    }, {
-        key: "has",
-        value: function has(key) {
-            return this.map.has(key);
-        }
-    }, {
-        key: "entries",
-        value: function entries() {
-            return this.map.entries();
-        }
-    }, {
-        key: "keys",
-        value: function keys() {
-            return this.map.keys();
-        }
-    }, {
-        key: "values",
-        value: function values() {
-            return this.map.values();
-        }
-    }, {
-        key: "size",
-        get: function get() {
-            return this.map.size;
-        }
-    }]);
-
-    return MapWithDefaultValue;
-}();
-
-exports.default = MapWithDefaultValue;
+exports.default = function (defaultValue) {
+    var map = new Map();
+    map.getWithDefault = function (key) {
+        return map.has(key) ? map.get(key) : defaultValue;
+    };
+    return map;
+};
 
 },{}],19:[function(require,module,exports){
 'use strict';
