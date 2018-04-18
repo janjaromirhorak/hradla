@@ -240,7 +240,7 @@ gulp.task('html', () => {
 
     return file('index.html', '', {src: true})
         .pipe(insert.append('<!-- build:title -->'))
-        .pipe(insert.append(config.title))
+        .pipe(insert.append(`${config.title} (v${packageData.version})`))
         .pipe(insert.append('<!-- /build:title -->'))
 
         .pipe(insert.append('<!-- build:styles -->'))
@@ -349,9 +349,9 @@ gulp.task('jsdoc:generate', (done) => {
         },
         templates: {
             name: "Hradla",
-            footerText: config.title,
+            footerText: `${config.title} (v${packageData.version})`,
             logo: {
-                url: "../../img/gate/xor.svg",
+                url: "../../img/svg/gate/xor.svg",
                 width: "40px",
                 height: "20px"
                 // link: "../../"
