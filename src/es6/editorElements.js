@@ -1,8 +1,7 @@
 import * as svgObj from './svgObjects'
-import MapWithDefaultValue from './mapWithDefaultValue'
 import Logic from './logic'
+import findPath from './findPath'
 
-import { PriorityQueue } from 'libstl'; // note: imported from a node module
 
 /**
  * mapping of logical states to css classes
@@ -1602,7 +1601,7 @@ export class Wire extends NetworkElement {
      * @param {string}  toId      id of the second connector this wire will be connected to
      * @param {Boolean} [refresh=true] if `true`, the [Canvas](./module-Canvas.html) will refresh after creating this wire
      */
-    constructor(parentSVG, fromId, toId, refresh = true) {
+    constructor(parentSVG, fromId, toId, refresh = true, route = true) {
         super(parentSVG);
 
         this.gridSize = parentSVG.gridSize;
@@ -1619,7 +1618,12 @@ export class Wire extends NetworkElement {
         this.endConnector = this.parentSVG.getConnectorById(toId);
 
         this.connectors = [this.startConnector, this.endConnector]
-        this.routeWire(true, refresh);
+
+        if(route) {
+            this.routeWire(true, refresh);
+        } else {
+            this.temporaryWire();
+        }
 
         this.elementState = Logic.state.unknown;
 
@@ -1728,7 +1732,7 @@ export class Wire extends NetworkElement {
         this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, snapToGrid);
         this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, snapToGrid);
 
-        this.points = this.aStar(
+        this.points = this.findRoute(
             {
                 x: this.wireStart.x / this.gridSize,
                 y: this.wireStart.y / this.gridSize
@@ -1782,242 +1786,37 @@ export class Wire extends NetworkElement {
     }
 
     /**
-     * Heavily modified implementation of the A* algorithm
+     * find a nice route for the wire
      * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
      * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
-     * @return {PolylinePoints} instance of {@link PolylinePoints}
+     * @return {PolylinePoints}       [description]
      */
-    aStar(start, end, ignoreBlockedNodes = false) {
-        const distanceFunction = (a, b) => Wire.manhattanDistance(a, b);
+    findRoute(start, end) {
+        let nonRoutable = this.parentSVG.getNonRoutableNodes();
 
-        const wireCrossPunishment = 1;
-        const wireBendPunishment = 1;
-
-        // number of nodes, that can be opened at once
-        // once is this limit exceeded, aStar will fail and getTemporaryWirePoints will be used instead
-        const maxNodeLimit = 100000;
-
-        let closedNodes = new Set();
-        let openNodes = new Set();
-        let openNodeQueue = new PriorityQueue();
-
-        // functions for working with open nodes:
-
-        /**
-         * add a new open node to the structure
-         * @param {Object} node   object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-         * @param {number} fscore fScore of this node
-         */
-        const addOpenNode = (node, fscore) => {
-            openNodes.add(node);
-            // flip the fscore, because PriorityQueue uses max heap
-            openNodeQueue.enqueue(node, 1 / fscore);
-        }
-
-        /**
-         * get the open node with the lowest fScore and remove it
-         * @return {Object} object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-         */
-        const getOpenNode = () => {
-            const node = openNodeQueue.dequeue();
-            openNodes.delete(node);
-            return node;
-        }
-
-        let cameFrom = new Map();
-
-        // default value: infinity
-        let gScore = new MapWithDefaultValue(Infinity);
-        gScore.set(start, 0);
-
-        let startFScore = distanceFunction(start, end);
-
-        addOpenNode(start, startFScore);
-
-        openNodes.add(start);
-        openNodeQueue.enqueue(start, 1 / startFScore);
-
-        // set of nodes that the wire is forbidden to visit
-        let nonRoutable;
-
-        // set of nodes that are not optimal to route through
         let punishedButRoutable;
-
-        if(!ignoreBlockedNodes) {
-            nonRoutable = this.parentSVG.getNonRoutableNodes();
-            if(this.svgObj===undefined) {
-                punishedButRoutable = this.parentSVG.getInconvenientNodes();
-            } else {
-                punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
-            }
+        if(this.svgObj===undefined) {
+            punishedButRoutable = this.parentSVG.getInconvenientNodes();
         } else {
-            // if the ignoreBlockedNodes is set to true, populate the variables with an empty set
-            nonRoutable = punishedButRoutable = new Set();
+            punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
         }
 
-        while (openNodes.size > 0) {
-            // get the value from openNodes that has the lowest fScore
-            const currentNode = getOpenNode();
+        let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
-            // if we reached the end point, reconstruct the path and return it
-            if(svgObj.PolylinePoint.equals(currentNode, end)) {
-                return this.reconstructPath(cameFrom, currentNode);
-            }
-
-            // add this node to the closed nodes
-            closedNodes.add(currentNode);
-
-            // the farthest points accessible without avoiding obstacles in every direction
-            // (but max 50 in each direction)
-            for(let direction = 0 ; direction < 4 ; direction++) {
-                let newPoint = Wire.movePoint(currentNode, direction);
-
-                let wiresCrossed = 0;
-
-                for(let i = 0 ; i < 50 ; i++) {
-                    // if newPoint is in the set of non routable points,
-                    // don't add it and stop proceeding in this direction
-                    if(Wire.setHasThisPoint(nonRoutable, newPoint)) {
-                        // if this not the end point, break
-                        if(newPoint.x !== end.x || newPoint.y !== end.y) {
-                            break;
-                        }
-                    }
-
-                    // skip this node, if it has been already closed
-                    // or if it is on the list of non routable nodes
-                    if (closedNodes.has(newPoint)) {
-                        continue;
-                    }
-
-                    // calculate possible GScore by applying a punishment for each node ("bend") in the path
-                    let newGScore = wireBendPunishment + gScore.getWithDefault(currentNode);
-
-                    if(Wire.setHasThisPoint(punishedButRoutable, newPoint)) {
-                        // if the node is in the set of punished nodes, apply the punishment
-                        wiresCrossed++;
-                    }
-
-                    // apply the punishment for each wire crossed in this direction
-                    // note: we are counting the wires crossed when exporting this direction, not the wires
-                    // crossed in the final path, there will be probably only at most of these nodes in the
-                    // final path, not multiple
-                    newGScore += wiresCrossed * wireCrossPunishment;
-
-                    // skip this node if it has worst estimage gscore than in the gscore table
-                    if (newGScore >= gScore.getWithDefault(newPoint)) {
-                        continue;
-                    }
-
-                    cameFrom.set(newPoint, currentNode);
-                    gScore.set(newPoint, newGScore);
-
-                    const newFScore = newGScore + distanceFunction(newPoint, end);
-
-                    if (!openNodes.has(newPoint)) {
-                        // add the point to the list of points
-                        addOpenNode(newPoint, newFScore);
-                    }
-
-                    // move to the next point in the direciton
-                    newPoint = Wire.movePoint(newPoint, direction);
-                }
-            }
-
-            if(openNodes.size > maxNodeLimit) {
-                console.log(`aStar: Number of open nodes (${openNodes.size}) exceeded the limit for open nodes (${maxNodeLimit}).`)
-                break;
-            }
-        }
-        // if we got here, the path was not found
-
-        if(!ignoreBlockedNodes) {
-            console.log(`aStar: Trying again, ignoring blocked nodes...`);
-            // try the aStar again but don't take into account the blocked nodes
-            return this.aStar(start, end, true);
-        } else {
-            console.log(`aStar: Giving up and returning temporary wire points instead.`);
-            // if the astar without blocked nodes did not work either, return temporary points
-            return this.getTemporaryWirePoints();
-        }
-    }
-
-    /**
-     * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
-     * @param  {Object} point     object containing numeric attributes `x` and `y`
-     * @param  {number} direction directions:
-     *                              - 0: up
-     *                              - 1: right
-     *                              - 2: down
-     *                              - 3: left
-     * @return {Object}           object containing numeric attributes `x` and `y`
-     */
-    static movePoint(point, direction) {
-        switch (direction) {
-            case 0: // up
-                return {
-                    x: point.x,
-                    y: point.y - 1
-                };
-            case 1: // right
-                return {
-                    x: point.x + 1,
-                    y: point.y
-                };
-            case 2: // down
-                return {
-                    x: point.x,
-                    y: point.y + 1
-                };
-            case 3: // left
-                return {
-                    x: point.x - 1,
-                    y: point.y
-                };
-        }
-    }
-
-    /**
-     * helper backtracking function used by the aStar algorithm to construct the final {@link PolylinePoints}
-     * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
-     * @param  {Object} currentNode object containing numeric attributes `x` and `y`
-     * @return {PolylinePoints}     instance of {@link PolylinePoints} that represents the path found by the aStar algorithm
-     */
-    reconstructPath(cameFrom, currentNode) {
-        let totalPath = new svgObj.PolylinePoints();
-        totalPath.append(new svgObj.PolylinePoint(currentNode.x * this.gridSize, currentNode.y * this.gridSize));
-
-        while (cameFrom.has(currentNode)) {
-            currentNode = cameFrom.get(currentNode);
-            totalPath.append(new svgObj.PolylinePoint(currentNode.x * this.gridSize, currentNode.y * this.gridSize));
+        if(path) {
+            return path;
         }
 
-        return totalPath;
-    }
 
-    /**
-     * returns the Manhattan distance between the points _a_ and _b_
-     * @param  {Object} a object containing numeric attributes `x` and `y`
-     * @param  {Object} b object containing numeric attributes `x` and `y`
-     * @return {number}
-     */
-    static manhattanDistance(a, b) {
-        // Manhattan geometry
-        return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-    }
+        // if a path was not found, try again but don't take into account the punished and non routable node
+        path = findPath(start, end, new Set(), new Set(), this.gridSize);
 
-    /**
-     * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
-     * @param {Set} set set of points
-     * @param {Object} point object containing numeric attributes `x` and `y`
-     */
-    static setHasThisPoint(set, point) {
-        for (let item of set) {
-            if(item.x === point.x && item.y === point.y) {
-                return true;
-            }
+        if(path) {
+            return path;
         }
-        return false;
+
+        // if the path was still not found, give up and return temporary points
+        return this.getTemporaryWirePoints();
     }
 
     /**

@@ -66,3 +66,13 @@ export function getJSONString(data, pretty = false, dataUri = false) {
         }
     }
 }
+
+/**
+ * returns the Manhattan distance between the points _a_ and _b_
+ * @param  {Object} a object containing numeric attributes `x` and `y`
+ * @param  {Object} b object containing numeric attributes `x` and `y`
+ * @return {number}
+ */
+export function manhattanDistance(a, b) {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+}

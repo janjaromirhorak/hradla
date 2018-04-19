@@ -6,7 +6,7 @@ import Logic from './logic'
 import ContextMenu from './contextMenu'
 import FloatingMenu from './floatingMenu'
 import Simulation from './simulation'
-import { addMouseScrollEventListener } from './helperFunctions'
+import { addMouseScrollEventListener, manhattanDistance } from './helperFunctions'
 import Tutorial from './tutorial';
 
 import { PriorityQueue } from 'libstl'; // note: imported from a node module
@@ -629,8 +629,10 @@ export default class Canvas {
                         true)
                     )
 
+                this.newWire(...connectorIds, false, false);
+
                 // get the manhattan distance between these two connectors
-                const distance = editorElements.Wire.manhattanDistance(...connectorsPositions);
+                const distance = manhattanDistance(...connectorsPositions);
 
                 // add connectorids to the priority queue
                 wireQueue.enqueue(connectorIds, 1 / distance);
@@ -819,7 +821,7 @@ export default class Canvas {
      * @param  {Boolean} [refresh=true] if refresh is set to true, the SVG document will be reloaded after adding the wire
      * @return {editorElements.Wire}    instance of editorElements.Wire that has been added to the Canvas
      */
-    newWire(fromId, toId, refresh = true) {
+    newWire(fromId, toId, refresh = true, route = true) {
         // wire must connect two distinct connectors
         if (fromId===toId)
             return false
@@ -832,7 +834,7 @@ export default class Canvas {
                 this.removeWiresByConnectorId(conn.id)
         })
         let index = this.wires.length;
-        this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh);
+        this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh, route);
 
         connectors.forEach(conn => {
             conn.addWireId(this.wires[index].svgObj.id);
@@ -1314,8 +1316,10 @@ export default class Canvas {
 
         for(const wire of this.wires) {
             if(ignoreWireId===undefined || ignoreWireId!==wire.id) {
-                for (const node of wire.inconvenientNodes) {
-                    inconvenientNodes.add(node);
+                if(wire.inconvenientNodes) {
+                    for (const node of wire.inconvenientNodes) {
+                        inconvenientNodes.add(node);
+                    }
                 }
             }
         }

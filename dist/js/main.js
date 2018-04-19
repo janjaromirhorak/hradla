@@ -1669,8 +1669,6 @@ var Canvas = function () {
 
                 try {
                     for (var _iterator3 = newWires.values()[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                        var _editorElements$Wire;
-
                         var wireInfo = _step3.value;
 
                         var connectorIds = [];
@@ -1709,8 +1707,10 @@ var Canvas = function () {
                             return _this3.getConnectorPosition(_this3.getConnectorById(connectorId), true);
                         });
 
+                        _this3.newWire.apply(_this3, connectorIds.concat([false, false]));
+
                         // get the manhattan distance between these two connectors
-                        var distance = (_editorElements$Wire = editorElements.Wire).manhattanDistance.apply(_editorElements$Wire, _toConsumableArray(connectorsPositions));
+                        var distance = _helperFunctions.manhattanDistance.apply(undefined, _toConsumableArray(connectorsPositions));
 
                         // add connectorids to the priority queue
                         wireQueue.enqueue(connectorIds, 1 / distance);
@@ -2001,6 +2001,7 @@ var Canvas = function () {
             var _this4 = this;
 
             var refresh = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+            var route = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
             // wire must connect two distinct connectors
             if (fromId === toId) return false;
@@ -2012,7 +2013,7 @@ var Canvas = function () {
                 if (conn.isInputConnector) _this4.removeWiresByConnectorId(conn.id);
             });
             var index = this.wires.length;
-            this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh);
+            this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh, route);
 
             connectors.forEach(function (conn) {
                 conn.addWireId(_this4.wires[index].svgObj.id);
@@ -2689,27 +2690,29 @@ var Canvas = function () {
                     var wire = _step13.value;
 
                     if (ignoreWireId === undefined || ignoreWireId !== wire.id) {
-                        var _iteratorNormalCompletion14 = true;
-                        var _didIteratorError14 = false;
-                        var _iteratorError14 = undefined;
+                        if (wire.inconvenientNodes) {
+                            var _iteratorNormalCompletion14 = true;
+                            var _didIteratorError14 = false;
+                            var _iteratorError14 = undefined;
 
-                        try {
-                            for (var _iterator14 = wire.inconvenientNodes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                                var node = _step14.value;
-
-                                inconvenientNodes.add(node);
-                            }
-                        } catch (err) {
-                            _didIteratorError14 = true;
-                            _iteratorError14 = err;
-                        } finally {
                             try {
-                                if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                                    _iterator14.return();
+                                for (var _iterator14 = wire.inconvenientNodes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                                    var node = _step14.value;
+
+                                    inconvenientNodes.add(node);
                                 }
+                            } catch (err) {
+                                _didIteratorError14 = true;
+                                _iteratorError14 = err;
                             } finally {
-                                if (_didIteratorError14) {
-                                    throw _iteratorError14;
+                                try {
+                                    if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                                        _iterator14.return();
+                                    }
+                                } finally {
+                                    if (_didIteratorError14) {
+                                        throw _iteratorError14;
+                                    }
                                 }
                             }
                         }
@@ -2841,7 +2844,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu":11,"./editorElements":12,"./floatingMenu":13,"./helperFunctions":14,"./logic":16,"./simulation":20,"./svgObjects":21,"./tutorial":22,"libstl":9}],11:[function(require,module,exports){
+},{"./contextMenu":11,"./editorElements":12,"./floatingMenu":14,"./helperFunctions":15,"./logic":17,"./simulation":21,"./svgObjects":22,"./tutorial":23,"libstl":9}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3446,7 +3449,7 @@ var ContextMenu = function () {
 
 exports.default = ContextMenu;
 
-},{"./networkLibrary":19}],12:[function(require,module,exports){
+},{"./networkLibrary":20}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3462,15 +3465,13 @@ var _svgObjects = require('./svgObjects');
 
 var svgObj = _interopRequireWildcard(_svgObjects);
 
-var _mapWithDefaultValue = require('./mapWithDefaultValue');
-
-var _mapWithDefaultValue2 = _interopRequireDefault(_mapWithDefaultValue);
-
 var _logic = require('./logic');
 
 var _logic2 = _interopRequireDefault(_logic);
 
-var _libstl = require('libstl');
+var _findPath = require('./findPath');
+
+var _findPath2 = _interopRequireDefault(_findPath);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3483,8 +3484,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-// note: imported from a node module
 
 /**
  * mapping of logical states to css classes
@@ -5691,6 +5690,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
      */
     function Wire(parentSVG, fromId, toId) {
         var refresh = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+        var route = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
 
         _classCallCheck(this, Wire);
 
@@ -5710,7 +5710,12 @@ var Wire = exports.Wire = function (_NetworkElement3) {
         _this11.endConnector = _this11.parentSVG.getConnectorById(toId);
 
         _this11.connectors = [_this11.startConnector, _this11.endConnector];
-        _this11.routeWire(true, refresh);
+
+        if (route) {
+            _this11.routeWire(true, refresh);
+        } else {
+            _this11.temporaryWire();
+        }
 
         _this11.elementState = _logic2.default.state.unknown;
 
@@ -5877,7 +5882,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, snapToGrid);
             this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, snapToGrid);
 
-            this.points = this.aStar({
+            this.points = this.findRoute({
                 x: this.wireStart.x / this.gridSize,
                 y: this.wireStart.y / this.gridSize
             }, {
@@ -5952,221 +5957,48 @@ var Wire = exports.Wire = function (_NetworkElement3) {
         }
 
         /**
-         * Heavily modified implementation of the A* algorithm
+         * find a nice route for the wire
          * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
          * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
-         * @return {PolylinePoints} instance of {@link PolylinePoints}
+         * @return {PolylinePoints}       [description]
          */
 
     }, {
-        key: 'aStar',
-        value: function aStar(start, end) {
-            var ignoreBlockedNodes = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+        key: 'findRoute',
+        value: function findRoute(start, end) {
+            var nonRoutable = this.parentSVG.getNonRoutableNodes();
 
-            var distanceFunction = function distanceFunction(a, b) {
-                return Wire.manhattanDistance(a, b);
-            };
-
-            var wireCrossPunishment = 1;
-            var wireBendPunishment = 1;
-
-            // number of nodes, that can be opened at once
-            // once is this limit exceeded, aStar will fail and getTemporaryWirePoints will be used instead
-            var maxNodeLimit = 100000;
-
-            var closedNodes = new Set();
-            var openNodes = new Set();
-            var openNodeQueue = new _libstl.PriorityQueue();
-
-            // functions for working with open nodes:
-
-            /**
-             * add a new open node to the structure
-             * @param {Object} node   object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-             * @param {number} fscore fScore of this node
-             */
-            var addOpenNode = function addOpenNode(node, fscore) {
-                openNodes.add(node);
-                // flip the fscore, because PriorityQueue uses max heap
-                openNodeQueue.enqueue(node, 1 / fscore);
-            };
-
-            /**
-             * get the open node with the lowest fScore and remove it
-             * @return {Object} object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-             */
-            var getOpenNode = function getOpenNode() {
-                var node = openNodeQueue.dequeue();
-                openNodes.delete(node);
-                return node;
-            };
-
-            var cameFrom = new Map();
-
-            // default value: infinity
-            var gScore = new _mapWithDefaultValue2.default(Infinity);
-            gScore.set(start, 0);
-
-            var startFScore = distanceFunction(start, end);
-
-            addOpenNode(start, startFScore);
-
-            openNodes.add(start);
-            openNodeQueue.enqueue(start, 1 / startFScore);
-
-            // set of nodes that the wire is forbidden to visit
-            var nonRoutable = void 0;
-
-            // set of nodes that are not optimal to route through
             var punishedButRoutable = void 0;
-
-            if (!ignoreBlockedNodes) {
-                nonRoutable = this.parentSVG.getNonRoutableNodes();
-                if (this.svgObj === undefined) {
-                    punishedButRoutable = this.parentSVG.getInconvenientNodes();
-                } else {
-                    punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
-                }
+            if (this.svgObj === undefined) {
+                punishedButRoutable = this.parentSVG.getInconvenientNodes();
             } else {
-                // if the ignoreBlockedNodes is set to true, populate the variables with an empty set
-                nonRoutable = punishedButRoutable = new Set();
+                punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
             }
 
-            while (openNodes.size > 0) {
-                // get the value from openNodes that has the lowest fScore
-                var currentNode = getOpenNode();
+            var path = (0, _findPath2.default)(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
-                // if we reached the end point, reconstruct the path and return it
-                if (svgObj.PolylinePoint.equals(currentNode, end)) {
-                    return this.reconstructPath(cameFrom, currentNode);
-                }
-
-                // add this node to the closed nodes
-                closedNodes.add(currentNode);
-
-                // the farthest points accessible without avoiding obstacles in every direction
-                // (but max 50 in each direction)
-                for (var direction = 0; direction < 4; direction++) {
-                    var newPoint = Wire.movePoint(currentNode, direction);
-
-                    var wiresCrossed = 0;
-
-                    for (var i = 0; i < 50; i++) {
-                        // if newPoint is in the set of non routable points,
-                        // don't add it and stop proceeding in this direction
-                        if (Wire.setHasThisPoint(nonRoutable, newPoint)) {
-                            // if this not the end point, break
-                            if (newPoint.x !== end.x || newPoint.y !== end.y) {
-                                break;
-                            }
-                        }
-
-                        // skip this node, if it has been already closed
-                        // or if it is on the list of non routable nodes
-                        if (closedNodes.has(newPoint)) {
-                            continue;
-                        }
-
-                        // calculate possible GScore by applying a punishment for each node ("bend") in the path
-                        var newGScore = wireBendPunishment + gScore.getWithDefault(currentNode);
-
-                        if (Wire.setHasThisPoint(punishedButRoutable, newPoint)) {
-                            // if the node is in the set of punished nodes, apply the punishment
-                            wiresCrossed++;
-                        }
-
-                        // apply the punishment for each wire crossed in this direction
-                        // note: we are counting the wires crossed when exporting this direction, not the wires
-                        // crossed in the final path, there will be probably only at most of these nodes in the
-                        // final path, not multiple
-                        newGScore += wiresCrossed * wireCrossPunishment;
-
-                        // skip this node if it has worst estimage gscore than in the gscore table
-                        if (newGScore >= gScore.getWithDefault(newPoint)) {
-                            continue;
-                        }
-
-                        cameFrom.set(newPoint, currentNode);
-                        gScore.set(newPoint, newGScore);
-
-                        var newFScore = newGScore + distanceFunction(newPoint, end);
-
-                        if (!openNodes.has(newPoint)) {
-                            // add the point to the list of points
-                            addOpenNode(newPoint, newFScore);
-                        }
-
-                        // move to the next point in the direciton
-                        newPoint = Wire.movePoint(newPoint, direction);
-                    }
-                }
-
-                if (openNodes.size > maxNodeLimit) {
-                    console.log('aStar: Number of open nodes (' + openNodes.size + ') exceeded the limit for open nodes (' + maxNodeLimit + ').');
-                    break;
-                }
+            if (path) {
+                return path;
             }
-            // if we got here, the path was not found
 
-            if (!ignoreBlockedNodes) {
-                console.log('aStar: Trying again, ignoring blocked nodes...');
-                // try the aStar again but don't take into account the blocked nodes
-                return this.aStar(start, end, true);
-            } else {
-                console.log('aStar: Giving up and returning temporary wire points instead.');
-                // if the astar without blocked nodes did not work either, return temporary points
-                return this.getTemporaryWirePoints();
+            // if a path was not found, try again but don't take into account the punished and non routable node
+            path = (0, _findPath2.default)(start, end, new Set(), new Set(), this.gridSize);
+
+            if (path) {
+                return path;
             }
+
+            // if the path was still not found, give up and return temporary points
+            return this.getTemporaryWirePoints();
         }
-
-        /**
-         * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
-         * @param  {Object} point     object containing numeric attributes `x` and `y`
-         * @param  {number} direction directions:
-         *                              - 0: up
-         *                              - 1: right
-         *                              - 2: down
-         *                              - 3: left
-         * @return {Object}           object containing numeric attributes `x` and `y`
-         */
-
-    }, {
-        key: 'reconstructPath',
-
-
-        /**
-         * helper backtracking function used by the aStar algorithm to construct the final {@link PolylinePoints}
-         * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
-         * @param  {Object} currentNode object containing numeric attributes `x` and `y`
-         * @return {PolylinePoints}     instance of {@link PolylinePoints} that represents the path found by the aStar algorithm
-         */
-        value: function reconstructPath(cameFrom, currentNode) {
-            var totalPath = new svgObj.PolylinePoints();
-            totalPath.append(new svgObj.PolylinePoint(currentNode.x * this.gridSize, currentNode.y * this.gridSize));
-
-            while (cameFrom.has(currentNode)) {
-                currentNode = cameFrom.get(currentNode);
-                totalPath.append(new svgObj.PolylinePoint(currentNode.x * this.gridSize, currentNode.y * this.gridSize));
-            }
-
-            return totalPath;
-        }
-
-        /**
-         * returns the Manhattan distance between the points _a_ and _b_
-         * @param  {Object} a object containing numeric attributes `x` and `y`
-         * @param  {Object} b object containing numeric attributes `x` and `y`
-         * @return {number}
-         */
-
-    }, {
-        key: 'generateInconvenientNodes',
-
 
         /**
          * generate a set of nodes, that are inconvenient for wiring, but can be used, just are not preferred
          * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
          */
+
+    }, {
+        key: 'generateInconvenientNodes',
         value: function generateInconvenientNodes() {
             var _this12 = this;
 
@@ -6225,87 +6057,266 @@ var Wire = exports.Wire = function (_NetworkElement3) {
         get: function get() {
             return this.elementState;
         }
-    }], [{
-        key: 'movePoint',
-        value: function movePoint(point, direction) {
-            switch (direction) {
-                case 0:
-                    // up
-                    return {
-                        x: point.x,
-                        y: point.y - 1
-                    };
-                case 1:
-                    // right
-                    return {
-                        x: point.x + 1,
-                        y: point.y
-                    };
-                case 2:
-                    // down
-                    return {
-                        x: point.x,
-                        y: point.y + 1
-                    };
-                case 3:
-                    // left
-                    return {
-                        x: point.x - 1,
-                        y: point.y
-                    };
-            }
-        }
-    }, {
-        key: 'manhattanDistance',
-        value: function manhattanDistance(a, b) {
-            // Manhattan geometry
-            return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-        }
-
-        /**
-         * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
-         * @param {Set} set set of points
-         * @param {Object} point object containing numeric attributes `x` and `y`
-         */
-
-    }, {
-        key: 'setHasThisPoint',
-        value: function setHasThisPoint(set, point) {
-            var _iteratorNormalCompletion17 = true;
-            var _didIteratorError17 = false;
-            var _iteratorError17 = undefined;
-
-            try {
-                for (var _iterator17 = set[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
-                    var item = _step17.value;
-
-                    if (item.x === point.x && item.y === point.y) {
-                        return true;
-                    }
-                }
-            } catch (err) {
-                _didIteratorError17 = true;
-                _iteratorError17 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
-                        _iterator17.return();
-                    }
-                } finally {
-                    if (_didIteratorError17) {
-                        throw _iteratorError17;
-                    }
-                }
-            }
-
-            return false;
-        }
     }]);
 
     return Wire;
 }(NetworkElement);
 
-},{"./logic":16,"./mapWithDefaultValue":18,"./svgObjects":21,"libstl":9}],13:[function(require,module,exports){
+},{"./findPath":13,"./logic":17,"./svgObjects":22}],13:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = findPath;
+
+var _svgObjects = require('./svgObjects');
+
+var _helperFunctions = require('./helperFunctions');
+
+var _mapWithDefaultValue = require('./mapWithDefaultValue');
+
+var _mapWithDefaultValue2 = _interopRequireDefault(_mapWithDefaultValue);
+
+var _libstl = require('libstl');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// note: imported from a node module
+
+/**
+ * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
+ * @param {Set} set set of points
+ * @param {Object} point object containing numeric attributes `x` and `y`
+ */
+function setHasThisPoint(set, point) {
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = set[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var item = _step.value;
+
+            if (item.x === point.x && item.y === point.y) {
+                return true;
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
+ * @param  {Object} point     object containing numeric attributes `x` and `y`
+ * @param  {number} direction directions:
+ *                              - 0: up
+ *                              - 1: right
+ *                              - 2: down
+ *                              - 3: left
+ * @return {Object}           object containing numeric attributes `x` and `y`
+ */
+function movePoint(point, direction) {
+    switch (direction) {
+        case 0:
+            // up
+            return {
+                x: point.x,
+                y: point.y - 1
+            };
+        case 1:
+            // right
+            return {
+                x: point.x + 1,
+                y: point.y
+            };
+        case 2:
+            // down
+            return {
+                x: point.x,
+                y: point.y + 1
+            };
+        case 3:
+            // left
+            return {
+                x: point.x - 1,
+                y: point.y
+            };
+    }
+}
+
+/**
+ * helper backtracking function used by the aStar algorithm to construct the final {@link PolylinePoints}
+ * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
+ * @param  {Object} currentNode object containing numeric attributes `x` and `y`
+ * @return {PolylinePoints}     instance of {@link PolylinePoints} that represents the path found by the aStar algorithm
+ */
+function reconstructPath(cameFrom, currentNode, gridSize) {
+    var totalPath = new _svgObjects.PolylinePoints();
+    totalPath.append(new _svgObjects.PolylinePoint(currentNode.x * gridSize, currentNode.y * gridSize));
+
+    while (cameFrom.has(currentNode)) {
+        currentNode = cameFrom.get(currentNode);
+        totalPath.append(new _svgObjects.PolylinePoint(currentNode.x * gridSize, currentNode.y * gridSize));
+    }
+
+    return totalPath;
+}
+
+/**
+ * Heavily modified implementation of the A* algorithm
+ * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
+ * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
+ * @param  {Set} nonRoutable set of non routable nodes
+ * @param  {Set} punishedButRoutable set of nodes that are not optimal for routing
+ * @param  {number} gridSize size of the grid in SVG pixels
+ * @return {PolylinePoints} instance of {@link PolylinePoints}
+ */
+function findPath(start, end, nonRoutable, punishedButRoutable, gridSize) {
+
+    var distanceFunction = _helperFunctions.manhattanDistance;
+
+    var wireCrossPunishment = 1;
+    var wireBendPunishment = 1;
+
+    // number of nodes, that can be opened at once
+    // once is this limit exceeded, aStar will fail and getTemporaryWirePoints will be used instead
+    var maxNodeLimit = 100000;
+
+    var closedNodes = new Set();
+    var openNodes = new Set();
+    var openNodeQueue = new _libstl.PriorityQueue();
+
+    // functions for working with open nodes:
+
+    /**
+     * add a new open node to the structure
+     * @param {Object} node   object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
+     * @param {number} fscore fScore of this node
+     */
+    var addOpenNode = function addOpenNode(node, fscore) {
+        openNodes.add(node);
+        // flip the fscore, because PriorityQueue uses max heap
+        openNodeQueue.enqueue(node, 1 / fscore);
+    };
+
+    /**
+     * get the open node with the lowest fScore and remove it
+     * @return {Object} object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
+     */
+    var getOpenNode = function getOpenNode() {
+        var node = openNodeQueue.dequeue();
+        openNodes.delete(node);
+        return node;
+    };
+
+    var cameFrom = new Map();
+
+    // default value: infinity
+    var gScore = new _mapWithDefaultValue2.default(Infinity);
+    gScore.set(start, 0);
+
+    var startFScore = distanceFunction(start, end);
+
+    addOpenNode(start, startFScore);
+
+    openNodes.add(start);
+    openNodeQueue.enqueue(start, 1 / startFScore);
+
+    while (openNodes.size > 0) {
+        // get the value from openNodes that has the lowest fScore
+        var currentNode = getOpenNode();
+
+        // if we reached the end point, reconstruct the path and return it
+        if (_svgObjects.PolylinePoint.equals(currentNode, end)) {
+            return reconstructPath(cameFrom, currentNode, gridSize);
+        }
+
+        // add this node to the closed nodes
+        closedNodes.add(currentNode);
+
+        // the farthest points accessible without avoiding obstacles in every direction
+        // (but max 50 in each direction)
+        for (var direction = 0; direction < 4; direction++) {
+            var newPoint = movePoint(currentNode, direction);
+
+            var wiresCrossed = 0;
+
+            for (var i = 0; i < 50; i++) {
+                // if newPoint is in the set of non routable points,
+                // don't add it and stop proceeding in this direction
+                if (setHasThisPoint(nonRoutable, newPoint)) {
+                    // if this not the end point, break
+                    if (newPoint.x !== end.x || newPoint.y !== end.y) {
+                        break;
+                    }
+                }
+
+                // skip this node, if it has been already closed
+                // or if it is on the list of non routable nodes
+                if (closedNodes.has(newPoint)) {
+                    continue;
+                }
+
+                // calculate possible GScore by applying a punishment for each node ("bend") in the path
+                var newGScore = wireBendPunishment + gScore.getWithDefault(currentNode);
+
+                if (setHasThisPoint(punishedButRoutable, newPoint)) {
+                    // if the node is in the set of punished nodes, apply the punishment
+                    wiresCrossed++;
+                }
+
+                // apply the punishment for each wire crossed in this direction
+                // note: we are counting the wires crossed when exporting this direction, not the wires
+                // crossed in the final path, there will be probably only at most of these nodes in the
+                // final path, not multiple
+                newGScore += wiresCrossed * wireCrossPunishment;
+
+                // skip this node if it has worst estimage gscore than in the gscore table
+                if (newGScore >= gScore.getWithDefault(newPoint)) {
+                    continue;
+                }
+
+                cameFrom.set(newPoint, currentNode);
+                gScore.set(newPoint, newGScore);
+
+                var newFScore = newGScore + distanceFunction(newPoint, end);
+
+                if (!openNodes.has(newPoint)) {
+                    // add the point to the list of points
+                    addOpenNode(newPoint, newFScore);
+                }
+
+                // move to the next point in the direciton
+                newPoint = movePoint(newPoint, direction);
+            }
+        }
+
+        if (openNodes.size > maxNodeLimit) {
+            console.log('aStar: Number of open nodes (' + openNodes.size + ') exceeded the limit for open nodes (' + maxNodeLimit + ').');
+            break;
+        }
+    }
+    // if we got here, the path was not found
+
+    return undefined;
+}
+
+},{"./helperFunctions":15,"./mapWithDefaultValue":19,"./svgObjects":22,"libstl":9}],14:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6463,7 +6474,7 @@ var FloatingMenu = function () {
 
 exports.default = FloatingMenu;
 
-},{"./helperFunctions":14}],14:[function(require,module,exports){
+},{"./helperFunctions":15}],15:[function(require,module,exports){
 "use strict";
 
 /**
@@ -6475,6 +6486,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.addMouseScrollEventListener = addMouseScrollEventListener;
 exports.getJSONString = getJSONString;
+exports.manhattanDistance = manhattanDistance;
 
 var _jsonStringifyPrettyCompact = require("json-stringify-pretty-compact");
 
@@ -6547,7 +6559,17 @@ function getJSONString(data) {
     }
 }
 
-},{"json-stringify-pretty-compact":1}],15:[function(require,module,exports){
+/**
+ * returns the Manhattan distance between the points _a_ and _b_
+ * @param  {Object} a object containing numeric attributes `x` and `y`
+ * @param  {Object} b object containing numeric attributes `x` and `y`
+ * @return {number}
+ */
+function manhattanDistance(a, b) {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+}
+
+},{"json-stringify-pretty-compact":1}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6624,7 +6646,7 @@ var Id = function () {
 
 exports.default = Id;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 
 /** @module Logic */
@@ -6836,7 +6858,7 @@ var Logic = function () {
 
 exports.default = Logic;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 
 var _canvas = require("./canvas");
@@ -6852,7 +6874,7 @@ $(function () {
   new _canvas2.default("#canvas", 10);
 });
 
-},{"./canvas":10}],18:[function(require,module,exports){
+},{"./canvas":10}],19:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6871,7 +6893,7 @@ exports.default = function (defaultValue) {
     return map;
 };
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6936,7 +6958,7 @@ function getNetworkFromLibrary(networkName) {
     });
 }
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7214,7 +7236,7 @@ var Simulation = function () {
 
 exports.default = Simulation;
 
-},{"./logic":16}],21:[function(require,module,exports){
+},{"./logic":17}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8076,7 +8098,7 @@ var Pattern = exports.Pattern = function (_Tag6) {
     return Pattern;
 }(Tag);
 
-},{"./id":15}],22:[function(require,module,exports){
+},{"./id":16}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8625,6 +8647,6 @@ var Tutorial = function () {
 
 exports.default = Tutorial;
 
-},{}]},{},[17])
+},{}]},{},[18])
 
 //# sourceMappingURL=main.js.map
