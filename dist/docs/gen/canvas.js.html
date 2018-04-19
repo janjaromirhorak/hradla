@@ -884,7 +884,7 @@ export default class Canvas {
                 this.removeWiresByConnectorId(conn.id)
         })
         let index = this.wires.length;
-        this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize, refresh);
+        this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh);
 
         connectors.forEach(conn => {
             conn.addWireId(this.wires[index].svgObj.id);

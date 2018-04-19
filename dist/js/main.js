@@ -2012,7 +2012,7 @@ var Canvas = function () {
                 if (conn.isInputConnector) _this4.removeWiresByConnectorId(conn.id);
             });
             var index = this.wires.length;
-            this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize, refresh);
+            this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh);
 
             connectors.forEach(function (conn) {
                 conn.addWireId(_this4.wires[index].svgObj.id);
@@ -3981,7 +3981,7 @@ var Connector = function (_NetworkElement) {
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    function Connector(parentSVG, gridSize, left, top) {
+    function Connector(parentSVG, left, top) {
         _classCallCheck(this, Connector);
 
         /**
@@ -3990,12 +3990,12 @@ var Connector = function (_NetworkElement) {
          */
         var _this = _possibleConstructorReturn(this, (Connector.__proto__ || Object.getPrototypeOf(Connector)).call(this, parentSVG));
 
-        _this.gridSize = gridSize;
+        _this.gridSize = parentSVG.gridSize;
         /**
          * size of the connector in SVG pixels
          * @type {number}
          */
-        _this.connectorSize = gridSize;
+        _this.connectorSize = parentSVG.gridSize;
         /**
          * offset of the connector from the grid in SVG pixels
          * @type {number}
@@ -4161,14 +4161,13 @@ var InputConnector = exports.InputConnector = function (_Connector) {
     /**
      * Call the constructor from the parent {@link Connector} class and set isInputConnector to true.
      * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
-     * @param {number} gridSize  size of the grid in SVG pixels
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    function InputConnector(parentSVG, gridSize, left, top) {
+    function InputConnector(parentSVG, left, top) {
         _classCallCheck(this, InputConnector);
 
-        var _this2 = _possibleConstructorReturn(this, (InputConnector.__proto__ || Object.getPrototypeOf(InputConnector)).call(this, parentSVG, gridSize, left, top));
+        var _this2 = _possibleConstructorReturn(this, (InputConnector.__proto__ || Object.getPrototypeOf(InputConnector)).call(this, parentSVG, left, top));
 
         _this2.isInputConnector = true;
         return _this2;
@@ -4218,14 +4217,13 @@ var OutputConnector = exports.OutputConnector = function (_Connector2) {
     /**
      * Call the constructor from the parent {@link Connector} class and set isOutputConnector to true.
      * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
-     * @param {number} gridSize  size of the grid in SVG pixels
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    function OutputConnector(parentSVG, gridSize, left, top) {
+    function OutputConnector(parentSVG, left, top) {
         _classCallCheck(this, OutputConnector);
 
-        var _this3 = _possibleConstructorReturn(this, (OutputConnector.__proto__ || Object.getPrototypeOf(OutputConnector)).call(this, parentSVG, gridSize, left, top));
+        var _this3 = _possibleConstructorReturn(this, (OutputConnector.__proto__ || Object.getPrototypeOf(OutputConnector)).call(this, parentSVG, left, top));
 
         _this3.isOutputConnector = true;
         return _this3;
@@ -4583,9 +4581,9 @@ var Box = function (_NetworkElement2) {
         value: function addConnector(left, top, isInputConnector) {
             var index = this.connectors.length;
             if (isInputConnector) {
-                this.connectors[index] = new InputConnector(this.parentSVG, this.gridSize, left, top);
+                this.connectors[index] = new InputConnector(this.parentSVG, left, top);
             } else {
-                this.connectors[index] = new OutputConnector(this.parentSVG, this.gridSize, left, top);
+                this.connectors[index] = new OutputConnector(this.parentSVG, left, top);
             }
             this.svgObj.addChild(this.connectors[index].get());
         }
@@ -5689,18 +5687,16 @@ var Wire = exports.Wire = function (_NetworkElement3) {
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
      * @param {string}  fromId    id of the first connector this wire will be connected to
      * @param {string}  toId      id of the second connector this wire will be connected to
-     * @param {number}  gridSize       size of the grid in SVG pixels
      * @param {Boolean} [refresh=true] if `true`, the [Canvas](./module-Canvas.html) will refresh after creating this wire
      */
-    function Wire(parentSVG, fromId, toId, gridSize) {
-        var refresh = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
+    function Wire(parentSVG, fromId, toId) {
+        var refresh = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
         _classCallCheck(this, Wire);
 
         var _this11 = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this, parentSVG));
-        // small TODO: rework start... end... to arrays? (not important)
 
-        _this11.gridSize = gridSize;
+        _this11.gridSize = parentSVG.gridSize;
 
         _this11.fromId = fromId;
         _this11.toId = toId;

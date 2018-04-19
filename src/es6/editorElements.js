@@ -341,19 +341,19 @@ class Connector extends NetworkElement {
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    constructor(parentSVG, gridSize, left, top) {
+    constructor(parentSVG, left, top) {
         super(parentSVG);
 
         /**
          * size of the grid in SVG pixels
          * @type {number}
          */
-        this.gridSize = gridSize;
+        this.gridSize = parentSVG.gridSize;
         /**
          * size of the connector in SVG pixels
          * @type {number}
          */
-        this.connectorSize = gridSize;
+        this.connectorSize = parentSVG.gridSize;
         /**
          * offset of the connector from the grid in SVG pixels
          * @type {number}
@@ -492,12 +492,11 @@ export class InputConnector extends Connector {
     /**
      * Call the constructor from the parent {@link Connector} class and set isInputConnector to true.
      * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
-     * @param {number} gridSize  size of the grid in SVG pixels
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    constructor(parentSVG, gridSize, left, top) {
-        super(parentSVG, gridSize, left, top);
+    constructor(parentSVG, left, top) {
+        super(parentSVG, left, top);
 
         this.isInputConnector = true;
     }
@@ -532,12 +531,11 @@ export class OutputConnector extends Connector {
     /**
      * Call the constructor from the parent {@link Connector} class and set isOutputConnector to true.
      * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
-     * @param {number} gridSize  size of the grid in SVG pixels
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    constructor(parentSVG, gridSize, left, top) {
-        super(parentSVG, gridSize, left, top);
+    constructor(parentSVG, left, top) {
+        super(parentSVG, left, top);
 
         this.isOutputConnector = true;
     }
@@ -848,9 +846,9 @@ class Box extends NetworkElement {
     addConnector(left, top, isInputConnector) {
         let index = this.connectors.length;
         if(isInputConnector) {
-            this.connectors[index] = new InputConnector(this.parentSVG, this.gridSize, left, top);
+            this.connectors[index] = new InputConnector(this.parentSVG, left, top);
         } else {
-            this.connectors[index] = new OutputConnector(this.parentSVG, this.gridSize, left, top);
+            this.connectors[index] = new OutputConnector(this.parentSVG, left, top);
         }
         this.svgObj.addChild(this.connectors[index].get());
     }
@@ -1602,15 +1600,12 @@ export class Wire extends NetworkElement {
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
      * @param {string}  fromId    id of the first connector this wire will be connected to
      * @param {string}  toId      id of the second connector this wire will be connected to
-     * @param {number}  gridSize       size of the grid in SVG pixels
      * @param {Boolean} [refresh=true] if `true`, the [Canvas](./module-Canvas.html) will refresh after creating this wire
      */
-    constructor(parentSVG, fromId, toId, gridSize, refresh = true) {
-        // small TODO: rework start... end... to arrays? (not important)
-
+    constructor(parentSVG, fromId, toId, refresh = true) {
         super(parentSVG);
 
-        this.gridSize = gridSize;
+        this.gridSize = parentSVG.gridSize;
 
         this.fromId = fromId;
         this.toId = toId;
