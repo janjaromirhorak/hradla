@@ -1,4 +1,3 @@
-import {PolylinePoints, PolylinePoint} from './svgObjects'
 import {manhattanDistance} from './helperFunctions'
 import MapWithDefaultValue from './mapWithDefaultValue'
 
@@ -54,33 +53,39 @@ function movePoint(point, direction) {
 }
 
 /**
- * helper backtracking function used by the aStar algorithm to construct the final {@link PolylinePoints}
+ * helper backtracking function used by the aStar algorithm to construct the final path
  * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
  * @param  {Object} currentNode object containing numeric attributes `x` and `y`
- * @return {PolylinePoints}     instance of {@link PolylinePoints} that represents the path found by the aStar algorithm
+ * @return {TODO}
  */
-function reconstructPath(cameFrom, currentNode, gridSize) {
-    let totalPath = new PolylinePoints();
-    totalPath.append(new PolylinePoint(currentNode.x * gridSize, currentNode.y * gridSize));
+function reconstructPath(cameFrom, currentNode) {
+    let path = [];
+
+    path.push({
+        x: currentNode.x,
+        y: currentNode.y
+    })
 
     while (cameFrom.has(currentNode)) {
         currentNode = cameFrom.get(currentNode);
-        totalPath.append(new PolylinePoint(currentNode.x * gridSize, currentNode.y * gridSize));
+        path.push({
+            x: currentNode.x,
+            y: currentNode.y
+        })
     }
 
-    return totalPath;
+    return path;
 }
 
 /**
  * Heavily modified implementation of the A* algorithm
- * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
+ * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixels
  * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
  * @param  {Set} nonRoutable set of non routable nodes
  * @param  {Set} punishedButRoutable set of nodes that are not optimal for routing
- * @param  {number} gridSize size of the grid in SVG pixels
- * @return {PolylinePoints} instance of {@link PolylinePoints}
+ * @return {TODO}
  */
-export default function findPath(start, end, nonRoutable, punishedButRoutable, gridSize) {
+export default function findPath(start, end, nonRoutable, punishedButRoutable) {
 
     const distanceFunction = manhattanDistance;
 
@@ -88,7 +93,7 @@ export default function findPath(start, end, nonRoutable, punishedButRoutable, g
     const wireBendPunishment = 1;
 
     // number of nodes, that can be opened at once
-    // once is this limit exceeded, aStar will fail and getTemporaryWirePoints will be used instead
+    // once is this limit exceeded, aStar will fail and return undefined
     const maxNodeLimit = 100000;
 
     let closedNodes = new Set();
@@ -136,8 +141,8 @@ export default function findPath(start, end, nonRoutable, punishedButRoutable, g
         const currentNode = getOpenNode();
 
         // if we reached the end point, reconstruct the path and return it
-        if (PolylinePoint.equals(currentNode, end)) {
-            return reconstructPath(cameFrom, currentNode, gridSize);
+        if (currentNode.x == end.x && currentNode.y == end.y) {
+            return reconstructPath(cameFrom, currentNode);
         }
 
         // add this node to the closed nodes

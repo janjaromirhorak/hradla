@@ -1786,6 +1786,17 @@ export class Wire extends NetworkElement {
     }
 
     /**
+     * TODO
+     */
+    pathToPolyline(path) {
+        let totalPath = new svgObj.PolylinePoints();
+        for (const point of path) {
+            totalPath.append(new svgObj.PolylinePoint(point.x * this.gridSize, point.y * this.gridSize));
+        }
+        return totalPath;
+    }
+
+    /**
      * find a nice route for the wire
      * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
      * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
@@ -1804,7 +1815,7 @@ export class Wire extends NetworkElement {
         let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
         if(path) {
-            return path;
+            return this.pathToPolyline(path);
         }
 
 
@@ -1812,7 +1823,7 @@ export class Wire extends NetworkElement {
         path = findPath(start, end, new Set(), new Set(), this.gridSize);
 
         if(path) {
-            return path;
+            return this.pathToPolyline(path);
         }
 
         // if the path was still not found, give up and return temporary points

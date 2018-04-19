@@ -629,19 +629,68 @@ export default class Canvas {
                         true)
                     )
 
-                this.newWire(...connectorIds, false, false);
+                let wire = this.newWire(...connectorIds, false, false);
 
                 // get the manhattan distance between these two connectors
                 const distance = manhattanDistance(...connectorsPositions);
 
                 // add connectorids to the priority queue
-                wireQueue.enqueue(connectorIds, 1 / distance);
+                wireQueue.enqueue(wire, 1 / distance);
             }
 
-            // add wires in the order from short to long
-            while(!wireQueue.isEmpty()) {
-                const connectors = wireQueue.dequeue();
-                this.newWire(...connectors, false);
+            if (window.Worker) {
+                let wirePoints = [];
+                let wireReferences = [];
+
+                // convert the queue to an array (this is needed by the web worker)
+                while(!wireQueue.isEmpty()) {
+                    const wire = wireQueue.dequeue();
+
+                    let wireStart = this.getConnectorPosition(wire.startConnector, true);
+                    let wireEnd = this.getConnectorPosition(wire.endConnector, true);
+
+                    wirePoints.push([
+                        {
+                            x: wireStart.x / this.gridSize,
+                            y: wireStart.y / this.gridSize
+                        },
+                        {
+                            x: wireEnd.x / this.gridSize,
+                            y: wireEnd.y / this.gridSize
+                        }
+                    ])
+
+                    wireReferences.push(wire);
+                }
+
+                let myWorker = new Worker("js/routeWorker.js");
+
+                myWorker.onmessage = (event) => {
+                    const {paths} = event.data
+                    // iterate wireReferences and paths synchronously
+                    wireReferences.forEach((wire, key) => {
+                        wire.setWirePath(wire.pathToPolyline(paths[key]))
+                        wire.updateWireState();
+                    })
+                }
+
+                const message = {
+                    wires: wirePoints,
+                    nonRoutableNodes: this.getNonRoutableNodes(),
+                    inconvenientNodes: this.getInconvenientNodes()
+                }
+
+                myWorker.postMessage(message)
+
+            } else {
+                // TODO
+                // add wires in the order from short to long
+                /**
+                while(!wireQueue.isEmpty()) {
+                    const connectors = wireQueue.dequeue();
+                    this.newWire(...connectors, false);
+                }
+                */
             }
 
             // refresh the SVG document
