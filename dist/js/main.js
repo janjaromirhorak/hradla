@@ -1707,16 +1707,14 @@ var Canvas = function () {
                             return _this3.getConnectorPosition(_this3.getConnectorById(connectorId), true);
                         });
 
-                        _this3.newWire.apply(_this3, connectorIds.concat([false, false]));
+                        var wire = _this3.newWire.apply(_this3, connectorIds.concat([false, false]));
 
                         // get the manhattan distance between these two connectors
                         var distance = _helperFunctions.manhattanDistance.apply(undefined, _toConsumableArray(connectorsPositions));
 
                         // add connectorids to the priority queue
-                        wireQueue.enqueue(connectorIds, 1 / distance);
+                        wireQueue.enqueue(wire, 1 / distance);
                     }
-
-                    // add wires in the order from short to long
                 } catch (err) {
                     _didIteratorError3 = true;
                     _iteratorError3 = err;
@@ -1732,9 +1730,71 @@ var Canvas = function () {
                     }
                 }
 
-                while (!wireQueue.isEmpty()) {
-                    var connectors = wireQueue.dequeue();
-                    _this3.newWire.apply(_this3, _toConsumableArray(connectors).concat([false]));
+                if (window.Worker) {
+                    var wirePoints = [];
+                    var wireReferences = [];
+
+                    // convert the queue to an array (this is needed by the web worker)
+                    while (!wireQueue.isEmpty()) {
+                        var wire = wireQueue.dequeue();
+
+                        var wireStart = _this3.getConnectorPosition(wire.startConnector, true);
+                        var wireEnd = _this3.getConnectorPosition(wire.endConnector, true);
+
+                        wirePoints.push([{
+                            x: wireStart.x / _this3.gridSize,
+                            y: wireStart.y / _this3.gridSize
+                        }, {
+                            x: wireEnd.x / _this3.gridSize,
+                            y: wireEnd.y / _this3.gridSize
+                        }]);
+
+                        wireReferences.push(wire);
+                    }
+
+                    var myWorker = new Worker("js/routeWorker.js");
+
+                    myWorker.onmessage = function (event) {
+                        var paths = event.data.paths;
+                        // iterate wireReferences and paths synchronously
+
+                        wireReferences.forEach(function (wire, key) {
+                            wire.setWirePath(wire.pathToPolyline(paths[key]));
+                            wire.updateWireState();
+                        });
+                    };
+
+                    var message = {
+                        wires: wirePoints,
+                        nonRoutableNodes: _this3.getNonRoutableNodes(),
+                        inconvenientNodes: _this3.getInconvenientNodes()
+                    };
+
+                    myWorker.postMessage(message);
+                } else {
+                    // web worker is not supported: use an interval to make the import a bit slower
+                    // by dividing it into chunks, so the browser window is not entirely frozen when the wiring is happening
+
+                    var wiresToBeRoutedAtOnce = 10;
+                    var delayBetweenIterations = 200;
+
+                    // add wires in the order from short to long
+                    var wirePlacingInterval = window.setInterval(function () {
+                        if (!wireQueue.isEmpty()) {
+                            for (var i = 0; i < wiresToBeRoutedAtOnce; ++i) {
+                                if (wireQueue.isEmpty()) {
+                                    break;
+                                }
+
+                                var _wire = wireQueue.dequeue();
+                                _wire.routeWire(true, false);
+                                _wire.updateWireState();
+                            }
+                        } else {
+                            console.log("finished");
+                            clearInterval(wirePlacingInterval);
+                        }
+                    }, delayBetweenIterations);
                 }
 
                 // refresh the SVG document
@@ -5957,6 +6017,42 @@ var Wire = exports.Wire = function (_NetworkElement3) {
         }
 
         /**
+         * TODO
+         */
+
+    }, {
+        key: 'pathToPolyline',
+        value: function pathToPolyline(path) {
+            var totalPath = new svgObj.PolylinePoints();
+            var _iteratorNormalCompletion17 = true;
+            var _didIteratorError17 = false;
+            var _iteratorError17 = undefined;
+
+            try {
+                for (var _iterator17 = path[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
+                    var point = _step17.value;
+
+                    totalPath.append(new svgObj.PolylinePoint(point.x * this.gridSize, point.y * this.gridSize));
+                }
+            } catch (err) {
+                _didIteratorError17 = true;
+                _iteratorError17 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
+                        _iterator17.return();
+                    }
+                } finally {
+                    if (_didIteratorError17) {
+                        throw _iteratorError17;
+                    }
+                }
+            }
+
+            return totalPath;
+        }
+
+        /**
          * find a nice route for the wire
          * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
          * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
@@ -5978,14 +6074,14 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             var path = (0, _findPath2.default)(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
             if (path) {
-                return path;
+                return this.pathToPolyline(path);
             }
 
             // if a path was not found, try again but don't take into account the punished and non routable node
             path = (0, _findPath2.default)(start, end, new Set(), new Set(), this.gridSize);
 
             if (path) {
-                return path;
+                return this.pathToPolyline(path);
             }
 
             // if the path was still not found, give up and return temporary points
@@ -6069,8 +6165,6 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.default = findPath;
-
-var _svgObjects = require('./svgObjects');
 
 var _helperFunctions = require('./helperFunctions');
 
@@ -6160,33 +6254,39 @@ function movePoint(point, direction) {
 }
 
 /**
- * helper backtracking function used by the aStar algorithm to construct the final {@link PolylinePoints}
+ * helper backtracking function used by the aStar algorithm to construct the final path
  * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
  * @param  {Object} currentNode object containing numeric attributes `x` and `y`
- * @return {PolylinePoints}     instance of {@link PolylinePoints} that represents the path found by the aStar algorithm
+ * @return {TODO}
  */
-function reconstructPath(cameFrom, currentNode, gridSize) {
-    var totalPath = new _svgObjects.PolylinePoints();
-    totalPath.append(new _svgObjects.PolylinePoint(currentNode.x * gridSize, currentNode.y * gridSize));
+function reconstructPath(cameFrom, currentNode) {
+    var path = [];
+
+    path.push({
+        x: currentNode.x,
+        y: currentNode.y
+    });
 
     while (cameFrom.has(currentNode)) {
         currentNode = cameFrom.get(currentNode);
-        totalPath.append(new _svgObjects.PolylinePoint(currentNode.x * gridSize, currentNode.y * gridSize));
+        path.push({
+            x: currentNode.x,
+            y: currentNode.y
+        });
     }
 
-    return totalPath;
+    return path;
 }
 
 /**
  * Heavily modified implementation of the A* algorithm
- * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
+ * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixels
  * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
  * @param  {Set} nonRoutable set of non routable nodes
  * @param  {Set} punishedButRoutable set of nodes that are not optimal for routing
- * @param  {number} gridSize size of the grid in SVG pixels
- * @return {PolylinePoints} instance of {@link PolylinePoints}
+ * @return {TODO}
  */
-function findPath(start, end, nonRoutable, punishedButRoutable, gridSize) {
+function findPath(start, end, nonRoutable, punishedButRoutable) {
 
     var distanceFunction = _helperFunctions.manhattanDistance;
 
@@ -6194,7 +6294,7 @@ function findPath(start, end, nonRoutable, punishedButRoutable, gridSize) {
     var wireBendPunishment = 1;
 
     // number of nodes, that can be opened at once
-    // once is this limit exceeded, aStar will fail and getTemporaryWirePoints will be used instead
+    // once is this limit exceeded, aStar will fail and return undefined
     var maxNodeLimit = 100000;
 
     var closedNodes = new Set();
@@ -6242,8 +6342,8 @@ function findPath(start, end, nonRoutable, punishedButRoutable, gridSize) {
         var currentNode = getOpenNode();
 
         // if we reached the end point, reconstruct the path and return it
-        if (_svgObjects.PolylinePoint.equals(currentNode, end)) {
-            return reconstructPath(cameFrom, currentNode, gridSize);
+        if (currentNode.x == end.x && currentNode.y == end.y) {
+            return reconstructPath(cameFrom, currentNode);
         }
 
         // add this node to the closed nodes
@@ -6316,7 +6416,7 @@ function findPath(start, end, nonRoutable, punishedButRoutable, gridSize) {
     return undefined;
 }
 
-},{"./helperFunctions":15,"./mapWithDefaultValue":19,"./svgObjects":22,"libstl":9}],14:[function(require,module,exports){
+},{"./helperFunctions":15,"./mapWithDefaultValue":19,"libstl":9}],14:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

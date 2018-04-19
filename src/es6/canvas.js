@@ -629,19 +629,83 @@ export default class Canvas {
                         true)
                     )
 
-                this.newWire(...connectorIds, false, false);
+                let wire = this.newWire(...connectorIds, false, false);
 
                 // get the manhattan distance between these two connectors
                 const distance = manhattanDistance(...connectorsPositions);
 
                 // add connectorids to the priority queue
-                wireQueue.enqueue(connectorIds, 1 / distance);
+                wireQueue.enqueue(wire, 1 / distance);
             }
 
-            // add wires in the order from short to long
-            while(!wireQueue.isEmpty()) {
-                const connectors = wireQueue.dequeue();
-                this.newWire(...connectors, false);
+            if (window.Worker) {
+                let wirePoints = [];
+                let wireReferences = [];
+
+                // convert the queue to an array (this is needed by the web worker)
+                while(!wireQueue.isEmpty()) {
+                    const wire = wireQueue.dequeue();
+
+                    let wireStart = this.getConnectorPosition(wire.startConnector, true);
+                    let wireEnd = this.getConnectorPosition(wire.endConnector, true);
+
+                    wirePoints.push([
+                        {
+                            x: wireStart.x / this.gridSize,
+                            y: wireStart.y / this.gridSize
+                        },
+                        {
+                            x: wireEnd.x / this.gridSize,
+                            y: wireEnd.y / this.gridSize
+                        }
+                    ])
+
+                    wireReferences.push(wire);
+                }
+
+                let myWorker = new Worker("js/routeWorker.js");
+
+                myWorker.onmessage = (event) => {
+                    const {paths} = event.data
+                    // iterate wireReferences and paths synchronously
+                    wireReferences.forEach((wire, key) => {
+                        wire.setWirePath(wire.pathToPolyline(paths[key]))
+                        wire.updateWireState();
+                    })
+                }
+
+                const message = {
+                    wires: wirePoints,
+                    nonRoutableNodes: this.getNonRoutableNodes(),
+                    inconvenientNodes: this.getInconvenientNodes()
+                }
+
+                myWorker.postMessage(message)
+
+            } else {
+                // web worker is not supported: use an interval to make the import a bit slower
+                // by dividing it into chunks, so the browser window is not entirely frozen when the wiring is happening
+
+                const wiresToBeRoutedAtOnce = 10;
+                const delayBetweenIterations = 200;
+
+                // add wires in the order from short to long
+                let wirePlacingInterval = window.setInterval(() => {
+                    if(!wireQueue.isEmpty()) {
+                        for(let i = 0; i < wiresToBeRoutedAtOnce; ++i) {
+                            if(wireQueue.isEmpty()) {
+                                break;
+                            }
+
+                            const wire = wireQueue.dequeue();
+                            wire.routeWire(true, false);
+                            wire.updateWireState();
+                        }
+                    } else {
+                        console.log("finished");
+                        clearInterval(wirePlacingInterval);
+                    }
+                }, delayBetweenIterations)
             }
 
             // refresh the SVG document
@@ -653,7 +717,7 @@ export default class Canvas {
                     // switch the input box state to the opposite and back:
                     // for some reason calling box.refreshState()
                     // results in weird unfinished simulation
-                    // this causes update of the output connector and a start of a new simulation
+                    // this causes update of the output connector and thus a start of a new simulation
 
                     // TODO find better solution instead of this workaround, if there is any
                     box.on = !box.on
