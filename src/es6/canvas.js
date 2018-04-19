@@ -1,13 +1,15 @@
 "use strict";
 
-import * as svgObj from './svgObjects.js'
-import * as editorElements from './editorElements.js'
-import Logic from './logic.js'
-import ContextMenu from './contextMenu.js'
-import FloatingMenu from './floatingMenu.js'
-import Simulation from './simulation.js'
-import { addMouseScrollEventListener } from './helperFunctions.js'
-import Tutorial from './tutorial.js';
+import * as svgObj from './svgObjects'
+import * as editorElements from './editorElements'
+import Logic from './logic'
+import ContextMenu from './contextMenu'
+import FloatingMenu from './floatingMenu'
+import Simulation from './simulation'
+import { addMouseScrollEventListener, manhattanDistance } from './helperFunctions'
+import Tutorial from './tutorial';
+
+import { PriorityQueue } from 'libstl'; // note: imported from a node module
 
 /**
  * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
@@ -205,7 +207,7 @@ export default class Canvas {
             .append(new svgObj.PolylinePoint(this.gridSize, 0))
             .append(new svgObj.PolylinePoint(this.gridSize, this.gridSize));
 
-        pattern.addChild(new svgObj.PolyLine(patternPoints, "#a3a4d2", 2));
+        pattern.addChild(new svgObj.PolyLine(patternPoints, 2, "#a3a4d2"));
         this.addPattern(pattern.get());
 
         this.background = new svgObj.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
@@ -223,10 +225,12 @@ export default class Canvas {
         // CONSTRUCT FLOATING MENU
         this.floatingMenu = new FloatingMenu(this);
 
-        // ALL EVENT CALLBACKS
         let target;
+
+        // ALL EVENT CALLBACKS
         this.$svg.on('mousedown', event => {
             target = this.getRealTarget(event.target);
+
             if(target!==undefined) {
                 // propagate mousedown to the real target
                 target.onMouseDown(event);
@@ -246,7 +250,7 @@ export default class Canvas {
             }
 
             event.preventDefault();
-        }).on('mouseup', (event) => {
+        }).on('mouseup', event => {
             if(target!==undefined) {
                 target.onMouseUp(event);
             } else {
@@ -512,7 +516,7 @@ export default class Canvas {
                         // add new gate (without reloading the SVG, we will reload it once after the import)
                         box = this.newGate(boxData.name, 0, 0, false);
                         break;
-                    case "io":
+                    case "other":
                         switch (boxData.name) {
                             case "input":
                                 // add new input (without reloading the SVG, we will reload it once after the import)
@@ -521,6 +525,10 @@ export default class Canvas {
                             case "output":
                                 // add new output (without reloading the SVG, we will reload it once after the import)
                                 box = this.newOutput(0, 0, false);
+                                break;
+                            case "repeater":
+                                // add new output (without reloading the SVG, we will reload it once after the import)
+                                box = this.newRepeater(0, 0, false);
                                 break;
                             default:
                                 reject("Unknown io box name '"+boxData.name+"'.");
@@ -576,7 +584,6 @@ export default class Canvas {
                         // pass the values got from json into a variable that will be added into the map
                         let value = {
                             index: boxData.connections[j].index,
-                            type: boxData.connections[j].type,
                             boxId: box.id
                         };
 
@@ -585,7 +592,7 @@ export default class Canvas {
                             // if there already is a wire with this id in the map,
                             // add the value to the end of the array of values
                             let mapValue = newWires.get(wireId);
-                            mapValue[mapValue.length] = value;
+                            mapValue.push(value);
                             newWires.set(wireId, mapValue);
                         } else {
                             // if there is no wire with this id in the map
@@ -600,17 +607,106 @@ export default class Canvas {
             this.refresh();
 
             // with all boxes added, we can now connect them with wires
-            newWires.forEach(item => {
-                let connectorIds = [];
-                if(item[0] && item[1]) {
-                    for (const i of [0, 1]) {
-                        let box = this.getBoxById(item[i].boxId);
 
-                        connectorIds[i] = box.connectors[item[i].index].id;
-                    }
+            // priority queue for the new wires, priority being (1 / manhattanDistance) between the conenctors, higher is better
+            let wireQueue = new PriorityQueue();
+
+            // get all ids for lal the
+            for (const wireInfo of newWires.values()) {
+                let connectorIds = [];
+
+                // create an array [connector1Id, connector2Id]
+                for (const {boxId, index} of wireInfo) {
+                    connectorIds.push(
+                        this.getBoxById(boxId).connectors[index].id
+                    )
                 }
-                this.newWire(connectorIds[0], connectorIds[1], true);
-            });
+
+                // create and array [{x, y}, {x, y}] containing positions for connectors 1 and 2
+                const connectorsPositions = connectorIds.map(
+                    connectorId => this.getConnectorPosition(
+                        this.getConnectorById(connectorId),
+                        true)
+                    )
+
+                let wire = this.newWire(...connectorIds, false, false);
+
+                // get the manhattan distance between these two connectors
+                const distance = manhattanDistance(...connectorsPositions);
+
+                // add connectorids to the priority queue
+                wireQueue.enqueue(wire, 1 / distance);
+            }
+
+            if (window.Worker) {
+                let wirePoints = [];
+                let wireReferences = [];
+
+                // convert the queue to an array (this is needed by the web worker)
+                while(!wireQueue.isEmpty()) {
+                    const wire = wireQueue.dequeue();
+
+                    let wireStart = this.getConnectorPosition(wire.startConnector, true);
+                    let wireEnd = this.getConnectorPosition(wire.endConnector, true);
+
+                    wirePoints.push([
+                        {
+                            x: wireStart.x / this.gridSize,
+                            y: wireStart.y / this.gridSize
+                        },
+                        {
+                            x: wireEnd.x / this.gridSize,
+                            y: wireEnd.y / this.gridSize
+                        }
+                    ])
+
+                    wireReferences.push(wire);
+                }
+
+                let myWorker = new Worker("js/routeWorker.js");
+
+                myWorker.onmessage = (event) => {
+                    const {paths} = event.data
+                    // iterate wireReferences and paths synchronously
+                    wireReferences.forEach((wire, key) => {
+                        wire.setWirePath(wire.pathToPolyline(paths[key]))
+                        wire.updateWireState();
+                    })
+                }
+
+                const message = {
+                    wires: wirePoints,
+                    nonRoutableNodes: this.getNonRoutableNodes(),
+                    inconvenientNodes: this.getInconvenientNodes()
+                }
+
+                myWorker.postMessage(message)
+
+            } else {
+                // web worker is not supported: use an interval to make the import a bit slower
+                // by dividing it into chunks, so the browser window is not entirely frozen when the wiring is happening
+
+                const wiresToBeRoutedAtOnce = 10;
+                const delayBetweenIterations = 200;
+
+                // add wires in the order from short to long
+                let wirePlacingInterval = window.setInterval(() => {
+                    if(!wireQueue.isEmpty()) {
+                        for(let i = 0; i < wiresToBeRoutedAtOnce; ++i) {
+                            if(wireQueue.isEmpty()) {
+                                break;
+                            }
+
+                            const wire = wireQueue.dequeue();
+                            wire.routeWire(true, false);
+                            wire.updateWireState();
+                        }
+                    } else {
+                        console.log("finished");
+                        clearInterval(wirePlacingInterval);
+                    }
+                }, delayBetweenIterations)
+            }
 
             // refresh the SVG document
             this.refresh();
@@ -618,11 +714,12 @@ export default class Canvas {
             this.simulationEnabled = true;
             for (let box of this.boxes) {
                 if (box instanceof editorElements.InputBox) {
-                    // switch the input box state to the oposit and back, for some reason calling box.refreshState()
+                    // switch the input box state to the opposite and back:
+                    // for some reason calling box.refreshState()
                     // results in weird unfinished simulation
-                    // this causes update of the output connector and a start of a new simulation
+                    // this causes update of the output connector and thus a start of a new simulation
 
-                    // TODO find better solution instead of this workaround
+                    // TODO find better solution instead of this workaround, if there is any
                     box.on = !box.on
                     box.on = !box.on
                 }
@@ -694,6 +791,10 @@ export default class Canvas {
      */
     newOutput(x, y, refresh = true) {
         return this.newBox(x, y, new editorElements.OutputBox(this), refresh);
+    }
+
+    newRepeater(x, y, refresh = true) {
+        return this.newBox(x, y, new editorElements.Repeater(this), refresh);
     }
 
     /**
@@ -784,7 +885,7 @@ export default class Canvas {
      * @param  {Boolean} [refresh=true] if refresh is set to true, the SVG document will be reloaded after adding the wire
      * @return {editorElements.Wire}    instance of editorElements.Wire that has been added to the Canvas
      */
-    newWire(fromId, toId, refresh = true) {
+    newWire(fromId, toId, refresh = true, route = true) {
         // wire must connect two distinct connectors
         if (fromId===toId)
             return false
@@ -797,7 +898,7 @@ export default class Canvas {
                 this.removeWiresByConnectorId(conn.id)
         })
         let index = this.wires.length;
-        this.wires[index] = new editorElements.Wire(this, fromId, toId, this.gridSize, refresh);
+        this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh, route);
 
         connectors.forEach(conn => {
             conn.addWireId(this.wires[index].svgObj.id);
@@ -810,6 +911,39 @@ export default class Canvas {
             this.wires[index].updateWireState()
 
         return this.wires[index];
+    }
+
+    /**
+     * get the coordinates of the specified connector
+     * @param  {Connector}  connector      instance of {@link Connector}
+     * @param  {Boolean} [snapToGrid=true] if true, the connector position will be snapped to the grid
+     * @return {Object}                    point - object containing numeric attributes `x` and `y`
+     */
+    getConnectorPosition(connector, snapToGrid = true) {
+        // connector.svgObj.id has to be called, else the getCoordinates does not work on the first call in Firefox 55
+        const dummy = connector.svgObj.id; // eslint-disable-line no-unused-vars
+
+        let $connector = connector.svgObj.$el;
+
+        let position = $connector.position();
+
+        position.left = this.viewbox.transformX(position.left)
+        position.top = this.viewbox.transformY(position.top)
+
+        let width = $connector.attr("width");
+        let height = $connector.attr("height");
+
+        let x = position.left + width / 2;
+        let y = position.top + height / 2;
+        if(snapToGrid) {
+            x = this.snapToGrid(x);
+            y = this.snapToGrid(y);
+        }
+
+        return {
+            x: x,
+            y: y
+        };
     }
 
     /**
@@ -958,7 +1092,7 @@ export default class Canvas {
                 return this.boxes[i];
             }
         }
-        return false;
+        return undefined;
     }
 
     /**
@@ -1033,6 +1167,10 @@ export default class Canvas {
      * @return {editorElements.NetworkElement} instance of an object derived from editorElements.NetworkElement that the user interacted with
      */
     getRealTarget(target) {
+        if (target===undefined) {
+            return undefined;
+        }
+
         // eventy se museji zpracovat tady, protoze v SVG se eventy nepropaguji
         let $target = $(target);
 
@@ -1048,10 +1186,20 @@ export default class Canvas {
                 $parentGroup = $parentGroup.parent();
             }
 
-            return this.getBoxById($parentGroup.attr('id'));
-        } else if ($target.hasClass("wire")) {
-            return this.getWireById($target.attr('id'));
+            // try to match the jQuery element to the logical element using DOM classes
+
+            if($parentGroup.hasClass("box")) {
+                // return the corresponding box
+                return this.getBoxById($parentGroup.attr('id'));
+            } else if($parentGroup.hasClass("wire")) {
+                // return the corresponding wire
+                return this.getWireById($parentGroup.attr('id'));
+            } else {
+                // found a group that contains the target, but this group does not match any known element types
+                return undefined;
+            }
         } else {
+            // element does not match any known element types
             return undefined;
         }
     }
@@ -1176,31 +1324,48 @@ export default class Canvas {
     getNonRoutableNodes() {
         let blockedNodes = new Set();
         // for each box
-        for(let i = 0 ; i < this.boxes.length ; ++i) {
-            // get the jQuery child with class .rect ("hitbox")
-            let rect = $('#' + this.boxes[i].svgObj.id).children(".rect")[0];
-            // get the position of the rectangle
-            let position = $(rect).position();
-
-            // snap the position to the grid
-            position.left = this.snapToGrid(position.left);
-            position.top = this.snapToGrid(position.top);
+        for(const box of this.boxes) {
+            const translate = box.getGridPixelTransform().getTranslate();
 
             // for each item in blockedNodes (set of blocked nodes with coordinates relative
             // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
             // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-            for(let item of this.boxes[i].blockedNodes) {
-                let absoluteX = position.left + item.x * this.gridSize;
-                let absoluteY = position.top + item.y * this.gridSize;
-
+            for(const node of box.blockedNodes) {
                 blockedNodes.add({
-                    x: absoluteX,
-                    y: absoluteY
+                    x: translate.x + node.x,
+                    y: translate.y + node.y
                 });
             }
         }
-        // TODO ensure that this.refresh() is really unnecessary
-        // this.refresh();
+
+        // FOR DEBUG ONLY: display the non routable nodes
+        /*
+
+        if(this.nodeDisplay) {
+            for (const rectangleId of this.nodeDisplay) {
+                $(`#${rectangleId}`).remove();
+            }
+        }
+
+        this.nodeDisplay = [];
+
+        for (const node of blockedNodes) {
+            const x = this.gridToSVG(node.x);
+            const y = this.gridToSVG(node.y);
+
+            const w = 4;
+            const p = w / 2;
+
+            const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "red", "none")
+            this.nodeDisplay.push(nodeRectangle.id);
+            this.appendElement(nodeRectangle, false);
+        }
+
+        this.refresh();
+
+        */
+        // END FOR DEBUG ONLY
+
         // return the set
         return blockedNodes;
     }
@@ -1210,56 +1375,47 @@ export default class Canvas {
      * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
      */
     getInconvenientNodes(ignoreWireId) {
-
         let inconvenientNodes = new Set();
         // for each wire
-        for(let i = 0 ; i < this.wires.length ; ++i) {
-            // (ignore the wire that is specified in the ignoreWireId argument (if any))
-            if(ignoreWireId===undefined || ignoreWireId!==this.wires[i].svgObj.id) {
-                // cycle through points, for each neigbours add all points that are in between them
-                // i.e.: (0,0) and (0,30) are blocking these nodes: (0,0), (0,10), (0,20), (0,30)
-                let prevPoint;
-                this.wires[i].points.forEach(point => {
-                    if (prevPoint === undefined) {
-                        // if the prevPoint is undefined, add the first point
-                        inconvenientNodes.add({x: point.x, y: point.y});
-                    } else {
-                        // else add all the point between the prevPoint (excluded) and point (included)
 
-                        if(prevPoint.x===point.x) {
-                            // if the line is horizontal
-                            let from = Math.min(prevPoint.y, point.y);
-                            let to = Math.max(prevPoint.y, point.y);
-
-                            while(from <= to) {
-                                inconvenientNodes.add({x: point.x, y: from});
-                                from += this.gridSize;
-                            }
-                        } else if(prevPoint.y===point.y) {
-                            // if the line is vertical
-                            let from = Math.min(prevPoint.x, point.x);
-                            let to = Math.max(prevPoint.x, point.x);
-
-                            while(from <= to) {
-                                inconvenientNodes.add({x: from, y: point.y});
-                                from += this.gridSize;
-                            }
-                        } else {
-                            // line is neither horizontal nor vertical, throw an error for better future debugging
-                            console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
-                        }
+        for(const wire of this.wires) {
+            if(ignoreWireId===undefined || ignoreWireId!==wire.id) {
+                if(wire.inconvenientNodes) {
+                    for (const node of wire.inconvenientNodes) {
+                        inconvenientNodes.add(node);
                     }
-
-                    // set new prevPoint
-                    prevPoint = {
-                        x: point.x,
-                        y: point.y
-                    };
-                });
-
-
+                }
             }
         }
+
+        // FOR DEBUG ONLY: display the inconvenient nodes
+        /*
+
+        if(this.inconvenientNodeDisplay) {
+            for (const rectangleId of this.inconvenientNodeDisplay) {
+                $(`#${rectangleId}`).remove();
+            }
+        }
+
+        this.inconvenientNodeDisplay = [];
+
+        for (const node of inconvenientNodes) {
+            const x = this.gridToSVG(node.x);
+            const y = this.gridToSVG(node.y);
+
+            const w = 4;
+            const p = w / 2;
+
+            const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "orange", "none")
+            this.inconvenientNodeDisplay.push(nodeRectangle.id);
+            this.appendElement(nodeRectangle, false);
+        }
+
+        this.refresh();
+
+        */
+        // END FOR DEBUG ONLY
+
         // return the set
         return inconvenientNodes;
     }

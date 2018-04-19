@@ -1,4 +1,4 @@
-import { getJSONString } from "./helperFunctions.js";
+import { getJSONString } from "./helperFunctions";
 
 /**
  * FloatingButton represents a button that is used in the floating menu in the right bottom corner

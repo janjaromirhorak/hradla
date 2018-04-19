@@ -1,6 +1,6 @@
 {
     "name": "hradla",
-    "version": "1.6.0",
+    "version": "1.6.5",
     "repository": {
         "type": "git",
         "url": "git://github.com/janjaromirhorak/hradla.git"
@@ -13,6 +13,7 @@
         "babelify": "^8.0.0",
         "browserify": "^16.1.0",
         "del": "^3.0.0",
+        "event-stream": "^3.3.4",
         "gulp": "^4.0.0",
         "gulp-autoprefixer": "^4.0.0",
         "gulp-changed": "^3.2.0",
@@ -40,6 +41,7 @@
         "gulp-zip": "^4.1.0",
         "jquery": "^3.3.1",
         "jsdoc": "^3.5.5",
+        "json-stringify-pretty-compact": "^1.1.0",
         "libstl": "^0.1.22",
         "lity": "^2.3.0",
         "tui-jsdoc-template": "^1.2.2",

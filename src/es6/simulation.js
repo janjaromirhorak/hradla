@@ -1,4 +1,4 @@
-import Logic from './logic.js'
+import Logic from './logic'
 
 /**
  * @module Simulation

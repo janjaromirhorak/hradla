@@ -4,6 +4,8 @@
  * @module HelperFunctions
  */
 
+import stringify from "json-stringify-pretty-compact"; // note: imported from a module
+
 /**
  * add a cross browser event listener on a mouse scroll
  * @param {string} query DOM query of the element that the listener will be added to
@@ -58,9 +60,19 @@ export function getJSONString(data, pretty = false, dataUri = false) {
     } else {
         switch (pretty) {
             case true:
-                return JSON.stringify(data, null, 2);
+                return stringify(data, {maxLength: 50});
             case false:
                 return JSON.stringify(data);
         }
     }
+}
+
+/**
+ * returns the Manhattan distance between the points _a_ and _b_
+ * @param  {Object} a object containing numeric attributes `x` and `y`
+ * @param  {Object} b object containing numeric attributes `x` and `y`
+ * @return {number}
+ */
+export function manhattanDistance(a, b) {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }

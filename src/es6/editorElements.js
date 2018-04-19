@@ -1,8 +1,7 @@
-import * as svgObj from './svgObjects.js'
-import MapWithDefaultValue from './mapWithDefaultValue.js'
-import Logic from './logic.js'
+import * as svgObj from './svgObjects'
+import Logic from './logic'
+import findPath from './findPath'
 
-import { PriorityQueue } from 'libstl'; // note: imported from a node module
 
 /**
  * mapping of logical states to css classes
@@ -74,11 +73,9 @@ export class Transform {
         this.items = [];
 
         if(string!==undefined) {
-            let splitItems = string.split(")");
-
-            for (let i = 0 ; i < splitItems.length ; i++) {
-                if(splitItems[i]) { // if not empty
-                    this.items.push(new Property(splitItems[i] + ")"));
+            for (const item of string.split(")")) {
+                if(item) { // if not empty
+                    this.items.push(new Property(item + ")"));
                 }
             }
         }
@@ -149,8 +146,8 @@ export class Transform {
         let args = this.getArguments(this.getIndex("translate"));
 
         return {
-            x: args[0],
-            y: args[1]
+            x: Number(args[0]),
+            y: Number(args[1])
         }
     }
 
@@ -162,9 +159,9 @@ export class Transform {
         let args = this.getArguments(this.getIndex("rotate"));
 
         return {
-            deg: args[0],
-            centreX: args[1],
-            centreY: args[2]
+            deg: Number(args[0]),
+            centreX: Number(args[1]),
+            centreY: Number(args[2])
         }
     }
 
@@ -188,15 +185,18 @@ export class Transform {
     }
 
     /**
-     * rotate by 90 degrees to the right
-     * @param  {number} centreX horizontal position of the centre of the rotation
-     * @param  {number} centreY vertical position of the centre of the rotation
+     * rotate by 90 degrees to the right or left, depending on the parameter `right`
+     * @param {number} centreX horizontal position of the centre of the rotation
+     * @param {number} centreY vertical position of the centre of the rotation
+     * @param {boolean} right rotate to the right if `true`, to the left if `false`
      */
-    rotateRight(centreX, centreY) {
+    rotateRightAngle(centreX, centreY, right) {
+        const amount = right ? 90 : 270;
+
         if(this.getIndex("rotate")===-1) {
-            this.setRotate(90, centreX, centreY);
+            this.setRotate(amount, centreX, centreY);
         } else {
-            let newRotation = (parseInt(this.getRotate().deg) + 90) % 360;
+            let newRotation = (parseInt(this.getRotate().deg) + amount) % 360;
 
             if(newRotation===180) {
                 // swap centre coordinates
@@ -215,16 +215,35 @@ export class Transform {
     }
 
     /**
+     * rotate by 90 degrees to the right
+     * @param  {number} centreX horizontal position of the centre of the rotation
+     * @param  {number} centreY vertical position of the centre of the rotation
+     */
+    rotateRight(centreX, centreY) {
+        this.rotateRightAngle(centreX, centreY, true);
+    }
+
+    /**
+     * rotate by 90 degrees to the left
+     * @param  {number} centreX horizontal position of the centre of the rotation
+     * @param  {number} centreY vertical position of the centre of the rotation
+     */
+    rotateLeft(centreX, centreY) {
+        this.rotateRightAngle(centreX, centreY, false);
+    }
+
+    /**
      * get the transform values in a string
      * @return {string} string that can be used as a value for the transform property of a SVG element
      */
     get() {
-        let retVal = "";
-        for(let i = 0 ; i < this.items.length ; i++) {
-            if(i!==0) {
-                retVal += " ";
+        let retVal;
+        for(const item of this.items) {
+            if(retVal) {
+                retVal += " " + item.get();
+            } else {
+                retVal = item.get();
             }
-            retVal += this.items[i].get();
         }
         return retVal;
     }
@@ -321,19 +340,19 @@ class Connector extends NetworkElement {
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    constructor(parentSVG, gridSize, left, top) {
+    constructor(parentSVG, left, top) {
         super(parentSVG);
 
         /**
          * size of the grid in SVG pixels
          * @type {number}
          */
-        this.gridSize = gridSize;
+        this.gridSize = parentSVG.gridSize;
         /**
          * size of the connector in SVG pixels
          * @type {number}
          */
-        this.connectorSize = gridSize;
+        this.connectorSize = parentSVG.gridSize;
         /**
          * offset of the connector from the grid in SVG pixels
          * @type {number}
@@ -472,12 +491,11 @@ export class InputConnector extends Connector {
     /**
      * Call the constructor from the parent {@link Connector} class and set isInputConnector to true.
      * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
-     * @param {number} gridSize  size of the grid in SVG pixels
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    constructor(parentSVG, gridSize, left, top) {
-        super(parentSVG, gridSize, left, top);
+    constructor(parentSVG, left, top) {
+        super(parentSVG, left, top);
 
         this.isInputConnector = true;
     }
@@ -512,12 +530,11 @@ export class OutputConnector extends Connector {
     /**
      * Call the constructor from the parent {@link Connector} class and set isOutputConnector to true.
      * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
-     * @param {number} gridSize  size of the grid in SVG pixels
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    constructor(parentSVG, gridSize, left, top) {
-        super(parentSVG, gridSize, left, top);
+    constructor(parentSVG, left, top) {
+        super(parentSVG, left, top);
 
         this.isOutputConnector = true;
     }
@@ -570,12 +587,6 @@ class Box extends NetworkElement {
         this.gridSize = this.parentSVG.gridSize;
 
         /**
-         * url of the image depicting this object
-         * @type {string}
-         */
-        this.url = "img/" + this.category + "/" + this.name + ".svg";
-
-        /**
          * array of connectors of this box
          * @type {Array}
          */
@@ -614,6 +625,7 @@ class Box extends NetworkElement {
         rectangle.$el.addClass('rect');
 
         this.svgObj.addChild(rectangle);
+
         // image of the element
         this.image = new svgObj.SvgImage(0, 0, this.width, this.height, this.url);
         this.svgObj.addChild(this.image);
@@ -623,8 +635,19 @@ class Box extends NetworkElement {
 
         this.svgObj.$el.addClass("box");
         this.svgObj.$el.addClass(category);
+    }
 
-        this.generateBlockNodes();
+    /**
+     * url of the image depicting this object
+     * @type {string}
+     */
+    get url() {
+        const
+            category = this.category || "",
+            name = this.name || "",
+            suffix = this.imgSuffix || "";
+
+        return `img/svg/${category}/${name}${suffix}.svg`;
     }
 
     /**
@@ -727,11 +750,10 @@ class Box extends NetworkElement {
      */
     changeImage(suffix) {
         if(suffix === undefined || suffix === "") {
-            suffix = "";
+            this.imgSuffix = "";
         } else {
-            suffix = "-" + suffix;
+            this.imgSuffix = "-" + suffix;
         }
-        this.url = "img/" + this.category + "/" + this.name + suffix + ".svg";
 
         this.image.changeUrl(this.url);
     }
@@ -745,17 +767,55 @@ class Box extends NetworkElement {
     }
 
     /**
-     * remove a specific onde from the set of blocked nodes
-     * @param  {number} x horizontal position of the blocked node in grid pixels
-     * @param  {number} y vertical position of the blocked node in grid pixels
+     * rotate the set of blocked nodes by 90 degrees to the right or to the left, depending on the parameter
+     *
+     * used to rotate the nodes when the object itself is rotated
+     * @param  {boolean} right rotate clockwise if true, counterclockwise if false
      */
-    removeBlockedNode(x, y) {
-        for(let item of this.blockedNodes) {
-            if(item.x===x && item.y===y) {
-                this.blockedNodes.delete(item);
-                break;
-            }
+    rotateBlockedNodes(right) {
+        if(this.rotationParity===undefined) {
+            this.rotationParity = false;
         }
+
+        this.rotationParity = !this.rotationParity;
+
+        let newBlockedNodes = new Set();
+
+        // rotate the node
+
+        for (const node of this.blockedNodes) {
+            let newNode;
+
+            if(this.rotationParity) {
+                if(right) {
+                    newNode = {
+                        x: Math.abs(node.y - this.gridHeight),
+                        y: node.x
+                    };
+                } else {
+                    newNode = {
+                        x: node.y,
+                        y: Math.abs(node.x - this.gridWidth)
+                    };
+                }
+            } else {
+                if(right) {
+                    newNode = {
+                        x: Math.abs(node.y - this.gridWidth),
+                        y: node.x
+                    };
+                } else {
+                    newNode = {
+                        x: node.y,
+                        y: Math.abs(node.x - this.gridHeight)
+                    };
+                }
+            }
+
+            newBlockedNodes.add(newNode);
+        }
+
+        this.blockedNodes = newBlockedNodes;
     }
 
     /**
@@ -764,30 +824,16 @@ class Box extends NetworkElement {
      * used to rotate the nodes when the object itself is rotated
      */
     rotateBlockedNodesRight() {
-        if(this.rotation===undefined || this.rotation===4) {
-            this.rotation = 0;
-        }
-        this.rotation++;
+        this.rotateBlockedNodes(true);
+    }
 
-        if(this.rotation === 1 || this.rotation === 3) {
-            let newBlockedNodes = new Set();
-            this.blockedNodes.forEach(item => {
-                newBlockedNodes.add({
-                    x: Math.abs(item.y - this.gridHeight),
-                    y: item.x
-                });
-            });
-            this.blockedNodes = newBlockedNodes;
-        } else if(this.rotation === 2 || this.rotation === 4) {
-            let newBlockedNodes = new Set();
-            this.blockedNodes.forEach(item => {
-                newBlockedNodes.add({
-                    x: Math.abs(item.y - this.gridWidth),
-                    y: item.x
-                });
-            });
-            this.blockedNodes = newBlockedNodes;
-        }
+    /**
+     * rotate the set of blocked nodes to the right
+     *
+     * used to rotate the nodes when the object itself is rotated
+     */
+    rotateBlockedNodesLeft() {
+        this.rotateBlockedNodes(false);
     }
 
     /**
@@ -799,13 +845,11 @@ class Box extends NetworkElement {
     addConnector(left, top, isInputConnector) {
         let index = this.connectors.length;
         if(isInputConnector) {
-            this.connectors[index] = new InputConnector(this.parentSVG, this.gridSize, left, top);
+            this.connectors[index] = new InputConnector(this.parentSVG, left, top);
         } else {
-            this.connectors[index] = new OutputConnector(this.parentSVG, this.gridSize, left, top);
+            this.connectors[index] = new OutputConnector(this.parentSVG, left, top);
         }
         this.svgObj.addChild(this.connectors[index].get());
-
-        this.removeBlockedNode(left, top);
     }
 
     /**
@@ -960,7 +1004,7 @@ class Box extends NetworkElement {
                 this.onClick();
             }
         } else if (event.which === 2 ) {
-            this.onClickMiddle();
+            this.onClickMiddle(event);
         }
 
         this.svgObj.$el.removeClass('grabbed');
@@ -1002,7 +1046,7 @@ class Box extends NetworkElement {
     /**
      * custom callback function for middle click that rotates the box by 90 degrees to the right
      */
-    onClickMiddle() {
+    onClickMiddle(event) {
         // get the transform value for this box
         let transform = this.getTransform();
 
@@ -1017,16 +1061,22 @@ class Box extends NetworkElement {
         centreY -= centreY % this.gridSize;
 
         // apply the rotation to the transform object
-        transform.rotateRight(
-            centreX,
-            centreY
-        );
+        if(event.ctrlKey) {
+            transform.rotateLeft(centreX, centreY);
+        } else {
+            transform.rotateRight(centreX, centreY);
+        }
+
 
         // apply the modified transform object ot the svgObj
         this.svgObj.addAttr({"transform": transform.get()});
 
         // rotate also the blocked nodes
-        this.rotateBlockedNodesRight();
+        if(event.ctrlKey) {
+            this.rotateBlockedNodesLeft();
+        } else {
+            this.rotateBlockedNodesRight();
+        }
 
         // update the wires
         this.updateWires();
@@ -1056,6 +1106,40 @@ class Box extends NetworkElement {
     }
 }
 
+export class Repeater extends Box {
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     */
+    constructor(parentSVG) {
+        const gridHeight = 4;
+        const gridWidth = 9;
+
+        super(parentSVG, "repeater", "other", gridWidth, gridHeight);
+
+        this.addInputConnector(0, gridHeight / 2);
+        this.addOutputConnector(gridWidth, gridHeight / 2);
+
+        // regenerate blocked nodes
+        this.generateBlockNodes();
+    }
+
+    /**
+     * Set the output connector state to match the state of the input connector
+     */
+    refreshState() {
+        this.parentSVG.simulation.notifyChange(this.connectors[1].id, this.connectors[0].state)
+    }
+
+    generateBlockNodes() {
+        // block the input and output connector nodes
+        const specialNodes = [
+            {x: 0, y: this.gridHeight / 2},
+            {x: this.gridWidth, y: this.gridHeight / 2}
+        ]
+        super.generateBlockNodes(0, 1, 0, 1, ...specialNodes);
+    }
+}
+
 /**
  * InputBox has only output connectors and is used to set the input states for the logic network.
  * @extends Box
@@ -1066,14 +1150,16 @@ export class InputBox extends Box {
      * @param {Boolean} [isOn=false] the initial state of the inputbox (`true` is *on*, `false` is *off*)
      */
     constructor(parentSVG, isOn = false) {
-        const width = 7;
-        const height = 4;
+        const gridWidth = 7;
+        const gridHeight = 4;
 
-        super(parentSVG, "input", "io", width, height);
+        super(parentSVG, "input", "other", gridWidth, gridHeight);
 
-        this.addConnector(width, height / 2, false);
+        this.addConnector(gridWidth, gridHeight / 2, false);
 
         this.on = isOn;
+
+        this.generateBlockNodes();
     }
 
     /**
@@ -1083,11 +1169,17 @@ export class InputBox extends Box {
     get exportData() {
         let data = super.exportData;
         data.isOn = this.isOn;
+
         return data;
     }
 
     generateBlockNodes() {
-        super.generateBlockNodes(0, 1, 1, 0);
+        // block the input connector node
+        const specialNode = {
+            x: this.gridWidth,
+            y: this.gridHeight / 2
+        }
+        super.generateBlockNodes(0, 1, 1, 0, specialNode);
     }
 
     /**
@@ -1146,12 +1238,14 @@ export class OutputBox extends Box {
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
      */
     constructor(parentSVG) {
-        const height = 4;
-        const width = 5;
+        const gridHeight = 4;
+        const gridWidth = 5;
 
-        super(parentSVG, "output", "io", width, height);
+        super(parentSVG, "output", "other", gridWidth, gridHeight);
 
-        this.addConnector(0, height / 2, true);
+        this.addConnector(0, gridHeight / 2, true);
+
+        this.generateBlockNodes();
     }
 
     /**
@@ -1189,7 +1283,12 @@ export class OutputBox extends Box {
     }
 
     generateBlockNodes() {
-        super.generateBlockNodes(0, 0, 0, 1);
+        // block the input connector node
+        const specialNode = {
+            x: 0,
+            y: this.gridHeight / 2
+        }
+        super.generateBlockNodes(0, 0, 0, 1, specialNode);
     }
 }
 
@@ -1208,31 +1307,57 @@ export class Gate extends Box {
 
         super(parentSVG, name, "gate", width, height);
 
+        // ADD CONNECTORS
+
+        let specialNodes = [];
+
         // output
         this.addConnector(width, height / 2, false);
+
+        // block the output connector
+        specialNodes.push({
+            x: width,
+            y: height / 2
+        });
 
         if(this.name==="not") {
             // input
             this.addConnector(0, height / 2, true);
+            // block the input connector
+            specialNodes.push({
+                x: 0,
+                y: height / 2
+            });
         } else {
             // input
             this.addConnector(0, height / 4, true);
             this.addConnector(0, height / (4/3), true);
 
-            // add one blockedNode between the inputs (for better looking wiring)
-            // and regenerate blocked nodes
-            this.generateBlockNodes({
+            // block the input connectors
+            specialNodes.push({
+                x: 0,
+                y: height / 4
+            })
+            specialNodes.push({
+                x: 0,
+                y: height / (4/3)
+            });
+
+            // add one blocked node between the inputs (for better looking wiring)
+            specialNodes.push({
                 x: 0,
                 y: height / 2
             });
         }
 
+        this.generateBlockNodes(...specialNodes);
+
         this.refreshState();
     }
 
-    generateBlockNodes(specialNode) {
-        if(specialNode!==undefined) {
-            super.generateBlockNodes(0, 1, 0, 1, specialNode);
+    generateBlockNodes(...specialNodes) {
+        if(specialNodes!==undefined) {
+            super.generateBlockNodes(0, 1, 0, 1, ...specialNodes);
         } else {
             super.generateBlockNodes(0, 1, 0, 1);
         }
@@ -1246,25 +1371,25 @@ export class Gate extends Box {
         let state = Logic.state.unknown
         switch (this.name) {
             case "and":
-                state =  Logic.and(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.and(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "nand":
-                state =  Logic.nand(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.nand(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "nor":
-                state =  Logic.nor(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.nor(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "not":
-                state =  Logic.not(this.connectors[1].state)
+                state = Logic.not(this.connectors[1].state)
                 break;
             case "or":
-                state =  Logic.or(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.or(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "xnor":
-                state =  Logic.xnor(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.xnor(this.connectors[1].state, this.connectors[2].state)
                 break;
             case "xor":
-                state =  Logic.xor(this.connectors[1].state, this.connectors[2].state)
+                state = Logic.xor(this.connectors[1].state, this.connectors[2].state)
                 break;
         }
         // notify the simulator about this change
@@ -1334,8 +1459,8 @@ export class Blackbox extends Box {
                     new svgObj.PolylinePoint(0, pixelPosition),
                     new svgObj.PolylinePoint(connectorPinLenght, pixelPosition),
                 ]),
-                "black",
-                1
+                1,
+                "black"
             )
 
             this.svgObj.addChild(pin);
@@ -1354,8 +1479,8 @@ export class Blackbox extends Box {
                     new svgObj.PolylinePoint(this.width - connectorPinLenght, pixelPosition),
                     new svgObj.PolylinePoint(this.width, pixelPosition),
                 ]),
-                "black",
-                1
+                1,
+                "black"
             )
 
             this.svgObj.addChild(pin);
@@ -1370,6 +1495,9 @@ export class Blackbox extends Box {
          * and returns `outputConnectors` Logic.states.
          */
         this.evalFunction = evalFunction;
+
+        // regenerate the blocked nodes after adding all the connectors
+        this.generateBlockNodes();
     }
 
     /**
@@ -1440,6 +1568,26 @@ export class Blackbox extends Box {
             this.outputConnectors[i].setState(outputStates[i]);
         }
     }
+
+    generateBlockNodes() {
+        // add blocked nodes on the connectors and between them as well
+
+        let specialNodes = []
+        for (let i = 1 ; i < this.inputConnectors.length * 2 ; ++i) {
+            specialNodes.push({
+                x: 0,
+                y: i
+            })
+        }
+        for (let i = 1 ; i < this.outputConnectors.length * 2 ; ++i) {
+            specialNodes.push({
+                x: this.gridWidth,
+                y: i
+            })
+        }
+
+        super.generateBlockNodes(0, 1, 0, 1, ...specialNodes);
+    }
 }
 
 /**
@@ -1451,15 +1599,12 @@ export class Wire extends NetworkElement {
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
      * @param {string}  fromId    id of the first connector this wire will be connected to
      * @param {string}  toId      id of the second connector this wire will be connected to
-     * @param {number}  gridSize       size of the grid in SVG pixels
      * @param {Boolean} [refresh=true] if `true`, the [Canvas](./module-Canvas.html) will refresh after creating this wire
      */
-    constructor(parentSVG, fromId, toId, gridSize, refresh = true) {
-        // small TODO: rework start... end... to arrays? (not important)
-
+    constructor(parentSVG, fromId, toId, refresh = true, route = true) {
         super(parentSVG);
 
-        this.gridSize = gridSize;
+        this.gridSize = parentSVG.gridSize;
 
         this.fromId = fromId;
         this.toId = toId;
@@ -1473,7 +1618,12 @@ export class Wire extends NetworkElement {
         this.endConnector = this.parentSVG.getConnectorById(toId);
 
         this.connectors = [this.startConnector, this.endConnector]
-        this.routeWire(true, refresh);
+
+        if(route) {
+            this.routeWire(true, refresh);
+        } else {
+            this.temporaryWire();
+        }
 
         this.elementState = Logic.state.unknown;
 
@@ -1569,8 +1719,8 @@ export class Wire extends NetworkElement {
      * route the wire using the temporary wire points
      */
     temporaryWire() {
-        this.wireStart = this.getCoordinates(this.startConnector, false);
-        this.wireEnd = this.getCoordinates(this.endConnector, false);
+        this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, false);
+        this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, false);
 
         this.setWirePath(this.getTemporaryWirePoints());
     }
@@ -1579,10 +1729,10 @@ export class Wire extends NetworkElement {
      * route the wire using the modified A* wire routing algorithm
      */
     routeWire(snapToGrid = true, refresh = true) {
-        this.wireStart = this.getCoordinates(this.startConnector, snapToGrid);
-        this.wireEnd = this.getCoordinates(this.endConnector, snapToGrid);
+        this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, snapToGrid);
+        this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, snapToGrid);
 
-        this.points = this.aStar(
+        this.points = this.findRoute(
             {
                 x: this.wireStart.x / this.gridSize,
                 y: this.wireStart.y / this.gridSize
@@ -1596,6 +1746,9 @@ export class Wire extends NetworkElement {
 
         if (refresh)
             this.updateWireState();
+
+        // regenerate inconvenient nodes
+        this.generateInconvenientNodes();
     }
 
     /**
@@ -1605,9 +1758,22 @@ export class Wire extends NetworkElement {
     setWirePath(points) {
         // set the line
         if(this.svgObj!==undefined) {
-            this.svgObj.updatePoints(points);
+            // this.svgObj.updatePoints(points);
+            for (let child of this.svgObj.children) {
+                child.updatePoints(points);
+            }
         } else {
-            this.svgObj = new svgObj.PolyLine(points, "#8b8b8b", 2);
+            // this.svgObj = new svgObj.PolyLine(points, 2, "#8b8b8b");
+            this.svgObj = new svgObj.Group();
+
+            let hitbox = new svgObj.PolyLine(points, 10, 'white');
+            hitbox.addClass("hitbox");
+            hitbox.addAttr({opacity: 0});
+            this.svgObj.addChild(hitbox);
+
+            let mainLine = new svgObj.PolyLine(points, 2);
+            mainLine.addClass("main", "stateUnknown");
+            this.svgObj.addChild(mainLine);
         }
 
         this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
@@ -1620,64 +1786,25 @@ export class Wire extends NetworkElement {
     }
 
     /**
-     * Heavily modified implementation of the A* algorithm
-     * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-     * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire
-     * @return {PolylinePoints} instance of {@link PolylinePoints}
+     * TODO
      */
-    aStar(start, end) {
-        const wireCrossPunishment = 2;
-        const wireBendPunishment = 1;
-
-        // number of nodes, that can be opened at once
-        // once is this limit exceeded, aStar will fail and getTemporaryWirePoints will be used instead
-        const maxNodeLimit = 50000;
-
-        let closedNodes = new Set();
-        let openNodes = new Set();
-        let openNodeQueue = new PriorityQueue();
-
-        // functions for working with open nodes:
-
-        /**
-         * add a new open node to the structure
-         * @param {Object} node   object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-         * @param {number} fscore fScore of this node
-         */
-        const addOpenNode = (node, fscore) => {
-            openNodes.add(node);
-            // flip the fscore, because PriorityQueue uses max heap
-            openNodeQueue.enqueue(node, 1 / fscore);
+    pathToPolyline(path) {
+        let totalPath = new svgObj.PolylinePoints();
+        for (const point of path) {
+            totalPath.append(new svgObj.PolylinePoint(point.x * this.gridSize, point.y * this.gridSize));
         }
+        return totalPath;
+    }
 
-        /**
-         * get the open node with the lowest fScore and remove it
-         * @return {Object} object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-         */
-        const getOpenNode = () => {
-            const node = openNodeQueue.dequeue();
-            openNodes.delete(node);
-            return node;
-        }
-
-        let cameFrom = new Map();
-
-        // default value: infinity
-        let gScore = new MapWithDefaultValue(Infinity);
-        gScore.set(start, 0);
-
-        // default value: infinity
-        let fScore = new MapWithDefaultValue(Infinity);
-
-        let startFScore = Wire.manhattanDistance(start, end);
-        fScore.set(start, startFScore);
-
-        addOpenNode(start, startFScore);
-
-        openNodes.add(start);
-        openNodeQueue.enqueue(start, 1 / fScore.get(start));
-
+    /**
+     * find a nice route for the wire
+     * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
+     * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
+     * @return {PolylinePoints}       [description]
+     */
+    findRoute(start, end) {
         let nonRoutable = this.parentSVG.getNonRoutableNodes();
+
         let punishedButRoutable;
         if(this.svgObj===undefined) {
             punishedButRoutable = this.parentSVG.getInconvenientNodes();
@@ -1685,204 +1812,70 @@ export class Wire extends NetworkElement {
             punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
         }
 
-        while (openNodes.size > 0) {
-            // get the value from openNodes that has the lowest fScore
-            const currentNode = getOpenNode();
+        let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
-            // if we reached the end point, reconstruct the path and return it
-            if(svgObj.PolylinePoint.equals(currentNode, end)) {
-                return this.reconstructPath(cameFrom, currentNode);
-            }
-
-            // add this node to the closed nodes
-            closedNodes.add(currentNode);
-
-            // the farthest points accessible without avoiding obstacles in every direction
-            // (but max 50 in each direction)
-            for(let direction = 0 ; direction < 4 ; direction++) {
-                let newPoint = Wire.movePoint(currentNode, direction);
-
-                for(let i = 0 ; i < 50 ; i++) {
-                    // if newPoint is in the set of non routable points,
-                    // don't add it and stop proceeding in this direction
-                    if(Wire.setHasThisPoint(nonRoutable, this.scalePointToGrid(newPoint))) {
-                        break;
-                    }
-
-                    // skip this node, if it has been already closed
-                    // or if it is on the list of non routable nodes
-                    if (closedNodes.has(newPoint)) {
-                        continue;
-                    }
-
-                    // calculate possible GScore by adding 1 to the score of the node we came from
-                    // (we prioritize to minimize the number of nodes and not the distance,
-                    //  so we are adding 1 on all nodes, even if the euclidean / mannhatan distance may vary)
-                    let increment = wireBendPunishment;
-                    let possibleGScore = gScore.get(currentNode) + increment;
-
-                    if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
-                        // if the node is in the set of punished node, punish it by adding to the GScore
-                        possibleGScore += wireCrossPunishment;
-                    }
-
-                    // skip this node if it has worst estimage gscore than in the gscore table
-                    if (possibleGScore >= gScore.get(newPoint)) {
-                        continue;
-                    }
-
-                    cameFrom.set(newPoint, currentNode);
-                    gScore.set(newPoint, possibleGScore);
-
-                    const newFScore = possibleGScore + Wire.manhattanDistance(newPoint, end);
-
-                    fScore.set(newPoint, newFScore);
-
-                    if (!openNodes.has(newPoint)) {
-                        // add the point to the list of points
-                        addOpenNode(newPoint, newFScore);
-                    }
-
-                    // if newPoint is in the set of punished but routable points,
-                    // add it but stop proceeding in this direction
-                    if(Wire.setHasThisPoint(punishedButRoutable, this.scalePointToGrid(newPoint))) {
-                        break;
-                    }
-
-                    // move to the next point in the direciton
-                    newPoint = Wire.movePoint(newPoint, direction);
-                }
-            }
-
-            if(openNodes.size > maxNodeLimit) {
-                console.log(`Number of open nodes (${openNodes.size}) exceeded the limit for open nodes (${maxNodeLimit}). Giving up...`)
-                break;
-            }
+        if(path) {
+            return this.pathToPolyline(path);
         }
-        // if we got here, the path does not exist -> let's use temporary path ignoring all colisions
+
+
+        // if a path was not found, try again but don't take into account the punished and non routable node
+        path = findPath(start, end, new Set(), new Set(), this.gridSize);
+
+        if(path) {
+            return this.pathToPolyline(path);
+        }
+
+        // if the path was still not found, give up and return temporary points
         return this.getTemporaryWirePoints();
     }
 
     /**
-     * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
-     * @param  {Object} point     object containing numeric attributes `x` and `y`
-     * @param  {number} direction directions:
-     *                              - 0: up
-     *                              - 1: right
-     *                              - 2: down
-     *                              - 3: left
-     * @return {Object}           object containing numeric attributes `x` and `y`
+     * generate a set of nodes, that are inconvenient for wiring, but can be used, just are not preferred
+     * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
      */
-    static movePoint(point, direction) {
-        switch (direction) {
-            case 0: // up
-                return {
-                    x: point.x,
-                    y: point.y - 1
-                };
-            case 1: // right
-                return {
-                    x: point.x + 1,
-                    y: point.y
-                };
-            case 2: // down
-                return {
-                    x: point.x,
-                    y: point.y + 1
-                };
-            case 3: // left
-                return {
-                    x: point.x - 1,
-                    y: point.y
-                };
-        }
-    }
+    generateInconvenientNodes() {
+        this.inconvenientNodes = new Set();
 
-    /**
-     * multiply the point coordinates by the grid size
-     * @param  {Object} point object containing numeric attributes `x` and `y` in grid pixels
-     * @return {Object}       the same point but containing numeric attributes `x` and `y` in SVG pixels
-     */
-    scalePointToGrid(point) {
-        return {
-            x: point.x * this.gridSize,
-            y: point.y * this.gridSize
-        }
-    }
+        let prevPoint;
 
-    /**
-     * helper backtracking function used by the aStar algorithm to construct the final {@link PolylinePoints}
-     * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
-     * @param  {Object} currentNode object containing numeric attributes `x` and `y`
-     * @return {PolylinePoints}     instance of {@link PolylinePoints} that represents the path found by the aStar algorithm
-     */
-    reconstructPath(cameFrom, currentNode) {
-        let totalPath = new svgObj.PolylinePoints();
-        totalPath.append(new svgObj.PolylinePoint(currentNode.x * this.gridSize, currentNode.y * this.gridSize));
+        this.points.forEach(point => {
+            const
+                x = this.parentSVG.SVGToGrid(point.x),
+                y = this.parentSVG.SVGToGrid(point.y);
 
-        while (cameFrom.has(currentNode)) {
-            currentNode = cameFrom.get(currentNode);
-            totalPath.append(new svgObj.PolylinePoint(currentNode.x * this.gridSize, currentNode.y * this.gridSize));
-        }
+            if (prevPoint === undefined) {
+                // if the prevPoint is undefined, add the first point
+                this.inconvenientNodes.add({x, y});
+            } else {
+                // else add all the point between the prevPoint (excluded) and point (included)
 
-        return totalPath;
-    }
+                if(prevPoint.x === x) {
+                    // if the line is horizontal
+                    let from = Math.min(prevPoint.y, y);
+                    let to = Math.max(prevPoint.y, y);
 
-    /**
-     * returns the Manhattan distance between the points _a_ and _b_
-     * @param  {Object} a object containing numeric attributes `x` and `y`
-     * @param  {Object} b object containing numeric attributes `x` and `y`
-     * @return {number}
-     */
-    static manhattanDistance(a, b) {
-        // Manhattan geometry
-        return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-    }
+                    while(from <= to) {
+                        this.inconvenientNodes.add({x: x, y: from});
+                        from++;
+                    }
+                } else if(prevPoint.y === y) {
+                    // if the line is vertical
+                    let from = Math.min(prevPoint.x, x);
+                    let to = Math.max(prevPoint.x, x);
 
-    /**
-     * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
-     * @param {Set} set set of points
-     * @param {Object} point object containing numeric attributes `x` and `y`
-     */
-    static setHasThisPoint(set, point) {
-        for (let item of set) {
-            if(item.x === point.x && item.y === point.y) {
-                return true;
+                    while(from <= to) {
+                        this.inconvenientNodes.add({x: from, y: y});
+                        from++;
+                    }
+                } else {
+                    // line is neither horizontal nor vertical, throw an error for better future debugging
+                    // console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
+                }
             }
-        }
-        return false;
-    }
 
-    /**
-     * get the coordinates of the specified connector
-     * @param  {Connector}  connector      instance of {@link Connector}
-     * @param  {Boolean} [snapToGrid=true] if true, the connector position will be snapped to the grid
-     * @return {Object}                    point - object containing numeric attributes `x` and `y`
-     */
-    getCoordinates(connector, snapToGrid = true) {
-        // connector.svgObj.id has to be called, else the getCoordinates does not work on the first call in Firefox 55
-        const dummy = connector.svgObj.id; // eslint-disable-line no-unused-vars
-
-        let $connector = connector.svgObj.$el;
-
-        let position = $connector.position();
-
-        position.left = this.parentSVG.viewbox.transformX(position.left)
-        position.top = this.parentSVG.viewbox.transformY(position.top)
-
-        let width = $connector.attr("width");
-        let height = $connector.attr("height");
-
-        let x = position.left + width / 2;
-        let y = position.top + height / 2;
-        if(snapToGrid) {
-            x = this.parentSVG.snapToGrid(x);
-            y = this.parentSVG.snapToGrid(y);
-        }
-
-        return {
-            x: x,
-            y: y
-        };
+            // set new prevPoint
+            prevPoint = {x, y};
+        });
     }
 }

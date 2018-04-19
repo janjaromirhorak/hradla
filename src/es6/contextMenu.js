@@ -3,7 +3,7 @@
 import {
     getLibrary,
     getNetworkFromLibrary
-} from './networkLibrary.js';
+} from './networkLibrary';
 
 /**
  * Item in the [ContextMenu](./module-ContextMenu.html). ContextMenuItems can be nested using the appendItem function.
@@ -154,7 +154,7 @@ class GateMenuItem extends ContextMenuItem {
      */
     constructor(type, contextMenu) {
         super(
-            `${type} gate`,
+            `${type.toUpperCase()} gate`,
             contextMenu,
             () => {
                 this.parentSVG.newGate(
@@ -244,8 +244,10 @@ export default class ContextMenu {
         this.$el = $("<ul>");
         this.$el.attr('id', 'contextMenu');
 
+        let special = new ContextMenuItem("Special elements", this);
+
         // add input box
-        this.appendItem(
+        special.appendItem(
             new ContextMenuItem("Input box", this,
                 () => {
                     let position = {
@@ -259,7 +261,7 @@ export default class ContextMenu {
         );
 
         // add output box
-        this.appendItem(new ContextMenuItem("Output box", this, () => {
+        special.appendItem(new ContextMenuItem("Output box", this, () => {
             let position = {
                 left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
                 top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
@@ -268,14 +270,25 @@ export default class ContextMenu {
             parentSVG.newOutput(position.left, position.top);
         }));
 
+        special.appendItem(new ContextMenuItem("Repeater", this, () => {
+            let position = {
+                left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
+                top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
+            };
+
+            parentSVG.newRepeater(position.left, position.top);
+        }))
+
+        this.appendItem(special);
+
         // add all gates
 
         // list of gates that can be added
         const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
         let gateList = new ContextMenuItem("New gate", this, parentSVG);
-        for (let i = 0 ; i < gates.length ; ++i) {
+        for (const name of gates) {
             gateList.appendItem(
-                new GateMenuItem(gates[i], this)
+                new GateMenuItem(name, this)
             );
         }
         this.appendItem(gateList);
@@ -413,13 +426,13 @@ export default class ContextMenu {
      * @param  {jQuery.element} $target jQuery target of a MouseEvent (element that user clicked on)
      */
     resolveConditionalItems($target) {
-        for(let i = 0; i < this.conditionalItems.length; ++i) {
-            if($target.hasClass(this.conditionalItems[i].itemClass)) {
+        for(let item of this.conditionalItems) {
+            if($target.hasClass(item.itemClass)) {
                 this.appendItem(
                     new ContextMenuItem(
-                        this.conditionalItems[i].text, this,
+                        item.text, this,
                         () => {
-                            this.conditionalItems[i].clickFunction($target.attr('id'));
+                            item.clickFunction($target.attr('id'));
                         }
                     )
                 ).addClass('conditional');

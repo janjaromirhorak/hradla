@@ -71,7 +71,8 @@ modules.addModules({
     sass: 'gulp-sass',
     jsoneditor: 'gulp-json-editor',
     tap: 'gulp-tap',
-    eslint: 'gulp-eslint'
+    eslint: 'gulp-eslint',
+    eventStream: 'event-stream'
 });
 
 const config = require('./config.json')
@@ -153,7 +154,7 @@ gulp.task('scripts:lint', () => {
 })
 
 // compile and minimize es6
-gulp.task('scripts:build', () => {
+gulp.task('scripts:build', (done) => {
     const
         filter = modules.get('filter'),
         browserify = modules.get('browserify'),
@@ -163,27 +164,32 @@ gulp.task('scripts:build', () => {
         sourcemaps = modules.get('sourcemaps'),
         gulpif = modules.get('gulpif'),
         rename = modules.get('rename'),
-        uglify = modules.get('uglify');
+        uglify = modules.get('uglify'),
+        eventStream = modules.get('eventStream');
 
     const jsFilter = filter('**/*.js', {restore: true});
 
-    const startpoint = 'main.js'
-    const startpointPath = srcJs + '/' + startpoint
+    const startpoints = ['main.js', 'routeWorker.js']
 
-    return browserify(startpointPath, { debug: true })
-        .transform(babel.configure({
-            presets: ['babel-preset-env'].map(require.resolve)
-        }))
-        .bundle()
-        .on('error', (err) => { console.error(err); this.emit('end'); })
-        .pipe(source(startpoint))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulpif(production, jsFilter))
-        .pipe(gulpif(production, rename({suffix: '.min'})))
-        .pipe(gulpif(production, uglify()))
-        .pipe(gulp.dest(outJs))
+    let tasks = startpoints.map((startpoint) => {
+        return browserify(srcJs + '/' + startpoint, { debug: true })
+            .transform(babel.configure({
+                presets: ['babel-preset-env'].map(require.resolve)
+            }))
+            .bundle()
+            .on('error', (err) => { console.error(err); this.emit('end'); })
+            .pipe(source(startpoint))
+            .pipe(buffer())
+            .pipe(sourcemaps.init({ loadMaps: true }))
+            .pipe(sourcemaps.write('./'))
+            .pipe(gulpif(production, jsFilter))
+            .pipe(gulpif(production, rename({suffix: '.min'})))
+            .pipe(gulpif(production, uglify()))
+            .pipe(gulp.dest(outJs))
+        });
+
+    // create a merged stream
+    return eventStream.merge.apply(null, tasks).on('end', done);
 });
 
 gulp.task('scripts', gulp.series('scripts:lint', 'scripts:build'));
@@ -240,7 +246,7 @@ gulp.task('html', () => {
 
     return file('index.html', '', {src: true})
         .pipe(insert.append('<!-- build:title -->'))
-        .pipe(insert.append(config.title))
+        .pipe(insert.append(`${config.title} (v${packageData.version})`))
         .pipe(insert.append('<!-- /build:title -->'))
 
         .pipe(insert.append('<!-- build:styles -->'))
@@ -271,7 +277,7 @@ gulp.task('images', () => {
         changed = modules.get('changed'),
         imagemin = modules.get('imagemin');
 
-    return gulp.src('img/*/*.svg')
+    return gulp.src('img/**/*.svg')
         .pipe(changed(outImg))
         .pipe(imagemin([
             imagemin.svgo({
@@ -349,9 +355,9 @@ gulp.task('jsdoc:generate', (done) => {
         },
         templates: {
             name: "Hradla",
-            footerText: config.title,
+            footerText: `${config.title} (v${packageData.version})`,
             logo: {
-                url: "../../img/gate/xor.svg",
+                url: "../../img/svg/gate/xor.svg",
                 width: "40px",
                 height: "20px"
                 // link: "../../"

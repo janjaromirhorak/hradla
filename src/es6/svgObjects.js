@@ -1,4 +1,4 @@
-import Id from './id.js'
+import Id from './id'
 
 /**
  * Parent class for all svgObjects
@@ -142,6 +142,14 @@ class SvgElement extends Tag {
  * @extends SvgElement
  */
 export class Rectangle extends SvgElement {
+    /**
+     * @param {number} x       horizontal position in SVG pixels
+     * @param {number} y       vertical position in SVG pixels
+     * @param {number} w       width in SVG pixels
+     * @param {number} h       height in SVG pixels
+     * @param {string} fill    filling color of the rectangle
+     * @param {string} stroke  stroke color of the rectangle
+     */
     constructor(x, y, w, h, fill, stroke) {
         super(x, y, w, h, "rect");
         this.addAttr({
@@ -184,6 +192,8 @@ export class SvgImage extends SvgElement {
 export class Group extends Tag {
     constructor() {
         super("g");
+
+        this.children = [];
     }
 
     /**
@@ -191,6 +201,8 @@ export class Group extends Tag {
      * @param {SvgElement} el an instance of {@link SvgElement}
      */
     addChild(el) {
+        this.children.push(el);
+
         this.$el.append(el.$el);
         return el; // pro jednodussi "let rect = g.addChild(new Rectangle(..."
     }
@@ -451,18 +463,23 @@ export class PolylinePoints extends SmartArray {
 export class PolyLine extends Tag {
     /**
      * @param {PolylinePoints} points points describing this polyline
-     * @param {string} color CSS color of this polyline
-     * @param {number} strokeWidth width of the stroke for this polyline in SVG pixels
+     * @param {number} [strokeWidth] width of the stroke for this polyline in SVG pixels
+     * @param {string} [color] CSS color of this polyline
      */
-    constructor(points, color, strokeWidth) {
+    constructor(points, strokeWidth, color) {
         super("polyline");
 
-        this.addAttr({
+        let attributes = {
             points: points.string,
-            stroke: color,
             fill: "none",
             "stroke-width": strokeWidth
-        });
+        };
+
+        if(color!==undefined) {
+            attributes.stroke = color
+        }
+
+        this.addAttr(attributes);
     }
 
     /**

@@ -1,4 +1,4 @@
-import Canvas from './canvas.js';
+import Canvas from './canvas';
 
 /**
  * When the document is ready, initialize the application

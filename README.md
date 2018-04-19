@@ -25,5 +25,5 @@ You also can download the [already compiled version](https://github.com/janjarom
 ## live version
 [https://hradla.janjaromirhorak.cz/](https://hradla.janjaromirhorak.cz/)
 
-## czech documentation
-[docs/md/developer.md](docs/md/developer.md)
+## live documentation
+[https://hradla.janjaromirhorak.cz/docs/gen/](https://hradla.janjaromirhorak.cz/docs/gen/)
