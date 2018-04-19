@@ -1752,6 +1752,7 @@ var Canvas = function () {
                         wireReferences.push(wire);
                     }
 
+                    // routeWorker.js replaced in gulpfile depending on devel / prod build
                     var myWorker = new Worker("js/routeWorker.js");
 
                     myWorker.onmessage = function (event) {

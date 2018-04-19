@@ -1404,6 +1404,7 @@ onmessage = function onmessage(event) {
     }
 
     postMessage({ paths: paths });
+    close();
 };
 
 },{"./findPath":10}]},{},[13])

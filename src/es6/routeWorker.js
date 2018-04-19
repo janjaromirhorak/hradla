@@ -44,4 +44,5 @@ onmessage = (event) => {
     }
 
     postMessage({paths})
+    close();
 }

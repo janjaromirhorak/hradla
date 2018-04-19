@@ -663,7 +663,8 @@ export default class Canvas {
                     wireReferences.push(wire);
                 }
 
-                let myWorker = new Worker("js/routeWorker.js");
+                // [routeWorkerFileName] replaced in gulpfile depending on devel / prod build
+                let myWorker = new Worker("js/[routeWorkerFileName]");
 
                 myWorker.onmessage = (event) => {
                     const {paths} = event.data
