@@ -683,14 +683,29 @@ export default class Canvas {
                 myWorker.postMessage(message)
 
             } else {
-                // TODO
+                // web worker is not supported: use an interval to make the import a bit slower
+                // by dividing it into chunks, so the browser window is not entirely frozen when the wiring is happening
+
+                const wiresToBeRoutedAtOnce = 10;
+                const delayBetweenIterations = 200;
+
                 // add wires in the order from short to long
-                /**
-                while(!wireQueue.isEmpty()) {
-                    const connectors = wireQueue.dequeue();
-                    this.newWire(...connectors, false);
-                }
-                */
+                let wirePlacingInterval = window.setInterval(() => {
+                    if(!wireQueue.isEmpty()) {
+                        for(let i = 0; i < wiresToBeRoutedAtOnce; ++i) {
+                            if(wireQueue.isEmpty()) {
+                                break;
+                            }
+
+                            const wire = wireQueue.dequeue();
+                            wire.routeWire(true, false);
+                            wire.updateWireState();
+                        }
+                    } else {
+                        console.log("finished");
+                        clearInterval(wirePlacingInterval);
+                    }
+                }, delayBetweenIterations)
             }
 
             // refresh the SVG document
@@ -702,7 +717,7 @@ export default class Canvas {
                     // switch the input box state to the opposite and back:
                     // for some reason calling box.refreshState()
                     // results in weird unfinished simulation
-                    // this causes update of the output connector and a start of a new simulation
+                    // this causes update of the output connector and thus a start of a new simulation
 
                     // TODO find better solution instead of this workaround, if there is any
                     box.on = !box.on

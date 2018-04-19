@@ -1771,16 +1771,31 @@ var Canvas = function () {
                     };
 
                     myWorker.postMessage(message);
-                } else {}
-                // TODO
-                // add wires in the order from short to long
-                /**
-                while(!wireQueue.isEmpty()) {
-                    const connectors = wireQueue.dequeue();
-                    this.newWire(...connectors, false);
-                }
-                */
+                } else {
+                    // web worker is not supported: use an interval to make the import a bit slower
+                    // by dividing it into chunks, so the browser window is not entirely frozen when the wiring is happening
 
+                    var wiresToBeRoutedAtOnce = 10;
+                    var delayBetweenIterations = 200;
+
+                    // add wires in the order from short to long
+                    var wirePlacingInterval = window.setInterval(function () {
+                        if (!wireQueue.isEmpty()) {
+                            for (var i = 0; i < wiresToBeRoutedAtOnce; ++i) {
+                                if (wireQueue.isEmpty()) {
+                                    break;
+                                }
+
+                                var _wire = wireQueue.dequeue();
+                                _wire.routeWire(true, false);
+                                _wire.updateWireState();
+                            }
+                        } else {
+                            console.log("finished");
+                            clearInterval(wirePlacingInterval);
+                        }
+                    }, delayBetweenIterations);
+                }
 
                 // refresh the SVG document
                 _this3.refresh();

@@ -1,5 +1,8 @@
 import findPath from './findPath'
 
+/**
+ * TODO
+ */
 onmessage = (event) => {
     const {wires, nonRoutableNodes} = event.data;
     let {inconvenientNodes} = event.data;
