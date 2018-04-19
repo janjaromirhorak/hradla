@@ -663,7 +663,7 @@ export default class Canvas {
                     wireReferences.push(wire);
                 }
 
-                let myWorker = new Worker("js/routeWorker.js");
+                let myWorker = new Worker("js/routeWorker.min.js");
 
                 myWorker.onmessage = (event) => {
                     const {paths} = event.data

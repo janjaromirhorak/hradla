@@ -65,7 +65,6 @@ modules.addModules({
     buffer: 'vinyl-buffer',
     browserify: 'browserify',
     babel: 'babelify',
-    filter: 'gulp-filter',
     gulpif: 'gulp-if',
     jsdoc: 'gulp-jsdoc3',
     sass: 'gulp-sass',
@@ -156,7 +155,6 @@ gulp.task('scripts:lint', () => {
 // compile and minimize es6
 gulp.task('scripts:build', (done) => {
     const
-        filter = modules.get('filter'),
         browserify = modules.get('browserify'),
         babel = modules.get('babel'),
         source = modules.get('source'),
@@ -166,8 +164,6 @@ gulp.task('scripts:build', (done) => {
         rename = modules.get('rename'),
         uglify = modules.get('uglify'),
         eventStream = modules.get('eventStream');
-
-    const jsFilter = filter('**/*.js', {restore: true});
 
     const startpoints = ['main.js', 'routeWorker.js']
 
@@ -180,16 +176,15 @@ gulp.task('scripts:build', (done) => {
             .on('error', (err) => { console.error(err); this.emit('end'); })
             .pipe(source(startpoint))
             .pipe(buffer())
-            .pipe(sourcemaps.init({ loadMaps: true }))
-            .pipe(sourcemaps.write('./'))
-            .pipe(gulpif(production, jsFilter))
+            .pipe(gulpif(!production, sourcemaps.init({ loadMaps: true })))
+            .pipe(gulpif(!production, sourcemaps.write('./')))
             .pipe(gulpif(production, rename({suffix: '.min'})))
             .pipe(gulpif(production, uglify()))
             .pipe(gulp.dest(outJs))
         });
 
     // create a merged stream
-    return eventStream.merge.apply(null, tasks).on('end', done);
+    return eventStream.merge(tasks).on('end', done);
 });
 
 gulp.task('scripts', gulp.series('scripts:lint', 'scripts:build'));
