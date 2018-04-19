@@ -1813,7 +1813,7 @@ var Canvas = function () {
                             // switch the input box state to the opposite and back:
                             // for some reason calling box.refreshState()
                             // results in weird unfinished simulation
-                            // this causes update of the output connector and a start of a new simulation
+                            // this causes update of the output connector and thus a start of a new simulation
 
                             // TODO find better solution instead of this workaround, if there is any
                             box.on = !box.on;

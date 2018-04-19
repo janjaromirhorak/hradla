@@ -1312,6 +1312,9 @@ var _findPath2 = _interopRequireDefault(_findPath);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+ * TODO
+ */
 onmessage = function onmessage(event) {
     var _event$data = event.data,
         wires = _event$data.wires,

@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: id.js | Hradla</title>
+    <title>Source: routeWorker.js | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,58 +50,52 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module Id */
+            <pre class="prettyprint source linenums"><code>import findPath from './findPath'
 
 /**
- * the current instance of Id
- * @type {Id}
+ * TODO
  */
-let existingIdInstance;
+onmessage = (event) => {
+    const {wires, nonRoutableNodes} = event.data;
+    let {inconvenientNodes} = event.data;
 
-/**
- * singleton to generate unique id's
- *
- * usage: `let id = new Id().unique`
- */
-export default class Id {
-    constructor() {
-        if(!existingIdInstance){
-            existingIdInstance = this;
+    let paths = [];
+
+    for (const [from, to] of wires) {
+        const path = findPath(from, to, nonRoutableNodes, inconvenientNodes)
+
+        paths.push(path);
+
+        // add new inconvenient nodes created by this new path
+        let prevPoint;
+        for(const point of path) {
+            if(prevPoint) {
+                if(point.x === prevPoint.x) {
+                    // horizontal section of the path
+                    for(let y = Math.min(point.y, prevPoint.y); y &lt;= Math.max(point.y, prevPoint.y) ; ++y) {
+                        inconvenientNodes.add({
+                            x: point.x,
+                            y: y
+                        })
+                    }
+                } else if(point.y === prevPoint.y) {
+                    // vertical section of the path
+                    for(let x = Math.min(point.x, prevPoint.x); x &lt;= Math.max(point.x, prevPoint.x) ; ++x) {
+                        inconvenientNodes.add({
+                            x: x,
+                            y: point.y
+                        })
+                    }
+                }
+            }
+
+            prevPoint = point;
         }
 
-        /**
-         * prefix for the id, that is common in all the Ids
-         * @type {String}
-         */
-        this.prefix = "id";
 
-        /**
-         * numeric part of the next id (the next id without the prefix)
-         * @type {number}
-         */
-        this.nextId = 0;
-
-        return existingIdInstance;
     }
 
-    /**
-     * get unique ID
-     * @return {string} new unique ID
-     */
-    get unique() {
-        let retVal = this.prefix + this.nextId;
-
-        // find next unused idXXXX to prevent id collision that might be caused by some other component
-        // (it really should not happen, but this is a simple way to ensure it)
-        while($("#"+retVal).length) {
-            this.nextId++;
-            retVal = this.generate();
-        }
-        // return this id
-        this.nextId++;
-
-        return retVal;
-    }
+    postMessage({paths})
 }
 </code></pre>
         </article>
