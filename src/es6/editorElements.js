@@ -1443,7 +1443,7 @@ export class Blackbox extends Box {
             (this.width - textWidth) / 2, // horizontal centering
             (this.height - textHeight) / 2, // vertical centering
             textWidth,
-            this.height,
+            textHeight,
             name.toUpperCase(),
             this.gridSize * 1.2
         );

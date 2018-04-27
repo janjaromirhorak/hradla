@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: Group | Hradla</title>
+    <title>Class: BlackboxMenuItem | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,10 +50,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Group<span class="signature">()</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>BlackboxMenuItem<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>SVG group, used for grouping elements, for example a gate is represented by many elements (rectangle, image, inivisible hitbox rectangle...),
-but all of the elements need to be transformed together. Using groups the transform property can be set on the group which contains all the elements.</p></div>
+            <div class="class-description"><p>Menu item that has a custom click callback function that adds a specified <a href="Blackbox.html">Blackbox</a> to the <a href="./module-Canvas.html">Canvas</a></p></div>
         
     
 </header>
@@ -66,14 +65,14 @@ but all of the elements need to be transformed together. Using groups the transf
 
 <dt>
     
-        <h4 class="name" id="Group">
+        <h4 class="name" id="BlackboxMenuItem">
             
-                new <span class="type-signature"></span>Group<span class="signature">()</span><span class="type-signature"></span>
+                new <span class="type-signature"></span>BlackboxMenuItem<span class="signature">()</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line192">line 192</a></code>
+                <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+                <code><a href="contextMenu.js.html#line174">line 174</a></code>
             </div>
             
         </h4>
@@ -157,7 +156,7 @@ but all of the elements need to be transformed together. Using groups the transf
 
 
     <ul>
-        <li><a href="Tag.html">Tag</a></li>
+        <li><a href="ContextMenuItem.html">ContextMenuItem</a></li>
     </ul>
 
 
@@ -184,8 +183,8 @@ but all of the elements need to be transformed together. Using groups the transf
     <span class="type-signature"></span>$el<span class="type-signature"> :jQuery.element</span>
     
     <div class="container-source members">
-        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-        <code><a href="svgObjects.js.html#line21">line 21</a></code>
+        <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+        <code><a href="contextMenu.js.html#line34">line 34</a></code>
     </div>
     
 </h4>
@@ -195,7 +194,7 @@ but all of the elements need to be transformed together. Using groups the transf
 <dd>
     
     <div class="description">
-        <p>jQuery element for this tag</p>
+        <p>jQuery element representing DOM content of this menu item</p>
     </div>
     
 
@@ -225,7 +224,7 @@ but all of the elements need to be transformed together. Using groups the transf
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#$el">Tag#$el</a>
+        <a href="ContextMenuItem.html#$el">ContextMenuItem#$el</a>
     </li></ul></dd>
     
 
@@ -264,12 +263,12 @@ but all of the elements need to be transformed together. Using groups the transf
             
 
 <dt>
-<h4 class="name" id="id">
-    <span class="type-signature"></span>id<span class="type-signature"> :string</span>
+<h4 class="name" id="$submenu">
+    <span class="type-signature"></span>$submenu<span class="type-signature"> :jQuery.element</span>
     
     <div class="container-source members">
-        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-        <code><a href="svgObjects.js.html#line27">line 27</a></code>
+        <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+        <code><a href="contextMenu.js.html#line52">line 52</a></code>
     </div>
     
 </h4>
@@ -279,7 +278,7 @@ but all of the elements need to be transformed together. Using groups the transf
 <dd>
     
     <div class="description">
-        <p>unique ID of this SVG object</p>
+        <p>jQuery element containing the submenu (or undefined, if item has no subitems)</p>
     </div>
     
 
@@ -289,7 +288,7 @@ but all of the elements need to be transformed together. Using groups the transf
         <ul>
             <li>
                 
-<span class="param-type">string</span>
+<span class="param-type">jQuery.element</span>
 
 
             </li>
@@ -307,12 +306,12 @@ but all of the elements need to be transformed together. Using groups the transf
     
 
     
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="Tag.html#id">Tag#id</a>
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="ContextMenuItem.html#$submenu">ContextMenuItem#$submenu</a>
     </li></ul></dd>
+    
+
     
 
     
@@ -348,12 +347,12 @@ but all of the elements need to be transformed together. Using groups the transf
             
 
 <dt>
-<h4 class="name" id="tagName">
-    <span class="type-signature"></span>tagName<span class="type-signature"> :string</span>
+<h4 class="name" id="contextMenu">
+    <span class="type-signature"></span>contextMenu<span class="type-signature"> :ContextMenu</span>
     
     <div class="container-source members">
-        <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-        <code><a href="svgObjects.js.html#line15">line 15</a></code>
+        <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+        <code><a href="contextMenu.js.html#line28">line 28</a></code>
     </div>
     
 </h4>
@@ -363,7 +362,407 @@ but all of the elements need to be transformed together. Using groups the transf
 <dd>
     
     <div class="description">
-        <p>SVG tag identifier (<code>rect</code>, <code>image</code>, <code>polyline</code>)</p>
+        <p>instance of the <a href="./module-ContextMenu.html">ContextMenu</a> this item belongs to</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">ContextMenu</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="ContextMenuItem.html#contextMenu">ContextMenuItem#contextMenu</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="itemCount">
+    <span class="type-signature"></span>itemCount<span class="type-signature"> :Number</span>
+    
+    <div class="container-source members">
+        <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+        <code><a href="contextMenu.js.html#line58">line 58</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>submenu item counter</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="ContextMenuItem.html#itemCount">ContextMenuItem#itemCount</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="jQuery">
+    <span class="type-signature"></span>jQuery<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+        <code><a href="contextMenu.js.html#line137">line 137</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>get jQuery element of this menu item</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="ContextMenuItem.html#jQuery">ContextMenuItem#jQuery</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="length">
+    <span class="type-signature"></span>length<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+        <code><a href="contextMenu.js.html#line100">line 100</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>number of items in the submenu</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="ContextMenuItem.html#length">ContextMenuItem#length</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="parentSVG">
+    <span class="type-signature"></span>parentSVG<span class="type-signature"> :Canvas</span>
+    
+    <div class="container-source members">
+        <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+        <code><a href="contextMenu.js.html#line92">line 92</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>instance of <a href="./module-Canvas.html">Canvas</a> this menu belongs to</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Canvas</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="ContextMenuItem.html#parentSVG">ContextMenuItem#parentSVG</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="text">
+    <span class="type-signature"></span>text<span class="type-signature"> :string</span>
+    
+    <div class="container-source members">
+        <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+        <code><a href="contextMenu.js.html#line22">line 22</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>text on the button</p>
     </div>
     
 
@@ -393,7 +792,7 @@ but all of the elements need to be transformed together. Using groups the transf
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#tagName">Tag#tagName</a>
+        <a href="ContextMenuItem.html#text">ContextMenuItem#text</a>
     </li></ul></dd>
     
 
@@ -439,297 +838,14 @@ but all of the elements need to be transformed together. Using groups the transf
 
 <dt>
     
-        <h4 class="name" id="addAttr">
-            
-                <span class="type-signature"></span>addAttr<span class="signature">(assoc)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line52">line 52</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>set attributes of this element</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>assoc</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>javascript object that will be mapped into attributes (<code>{key: value}</code> -&gt; <code>key=&quot;value&quot;</code>)</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#addAttr">Tag#addAttr</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="addChild">
-            
-                <span class="type-signature"></span>addChild<span class="signature">(el)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line203">line 203</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>add an element to the group</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>el</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="SvgElement.html">SvgElement</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>an instance of <a href="SvgElement.html">SvgElement</a></p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
         <h4 class="name" id="addClass">
             
-                <span class="type-signature"></span>addClass<span class="signature">(name)</span><span class="type-signature"></span>
+                <span class="type-signature"></span>addClass<span class="signature">(cls)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line34">line 34</a></code>
+                <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+                <code><a href="contextMenu.js.html#line108">line 108</a></code>
             </div>
             
         </h4>
@@ -741,7 +857,7 @@ but all of the elements need to be transformed together. Using groups the transf
 
     
     <div class="description">
-        <p>add a class to this element</p>
+        <p>add a CSS class to this item</p>
     </div>
     
 
@@ -777,7 +893,7 @@ but all of the elements need to be transformed together. Using groups the transf
 
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>cls</code></td>
             
 
             <td class="type">
@@ -793,7 +909,7 @@ but all of the elements need to be transformed together. Using groups the transf
 
             
 
-            <td class="description last"><p>class name to be added</p></td>
+            <td class="description last"><p>[description]</p></td>
         </tr>
 
     
@@ -827,7 +943,7 @@ but all of the elements need to be transformed together. Using groups the transf
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#addClass">Tag#addClass</a>
+        <a href="ContextMenuItem.html#addClass">ContextMenuItem#addClass</a>
     </li></ul></dd>
     
 
@@ -866,14 +982,14 @@ but all of the elements need to be transformed together. Using groups the transf
 
 <dt>
     
-        <h4 class="name" id="checkIfElementExistsInDOM">
+        <h4 class="name" id="appendItem">
             
-                <span class="type-signature"></span>checkIfElementExistsInDOM<span class="signature">()</span><span class="type-signature"></span>
+                <span class="type-signature"></span>appendItem<span class="signature">(item)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line108">line 108</a></code>
+                <code><a href="contextMenu.js.html">contextMenu.js</a></code>,
+                <code><a href="contextMenu.js.html#line117">line 117</a></code>
             </div>
             
         </h4>
@@ -885,214 +1001,7 @@ but all of the elements need to be transformed together. Using groups the transf
 
     
     <div class="description">
-        <p>check if the element exists in dom, if so, refetch it from DOM using jQuery</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#checkIfElementExistsInDOM">Tag#checkIfElementExistsInDOM</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="get">
-            
-                <span class="type-signature"></span>get<span class="signature">()</span><span class="type-signature"> &rarr; {jQuery.element}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line100">line 100</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get jQuery element for this SVG object</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">jQuery.element</span>
-
-
-
-
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#get">Tag#get</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="getAttr">
-            
-                <span class="type-signature"></span>getAttr<span class="signature">(name)</span><span class="type-signature"> &rarr; {string}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line64">line 64</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get attribute value by name</p>
+        <p>append a nested <a href="ContextMenuItem.html">ContextMenuItem</a> to this item</p>
     </div>
     
 
@@ -1128,13 +1037,13 @@ but all of the elements need to be transformed together. Using groups the transf
 
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>item</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><a href="ContextMenuItem.html">ContextMenuItem</a></span>
 
 
             
@@ -1144,172 +1053,7 @@ but all of the elements need to be transformed together. Using groups the transf
 
             
 
-            <td class="description last"><p>name of the attribute</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">string</span>
-
-
-
-
-
-- <p>value of the attribute</p>
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#getAttr">Tag#getAttr</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="removeAttr">
-            
-                <span class="type-signature"></span>removeAttr<span class="signature">(name)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line74">line 74</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>remove attribute by value</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>name of the attribute to be removed</p></td>
+            <td class="description last"><p>item that will be appended</p></td>
         </tr>
 
     
@@ -1343,163 +1087,7 @@ but all of the elements need to be transformed together. Using groups the transf
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#removeAttr">Tag#removeAttr</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="removeClasses">
-            
-                <span class="type-signature"></span>removeClasses<span class="signature">(&hellip;classes)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="svgObjects.js.html">svgObjects.js</a></code>,
-                <code><a href="svgObjects.js.html#line42">line 42</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>remove class names from this element</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>classes</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                    &lt;repeatable><br>
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>class names to be removed</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Tag.html#removeClasses">Tag#removeClasses</a>
+        <a href="ContextMenuItem.html#appendItem">ContextMenuItem#appendItem</a>
     </li></ul></dd>
     
 
@@ -1558,7 +1146,7 @@ but all of the elements need to be transformed together. Using groups the transf
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'Group_sub'.replace(/"/g, '_');
+        var id = 'BlackboxMenuItem_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

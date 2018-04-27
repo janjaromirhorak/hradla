@@ -167,6 +167,10 @@ class GateMenuItem extends ContextMenuItem {
     }
 }
 
+/**
+ * Menu item that has a custom click callback function that adds a specified {@link Blackbox} to the [Canvas](./module-Canvas.html)
+ * @extends ContextMenuItem
+ */
 class BlackboxMenuItem extends ContextMenuItem {
     constructor(name, file, contextMenu) {
         super(
@@ -176,11 +180,14 @@ class BlackboxMenuItem extends ContextMenuItem {
                 getNetworkFromLibrary(file).then(({blackbox, name}) => {
                     const {inputs, outputs, table} = blackbox;
 
+                    // use the name specified in the blackbox item, if it does not exist, use the name for the network
+                    let usedName = blackbox.name || name;
+
                     this.parentSVG.newBlackbox(
                         inputs,
                         outputs,
                         table,
-                        name,
+                        usedName,
                         this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformX(contextMenu.position.x)),
                         this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformY(contextMenu.position.y))
                     );

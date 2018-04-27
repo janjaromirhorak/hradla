@@ -3110,6 +3110,12 @@ var GateMenuItem = function (_ContextMenuItem) {
     return GateMenuItem;
 }(ContextMenuItem);
 
+/**
+ * Menu item that has a custom click callback function that adds a specified {@link Blackbox} to the [Canvas](./module-Canvas.html)
+ * @extends ContextMenuItem
+ */
+
+
 var BlackboxMenuItem = function (_ContextMenuItem2) {
     _inherits(BlackboxMenuItem, _ContextMenuItem2);
 
@@ -3126,8 +3132,11 @@ var BlackboxMenuItem = function (_ContextMenuItem2) {
                     outputs = blackbox.outputs,
                     table = blackbox.table;
 
+                // use the name specified in the blackbox item, if it does not exist, use the name for the network
 
-                _this4.parentSVG.newBlackbox(inputs, outputs, table, name, _this4.parentSVG.snapToGrid(_this4.parentSVG.viewbox.transformX(contextMenu.position.x)), _this4.parentSVG.snapToGrid(_this4.parentSVG.viewbox.transformY(contextMenu.position.y)));
+                var usedName = blackbox.name || name;
+
+                _this4.parentSVG.newBlackbox(inputs, outputs, table, usedName, _this4.parentSVG.snapToGrid(_this4.parentSVG.viewbox.transformX(contextMenu.position.x)), _this4.parentSVG.snapToGrid(_this4.parentSVG.viewbox.transformY(contextMenu.position.y)));
             }).catch(function (error) {
                 console.error(error);
             });
@@ -5503,7 +5512,7 @@ var Blackbox = exports.Blackbox = function (_Box5) {
         var textHeight = _this10.height - _this10.gridSize;
         var text = new svgObj.MultiLineText((_this10.width - textWidth) / 2, // horizontal centering
         (_this10.height - textHeight) / 2, // vertical centering
-        textWidth, _this10.height, name.toUpperCase(), _this10.gridSize * 1.2);
+        textWidth, textHeight, name.toUpperCase(), _this10.gridSize * 1.2);
         _this10.svgObj.addChild(text);
 
         // add input connectors
@@ -8139,7 +8148,15 @@ var MultiLineText = exports.MultiLineText = function (_Tag5) {
             height: h
         });
 
-        foreignObject.$el.append($("<p class=\"multilinetext\" xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-size:" + size + "px\">").append(text));
+        var $wrapper = $("<div>").attr("xmlns", "http://www.w3.org/1999/xhtml").addClass("multilinetext").css("height", h);
+
+        var $paragraph = $("<p>").attr("xmlns", "http://www.w3.org/1999/xhtml").css("font-size", size).append(text);
+
+        $wrapper.append($paragraph);
+
+        foreignObject.$el.append($wrapper);
+
+        console.log("par:", $paragraph.height());
 
         _this8.$el.append(foreignObject.$el).append(alternativeText.$el);
         return _this8;
