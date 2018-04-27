@@ -1039,6 +1039,7 @@
         }
     ],
     "blackbox": {
+        "name": "3-BIT DEMUX",
         "inputs": 3,
         "outputs": 8,
         "table": [
