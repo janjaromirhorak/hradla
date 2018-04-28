@@ -1740,7 +1740,6 @@ export class Wire extends NetworkElement {
                 child.updatePoints(points);
             }
         } else {
-            // this.svgObj = new svgObj.PolyLine(points, 2, "#8b8b8b");
             this.svgObj = new svgObj.Group();
 
             let hitbox = new svgObj.PolyLine(points, 10, 'white');
@@ -1752,10 +1751,6 @@ export class Wire extends NetworkElement {
             mainLine.addClass("main", "stateUnknown");
             this.svgObj.addChild(mainLine);
         }
-
-        this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
-        this.svgObj.addClass(stateClasses.unknown);
-
         this.svgObj.addAttr({
             fromId: this.fromId,
             toId: this.toId
