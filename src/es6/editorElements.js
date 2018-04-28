@@ -1751,15 +1751,8 @@ export class Wire extends NetworkElement {
             mainLine.addClass("main", "stateUnknown");
             this.svgObj.addChild(mainLine);
         }
-        this.svgObj.addAttr({
-            fromId: this.fromId,
-            toId: this.toId
-        });
     }
 
-    /**
-     * TODO
-     */
     pathToPolyline(path) {
         let totalPath = new svgObj.PolylinePoints();
         for (const point of path) {
