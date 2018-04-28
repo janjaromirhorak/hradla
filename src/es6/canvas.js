@@ -138,6 +138,12 @@ export default class Canvas {
             this.onKeyUp(event);
         });
 
+        // update the viewbox on window resize
+        $(window).on('resize', () => {
+            this.viewbox.newDimensions(this.width, this.height);
+            this.applyViewbox();
+        });
+
         addMouseScrollEventListener(canvas, event => {
             // zoom only if the ctrl key is pressed
             if(event.ctrlKey) {
