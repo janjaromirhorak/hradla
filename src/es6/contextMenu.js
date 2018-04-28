@@ -5,6 +5,8 @@ import {
     getNetworkFromLibrary
 } from './networkLibrary';
 
+import {Gate} from './editorElements'
+
 /**
  * Item in the [ContextMenu](./module-ContextMenu.html). ContextMenuItems can be nested using the appendItem function.
  */
@@ -277,21 +279,10 @@ export default class ContextMenu {
             parentSVG.newOutput(position.left, position.top);
         }));
 
-        special.appendItem(new ContextMenuItem("Repeater", this, () => {
-            let position = {
-                left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
-                top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
-            };
-
-            parentSVG.newRepeater(position.left, position.top);
-        }))
-
         this.appendItem(special);
 
-        // add all gates
-
         // list of gates that can be added
-        const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
+        const gates = Gate.validGates;
         let gateList = new ContextMenuItem("New gate", this, parentSVG);
         for (const name of gates) {
             gateList.appendItem(

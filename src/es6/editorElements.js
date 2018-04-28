@@ -1106,40 +1106,6 @@ class Box extends NetworkElement {
     }
 }
 
-export class Repeater extends Box {
-    /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
-     */
-    constructor(parentSVG) {
-        const gridHeight = 4;
-        const gridWidth = 9;
-
-        super(parentSVG, "repeater", "other", gridWidth, gridHeight);
-
-        this.addInputConnector(0, gridHeight / 2);
-        this.addOutputConnector(gridWidth, gridHeight / 2);
-
-        // regenerate blocked nodes
-        this.generateBlockNodes();
-    }
-
-    /**
-     * Set the output connector state to match the state of the input connector
-     */
-    refreshState() {
-        this.parentSVG.simulation.notifyChange(this.connectors[1].id, this.connectors[0].state)
-    }
-
-    generateBlockNodes() {
-        // block the input and output connector nodes
-        const specialNodes = [
-            {x: 0, y: this.gridHeight / 2},
-            {x: this.gridWidth, y: this.gridHeight / 2}
-        ]
-        super.generateBlockNodes(0, 1, 0, 1, ...specialNodes);
-    }
-}
-
 /**
  * InputBox has only output connectors and is used to set the input states for the logic network.
  * @extends Box
@@ -1320,7 +1286,7 @@ export class Gate extends Box {
             y: height / 2
         });
 
-        if(this.name==="not") {
+        if(this.name==="not" || this.name==="repeater") {
             // input
             this.addConnector(0, height / 2, true);
             // block the input connector
@@ -1353,6 +1319,14 @@ export class Gate extends Box {
         this.generateBlockNodes(...specialNodes);
 
         this.refreshState();
+    }
+
+    /**
+     * array of valid gate names
+     * @type {Set}
+     */
+    static get validGates() {
+        return new Set(["not", "and", "or", "nand", "nor", "xor", "xnor", "repeater"]);
     }
 
     generateBlockNodes(...specialNodes) {
@@ -1390,6 +1364,9 @@ export class Gate extends Box {
                 break;
             case "xor":
                 state = Logic.xor(this.connectors[1].state, this.connectors[2].state)
+                break;
+            case "repeater":
+                state = this.connectors[1].state
                 break;
         }
         // notify the simulator about this change

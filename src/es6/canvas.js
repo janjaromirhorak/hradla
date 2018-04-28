@@ -526,10 +526,6 @@ export default class Canvas {
                                 // add new output (without reloading the SVG, we will reload it once after the import)
                                 box = this.newOutput(0, 0, false);
                                 break;
-                            case "repeater":
-                                // add new output (without reloading the SVG, we will reload it once after the import)
-                                box = this.newRepeater(0, 0, false);
-                                break;
                             default:
                                 reject("Unknown io box name '"+boxData.name+"'.");
                                 break;
@@ -792,10 +788,6 @@ export default class Canvas {
      */
     newOutput(x, y, refresh = true) {
         return this.newBox(x, y, new editorElements.OutputBox(this), refresh);
-    }
-
-    newRepeater(x, y, refresh = true) {
-        return this.newBox(x, y, new editorElements.Repeater(this), refresh);
     }
 
     /**
