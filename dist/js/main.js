@@ -970,6 +970,10 @@ var _tutorial = require('./tutorial');
 
 var _tutorial2 = _interopRequireDefault(_tutorial);
 
+var _viewbox = require('./viewbox');
+
+var _viewbox2 = _interopRequireDefault(_viewbox);
+
 var _libstl = require('libstl');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -981,175 +985,6 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // note: imported from a node module
-
-/**
- * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
- */
-var ViewBox = function () {
-    /**
-     * Initialize viewBox
-     * @param {number} left   distance of the left edge of the viewbox from document's y axis in SVG pixels
-     * @param {number} top    distance of the top edge of the viewbox from the document's x axis in SVG pixels
-     * @param {number} width  width of the viewbox in SVG pixels
-     * @param {number} height height of the viewbox in SVG pixels
-     */
-    function ViewBox(left, top, width, height) {
-        _classCallCheck(this, ViewBox);
-
-        /**
-         * ViewBox attributes before applying zoom and shift
-         * @type {object}
-         */
-        this.real = { left: left, top: top, width: width, height: height
-
-            /**
-             * The maximum amount of zoom on the viewbox
-             * @type {number}
-             */
-        };this.maxZoom = 8;
-        /**
-         * The minimum amount of zoom on the viewbox
-         * @type {number}
-         */
-        this.minZoom = 0.1;
-
-        /**
-         * Amount of zoom on the viewbox, always between this.minZoom and this.maxZoom
-         * @type {number}
-         */
-        this.realZoom = 1;
-
-        /**
-         * amount of horizontal shift of the document
-         * @type {number}
-         */
-        this.leftShift = 0;
-        /**
-         * amount of vertical shift of the document
-         * @type {number}
-         */
-        this.topShift = 0;
-    }
-
-    /**
-     * get the amount of zoom on the viewbox
-     * @return {number}
-     */
-
-
-    _createClass(ViewBox, [{
-        key: 'transformX',
-
-
-        /**
-         * transform horizontal units to the scale and shift of the editor
-         * @param  {number} x original horizontal value
-         * @return {number}   transformed horizontal value
-         */
-        value: function transformX(x) {
-            return this.left + x / this.zoom;
-        }
-
-        /**
-         * transform vertical units to the scale and shift of the editor
-         * @param  {number} y original vertical value
-         * @return {number}   transformed vertical value
-         */
-
-    }, {
-        key: 'transformY',
-        value: function transformY(y) {
-            return this.top + y / this.zoom;
-        }
-
-        /**
-         * transform pageX and pageY parameters of the jquery event to match the zoom and shift of the viewbox
-         * @param  {jquery.MouseEvent} event original event
-         * @return {jquery.MouseEvent}       the same event but with transformed pageX and pageY members
-         */
-
-    }, {
-        key: 'transformEvent',
-        value: function transformEvent(event) {
-            event.pageX = this.transformX(event.pageX);
-            event.pageY = this.transformY(event.pageY);
-
-            return event;
-        }
-    }, {
-        key: 'zoom',
-        get: function get() {
-            return this.realZoom;
-        }
-
-        /**
-         * set the amount of zoom on the viewbox
-         * @param {number} value the new amount of zoom
-         */
-        ,
-        set: function set(value) {
-            // fit this.realZoom to fit between this.minZoom and this.maxZoom
-            this.realZoom = Math.max(Math.min(value, this.maxZoom), this.minZoom);
-        }
-
-        /**
-         * get the width of the viewbox with the current zoom applied
-         * @return {number} the final width of the viewbox
-         */
-
-    }, {
-        key: 'width',
-        get: function get() {
-            return this.real.width / this.zoom;
-        }
-
-        /**
-         * get the height of the viewbox with the current zoom applied
-         * @return {number} the final height of the viewbox
-         */
-
-    }, {
-        key: 'height',
-        get: function get() {
-            return this.real.height / this.zoom;
-        }
-
-        /**
-         * get the horizontal distance from the y axis of the document with zoom and shift value applied
-         * @return {number}
-         */
-
-    }, {
-        key: 'left',
-        get: function get() {
-            return this.real.left - this.leftShift / this.zoom + (this.real.width - this.width) / 2;
-        }
-
-        /**
-         * get the vertical distance from the x axis of the document with zoom and shift value applied
-         * @return {number}
-         */
-
-    }, {
-        key: 'top',
-        get: function get() {
-            return this.real.top - this.topShift / this.zoom + (this.real.height - this.height) / 2;
-        }
-
-        /**
-         * get the computed viewbox values as a string in the correct format that can be used in the viewBox attribute of the SVG element
-         * @return {string} string in format "left top width height"
-         */
-
-    }, {
-        key: 'str',
-        get: function get() {
-            return this.left + ' ' + this.top + ' ' + this.width + ' ' + this.height;
-        }
-    }]);
-
-    return ViewBox;
-}();
 
 var ctrlKey = 17,
     cmdKey = 91;
@@ -1222,7 +1057,7 @@ var Canvas = function () {
 
         // set the viewbox for future zooming and moving of the canvas
         this.$svg.attr('preserveAspectRatio', 'xMinYMin slice');
-        this.viewbox = new ViewBox(0, 0, this.width, this.height);
+        this.viewbox = new _viewbox2.default(0, 0, this.width, this.height);
         this.applyViewbox();
 
         // CONSTRUCT CONTEXT MENU
@@ -1276,6 +1111,12 @@ var Canvas = function () {
             _this.onKeyDown(event);
         }).on("keyup", function (event) {
             _this.onKeyUp(event);
+        });
+
+        // update the viewbox on window resize
+        $(window).on('resize', function () {
+            _this.viewbox.newDimensions(_this.width, _this.height);
+            _this.applyViewbox();
         });
 
         (0, _helperFunctions.addMouseScrollEventListener)(canvas, function (event) {
@@ -2894,7 +2735,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu":11,"./editorElements":12,"./floatingMenu":14,"./helperFunctions":15,"./logic":17,"./simulation":21,"./svgObjects":22,"./tutorial":23,"libstl":9}],11:[function(require,module,exports){
+},{"./contextMenu":11,"./editorElements":12,"./floatingMenu":14,"./helperFunctions":15,"./logic":17,"./simulation":21,"./svgObjects":22,"./tutorial":23,"./viewbox":24,"libstl":9}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5952,7 +5793,6 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                     }
                 }
             } else {
-                // this.svgObj = new svgObj.PolyLine(points, 2, "#8b8b8b");
                 this.svgObj = new svgObj.Group();
 
                 var hitbox = new svgObj.PolyLine(points, 10, 'white');
@@ -5964,20 +5804,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                 mainLine.addClass("main", "stateUnknown");
                 this.svgObj.addChild(mainLine);
             }
-
-            this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
-            this.svgObj.addClass(stateClasses.unknown);
-
-            this.svgObj.addAttr({
-                fromId: this.fromId,
-                toId: this.toId
-            });
         }
-
-        /**
-         * TODO
-         */
-
     }, {
         key: 'pathToPolyline',
         value: function pathToPolyline(path) {
@@ -8712,6 +8539,207 @@ var Tutorial = function () {
 }();
 
 exports.default = Tutorial;
+
+},{}],24:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/** @module ViewBox */
+/**
+ * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
+ */
+var ViewBox = function () {
+  /**
+   * Initialize viewBox
+   * @param {number} left   distance of the left edge of the viewbox from document's y axis in SVG pixels
+   * @param {number} top    distance of the top edge of the viewbox from the document's x axis in SVG pixels
+   * @param {number} width  width of the viewbox in SVG pixels
+   * @param {number} height height of the viewbox in SVG pixels
+   */
+  function ViewBox(left, top, width, height) {
+    _classCallCheck(this, ViewBox);
+
+    /**
+     * ViewBox attributes before applying zoom and shift
+     * @type {object}
+     */
+    this.real = { left: left, top: top, width: width, height: height
+
+      /**
+       * The maximum amount of zoom on the viewbox
+       * @type {number}
+       */
+    };this.maxZoom = 8;
+    /**
+     * The minimum amount of zoom on the viewbox
+     * @type {number}
+     */
+    this.minZoom = 0.1;
+
+    /**
+     * Amount of zoom on the viewbox, always between this.minZoom and this.maxZoom
+     * @type {number}
+     */
+    this.realZoom = 1;
+
+    /**
+     * amount of horizontal shift of the document
+     * @type {number}
+     */
+    this.leftShift = 0;
+    /**
+     * amount of vertical shift of the document
+     * @type {number}
+     */
+    this.topShift = 0;
+  }
+
+  /**
+   * update the dimensions of the viewbox (used on window resize)
+   * @param  {Number} width  new width of the viewbox in SVG pixels
+   * @param  {Number} height new height of the viewbox in SVG pixels
+   */
+
+
+  _createClass(ViewBox, [{
+    key: "newDimensions",
+    value: function newDimensions(width, height) {
+      // keep the viewbox centered
+      this.real.left += (this.real.width - width) / 2;
+      this.real.top += (this.real.height - height) / 2;
+
+      // update the dimensions
+      this.real.width = width;
+      this.real.height = height;
+    }
+
+    /**
+     * get the amount of zoom on the viewbox
+     * @return {number}
+     */
+
+  }, {
+    key: "transformX",
+
+
+    /**
+     * transform horizontal units to the scale and shift of the editor
+     * @param  {number} x original horizontal value
+     * @return {number}   transformed horizontal value
+     */
+    value: function transformX(x) {
+      return this.left + x / this.zoom;
+    }
+
+    /**
+     * transform vertical units to the scale and shift of the editor
+     * @param  {number} y original vertical value
+     * @return {number}   transformed vertical value
+     */
+
+  }, {
+    key: "transformY",
+    value: function transformY(y) {
+      return this.top + y / this.zoom;
+    }
+
+    /**
+     * transform pageX and pageY parameters of the jquery event to match the zoom and shift of the viewbox
+     * @param  {jquery.MouseEvent} event original event
+     * @return {jquery.MouseEvent}       the same event but with transformed pageX and pageY members
+     */
+
+  }, {
+    key: "transformEvent",
+    value: function transformEvent(event) {
+      event.pageX = this.transformX(event.pageX);
+      event.pageY = this.transformY(event.pageY);
+
+      return event;
+    }
+  }, {
+    key: "zoom",
+    get: function get() {
+      return this.realZoom;
+    }
+
+    /**
+     * set the amount of zoom on the viewbox
+     * @param {number} value the new amount of zoom
+     */
+    ,
+    set: function set(value) {
+      // fit this.realZoom to fit between this.minZoom and this.maxZoom
+      this.realZoom = Math.max(Math.min(value, this.maxZoom), this.minZoom);
+    }
+
+    /**
+     * get the width of the viewbox with the current zoom applied
+     * @return {number} the final width of the viewbox
+     */
+
+  }, {
+    key: "width",
+    get: function get() {
+      return this.real.width / this.zoom;
+    }
+
+    /**
+     * get the height of the viewbox with the current zoom applied
+     * @return {number} the final height of the viewbox
+     */
+
+  }, {
+    key: "height",
+    get: function get() {
+      return this.real.height / this.zoom;
+    }
+
+    /**
+     * get the horizontal distance from the y axis of the document with zoom and shift value applied
+     * @return {number}
+     */
+
+  }, {
+    key: "left",
+    get: function get() {
+      return this.real.left - this.leftShift / this.zoom + (this.real.width - this.width) / 2;
+    }
+
+    /**
+     * get the vertical distance from the x axis of the document with zoom and shift value applied
+     * @return {number}
+     */
+
+  }, {
+    key: "top",
+    get: function get() {
+      return this.real.top - this.topShift / this.zoom + (this.real.height - this.height) / 2;
+    }
+
+    /**
+     * get the computed viewbox values as a string in the correct format that can be used in the viewBox attribute of the SVG element
+     * @return {string} string in format "left top width height"
+     */
+
+  }, {
+    key: "str",
+    get: function get() {
+      return this.left + " " + this.top + " " + this.width + " " + this.height;
+    }
+  }]);
+
+  return ViewBox;
+}();
+
+exports.default = ViewBox;
 
 },{}]},{},[18])
 
