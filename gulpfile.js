@@ -98,6 +98,7 @@ const
     outJs = out + '/js',
     outImg = out + '/img',
     outDocs = out + '/docs',
+    outFonts = out + '/fonts',
 
     outJsDocRelative = 'gen',
 
@@ -111,6 +112,8 @@ const
 
     srcDocs = 'docs',
     srcMd = srcDocs + '/md',
+
+    srcFonts = 'fonts',
 
     docs = 'docs',
     docsOut = out + '/docs',
@@ -163,7 +166,8 @@ gulp.task('scripts:build', (done) => {
         gulpif = modules.get('gulpif'),
         rename = modules.get('rename'),
         uglify = modules.get('uglify'),
-        eventStream = modules.get('eventStream');
+        eventStream = modules.get('eventStream'),
+        replace = modules.get('replace');
 
     const startpoints = ['main.js', 'routeWorker.js']
 
@@ -176,6 +180,8 @@ gulp.task('scripts:build', (done) => {
             .on('error', (err) => { console.error(err); this.emit('end'); })
             .pipe(source(startpoint))
             .pipe(buffer())
+            .pipe(gulpif(production, replace("[routeWorkerFileName]", "routeWorker.min.js")))
+            .pipe(gulpif(!production, replace("[routeWorkerFileName]", "routeWorker.js")))
             .pipe(gulpif(!production, sourcemaps.init({ loadMaps: true })))
             .pipe(gulpif(!production, sourcemaps.write('./')))
             .pipe(gulpif(production, rename({suffix: '.min'})))
@@ -227,6 +233,12 @@ gulp.task('lib-jquery', () => {
 
 // copies all libraries
 gulp.task('libraries', gulp.parallel('lib-lity', 'lib-jquery'));
+
+// copies the font directory
+gulp.task('fonts', () => {
+    return gulp.src(srcFonts + '/**/*')
+        .pipe(gulp.dest(outFonts));
+})
 
 // generates the html file
 gulp.task('html', () => {
@@ -452,7 +464,7 @@ gulp.task('package', gulp.parallel('zip', 'tarball'))
 ///// main scripts
 // build the whole project
 
-gulp.task('build-all', gulp.series('clean', gulp.parallel('scripts', 'styles', 'library', 'libraries', 'html', 'images', 'docs')))
+gulp.task('build-all', gulp.series('clean', gulp.parallel('scripts', 'styles', 'library', 'libraries', 'html', 'images', 'fonts', 'docs')))
 gulp.task('build-prod', gulp.series('production', 'build-all', 'package'))
 
 gulp.task('build-dev', gulp.series('build-all'))

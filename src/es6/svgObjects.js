@@ -567,9 +567,18 @@ export class MultiLineText extends Tag {
             height: h
         });
 
-        foreignObject.$el.append(
-            $(`<p class="multilinetext" xmlns="http://www.w3.org/1999/xhtml" style="font-size:${size}px">`).append(text)
-        )
+        let $wrapper = $("<div>")
+            .attr("xmlns", "http://www.w3.org/1999/xhtml")
+            .addClass("multilinetext")
+            .css("height", h);
+
+        let $paragraph = $("<p>")
+            .attr("xmlns", "http://www.w3.org/1999/xhtml")
+            .css("font-size", size)
+            .append(text);
+
+        $wrapper.append($paragraph);
+        foreignObject.$el.append($wrapper)
 
         this.$el.append(
             foreignObject.$el

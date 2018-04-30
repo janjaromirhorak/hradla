@@ -8,143 +8,10 @@ import FloatingMenu from './floatingMenu'
 import Simulation from './simulation'
 import { addMouseScrollEventListener, manhattanDistance } from './helperFunctions'
 import Tutorial from './tutorial';
+import ViewBox from './viewbox'
+import Messages from './messages'
 
 import { PriorityQueue } from 'libstl'; // note: imported from a node module
-
-/**
- * ViewBox provides an api for oprerating with the viewBox argument of the <svg> DOM element.
- */
-class ViewBox {
-    /**
-     * Initialize viewBox
-     * @param {number} left   distance of the left edge of the viewbox from document's y axis in SVG pixels
-     * @param {number} top    distance of the top edge of the viewbox from the document's x axis in SVG pixels
-     * @param {number} width  width of the viewbox in SVG pixels
-     * @param {number} height height of the viewbox in SVG pixels
-     */
-    constructor(left, top, width, height) {
-        /**
-         * ViewBox attributes before applying zoom and shift
-         * @type {object}
-         */
-        this.real = { left, top, width, height }
-
-        /**
-         * The maximum amount of zoom on the viewbox
-         * @type {number}
-         */
-        this.maxZoom = 8;
-        /**
-         * The minimum amount of zoom on the viewbox
-         * @type {number}
-         */
-        this.minZoom = 0.1;
-
-        /**
-         * Amount of zoom on the viewbox, always between this.minZoom and this.maxZoom
-         * @type {number}
-         */
-        this.realZoom = 1
-
-        /**
-         * amount of horizontal shift of the document
-         * @type {number}
-         */
-        this.leftShift = 0
-        /**
-         * amount of vertical shift of the document
-         * @type {number}
-         */
-        this.topShift = 0
-    }
-
-    /**
-     * get the amount of zoom on the viewbox
-     * @return {number}
-     */
-    get zoom() {
-        return this.realZoom;
-    }
-
-    /**
-     * set the amount of zoom on the viewbox
-     * @param {number} value the new amount of zoom
-     */
-    set zoom(value) {
-        // fit this.realZoom to fit between this.minZoom and this.maxZoom
-        this.realZoom = Math.max(Math.min(value, this.maxZoom), this.minZoom);
-    }
-
-    /**
-     * get the width of the viewbox with the current zoom applied
-     * @return {number} the final width of the viewbox
-     */
-    get width() {
-        return this.real.width / this.zoom
-    }
-
-    /**
-     * get the height of the viewbox with the current zoom applied
-     * @return {number} the final height of the viewbox
-     */
-    get height() {
-        return this.real.height / this.zoom
-    }
-
-    /**
-     * get the horizontal distance from the y axis of the document with zoom and shift value applied
-     * @return {number}
-     */
-    get left() {
-        return this.real.left - (this.leftShift / this.zoom) + ((this.real.width - this.width) / 2)
-    }
-
-    /**
-     * get the vertical distance from the x axis of the document with zoom and shift value applied
-     * @return {number}
-     */
-    get top() {
-        return this.real.top - (this.topShift / this.zoom) + ((this.real.height - this.height) / 2)
-    }
-
-    /**
-     * get the computed viewbox values as a string in the correct format that can be used in the viewBox attribute of the SVG element
-     * @return {string} string in format "left top width height"
-     */
-    get str() {
-        return `${this.left} ${this.top} ${this.width} ${this.height}`
-    }
-
-    /**
-     * transform horizontal units to the scale and shift of the editor
-     * @param  {number} x original horizontal value
-     * @return {number}   transformed horizontal value
-     */
-    transformX(x) {
-        return this.left + (x / this.zoom)
-    }
-
-    /**
-     * transform vertical units to the scale and shift of the editor
-     * @param  {number} y original vertical value
-     * @return {number}   transformed vertical value
-     */
-    transformY(y) {
-        return this.top + (y / this.zoom)
-    }
-
-    /**
-     * transform pageX and pageY parameters of the jquery event to match the zoom and shift of the viewbox
-     * @param  {jquery.MouseEvent} event original event
-     * @return {jquery.MouseEvent}       the same event but with transformed pageX and pageY members
-     */
-    transformEvent(event) {
-        event.pageX = this.transformX(event.pageX)
-        event.pageY = this.transformY(event.pageY)
-
-        return event
-    }
-}
 
 const
     ctrlKey = 17,
@@ -184,6 +51,9 @@ export default class Canvas {
          * @type {Array}
          */
         this.wires = []; // stores all wires
+
+        // TODO document this
+        this.messages = new Messages();
 
         this.simulationEnabled = true
         this.simulation = new Simulation(this); // dummy, will be overwritten on startNewSimulation
@@ -270,6 +140,12 @@ export default class Canvas {
             this.onKeyDown(event);
         }).on("keyup", event => {
             this.onKeyUp(event);
+        });
+
+        // update the viewbox on window resize
+        $(window).on('resize', () => {
+            this.viewbox.newDimensions(this.width, this.height);
+            this.applyViewbox();
         });
 
         addMouseScrollEventListener(canvas, event => {
@@ -475,10 +351,11 @@ export default class Canvas {
      * @param  {number} [y]  vertical position of the left top corner of the network in grid pixels
      */
     importData(data, x, y) {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
+            let warnings = [];
+
             // if the x or y is undefined, set it to leftTopPadding instead
             // (cannot use x || leftTopPadding because of 0)
-
             x = x!==undefined ? x : this.leftTopPadding
             y = y!==undefined ? y : this.leftTopPadding
 
@@ -488,20 +365,22 @@ export default class Canvas {
             let newWires = new Map();
 
             // find the leftmost and topmost coordinate of any box, save them to leftTopCorner
-            let leftTopCorner;
+            let leftTopCorner = {x: 0, y: 0};
 
             for (const boxData of data.boxes) {
-                for(const transformInfo of boxData.transform.items) {
-                    if(transformInfo.name === "translate") {
-                        if(leftTopCorner) {
-                            leftTopCorner = {
-                                x: Math.min(leftTopCorner.x, transformInfo.args[0]),
-                                y: Math.min(leftTopCorner.y, transformInfo.args[1])
-                            }
-                        } else {
-                            leftTopCorner = {
-                                x: transformInfo.args[0],
-                                y: transformInfo.args[1]
+                if(boxData.transform && boxData.transform.items) {
+                    for(const transformInfo of boxData.transform.items) {
+                        if(transformInfo.name === "translate") {
+                            if(leftTopCorner) {
+                                leftTopCorner = {
+                                    x: Math.min(leftTopCorner.x, transformInfo.args[0]),
+                                    y: Math.min(leftTopCorner.y, transformInfo.args[1])
+                                }
+                            } else {
+                                leftTopCorner = {
+                                    x: transformInfo.args[0],
+                                    y: transformInfo.args[1]
+                                }
                             }
                         }
                     }
@@ -526,50 +405,52 @@ export default class Canvas {
                                 // add new output (without reloading the SVG, we will reload it once after the import)
                                 box = this.newOutput(0, 0, false);
                                 break;
-                            case "repeater":
-                                // add new output (without reloading the SVG, we will reload it once after the import)
-                                box = this.newRepeater(0, 0, false);
+                            case undefined:
+                                warnings.push(`This network contains a box without a name.`);
                                 break;
                             default:
-                                reject("Unknown io box name '"+boxData.name+"'.");
-                                break;
+                                warnings.push(`This network contains unknown box names. (${boxData.name})`);
                         }
                         break;
                     case "blackbox":
                         box = this.newBlackbox(boxData.inputs, boxData.outputs, boxData.table, boxData.name, 0, 0, false)
                         break;
+                    case undefined:
+                        warnings.push(`This network a box without a category.`);
+                        break;
                     default:
-                        reject("Unknown box category '"+boxData.category+"'.");
+                        warnings.push(`This network contains unknown box categories. (${boxData.category})`);
                 }
 
                 if (box) {
                     // proccess box transforms (translation and rotation)
                     let transform = new editorElements.Transform();
 
-                    for(let j = 0 ; j < boxData.transform.items.length ; ++j) {
-                        switch (boxData.transform.items[j].name) {
-                            case "translate":
-                                transform.setTranslate(
-                                    boxData.transform.items[j].args[0]
-                                        - leftTopCorner.x // make it the relative distance from the leftmost element
-                                        + x // apply the position
-                                        ,
+                    if(boxData.transform && boxData.transform.items) {
+                        for(const transformItem of boxData.transform.items) {
+                            switch (transformItem.name) {
+                                case "translate":
+                                    transform.setTranslate(
+                                        transformItem.args[0]
+                                            - leftTopCorner.x // make it the relative distance from the leftmost element
+                                            + x // apply the position
+                                            ,
 
-                                    boxData.transform.items[j].args[1]
-                                        - leftTopCorner.y // make it the relative distance from the topmost element
-                                        + y // apply the position
-                                );
-                                break;
-                            case "rotate":
-                                transform.setRotate(
-                                    boxData.transform.items[j].args[0],
-                                    boxData.transform.items[j].args[1],
-                                    boxData.transform.items[j].args[2]
-                                );
-                                break;
-                            default:
-                                reject("Unknown transform property '"+boxData.transform.items[j].name+"'.");
-                                break;
+                                        transformItem.args[1]
+                                            - leftTopCorner.y // make it the relative distance from the topmost element
+                                            + y // apply the position
+                                    );
+                                    break;
+                                case "rotate":
+                                    // expected 3 arguments
+                                    transform.setRotate(...transformItem.args);
+                                    break;
+                                case undefined:
+                                    warnings.push(`This network contains unnamed transform properties.`);
+                                    break;
+                                default:
+                                    warnings.push(`This network contains unknown transform properties. (${transformItem.name})`);
+                            }
                         }
                     }
 
@@ -577,27 +458,29 @@ export default class Canvas {
                     box.setTransform(transform);
 
                     // add all wires to the list of wires to be added
-                    for(let j = 0 ; j < boxData.connections.length ; ++j) {
-                        // get the artificial wire id
-                        let wireId = boxData.connections[j].wireId;
+                    if(boxData.connections) {
+                        for(const connection of boxData.connections) {
+                            // get the artificial wire id
+                            let wireId = connection.wireId;
 
-                        // pass the values got from json into a variable that will be added into the map
-                        let value = {
-                            index: boxData.connections[j].index,
-                            boxId: box.id
-                        };
+                            // pass the values got from json into a variable that will be added into the map
+                            let value = {
+                                index: connection.index,
+                                boxId: box.id
+                            };
 
-                        // add the value to the map
-                        if(newWires.has(wireId)) {
-                            // if there already is a wire with this id in the map,
-                            // add the value to the end of the array of values
-                            let mapValue = newWires.get(wireId);
-                            mapValue.push(value);
-                            newWires.set(wireId, mapValue);
-                        } else {
-                            // if there is no wire with this id in the map
-                            // add the wire and set the value to be the first element in the array
-                            newWires.set(wireId, [value]);
+                            // add the value to the map
+                            if(newWires.has(wireId)) {
+                                // if there already is a wire with this id in the map,
+                                // add the value to the end of the array of values
+                                let mapValue = newWires.get(wireId);
+                                mapValue.push(value);
+                                newWires.set(wireId, mapValue);
+                            } else {
+                                // if there is no wire with this id in the map
+                                // add the wire and set the value to be the first element in the array
+                                newWires.set(wireId, [value]);
+                            }
                         }
                     }
                 }
@@ -629,13 +512,17 @@ export default class Canvas {
                         true)
                     )
 
-                let wire = this.newWire(...connectorIds, false, false);
+                if(connectorsPositions.length === 2) {
+                    let wire = this.newWire(...connectorIds, false, false);
 
-                // get the manhattan distance between these two connectors
-                const distance = manhattanDistance(...connectorsPositions);
+                    // get the manhattan distance between these two connectors
+                    const distance = manhattanDistance(...connectorsPositions);
 
-                // add connectorids to the priority queue
-                wireQueue.enqueue(wire, 1 / distance);
+                    // add connectorids to the priority queue
+                    wireQueue.enqueue(wire, 1 / distance);
+                } else {
+                    warnings.push(`Found a wire that does not have two endings. (It had ${connectorsPositions.length} instead.)`)
+                }
             }
 
             if (window.Worker) {
@@ -663,7 +550,10 @@ export default class Canvas {
                     wireReferences.push(wire);
                 }
 
-                let myWorker = new Worker("js/routeWorker.min.js");
+                // [routeWorkerFileName] replaced in the build process (defined in gulpfile) depending on devel / prod build
+                let myWorker = new Worker("js/[routeWorkerFileName]");
+
+                let loadingMessage = this.messages.newLoadingMessage("looking for the best wiring…");
 
                 myWorker.onmessage = (event) => {
                     const {paths} = event.data
@@ -672,6 +562,8 @@ export default class Canvas {
                         wire.setWirePath(wire.pathToPolyline(paths[key]))
                         wire.updateWireState();
                     })
+
+                    loadingMessage.hide();
                 }
 
                 const message = {
@@ -725,7 +617,7 @@ export default class Canvas {
                 }
             }
 
-            resolve()
+            resolve(warnings)
         })
     }
 
@@ -791,10 +683,6 @@ export default class Canvas {
      */
     newOutput(x, y, refresh = true) {
         return this.newBox(x, y, new editorElements.OutputBox(this), refresh);
-    }
-
-    newRepeater(x, y, refresh = true) {
-        return this.newBox(x, y, new editorElements.Repeater(this), refresh);
     }
 
     /**

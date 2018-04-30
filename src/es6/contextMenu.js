@@ -5,6 +5,8 @@ import {
     getNetworkFromLibrary
 } from './networkLibrary';
 
+import {Gate} from './editorElements'
+
 /**
  * Item in the [ContextMenu](./module-ContextMenu.html). ContextMenuItems can be nested using the appendItem function.
  */
@@ -167,6 +169,10 @@ class GateMenuItem extends ContextMenuItem {
     }
 }
 
+/**
+ * Menu item that has a custom click callback function that adds a specified {@link Blackbox} to the [Canvas](./module-Canvas.html)
+ * @extends ContextMenuItem
+ */
 class BlackboxMenuItem extends ContextMenuItem {
     constructor(name, file, contextMenu) {
         super(
@@ -176,11 +182,14 @@ class BlackboxMenuItem extends ContextMenuItem {
                 getNetworkFromLibrary(file).then(({blackbox, name}) => {
                     const {inputs, outputs, table} = blackbox;
 
+                    // use the name specified in the blackbox item, if it does not exist, use the name for the network
+                    let usedName = blackbox.name || name;
+
                     this.parentSVG.newBlackbox(
                         inputs,
                         outputs,
                         table,
-                        name,
+                        usedName,
                         this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformX(contextMenu.position.x)),
                         this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformY(contextMenu.position.y))
                     );
@@ -203,9 +212,13 @@ class NetworkMenuItem extends ContextMenuItem {
                         data,
                         Math.round(this.parentSVG.viewbox.transformX(contextMenu.position.x) / this.parentSVG.gridSize),
                         Math.round(this.parentSVG.viewbox.transformY(contextMenu.position.y) / this.parentSVG.gridSize)
-                    ).then();
+                    ).then(warnings => {
+                        for (const warning of warnings) {
+                            this.parentSVG.messages.newWarningMessage(warning)
+                        }
+                    })
                 }).catch(error => {
-                    console.error(error);
+                    this.parentSVG.messages.newErrorMessage(error);
                 })
             }
         )
@@ -270,21 +283,10 @@ export default class ContextMenu {
             parentSVG.newOutput(position.left, position.top);
         }));
 
-        special.appendItem(new ContextMenuItem("Repeater", this, () => {
-            let position = {
-                left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
-                top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
-            };
-
-            parentSVG.newRepeater(position.left, position.top);
-        }))
-
         this.appendItem(special);
 
-        // add all gates
-
         // list of gates that can be added
-        const gates = ["not", "and", "or", "nand", "nor", "xor", "xnor"];
+        const gates = Gate.validGates;
         let gateList = new ContextMenuItem("New gate", this, parentSVG);
         for (const name of gates) {
             gateList.appendItem(
@@ -295,7 +297,7 @@ export default class ContextMenu {
 
         // more options will be added in the getLibrary() callback below
         let networkList = new ContextMenuItem("Add a network", this);
-        networkList.appendItem(new ContextMenuItem("paste a network", this, () => {
+        networkList.appendItem(new ContextMenuItem("Paste a network", this, () => {
             this.displayImportDialog()
         }));
         this.appendItem(networkList); // always append
@@ -401,17 +403,29 @@ export default class ContextMenu {
             )
             .append(" import from JSON")
             .on('click', () => {
-                const data = JSON.parse($('#' + textareaId).val());
+                let data;
 
-                // proccess the imported data
-                this.parentSVG.importData(
-                    data,
-                    Math.round(this.parentSVG.viewbox.transformX(this.position.x) / this.parentSVG.gridSize),
-                    Math.round(this.parentSVG.viewbox.transformY(this.position.y) / this.parentSVG.gridSize)
-                ).then(() => {
-                    // close Lity
+                try {
+                    data = JSON.parse($('#' + textareaId).val());
+                } catch(e) {
+                    this.parentSVG.messages.newErrorMessage("The imported file is not a valid JSON file.");
                     lityInstance.close();
-                })
+                }
+
+                if(data) {
+                    // proccess the imported data
+                    this.parentSVG.importData(
+                        data,
+                        Math.round(this.parentSVG.viewbox.transformX(this.position.x) / this.parentSVG.gridSize),
+                        Math.round(this.parentSVG.viewbox.transformY(this.position.y) / this.parentSVG.gridSize)
+                    ).then(warnings => {
+                        for (const warning of warnings) {
+                            this.parentSVG.messages.newWarningMessage(warning)
+                        }
+                    }).finally(() => {
+                        lityInstance.close();
+                    })
+                }
             })
         );
 

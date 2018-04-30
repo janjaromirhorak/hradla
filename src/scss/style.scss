@@ -1,6 +1,8 @@
 @import "lib/normalize";
 @include normalize();
 
+@import "lib/forkAwesome";
+
 @import "colors";
 
 html {

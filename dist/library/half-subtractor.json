@@ -156,6 +156,7 @@
         }
     ],
     "blackbox": {
+        "name": "HALF SUBTR",
         "inputs": 2,
         "outputs": 2,
         "table": [

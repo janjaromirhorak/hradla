@@ -3,7 +3,7 @@
     left: 1em;
     top: 1em;
 
-    padding: 1em;
+    padding: 0.6em 1em 1em 1em;
 
     min-width: 20em;
     max-width: 35em;
@@ -15,12 +15,24 @@
         text-align: right;
         .button {
             display: inline-block;
-            width: 1em;
-            height: 1em;
+
+            &:before {
+                display: inline-block;
+                font-family: $fa-font-family;
+                color: $ui_darkCasual;
+                cursor: hand;
+                cursor: pointer;
+                transition: opacity 200ms;
+            }
+
+            &:hover:before {
+                opacity: 0.5;
+            }
 
             &.close {
-                background: url('../img/gui/close.svg') no-repeat center center;
-                background-size: 1em 1em;
+                &:before {
+                    content: $fa-var-close;
+                }
             }
         }
     }
