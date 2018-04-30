@@ -98,6 +98,7 @@ const
     outJs = out + '/js',
     outImg = out + '/img',
     outDocs = out + '/docs',
+    outFonts = out + '/fonts',
 
     outJsDocRelative = 'gen',
 
@@ -111,6 +112,8 @@ const
 
     srcDocs = 'docs',
     srcMd = srcDocs + '/md',
+
+    srcFonts = 'fonts',
 
     docs = 'docs',
     docsOut = out + '/docs',
@@ -230,6 +233,12 @@ gulp.task('lib-jquery', () => {
 
 // copies all libraries
 gulp.task('libraries', gulp.parallel('lib-lity', 'lib-jquery'));
+
+// copies the font directory
+gulp.task('fonts', () => {
+    return gulp.src(srcFonts + '/**/*')
+        .pipe(gulp.dest(outFonts));
+})
 
 // generates the html file
 gulp.task('html', () => {
@@ -455,7 +464,7 @@ gulp.task('package', gulp.parallel('zip', 'tarball'))
 ///// main scripts
 // build the whole project
 
-gulp.task('build-all', gulp.series('clean', gulp.parallel('scripts', 'styles', 'library', 'libraries', 'html', 'images', 'docs')))
+gulp.task('build-all', gulp.series('clean', gulp.parallel('scripts', 'styles', 'library', 'libraries', 'html', 'images', 'fonts', 'docs')))
 gulp.task('build-prod', gulp.series('production', 'build-all', 'package'))
 
 gulp.task('build-dev', gulp.series('build-all'))

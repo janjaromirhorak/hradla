@@ -21,6 +21,85 @@ $floatingMenuDistance: 0.5em;
     100% { transform: rotate(360deg); }
 }
 
+/// Messages
+.messages {
+    position: absolute;
+    left: 0.5em;
+    bottom: 0.5em;
+
+    .message {
+        padding: 0.5em;
+
+        margin-bottom: 0.5em;
+        &:last-of-type {
+            margin-bottom: 0;
+        }
+
+        color: $ui_darkCasual;
+        background: $ui_lightCasual;
+
+        .close {
+            &:before {
+                display: inline-block;
+                margin-left: 0.5em;
+
+                font-family: $fa-font-family;
+                content: $fa-var-close;
+                color: $ui_darkCasual;
+
+                cursor: hand;
+                cursor: pointer;
+
+                transition: opacity 200ms;
+            }
+
+            &:hover:before {
+                opacity: 0.5;
+            }
+        }
+
+        &:before {
+            display: none;
+
+            margin-right: 0.5em;
+            font-family: $fa-font-family;
+        }
+
+        &.loading {
+
+            &:before {
+                // include the spinning animation
+                @extend .#{$fa-css-prefix}-spin;
+
+                display: inline-block;
+                content: $fa-var-circle-o-notch;
+
+                color: $ui_darkAccent;
+            }
+        }
+
+        &.error {
+            font-weight: bold;
+
+            &:before {
+                display: inline-block;
+                content: $fa-var-exclamation-circle;
+
+                color: $red; // using $red instead of $ui_darkAccent, so when we change the accent color this will remain red
+            }
+        }
+
+        &.warning {
+            &:before {
+                display: inline-block;
+                content: $fa-var-exclamation-triangle;
+
+                color: #f9bf1a; // warning yellow
+            }
+        }
+    }
+}
+
 /// FLOATING MENU
 #floatingMenu {
     z-index:900;

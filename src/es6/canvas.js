@@ -9,6 +9,7 @@ import Simulation from './simulation'
 import { addMouseScrollEventListener, manhattanDistance } from './helperFunctions'
 import Tutorial from './tutorial';
 import ViewBox from './viewbox'
+import Messages from './messages'
 
 import { PriorityQueue } from 'libstl'; // note: imported from a node module
 
@@ -50,6 +51,9 @@ export default class Canvas {
          * @type {Array}
          */
         this.wires = []; // stores all wires
+
+        // TODO document this
+        this.messages = new Messages();
 
         this.simulationEnabled = true
         this.simulation = new Simulation(this); // dummy, will be overwritten on startNewSimulation
@@ -347,10 +351,11 @@ export default class Canvas {
      * @param  {number} [y]  vertical position of the left top corner of the network in grid pixels
      */
     importData(data, x, y) {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
+            let warnings = [];
+
             // if the x or y is undefined, set it to leftTopPadding instead
             // (cannot use x || leftTopPadding because of 0)
-
             x = x!==undefined ? x : this.leftTopPadding
             y = y!==undefined ? y : this.leftTopPadding
 
@@ -400,16 +405,21 @@ export default class Canvas {
                                 // add new output (without reloading the SVG, we will reload it once after the import)
                                 box = this.newOutput(0, 0, false);
                                 break;
-                            default:
-                                reject("Unknown io box name '"+boxData.name+"'.");
+                            case undefined:
+                                warnings.push(`This network contains a box without a name.`);
                                 break;
+                            default:
+                                warnings.push(`This network contains unknown box names. (${boxData.name})`);
                         }
                         break;
                     case "blackbox":
                         box = this.newBlackbox(boxData.inputs, boxData.outputs, boxData.table, boxData.name, 0, 0, false)
                         break;
+                    case undefined:
+                        warnings.push(`This network a box without a category.`);
+                        break;
                     default:
-                        reject("Unknown box category '"+boxData.category+"'.");
+                        warnings.push(`This network contains unknown box categories. (${boxData.category})`);
                 }
 
                 if (box) {
@@ -435,9 +445,11 @@ export default class Canvas {
                                     // expected 3 arguments
                                     transform.setRotate(...transformItem.args);
                                     break;
-                                default:
-                                    reject(`Unknown transform property '${transformItem.name}'.`);
+                                case undefined:
+                                    warnings.push(`This network contains unnamed transform properties.`);
                                     break;
+                                default:
+                                    warnings.push(`This network contains unknown transform properties. (${transformItem.name})`);
                             }
                         }
                     }
@@ -500,13 +512,17 @@ export default class Canvas {
                         true)
                     )
 
-                let wire = this.newWire(...connectorIds, false, false);
+                if(connectorsPositions.length === 2) {
+                    let wire = this.newWire(...connectorIds, false, false);
 
-                // get the manhattan distance between these two connectors
-                const distance = manhattanDistance(...connectorsPositions);
+                    // get the manhattan distance between these two connectors
+                    const distance = manhattanDistance(...connectorsPositions);
 
-                // add connectorids to the priority queue
-                wireQueue.enqueue(wire, 1 / distance);
+                    // add connectorids to the priority queue
+                    wireQueue.enqueue(wire, 1 / distance);
+                } else {
+                    warnings.push(`Found a wire that does not have two endings. (It had ${connectorsPositions.length} instead.)`)
+                }
             }
 
             if (window.Worker) {
@@ -537,6 +553,8 @@ export default class Canvas {
                 // [routeWorkerFileName] replaced in the build process (defined in gulpfile) depending on devel / prod build
                 let myWorker = new Worker("js/[routeWorkerFileName]");
 
+                let loadingMessage = this.messages.newLoadingMessage("looking for the best wiring…");
+
                 myWorker.onmessage = (event) => {
                     const {paths} = event.data
                     // iterate wireReferences and paths synchronously
@@ -544,6 +562,8 @@ export default class Canvas {
                         wire.setWirePath(wire.pathToPolyline(paths[key]))
                         wire.updateWireState();
                     })
+
+                    loadingMessage.hide();
                 }
 
                 const message = {
@@ -597,7 +617,7 @@ export default class Canvas {
                 }
             }
 
-            resolve()
+            resolve(warnings)
         })
     }
 

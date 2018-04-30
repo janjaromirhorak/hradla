@@ -212,9 +212,13 @@ class NetworkMenuItem extends ContextMenuItem {
                         data,
                         Math.round(this.parentSVG.viewbox.transformX(contextMenu.position.x) / this.parentSVG.gridSize),
                         Math.round(this.parentSVG.viewbox.transformY(contextMenu.position.y) / this.parentSVG.gridSize)
-                    ).then();
+                    ).then(warnings => {
+                        for (const warning of warnings) {
+                            this.parentSVG.messages.newWarningMessage(warning)
+                        }
+                    })
                 }).catch(error => {
-                    console.error(error);
+                    this.parentSVG.messages.newErrorMessage(error);
                 })
             }
         )
@@ -399,17 +403,29 @@ export default class ContextMenu {
             )
             .append(" import from JSON")
             .on('click', () => {
-                const data = JSON.parse($('#' + textareaId).val());
+                let data;
 
-                // proccess the imported data
-                this.parentSVG.importData(
-                    data,
-                    Math.round(this.parentSVG.viewbox.transformX(this.position.x) / this.parentSVG.gridSize),
-                    Math.round(this.parentSVG.viewbox.transformY(this.position.y) / this.parentSVG.gridSize)
-                ).then(() => {
-                    // close Lity
+                try {
+                    data = JSON.parse($('#' + textareaId).val());
+                } catch(e) {
+                    this.parentSVG.messages.newErrorMessage("The imported file is not a valid JSON file.");
                     lityInstance.close();
-                })
+                }
+
+                if(data) {
+                    // proccess the imported data
+                    this.parentSVG.importData(
+                        data,
+                        Math.round(this.parentSVG.viewbox.transformX(this.position.x) / this.parentSVG.gridSize),
+                        Math.round(this.parentSVG.viewbox.transformY(this.position.y) / this.parentSVG.gridSize)
+                    ).then(warnings => {
+                        for (const warning of warnings) {
+                            this.parentSVG.messages.newWarningMessage(warning)
+                        }
+                    }).finally(() => {
+                        lityInstance.close();
+                    })
+                }
             })
         );
 
