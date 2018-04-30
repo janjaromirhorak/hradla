@@ -974,6 +974,10 @@ var _viewbox = require('./viewbox');
 
 var _viewbox2 = _interopRequireDefault(_viewbox);
 
+var _messages = require('./messages');
+
+var _messages2 = _interopRequireDefault(_messages);
+
 var _libstl = require('libstl');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -1028,6 +1032,9 @@ var Canvas = function () {
          * @type {Array}
          */
         this.wires = []; // stores all wires
+
+        // TODO document this
+        this.messages = new _messages2.default();
 
         this.simulationEnabled = true;
         this.simulation = new _simulation2.default(this); // dummy, will be overwritten on startNewSimulation
@@ -1311,10 +1318,11 @@ var Canvas = function () {
         value: function importData(data, x, y) {
             var _this3 = this;
 
-            return new Promise(function (resolve, reject) {
+            return new Promise(function (resolve) {
+                var warnings = [];
+
                 // if the x or y is undefined, set it to leftTopPadding instead
                 // (cannot use x || leftTopPadding because of 0)
-
                 x = x !== undefined ? x : _this3.leftTopPadding;
                 y = y !== undefined ? y : _this3.leftTopPadding;
 
@@ -1324,7 +1332,7 @@ var Canvas = function () {
                 var newWires = new Map();
 
                 // find the leftmost and topmost coordinate of any box, save them to leftTopCorner
-                var leftTopCorner = void 0;
+                var leftTopCorner = { x: 0, y: 0 };
 
                 var _iteratorNormalCompletion = true;
                 var _didIteratorError = false;
@@ -1333,39 +1341,42 @@ var Canvas = function () {
                 try {
                     for (var _iterator = data.boxes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                         var boxData = _step.value;
-                        var _iteratorNormalCompletion5 = true;
-                        var _didIteratorError5 = false;
-                        var _iteratorError5 = undefined;
 
-                        try {
-                            for (var _iterator5 = boxData.transform.items[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                                var transformInfo = _step5.value;
+                        if (boxData.transform && boxData.transform.items) {
+                            var _iteratorNormalCompletion5 = true;
+                            var _didIteratorError5 = false;
+                            var _iteratorError5 = undefined;
 
-                                if (transformInfo.name === "translate") {
-                                    if (leftTopCorner) {
-                                        leftTopCorner = {
-                                            x: Math.min(leftTopCorner.x, transformInfo.args[0]),
-                                            y: Math.min(leftTopCorner.y, transformInfo.args[1])
-                                        };
-                                    } else {
-                                        leftTopCorner = {
-                                            x: transformInfo.args[0],
-                                            y: transformInfo.args[1]
-                                        };
+                            try {
+                                for (var _iterator5 = boxData.transform.items[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                                    var transformInfo = _step5.value;
+
+                                    if (transformInfo.name === "translate") {
+                                        if (leftTopCorner) {
+                                            leftTopCorner = {
+                                                x: Math.min(leftTopCorner.x, transformInfo.args[0]),
+                                                y: Math.min(leftTopCorner.y, transformInfo.args[1])
+                                            };
+                                        } else {
+                                            leftTopCorner = {
+                                                x: transformInfo.args[0],
+                                                y: transformInfo.args[1]
+                                            };
+                                        }
                                     }
                                 }
-                            }
-                        } catch (err) {
-                            _didIteratorError5 = true;
-                            _iteratorError5 = err;
-                        } finally {
-                            try {
-                                if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                                    _iterator5.return();
-                                }
+                            } catch (err) {
+                                _didIteratorError5 = true;
+                                _iteratorError5 = err;
                             } finally {
-                                if (_didIteratorError5) {
-                                    throw _iteratorError5;
+                                try {
+                                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                                        _iterator5.return();
+                                    }
+                                } finally {
+                                    if (_didIteratorError5) {
+                                        throw _iteratorError5;
+                                    }
                                 }
                             }
                         }
@@ -1410,39 +1421,70 @@ var Canvas = function () {
                                         // add new output (without reloading the SVG, we will reload it once after the import)
                                         box = _this3.newOutput(0, 0, false);
                                         break;
-                                    default:
-                                        reject("Unknown io box name '" + _boxData.name + "'.");
+                                    case undefined:
+                                        warnings.push('This network contains a box without a name.');
                                         break;
+                                    default:
+                                        warnings.push('This network contains unknown box names. (' + _boxData.name + ')');
                                 }
                                 break;
                             case "blackbox":
                                 box = _this3.newBlackbox(_boxData.inputs, _boxData.outputs, _boxData.table, _boxData.name, 0, 0, false);
                                 break;
+                            case undefined:
+                                warnings.push('This network a box without a category.');
+                                break;
                             default:
-                                reject("Unknown box category '" + _boxData.category + "'.");
+                                warnings.push('This network contains unknown box categories. (' + _boxData.category + ')');
                         }
 
                         if (box) {
                             // proccess box transforms (translation and rotation)
                             var transform = new editorElements.Transform();
 
-                            for (var j = 0; j < _boxData.transform.items.length; ++j) {
-                                switch (_boxData.transform.items[j].name) {
-                                    case "translate":
-                                        transform.setTranslate(_boxData.transform.items[j].args[0] - leftTopCorner.x // make it the relative distance from the leftmost element
-                                        + x // apply the position
+                            if (_boxData.transform && _boxData.transform.items) {
+                                var _iteratorNormalCompletion6 = true;
+                                var _didIteratorError6 = false;
+                                var _iteratorError6 = undefined;
+
+                                try {
+                                    for (var _iterator6 = _boxData.transform.items[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                                        var transformItem = _step6.value;
+
+                                        switch (transformItem.name) {
+                                            case "translate":
+                                                transform.setTranslate(transformItem.args[0] - leftTopCorner.x // make it the relative distance from the leftmost element
+                                                + x // apply the position
 
 
-                                        , _boxData.transform.items[j].args[1] - leftTopCorner.y // make it the relative distance from the topmost element
-                                        + y // apply the position
-                                        );
-                                        break;
-                                    case "rotate":
-                                        transform.setRotate(_boxData.transform.items[j].args[0], _boxData.transform.items[j].args[1], _boxData.transform.items[j].args[2]);
-                                        break;
-                                    default:
-                                        reject("Unknown transform property '" + _boxData.transform.items[j].name + "'.");
-                                        break;
+                                                , transformItem.args[1] - leftTopCorner.y // make it the relative distance from the topmost element
+                                                + y // apply the position
+                                                );
+                                                break;
+                                            case "rotate":
+                                                // expected 3 arguments
+                                                transform.setRotate.apply(transform, _toConsumableArray(transformItem.args));
+                                                break;
+                                            case undefined:
+                                                warnings.push('This network contains unnamed transform properties.');
+                                                break;
+                                            default:
+                                                warnings.push('This network contains unknown transform properties. (' + transformItem.name + ')');
+                                        }
+                                    }
+                                } catch (err) {
+                                    _didIteratorError6 = true;
+                                    _iteratorError6 = err;
+                                } finally {
+                                    try {
+                                        if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                                            _iterator6.return();
+                                        }
+                                    } finally {
+                                        if (_didIteratorError6) {
+                                            throw _iteratorError6;
+                                        }
+                                    }
                                 }
                             }
 
@@ -1450,27 +1492,50 @@ var Canvas = function () {
                             box.setTransform(transform);
 
                             // add all wires to the list of wires to be added
-                            for (var _j = 0; _j < _boxData.connections.length; ++_j) {
-                                // get the artificial wire id
-                                var wireId = _boxData.connections[_j].wireId;
+                            if (_boxData.connections) {
+                                var _iteratorNormalCompletion7 = true;
+                                var _didIteratorError7 = false;
+                                var _iteratorError7 = undefined;
 
-                                // pass the values got from json into a variable that will be added into the map
-                                var value = {
-                                    index: _boxData.connections[_j].index,
-                                    boxId: box.id
-                                };
+                                try {
+                                    for (var _iterator7 = _boxData.connections[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                                        var connection = _step7.value;
 
-                                // add the value to the map
-                                if (newWires.has(wireId)) {
-                                    // if there already is a wire with this id in the map,
-                                    // add the value to the end of the array of values
-                                    var mapValue = newWires.get(wireId);
-                                    mapValue.push(value);
-                                    newWires.set(wireId, mapValue);
-                                } else {
-                                    // if there is no wire with this id in the map
-                                    // add the wire and set the value to be the first element in the array
-                                    newWires.set(wireId, [value]);
+                                        // get the artificial wire id
+                                        var wireId = connection.wireId;
+
+                                        // pass the values got from json into a variable that will be added into the map
+                                        var value = {
+                                            index: connection.index,
+                                            boxId: box.id
+                                        };
+
+                                        // add the value to the map
+                                        if (newWires.has(wireId)) {
+                                            // if there already is a wire with this id in the map,
+                                            // add the value to the end of the array of values
+                                            var mapValue = newWires.get(wireId);
+                                            mapValue.push(value);
+                                            newWires.set(wireId, mapValue);
+                                        } else {
+                                            // if there is no wire with this id in the map
+                                            // add the wire and set the value to be the first element in the array
+                                            newWires.set(wireId, [value]);
+                                        }
+                                    }
+                                } catch (err) {
+                                    _didIteratorError7 = true;
+                                    _iteratorError7 = err;
+                                } finally {
+                                    try {
+                                        if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                                            _iterator7.return();
+                                        }
+                                    } finally {
+                                        if (_didIteratorError7) {
+                                            throw _iteratorError7;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1511,13 +1576,13 @@ var Canvas = function () {
                         var connectorIds = [];
 
                         // create an array [connector1Id, connector2Id]
-                        var _iteratorNormalCompletion6 = true;
-                        var _didIteratorError6 = false;
-                        var _iteratorError6 = undefined;
+                        var _iteratorNormalCompletion8 = true;
+                        var _didIteratorError8 = false;
+                        var _iteratorError8 = undefined;
 
                         try {
-                            for (var _iterator6 = wireInfo[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                                var _ref = _step6.value;
+                            for (var _iterator8 = wireInfo[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                                var _ref = _step8.value;
                                 var boxId = _ref.boxId;
                                 var index = _ref.index;
 
@@ -1526,16 +1591,16 @@ var Canvas = function () {
 
                             // create and array [{x, y}, {x, y}] containing positions for connectors 1 and 2
                         } catch (err) {
-                            _didIteratorError6 = true;
-                            _iteratorError6 = err;
+                            _didIteratorError8 = true;
+                            _iteratorError8 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion6 && _iterator6.return) {
-                                    _iterator6.return();
+                                if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                                    _iterator8.return();
                                 }
                             } finally {
-                                if (_didIteratorError6) {
-                                    throw _iteratorError6;
+                                if (_didIteratorError8) {
+                                    throw _iteratorError8;
                                 }
                             }
                         }
@@ -1544,13 +1609,17 @@ var Canvas = function () {
                             return _this3.getConnectorPosition(_this3.getConnectorById(connectorId), true);
                         });
 
-                        var wire = _this3.newWire.apply(_this3, connectorIds.concat([false, false]));
+                        if (connectorsPositions.length === 2) {
+                            var _wire2 = _this3.newWire.apply(_this3, connectorIds.concat([false, false]));
 
-                        // get the manhattan distance between these two connectors
-                        var distance = _helperFunctions.manhattanDistance.apply(undefined, _toConsumableArray(connectorsPositions));
+                            // get the manhattan distance between these two connectors
+                            var distance = _helperFunctions.manhattanDistance.apply(undefined, _toConsumableArray(connectorsPositions));
 
-                        // add connectorids to the priority queue
-                        wireQueue.enqueue(wire, 1 / distance);
+                            // add connectorids to the priority queue
+                            wireQueue.enqueue(_wire2, 1 / distance);
+                        } else {
+                            warnings.push('Found a wire that does not have two endings. (It had ' + connectorsPositions.length + ' instead.)');
+                        }
                     }
                 } catch (err) {
                     _didIteratorError3 = true;
@@ -1589,8 +1658,10 @@ var Canvas = function () {
                         wireReferences.push(wire);
                     }
 
-                    // routeWorker.js replaced in gulpfile depending on devel / prod build
+                    // routeWorker.js replaced in the build process (defined in gulpfile) depending on devel / prod build
                     var myWorker = new Worker("js/routeWorker.js");
+
+                    var loadingMessage = _this3.messages.newLoadingMessage("looking for the best wiring…");
 
                     myWorker.onmessage = function (event) {
                         var paths = event.data.paths;
@@ -1600,6 +1671,8 @@ var Canvas = function () {
                             wire.setWirePath(wire.pathToPolyline(paths[key]));
                             wire.updateWireState();
                         });
+
+                        loadingMessage.hide();
                     };
 
                     var message = {
@@ -1673,7 +1746,7 @@ var Canvas = function () {
                     }
                 }
 
-                resolve();
+                resolve(warnings);
             });
         }
 
@@ -1852,27 +1925,27 @@ var Canvas = function () {
             });
 
             // remove all boxes by their ids
-            var _iteratorNormalCompletion7 = true;
-            var _didIteratorError7 = false;
-            var _iteratorError7 = undefined;
+            var _iteratorNormalCompletion9 = true;
+            var _didIteratorError9 = false;
+            var _iteratorError9 = undefined;
 
             try {
-                for (var _iterator7 = ids[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                    var id = _step7.value;
+                for (var _iterator9 = ids[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                    var id = _step9.value;
 
                     this.removeBox(id);
                 }
             } catch (err) {
-                _didIteratorError7 = true;
-                _iteratorError7 = err;
+                _didIteratorError9 = true;
+                _iteratorError9 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                        _iterator7.return();
+                    if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                        _iterator9.return();
                     }
                 } finally {
-                    if (_didIteratorError7) {
-                        throw _iteratorError7;
+                    if (_didIteratorError9) {
+                        throw _iteratorError9;
                     }
                 }
             }
@@ -2000,13 +2073,13 @@ var Canvas = function () {
                     }
                 };
 
-                var _iteratorNormalCompletion8 = true;
-                var _didIteratorError8 = false;
-                var _iteratorError8 = undefined;
+                var _iteratorNormalCompletion10 = true;
+                var _didIteratorError10 = false;
+                var _iteratorError10 = undefined;
 
                 try {
-                    for (var _iterator8 = table[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                        var line = _step8.value;
+                    for (var _iterator10 = table[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                        var line = _step10.value;
 
                         var _ret = _loop(line);
 
@@ -2014,16 +2087,16 @@ var Canvas = function () {
                     }
                     // if nothing matches, set all outputs to undefined
                 } catch (err) {
-                    _didIteratorError8 = true;
-                    _iteratorError8 = err;
+                    _didIteratorError10 = true;
+                    _iteratorError10 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion8 && _iterator8.return) {
-                            _iterator8.return();
+                        if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                            _iterator10.return();
                         }
                     } finally {
-                        if (_didIteratorError8) {
-                            throw _iteratorError8;
+                        if (_didIteratorError10) {
+                            throw _iteratorError10;
                         }
                     }
                 }
@@ -2054,29 +2127,29 @@ var Canvas = function () {
     }, {
         key: 'getWireById',
         value: function getWireById(wireId) {
-            var _iteratorNormalCompletion9 = true;
-            var _didIteratorError9 = false;
-            var _iteratorError9 = undefined;
+            var _iteratorNormalCompletion11 = true;
+            var _didIteratorError11 = false;
+            var _iteratorError11 = undefined;
 
             try {
-                for (var _iterator9 = this.wires[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                    var wire = _step9.value;
+                for (var _iterator11 = this.wires[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                    var wire = _step11.value;
 
                     if (wire.svgObj.id === wireId) {
                         return wire;
                     }
                 }
             } catch (err) {
-                _didIteratorError9 = true;
-                _iteratorError9 = err;
+                _didIteratorError11 = true;
+                _iteratorError11 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                        _iterator9.return();
+                    if (!_iteratorNormalCompletion11 && _iterator11.return) {
+                        _iterator11.return();
                     }
                 } finally {
-                    if (_didIteratorError9) {
-                        throw _iteratorError9;
+                    if (_didIteratorError11) {
+                        throw _iteratorError11;
                     }
                 }
             }
@@ -2222,13 +2295,13 @@ var Canvas = function () {
                 return connector;
             } else {
                 // we do not know the wire -- we have to check all gates
-                var _iteratorNormalCompletion10 = true;
-                var _didIteratorError10 = false;
-                var _iteratorError10 = undefined;
+                var _iteratorNormalCompletion12 = true;
+                var _didIteratorError12 = false;
+                var _iteratorError12 = undefined;
 
                 try {
-                    for (var _iterator10 = this.boxes[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-                        var box = _step10.value;
+                    for (var _iterator12 = this.boxes[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                        var box = _step12.value;
 
                         var _connector = box.getConnectorById(connectorId);
                         if (_connector) {
@@ -2236,16 +2309,16 @@ var Canvas = function () {
                         }
                     }
                 } catch (err) {
-                    _didIteratorError10 = true;
-                    _iteratorError10 = err;
+                    _didIteratorError12 = true;
+                    _iteratorError12 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion10 && _iterator10.return) {
-                            _iterator10.return();
+                        if (!_iteratorNormalCompletion12 && _iterator12.return) {
+                            _iterator12.return();
                         }
                     } finally {
-                        if (_didIteratorError10) {
-                            throw _iteratorError10;
+                        if (_didIteratorError12) {
+                            throw _iteratorError12;
                         }
                     }
                 }
@@ -2479,26 +2552,26 @@ var Canvas = function () {
         value: function getNonRoutableNodes() {
             var blockedNodes = new Set();
             // for each box
-            var _iteratorNormalCompletion11 = true;
-            var _didIteratorError11 = false;
-            var _iteratorError11 = undefined;
+            var _iteratorNormalCompletion13 = true;
+            var _didIteratorError13 = false;
+            var _iteratorError13 = undefined;
 
             try {
-                for (var _iterator11 = this.boxes[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-                    var box = _step11.value;
+                for (var _iterator13 = this.boxes[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                    var box = _step13.value;
 
                     var translate = box.getGridPixelTransform().getTranslate();
 
                     // for each item in blockedNodes (set of blocked nodes with coordinates relative
                     // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
                     // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-                    var _iteratorNormalCompletion12 = true;
-                    var _didIteratorError12 = false;
-                    var _iteratorError12 = undefined;
+                    var _iteratorNormalCompletion14 = true;
+                    var _didIteratorError14 = false;
+                    var _iteratorError14 = undefined;
 
                     try {
-                        for (var _iterator12 = box.blockedNodes[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-                            var node = _step12.value;
+                        for (var _iterator14 = box.blockedNodes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                            var node = _step14.value;
 
                             blockedNodes.add({
                                 x: translate.x + node.x,
@@ -2506,16 +2579,16 @@ var Canvas = function () {
                             });
                         }
                     } catch (err) {
-                        _didIteratorError12 = true;
-                        _iteratorError12 = err;
+                        _didIteratorError14 = true;
+                        _iteratorError14 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion12 && _iterator12.return) {
-                                _iterator12.return();
+                            if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                                _iterator14.return();
                             }
                         } finally {
-                            if (_didIteratorError12) {
-                                throw _iteratorError12;
+                            if (_didIteratorError14) {
+                                throw _iteratorError14;
                             }
                         }
                     }
@@ -2544,16 +2617,16 @@ var Canvas = function () {
 
                 // return the set
             } catch (err) {
-                _didIteratorError11 = true;
-                _iteratorError11 = err;
+                _didIteratorError13 = true;
+                _iteratorError13 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion11 && _iterator11.return) {
-                        _iterator11.return();
+                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
+                        _iterator13.return();
                     }
                 } finally {
-                    if (_didIteratorError11) {
-                        throw _iteratorError11;
+                    if (_didIteratorError13) {
+                        throw _iteratorError13;
                     }
                 }
             }
@@ -2572,37 +2645,37 @@ var Canvas = function () {
             var inconvenientNodes = new Set();
             // for each wire
 
-            var _iteratorNormalCompletion13 = true;
-            var _didIteratorError13 = false;
-            var _iteratorError13 = undefined;
+            var _iteratorNormalCompletion15 = true;
+            var _didIteratorError15 = false;
+            var _iteratorError15 = undefined;
 
             try {
-                for (var _iterator13 = this.wires[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-                    var wire = _step13.value;
+                for (var _iterator15 = this.wires[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                    var wire = _step15.value;
 
                     if (ignoreWireId === undefined || ignoreWireId !== wire.id) {
                         if (wire.inconvenientNodes) {
-                            var _iteratorNormalCompletion14 = true;
-                            var _didIteratorError14 = false;
-                            var _iteratorError14 = undefined;
+                            var _iteratorNormalCompletion16 = true;
+                            var _didIteratorError16 = false;
+                            var _iteratorError16 = undefined;
 
                             try {
-                                for (var _iterator14 = wire.inconvenientNodes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                                    var node = _step14.value;
+                                for (var _iterator16 = wire.inconvenientNodes[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
+                                    var node = _step16.value;
 
                                     inconvenientNodes.add(node);
                                 }
                             } catch (err) {
-                                _didIteratorError14 = true;
-                                _iteratorError14 = err;
+                                _didIteratorError16 = true;
+                                _iteratorError16 = err;
                             } finally {
                                 try {
-                                    if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                                        _iterator14.return();
+                                    if (!_iteratorNormalCompletion16 && _iterator16.return) {
+                                        _iterator16.return();
                                     }
                                 } finally {
-                                    if (_didIteratorError14) {
-                                        throw _iteratorError14;
+                                    if (_didIteratorError16) {
+                                        throw _iteratorError16;
                                     }
                                 }
                             }
@@ -2633,16 +2706,16 @@ var Canvas = function () {
 
                 // return the set
             } catch (err) {
-                _didIteratorError13 = true;
-                _iteratorError13 = err;
+                _didIteratorError15 = true;
+                _iteratorError15 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
-                        _iterator13.return();
+                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
+                        _iterator15.return();
                     }
                 } finally {
-                    if (_didIteratorError13) {
-                        throw _iteratorError13;
+                    if (_didIteratorError15) {
+                        throw _iteratorError15;
                     }
                 }
             }
@@ -2696,27 +2769,27 @@ var Canvas = function () {
                 boxes: []
             };
 
-            var _iteratorNormalCompletion15 = true;
-            var _didIteratorError15 = false;
-            var _iteratorError15 = undefined;
+            var _iteratorNormalCompletion17 = true;
+            var _didIteratorError17 = false;
+            var _iteratorError17 = undefined;
 
             try {
-                for (var _iterator15 = this.boxes[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-                    var box = _step15.value;
+                for (var _iterator17 = this.boxes[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
+                    var box = _step17.value;
 
                     data.boxes.push(box.exportData);
                 }
             } catch (err) {
-                _didIteratorError15 = true;
-                _iteratorError15 = err;
+                _didIteratorError17 = true;
+                _iteratorError17 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
-                        _iterator15.return();
+                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
+                        _iterator17.return();
                     }
                 } finally {
-                    if (_didIteratorError15) {
-                        throw _iteratorError15;
+                    if (_didIteratorError17) {
+                        throw _iteratorError17;
                     }
                 }
             }
@@ -2735,7 +2808,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu":11,"./editorElements":12,"./floatingMenu":14,"./helperFunctions":15,"./logic":17,"./simulation":21,"./svgObjects":22,"./tutorial":23,"./viewbox":24,"libstl":9}],11:[function(require,module,exports){
+},{"./contextMenu":11,"./editorElements":12,"./floatingMenu":14,"./helperFunctions":15,"./logic":17,"./messages":20,"./simulation":22,"./svgObjects":23,"./tutorial":24,"./viewbox":25,"libstl":9}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2988,9 +3061,34 @@ var NetworkMenuItem = function (_ContextMenuItem3) {
 
         return _this5 = _possibleConstructorReturn(this, (NetworkMenuItem.__proto__ || Object.getPrototypeOf(NetworkMenuItem)).call(this, name, contextMenu, function () {
             (0, _networkLibrary.getNetworkFromLibrary)(file).then(function (data) {
-                _this5.parentSVG.importData(data, Math.round(_this5.parentSVG.viewbox.transformX(contextMenu.position.x) / _this5.parentSVG.gridSize), Math.round(_this5.parentSVG.viewbox.transformY(contextMenu.position.y) / _this5.parentSVG.gridSize)).then();
+                _this5.parentSVG.importData(data, Math.round(_this5.parentSVG.viewbox.transformX(contextMenu.position.x) / _this5.parentSVG.gridSize), Math.round(_this5.parentSVG.viewbox.transformY(contextMenu.position.y) / _this5.parentSVG.gridSize)).then(function (warnings) {
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = warnings[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var warning = _step.value;
+
+                            _this5.parentSVG.messages.newWarningMessage(warning);
+                        }
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion && _iterator.return) {
+                                _iterator.return();
+                            }
+                        } finally {
+                            if (_didIteratorError) {
+                                throw _iteratorError;
+                            }
+                        }
+                    }
+                });
             }).catch(function (error) {
-                console.error(error);
+                _this5.parentSVG.messages.newErrorMessage(error);
             });
         }));
     }
@@ -3063,27 +3161,27 @@ var ContextMenu = function () {
         // list of gates that can be added
         var gates = _editorElements.Gate.validGates;
         var gateList = new ContextMenuItem("New gate", this, parentSVG);
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
 
         try {
-            for (var _iterator = gates[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                var name = _step.value;
+            for (var _iterator2 = gates[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                var name = _step2.value;
 
                 gateList.appendItem(new GateMenuItem(name, this));
             }
         } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                    _iterator.return();
+                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                    _iterator2.return();
                 }
             } finally {
-                if (_didIteratorError) {
-                    throw _iteratorError;
+                if (_didIteratorError2) {
+                    throw _iteratorError2;
                 }
             }
         }
@@ -3092,7 +3190,7 @@ var ContextMenu = function () {
 
         // more options will be added in the getLibrary() callback below
         var networkList = new ContextMenuItem("Add a network", this);
-        networkList.appendItem(new ContextMenuItem("paste a network", this, function () {
+        networkList.appendItem(new ContextMenuItem("Paste a network", this, function () {
             _this6.displayImportDialog();
         }));
         this.appendItem(networkList); // always append
@@ -3101,14 +3199,14 @@ var ContextMenu = function () {
 
         // network import (blackbox, network)
         (0, _networkLibrary.getLibrary)().then(function (networks) {
-            var _iteratorNormalCompletion2 = true;
-            var _didIteratorError2 = false;
-            var _iteratorError2 = undefined;
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
 
             try {
 
-                for (var _iterator2 = networks[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                    var _ref2 = _step2.value;
+                for (var _iterator3 = networks[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var _ref2 = _step3.value;
                     var _name = _ref2.name;
                     var file = _ref2.file;
                     var hasTable = _ref2.hasTable;
@@ -3125,16 +3223,16 @@ var ContextMenu = function () {
                     }
                 }
             } catch (err) {
-                _didIteratorError2 = true;
-                _iteratorError2 = err;
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                        _iterator2.return();
+                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                        _iterator3.return();
                     }
                 } finally {
-                    if (_didIteratorError2) {
-                        throw _iteratorError2;
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
                     }
                 }
             }
@@ -3221,13 +3319,46 @@ var ContextMenu = function () {
                 "href": "#",
                 "class": "upload"
             }).append($("<img>").attr('src', "img/gui/import.svg")).append(" import from JSON").on('click', function () {
-                var data = JSON.parse($('#' + textareaId).val());
+                var data = void 0;
 
-                // proccess the imported data
-                _this7.parentSVG.importData(data, Math.round(_this7.parentSVG.viewbox.transformX(_this7.position.x) / _this7.parentSVG.gridSize), Math.round(_this7.parentSVG.viewbox.transformY(_this7.position.y) / _this7.parentSVG.gridSize)).then(function () {
-                    // close Lity
+                try {
+                    data = JSON.parse($('#' + textareaId).val());
+                } catch (e) {
+                    _this7.parentSVG.messages.newErrorMessage("The imported file is not a valid JSON file.");
                     lityInstance.close();
-                });
+                }
+
+                if (data) {
+                    // proccess the imported data
+                    _this7.parentSVG.importData(data, Math.round(_this7.parentSVG.viewbox.transformX(_this7.position.x) / _this7.parentSVG.gridSize), Math.round(_this7.parentSVG.viewbox.transformY(_this7.position.y) / _this7.parentSVG.gridSize)).then(function (warnings) {
+                        var _iteratorNormalCompletion4 = true;
+                        var _didIteratorError4 = false;
+                        var _iteratorError4 = undefined;
+
+                        try {
+                            for (var _iterator4 = warnings[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                                var warning = _step4.value;
+
+                                _this7.parentSVG.messages.newWarningMessage(warning);
+                            }
+                        } catch (err) {
+                            _didIteratorError4 = true;
+                            _iteratorError4 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                                    _iterator4.return();
+                                }
+                            } finally {
+                                if (_didIteratorError4) {
+                                    throw _iteratorError4;
+                                }
+                            }
+                        }
+                    }).finally(function () {
+                        lityInstance.close();
+                    });
+                }
             }));
 
             lityInstance = lity($popup);
@@ -3254,27 +3385,27 @@ var ContextMenu = function () {
                 }
             };
 
-            var _iteratorNormalCompletion3 = true;
-            var _didIteratorError3 = false;
-            var _iteratorError3 = undefined;
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
 
             try {
-                for (var _iterator3 = this.conditionalItems[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                    var item = _step3.value;
+                for (var _iterator5 = this.conditionalItems[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var item = _step5.value;
 
                     _loop(item);
                 }
             } catch (err) {
-                _didIteratorError3 = true;
-                _iteratorError3 = err;
+                _didIteratorError5 = true;
+                _iteratorError5 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                        _iterator3.return();
+                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                        _iterator5.return();
                     }
                 } finally {
-                    if (_didIteratorError3) {
-                        throw _iteratorError3;
+                    if (_didIteratorError5) {
+                        throw _iteratorError5;
                     }
                 }
             }
@@ -3340,7 +3471,7 @@ var ContextMenu = function () {
 
 exports.default = ContextMenu;
 
-},{"./editorElements":12,"./networkLibrary":20}],12:[function(require,module,exports){
+},{"./editorElements":12,"./networkLibrary":21}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5943,7 +6074,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     return Wire;
 }(NetworkElement);
 
-},{"./findPath":13,"./logic":17,"./svgObjects":22}],13:[function(require,module,exports){
+},{"./findPath":13,"./logic":17,"./svgObjects":23}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6779,6 +6910,195 @@ exports.default = function (defaultValue) {
 };
 
 },{}],20:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Message = function () {
+    function Message(text) {
+        var onHide = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+
+        _classCallCheck(this, Message);
+
+        this.$el = $("<div>").addClass("message").text(text);
+
+        this.onHide = onHide;
+    }
+
+    _createClass(Message, [{
+        key: "hide",
+        value: function hide() {
+            this.$el.remove();
+
+            if (this.onHide) {
+                this.onHide();
+            }
+        }
+    }]);
+
+    return Message;
+}();
+
+var LoadingMessage = function (_Message) {
+    _inherits(LoadingMessage, _Message);
+
+    function LoadingMessage(text) {
+        var onHide = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+
+        _classCallCheck(this, LoadingMessage);
+
+        var _this = _possibleConstructorReturn(this, (LoadingMessage.__proto__ || Object.getPrototypeOf(LoadingMessage)).call(this, text, onHide));
+
+        _this.$el.addClass("loading");
+        return _this;
+    }
+
+    return LoadingMessage;
+}(Message);
+
+var ClosableMessage = function (_Message2) {
+    _inherits(ClosableMessage, _Message2);
+
+    function ClosableMessage(text) {
+        var onHide = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+
+        _classCallCheck(this, ClosableMessage);
+
+        var _this2 = _possibleConstructorReturn(this, (ClosableMessage.__proto__ || Object.getPrototypeOf(ClosableMessage)).call(this, text, onHide));
+
+        _this2.$el.append($("<span>").addClass("close").click(function () {
+            _this2.hide();
+        }));
+        return _this2;
+    }
+
+    return ClosableMessage;
+}(Message);
+
+var ErrorMessage = function (_ClosableMessage) {
+    _inherits(ErrorMessage, _ClosableMessage);
+
+    function ErrorMessage(text) {
+        var onHide = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+
+        _classCallCheck(this, ErrorMessage);
+
+        var _this3 = _possibleConstructorReturn(this, (ErrorMessage.__proto__ || Object.getPrototypeOf(ErrorMessage)).call(this, text, onHide));
+
+        _this3.$el.addClass("error");
+        return _this3;
+    }
+
+    return ErrorMessage;
+}(ClosableMessage);
+
+var WarningMessage = function (_ClosableMessage2) {
+    _inherits(WarningMessage, _ClosableMessage2);
+
+    function WarningMessage(text) {
+        var onHide = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+
+        _classCallCheck(this, WarningMessage);
+
+        var _this4 = _possibleConstructorReturn(this, (WarningMessage.__proto__ || Object.getPrototypeOf(WarningMessage)).call(this, text, onHide));
+
+        _this4.$el.addClass("warning");
+        return _this4;
+    }
+
+    return WarningMessage;
+}(ClosableMessage);
+
+/**
+ * display messages to the user in a nice UI
+ */
+
+
+var Messages = function () {
+    function Messages() {
+        _classCallCheck(this, Messages);
+
+        this.$el = $("<div>").addClass('messages');
+
+        this.count = 0;
+
+        // place the progress info element
+        $('body').append(this.$el);
+    }
+
+    _createClass(Messages, [{
+        key: "hide",
+        value: function hide() {
+            this.$el.addClass('hidden');
+        }
+    }, {
+        key: "display",
+        value: function display() {
+            this.$el.removeClass('hidden');
+        }
+    }, {
+        key: "newMessage",
+        value: function newMessage(text) {
+            var _this5 = this;
+
+            var constr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Message;
+
+            var message = new constr(text, function () {
+                _this5.count--;
+            });
+
+            this.$el.append(message.$el);
+            this.count++;
+
+            return message;
+        }
+    }, {
+        key: "newLoadingMessage",
+        value: function newLoadingMessage(text) {
+            return this.newMessage(text, LoadingMessage);
+        }
+    }, {
+        key: "newErrorMessage",
+        value: function newErrorMessage(text) {
+            return this.newMessage(text, ErrorMessage);
+        }
+    }, {
+        key: "newWarningMessage",
+        value: function newWarningMessage(text) {
+            return this.newMessage(text, WarningMessage);
+        }
+    }, {
+        key: "count",
+        get: function get() {
+            return this.messageCount;
+        },
+        set: function set(value) {
+            this.messageCount = value;
+
+            if (this.messageCount < 1) {
+                this.hide();
+            } else {
+                this.display();
+            }
+        }
+    }]);
+
+    return Messages;
+}();
+
+exports.default = Messages;
+
+},{}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6843,7 +7163,7 @@ function getNetworkFromLibrary(networkName) {
     });
 }
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7121,7 +7441,7 @@ var Simulation = function () {
 
 exports.default = Simulation;
 
-},{"./logic":17}],22:[function(require,module,exports){
+},{"./logic":17}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7928,10 +8248,7 @@ var MultiLineText = exports.MultiLineText = function (_Tag5) {
         var $paragraph = $("<p>").attr("xmlns", "http://www.w3.org/1999/xhtml").css("font-size", size).append(text);
 
         $wrapper.append($paragraph);
-
         foreignObject.$el.append($wrapper);
-
-        console.log("par:", $paragraph.height());
 
         _this8.$el.append(foreignObject.$el).append(alternativeText.$el);
         return _this8;
@@ -7991,7 +8308,7 @@ var Pattern = exports.Pattern = function (_Tag6) {
     return Pattern;
 }(Tag);
 
-},{"./id":16}],23:[function(require,module,exports){
+},{"./id":16}],24:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8540,7 +8857,7 @@ var Tutorial = function () {
 
 exports.default = Tutorial;
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
