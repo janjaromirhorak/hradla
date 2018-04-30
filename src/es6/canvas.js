@@ -360,20 +360,22 @@ export default class Canvas {
             let newWires = new Map();
 
             // find the leftmost and topmost coordinate of any box, save them to leftTopCorner
-            let leftTopCorner;
+            let leftTopCorner = {x: 0, y: 0};
 
             for (const boxData of data.boxes) {
-                for(const transformInfo of boxData.transform.items) {
-                    if(transformInfo.name === "translate") {
-                        if(leftTopCorner) {
-                            leftTopCorner = {
-                                x: Math.min(leftTopCorner.x, transformInfo.args[0]),
-                                y: Math.min(leftTopCorner.y, transformInfo.args[1])
-                            }
-                        } else {
-                            leftTopCorner = {
-                                x: transformInfo.args[0],
-                                y: transformInfo.args[1]
+                if(boxData.transform && boxData.transform.items) {
+                    for(const transformInfo of boxData.transform.items) {
+                        if(transformInfo.name === "translate") {
+                            if(leftTopCorner) {
+                                leftTopCorner = {
+                                    x: Math.min(leftTopCorner.x, transformInfo.args[0]),
+                                    y: Math.min(leftTopCorner.y, transformInfo.args[1])
+                                }
+                            } else {
+                                leftTopCorner = {
+                                    x: transformInfo.args[0],
+                                    y: transformInfo.args[1]
+                                }
                             }
                         }
                     }
@@ -414,30 +416,29 @@ export default class Canvas {
                     // proccess box transforms (translation and rotation)
                     let transform = new editorElements.Transform();
 
-                    for(let j = 0 ; j < boxData.transform.items.length ; ++j) {
-                        switch (boxData.transform.items[j].name) {
-                            case "translate":
-                                transform.setTranslate(
-                                    boxData.transform.items[j].args[0]
-                                        - leftTopCorner.x // make it the relative distance from the leftmost element
-                                        + x // apply the position
-                                        ,
+                    if(boxData.transform && boxData.transform.items) {
+                        for(const transformItem of boxData.transform.items) {
+                            switch (transformItem.name) {
+                                case "translate":
+                                    transform.setTranslate(
+                                        transformItem.args[0]
+                                            - leftTopCorner.x // make it the relative distance from the leftmost element
+                                            + x // apply the position
+                                            ,
 
-                                    boxData.transform.items[j].args[1]
-                                        - leftTopCorner.y // make it the relative distance from the topmost element
-                                        + y // apply the position
-                                );
-                                break;
-                            case "rotate":
-                                transform.setRotate(
-                                    boxData.transform.items[j].args[0],
-                                    boxData.transform.items[j].args[1],
-                                    boxData.transform.items[j].args[2]
-                                );
-                                break;
-                            default:
-                                reject("Unknown transform property '"+boxData.transform.items[j].name+"'.");
-                                break;
+                                        transformItem.args[1]
+                                            - leftTopCorner.y // make it the relative distance from the topmost element
+                                            + y // apply the position
+                                    );
+                                    break;
+                                case "rotate":
+                                    // expected 3 arguments
+                                    transform.setRotate(...transformItem.args);
+                                    break;
+                                default:
+                                    reject(`Unknown transform property '${transformItem.name}'.`);
+                                    break;
+                            }
                         }
                     }
 
@@ -445,27 +446,29 @@ export default class Canvas {
                     box.setTransform(transform);
 
                     // add all wires to the list of wires to be added
-                    for(let j = 0 ; j < boxData.connections.length ; ++j) {
-                        // get the artificial wire id
-                        let wireId = boxData.connections[j].wireId;
+                    if(boxData.connections) {
+                        for(const connection of boxData.connections) {
+                            // get the artificial wire id
+                            let wireId = connection.wireId;
 
-                        // pass the values got from json into a variable that will be added into the map
-                        let value = {
-                            index: boxData.connections[j].index,
-                            boxId: box.id
-                        };
+                            // pass the values got from json into a variable that will be added into the map
+                            let value = {
+                                index: connection.index,
+                                boxId: box.id
+                            };
 
-                        // add the value to the map
-                        if(newWires.has(wireId)) {
-                            // if there already is a wire with this id in the map,
-                            // add the value to the end of the array of values
-                            let mapValue = newWires.get(wireId);
-                            mapValue.push(value);
-                            newWires.set(wireId, mapValue);
-                        } else {
-                            // if there is no wire with this id in the map
-                            // add the wire and set the value to be the first element in the array
-                            newWires.set(wireId, [value]);
+                            // add the value to the map
+                            if(newWires.has(wireId)) {
+                                // if there already is a wire with this id in the map,
+                                // add the value to the end of the array of values
+                                let mapValue = newWires.get(wireId);
+                                mapValue.push(value);
+                                newWires.set(wireId, mapValue);
+                            } else {
+                                // if there is no wire with this id in the map
+                                // add the wire and set the value to be the first element in the array
+                                newWires.set(wireId, [value]);
+                            }
                         }
                     }
                 }
@@ -531,7 +534,7 @@ export default class Canvas {
                     wireReferences.push(wire);
                 }
 
-                // [routeWorkerFileName] replaced in gulpfile depending on devel / prod build
+                // [routeWorkerFileName] replaced in the build process (defined in gulpfile) depending on devel / prod build
                 let myWorker = new Worker("js/[routeWorkerFileName]");
 
                 myWorker.onmessage = (event) => {

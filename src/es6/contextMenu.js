@@ -293,7 +293,7 @@ export default class ContextMenu {
 
         // more options will be added in the getLibrary() callback below
         let networkList = new ContextMenuItem("Add a network", this);
-        networkList.appendItem(new ContextMenuItem("paste a network", this, () => {
+        networkList.appendItem(new ContextMenuItem("Paste a network", this, () => {
             this.displayImportDialog()
         }));
         this.appendItem(networkList); // always append

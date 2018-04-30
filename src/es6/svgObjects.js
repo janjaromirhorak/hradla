@@ -578,10 +578,7 @@ export class MultiLineText extends Tag {
             .append(text);
 
         $wrapper.append($paragraph);
-
         foreignObject.$el.append($wrapper)
-
-        console.log("par:", $paragraph.height());
 
         this.$el.append(
             foreignObject.$el
