@@ -74,23 +74,8 @@ modules.addModules({
     eventStream: 'event-stream'
 });
 
-const config = require('./config.json')
 const packageData = require('./package.json')
-
-let getAnalyticsCode = (analyticsId) => {
-    let str = `<script async src="https://www.googletagmanager.com/gtag/js?id=${analyticsId}"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments)};
-        gtag('js', new Date());
-        gtag('config', '${analyticsId}');
-    </script>`;
-    if (production) {
-        str = str.replace(/(?:\r\n|\r|\n)/g, ' '); // replace line breaks with spaces
-        str = str.replace(/ +/g, ' '); // concatenate multiple spaces into one
-    }
-    return str;
-}
+const config = packageData.config;
 
 const
     out = 'dist',
@@ -266,11 +251,6 @@ gulp.task('html', () => {
         .pipe(insert.append(`<script src="js/lib/lity${p}.js"></script>`))
         .pipe(insert.append(`<script src="js/main${p}.js"></script>`))
         .pipe(insert.append('<!-- /build:scripts -->'))
-
-        .pipe(insert.append('<!-- build:analytics -->'))
-        .pipe(gulpif(config.analytics !== false, insert.append(getAnalyticsCode(config.analytics))))
-        .pipe(gulpif(config.analytics === false, insert.append(' ')))
-        .pipe(insert.append('<!-- /build:analytics -->'))
 
         .pipe(template('index-template.html'))
         .pipe(gulpif(production, htmlmin({collapseWhitespace: true, removeComments: true})))

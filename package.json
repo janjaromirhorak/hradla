@@ -53,5 +53,8 @@
     },
     "dependencies": {
         "npm": "^5.8.0"
+    },
+    "config": {
+         "title": "Hradla — Logic Network Simulator"
     }
 }
