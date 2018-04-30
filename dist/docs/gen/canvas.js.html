@@ -602,14 +602,10 @@ export default class Canvas {
                     wireReferences.push(wire);
                 }
 
-<<<<<<< HEAD
-                let myWorker = new Worker("js/routeWorker.min.js");
-=======
                 // [routeWorkerFileName] replaced in the build process (defined in gulpfile) depending on devel / prod build
                 let myWorker = new Worker("js/[routeWorkerFileName]");
 
                 let loadingMessage = this.messages.newLoadingMessage("looking for the best wiring…");
->>>>>>> master
 
                 myWorker.onmessage = (event) => {
                     const {paths} = event.data
