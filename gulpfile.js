@@ -92,13 +92,15 @@ const
     packaged = out + '/archives',
 
     src = 'src',
+    srcHtml = src + '/html',
+    srcImg = src + '/img',
     srcCss = src + '/scss',
     srcJs = src + '/es6',
 
-    srcDocs = 'docs',
+    srcDocs = src + '/help',
     srcMd = srcDocs + '/md',
 
-    srcFonts = 'fonts',
+    srcFonts = src + '/fonts',
 
     docs = 'docs',
     docsOut = out + '/docs',
@@ -252,7 +254,7 @@ gulp.task('html', () => {
         .pipe(insert.append(`<script src="js/main${p}.js"></script>`))
         .pipe(insert.append('<!-- /build:scripts -->'))
 
-        .pipe(template('index-template.html'))
+        .pipe(template(srcHtml + '/index.html'))
         .pipe(gulpif(production, htmlmin({collapseWhitespace: true, removeComments: true})))
 
         .pipe(gulp.dest(out));
@@ -264,7 +266,7 @@ gulp.task('images', () => {
         changed = modules.get('changed'),
         imagemin = modules.get('imagemin');
 
-    return gulp.src('img/**/*.svg')
+    return gulp.src(srcImg + '/**/*.svg')
         .pipe(changed(outImg))
         .pipe(imagemin([
             imagemin.svgo({
@@ -303,7 +305,7 @@ gulp.task('help', () => {
         styleSheet: `<link href="../css/${styleSheet}" rel="stylesheet">`
     }
 
-    return gulp.src(srcDocs + '/md/*.md')
+    return gulp.src(srcDocs + '/*.md')
         .pipe(markdown())
         .pipe(rename(path => {
             path.extname = ".html"
@@ -323,7 +325,7 @@ gulp.task('help', () => {
         .pipe(insert.append(snippets.styleSheet))
         .pipe(insert.append('<!-- /build:styleSheet -->'))
         // put the generated file into a predefined template
-        .pipe(template(srcDocs + '/index.html'))
+        .pipe(template(srcHtml + '/help.html'))
         .pipe(gulpif(production, htmlmin({collapseWhitespace: true, removeComments: true})))
         .pipe(gulp.dest(outDocs))
 })
