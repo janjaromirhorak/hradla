@@ -1055,7 +1055,7 @@ var Canvas = function () {
 
         var patternPoints = new svgObj.PolylinePoints().append(new svgObj.PolylinePoint(0, 0)).append(new svgObj.PolylinePoint(this.gridSize, 0)).append(new svgObj.PolylinePoint(this.gridSize, this.gridSize));
 
-        pattern.addChild(new svgObj.PolyLine(patternPoints, 2, "#a3a4d2"));
+        pattern.addChild(new svgObj.PolyLine(patternPoints, 2, "#c2c3e4"));
         this.addPattern(pattern.get());
 
         this.background = new svgObj.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
