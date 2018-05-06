@@ -341,18 +341,63 @@ export default class Tutorial {
     windowContent(...text) {
         if(!this.$tutorialWindow) {
             this.$tutorialWindow = $("<div>").attr("id", "tutorial");
+
+            this.$topButtonsLeft = $("<div>").addClass("left");
+
             this.$tutorialWindow.append(
-                $("<div>").addClass("topButtons").append(
-                    $("<a>").attr("href", "#").addClass("button close")
-                    .click(() => {
-                        this.stop();
-                    })
-                )
+                $("<div>").addClass("topButtons")
+                    .append(this.$topButtonsLeft)
+                    .append( // the .right div can be added here because it is not modified during the tutorial
+                        $("<div>").addClass("right")
+                        .append(
+                            $("<a>").attr({
+                                href: "#",
+                                title: "close tutorial"
+                            }).addClass("button close")
+                            .click(() => {
+                                this.stop();
+                            })
+                        )
+                    )
             )
+
+            this.$tutorialWindow.append(this.$topButtons);
 
             this.$tutorialContent = $("<div>").addClass("content");
             this.$tutorialWindow.append(this.$tutorialContent);
         }
+
+        this.$topButtonsLeft.html("");
+
+        let $prev = $("<a>").attr({
+            href: "#",
+            title: "go back"
+        }).addClass("button prev");
+
+        if(this.step>1) {
+            $prev.click(() => {
+                this.prev();
+            });
+        } else {
+            $prev.addClass("disabled");
+        }
+
+        let $next = $("<a>").attr({
+            href: "#",
+            title: "go forward"
+        }).addClass("button next");
+
+        if(this.step < this.steps.length - 1) {
+            $next.click(() => {
+                this.next();
+            });
+        } else {
+            $next.addClass("disabled");
+        }
+
+        this.$topButtonsLeft.append($prev).append($next);
+
+        // set the text content
 
         this.$tutorialContent.html("");
         for (const paragraph of text) {
@@ -360,6 +405,36 @@ export default class Tutorial {
                 $("<p>").html(paragraph)
             );
         }
+
+        // // render the buttons in each step (to remove focus and to
+        // // ensure there is no "back" button on the first step or "next" button on the last step)
+        // if(this.$prevNext) {
+        //     this.$prevNext.remove();
+        // }
+        //
+        // this.$prevNext = $("<div>").addClass("bottomButtons");
+        //
+        // if(this.step>1) {
+        //     this.$prevNext.append(
+        //         $("<a>").attr("href", "#").addClass("button prev")
+        //         // .text("back")
+        //         .click(() => {
+        //             this.step--;
+        //         })
+        //     )
+        // }
+        //
+        // if(this.step < this.steps.length - 1) {
+        //     this.$prevNext.append(
+        //         $("<a>").attr("href", "#").addClass("button next")
+        //         // .text("next")
+        //         .click(() => {
+        //             this.next();
+        //         })
+        //     )
+        // }
+        //
+        // this.$tutorialWindow.append(this.$prevNext);
     }
 
     /**
@@ -389,6 +464,11 @@ export default class Tutorial {
      * go to the next step of the tutorial
      */
     next() { this.step++; }
+
+    /**
+     * go to the previous step of the tutorial
+     */
+    prev() { this.step--; }
 
     /**
      * stop the tutorial
