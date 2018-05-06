@@ -215,12 +215,12 @@ export default class Tutorial {
      */
     stepZoomCanvas() {
         this.windowContent(
-            `You can also zoom in and out using <code>Ctrl</code> and the mouse wheel.`
+            `You can also zoom in and out using the mouse wheel
+            or with the <code>+</code>&nbsp;and <code>−</code>&nbsp;keys.`
         )
 
         this.onCanvasZoomed = () => {
             this.next();
-            this.onCanvasZoomed = () => {};
         }
     }
 

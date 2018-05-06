@@ -164,6 +164,19 @@ export default class Canvas {
             }
         })
 
+        $(window).on('keydown', (event) => {
+            switch (event.key) {
+                case '+':
+                    this.zoom += 0.1
+                    break
+                case '-':
+                    this.zoom -= 0.1
+                    break
+            }
+        })
+
+
+
         /**
          * property containing an instance of [Tutorial](./module-Tutorial.html), if there is any
          * @type {Tutorial}
