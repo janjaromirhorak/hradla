@@ -3079,6 +3079,22 @@ ul#contextMenu, ul.subList {
       padding: 0;
       text-align: center; }
 
+.tutorialTextButton, #tutorial ol.choices li a {
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #2b2d42;
+  background: #edf2f4;
+  padding: 0.3em 0.5em;
+  border-radius: 3px;
+  margin: 0.3em;
+  display: inline-block;
+  -webkit-transition: background 200ms;
+  transition: background 200ms; }
+  .tutorialTextButton:hover, #tutorial ol.choices li a:hover {
+    background: #f9dc5c; }
+  .tutorialTextButton:active, #tutorial ol.choices li a:active, .tutorialTextButton:focus, #tutorial ol.choices li a:focus {
+    background: #ed254e; }
+
 #tutorial {
   position: absolute;
   left: 1em;
@@ -3089,21 +3105,47 @@ ul#contextMenu, ul.subList {
   color: #2b2d42;
   background: white; }
   #tutorial .topButtons {
-    text-align: right; }
-    #tutorial .topButtons .button {
-      display: inline-block; }
-      #tutorial .topButtons .button:before {
-        display: inline-block;
-        font-family: "ForkAwesome";
-        color: #2b2d42;
-        cursor: hand;
-        cursor: pointer;
-        -webkit-transition: opacity 200ms;
-        transition: opacity 200ms; }
-      #tutorial .topButtons .button:hover:before {
-        opacity: 0.5; }
-      #tutorial .topButtons .button.close:before {
-        content: ""; }
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    margin-bottom: 0.5em; }
+    #tutorial .topButtons .left {
+      text-align: left; }
+    #tutorial .topButtons .right {
+      text-align: right; }
+    #tutorial .topButtons .left, #tutorial .topButtons .right {
+      -webkit-box-flex: 1;
+          -ms-flex-positive: 1;
+              flex-grow: 1; }
+      #tutorial .topButtons .left .button, #tutorial .topButtons .right .button {
+        display: inline-block; }
+        #tutorial .topButtons .left .button:after, #tutorial .topButtons .right .button:after {
+          display: inline-block;
+          font-family: "ForkAwesome";
+          color: #2b2d42;
+          padding: 0.2em 0.4em;
+          background: #edf2f4;
+          border-radius: 3px;
+          margin-right: 0.5em;
+          cursor: hand;
+          cursor: pointer;
+          -webkit-transition: opacity 200ms;
+          transition: opacity 200ms; }
+        #tutorial .topButtons .left .button:last-of-type:after, #tutorial .topButtons .right .button:last-of-type:after {
+          margin-right: 0; }
+        #tutorial .topButtons .left .button:hover:after, #tutorial .topButtons .right .button:hover:after {
+          opacity: 0.5; }
+        #tutorial .topButtons .left .button.close:after, #tutorial .topButtons .right .button.close:after {
+          content: ""; }
+        #tutorial .topButtons .left .button.prev:after, #tutorial .topButtons .right .button.prev:after {
+          content: ""; }
+        #tutorial .topButtons .left .button.next:after, #tutorial .topButtons .right .button.next:after {
+          content: ""; }
+        #tutorial .topButtons .left .button.disabled:after, #tutorial .topButtons .right .button.disabled:after {
+          opacity: 0.5;
+          cursor: default; }
+        #tutorial .topButtons .left .button.disabled:hover:after, #tutorial .topButtons .right .button.disabled:hover:after {
+          opacity: 0.5; }
   #tutorial .content {
     margin: 0;
     padding: 0;
@@ -3117,24 +3159,6 @@ ul#contextMenu, ul.subList {
     margin: 0;
     padding: 0;
     text-align: center; }
-    #tutorial ol.choices li a {
-      margin: 0;
-      padding: 0;
-      display: block;
-      text-decoration: none;
-      text-transform: uppercase;
-      color: #2b2d42;
-      background: #edf2f4;
-      padding: 0.3em 0.5em;
-      border-radius: 3px;
-      margin: 0.3em;
-      display: inline-block;
-      -webkit-transition: background 200ms;
-      transition: background 200ms; }
-      #tutorial ol.choices li a:hover {
-        background: #f9dc5c; }
-      #tutorial ol.choices li a:active, #tutorial ol.choices li a:focus {
-        background: #ed254e; }
 
 .grabbable {
   cursor: -webkit-grab !important;

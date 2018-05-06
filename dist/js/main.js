@@ -1142,6 +1142,17 @@ var Canvas = function () {
             }
         });
 
+        $(window).on('keydown', function (event) {
+            switch (event.key) {
+                case '+':
+                    _this.zoom += 0.1;
+                    break;
+                case '-':
+                    _this.zoom -= 0.1;
+                    break;
+            }
+        });
+
         /**
          * property containing an instance of [Tutorial](./module-Tutorial.html), if there is any
          * @type {Tutorial}
@@ -8589,9 +8600,6 @@ var Tutorial = function () {
 
             this.onContextMenuOpened = function () {
                 _this3.next();
-
-                // this function runs only once
-                _this3.onContextMenuOpened = function () {};
             };
         }
 
@@ -8629,9 +8637,6 @@ var Tutorial = function () {
                 }
 
                 if (elementsAdded.inputBox && elementsAdded.outputBox && elementsAdded.notGate) {
-                    // remove the action
-                    _this4.onElementAdded = function () {};
-
                     // proceed to the next step of the tutorial
                     _this4.next();
                 }
@@ -8651,7 +8656,6 @@ var Tutorial = function () {
 
             this.onCanvasMoved = function () {
                 _this5.next();
-                _this5.onCanvasMoved = function () {};
             };
         }
 
@@ -8664,11 +8668,10 @@ var Tutorial = function () {
         value: function stepZoomCanvas() {
             var _this6 = this;
 
-            this.windowContent("You can also zoom in and out using <code>Ctrl</code> and the mouse wheel.");
+            this.windowContent("You can also zoom in and out using the mouse wheel\n            or with the <code>+</code>&nbsp;and <code>\u2212</code>&nbsp;keys.");
 
             this.onCanvasZoomed = function () {
                 _this6.next();
-                _this6.onCanvasZoomed = function () {};
             };
         }
 
@@ -8694,17 +8697,11 @@ var Tutorial = function () {
 
             this.onBoxMoved = function () {
                 boxMoved = true;
-
-                _this7.onBoxMoved = function () {};
-
                 moveRotateCallback();
             };
 
             this.onBoxRotated = function () {
                 boxRotated = true;
-
-                _this7.onBoxRotated = function () {};
-
                 moveRotateCallback();
             };
         }
@@ -8722,8 +8719,6 @@ var Tutorial = function () {
 
             this.onOutputBoxTrue = function () {
                 _this8.next();
-
-                _this8.onOutputBoxTrue = function () {};
             };
         }
 
@@ -8740,8 +8735,6 @@ var Tutorial = function () {
 
             this.onChangeInputBoxState = function () {
                 _this9.next();
-
-                _this9.onChangeInputBoxState = function () {};
             };
         }
 
@@ -8758,8 +8751,6 @@ var Tutorial = function () {
 
             this.onElementRemoved = function () {
                 _this10.next();
-
-                _this10.onElementRemoved = function () {};
             };
         }
 
@@ -8824,13 +8815,54 @@ var Tutorial = function () {
 
             if (!this.$tutorialWindow) {
                 this.$tutorialWindow = $("<div>").attr("id", "tutorial");
-                this.$tutorialWindow.append($("<div>").addClass("topButtons").append($("<a>").attr("href", "#").addClass("button close").click(function () {
+
+                this.$topButtonsLeft = $("<div>").addClass("left");
+
+                this.$tutorialWindow.append($("<div>").addClass("topButtons").append(this.$topButtonsLeft).append( // the .right div can be added here because it is not modified during the tutorial
+                $("<div>").addClass("right").append($("<a>").attr({
+                    href: "#",
+                    title: "close tutorial"
+                }).addClass("button close").click(function () {
                     _this12.stop();
-                })));
+                }))));
+
+                this.$tutorialWindow.append(this.$topButtons);
 
                 this.$tutorialContent = $("<div>").addClass("content");
                 this.$tutorialWindow.append(this.$tutorialContent);
             }
+
+            this.$topButtonsLeft.html("");
+
+            var $prev = $("<a>").attr({
+                href: "#",
+                title: "go back"
+            }).addClass("button prev");
+
+            if (this.step > 1) {
+                $prev.click(function () {
+                    _this12.prev();
+                });
+            } else {
+                $prev.addClass("disabled");
+            }
+
+            var $next = $("<a>").attr({
+                href: "#",
+                title: "go forward"
+            }).addClass("button next");
+
+            if (this.step < this.steps.length - 1) {
+                $next.click(function () {
+                    _this12.next();
+                });
+            } else {
+                $next.addClass("disabled");
+            }
+
+            this.$topButtonsLeft.append($prev).append($next);
+
+            // set the text content
 
             this.$tutorialContent.html("");
 
@@ -8848,6 +8880,36 @@ var Tutorial = function () {
 
                     this.$tutorialContent.append($("<p>").html(paragraph));
                 }
+
+                // // render the buttons in each step (to remove focus and to
+                // // ensure there is no "back" button on the first step or "next" button on the last step)
+                // if(this.$prevNext) {
+                //     this.$prevNext.remove();
+                // }
+                //
+                // this.$prevNext = $("<div>").addClass("bottomButtons");
+                //
+                // if(this.step>1) {
+                //     this.$prevNext.append(
+                //         $("<a>").attr("href", "#").addClass("button prev")
+                //         // .text("back")
+                //         .click(() => {
+                //             this.step--;
+                //         })
+                //     )
+                // }
+                //
+                // if(this.step < this.steps.length - 1) {
+                //     this.$prevNext.append(
+                //         $("<a>").attr("href", "#").addClass("button next")
+                //         // .text("next")
+                //         .click(() => {
+                //             this.next();
+                //         })
+                //     )
+                // }
+                //
+                // this.$tutorialWindow.append(this.$prevNext);
             } catch (err) {
                 _didIteratorError = true;
                 _iteratorError = err;
@@ -8933,6 +8995,16 @@ var Tutorial = function () {
         }
 
         /**
+         * go to the previous step of the tutorial
+         */
+
+    }, {
+        key: "prev",
+        value: function prev() {
+            this.step--;
+        }
+
+        /**
          * stop the tutorial
          */
 
@@ -8953,6 +9025,9 @@ var Tutorial = function () {
          */
         ,
         set: function set(value) {
+            // reset all hooks
+            this.resetHooks();
+
             this.currentStep = value;
 
             if (this.step < this.steps.length) {
