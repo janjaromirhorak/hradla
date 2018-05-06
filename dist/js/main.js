@@ -3051,6 +3051,12 @@ var BlackboxMenuItem = function (_ContextMenuItem2) {
     return BlackboxMenuItem;
 }(ContextMenuItem);
 
+/**
+ * Menu item that has a custom click callback function that adds a specified Network to the [Canvas](./module-Canvas.html)
+ * @extends ContextMenuItem
+ */
+
+
 var NetworkMenuItem = function (_ContextMenuItem3) {
     _inherits(NetworkMenuItem, _ContextMenuItem3);
 
@@ -6094,105 +6100,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // note: imported from a node module
 
-/**
- * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
- * @param {Set} set set of points
- * @param {Object} point object containing numeric attributes `x` and `y`
- */
-function setHasThisPoint(set, point) {
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = set[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var item = _step.value;
-
-            if (item.x === point.x && item.y === point.y) {
-                return true;
-            }
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return false;
-}
-
-/**
- * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
- * @param  {Object} point     object containing numeric attributes `x` and `y`
- * @param  {number} direction directions:
- *                              - 0: up
- *                              - 1: right
- *                              - 2: down
- *                              - 3: left
- * @return {Object}           object containing numeric attributes `x` and `y`
- */
-function movePoint(point, direction) {
-    switch (direction) {
-        case 0:
-            // up
-            return {
-                x: point.x,
-                y: point.y - 1
-            };
-        case 1:
-            // right
-            return {
-                x: point.x + 1,
-                y: point.y
-            };
-        case 2:
-            // down
-            return {
-                x: point.x,
-                y: point.y + 1
-            };
-        case 3:
-            // left
-            return {
-                x: point.x - 1,
-                y: point.y
-            };
-    }
-}
-
-/**
- * helper backtracking function used by the aStar algorithm to construct the final path
- * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
- * @param  {Object} currentNode object containing numeric attributes `x` and `y`
- * @return {TODO}
- */
-function reconstructPath(cameFrom, currentNode) {
-    var path = [];
-
-    path.push({
-        x: currentNode.x,
-        y: currentNode.y
-    });
-
-    while (cameFrom.has(currentNode)) {
-        currentNode = cameFrom.get(currentNode);
-        path.push({
-            x: currentNode.x,
-            y: currentNode.y
-        });
-    }
-
-    return path;
-}
+/** @module findPath */
 
 /**
  * Heavily modified implementation of the A* algorithm
@@ -6200,7 +6108,7 @@ function reconstructPath(cameFrom, currentNode) {
  * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
  * @param  {Set} nonRoutable set of non routable nodes
  * @param  {Set} punishedButRoutable set of nodes that are not optimal for routing
- * @return {TODO}
+ * @return {Array} array of objects containing numeric attributes `x` and `y`
  */
 function findPath(start, end, nonRoutable, punishedButRoutable) {
 
@@ -6330,6 +6238,106 @@ function findPath(start, end, nonRoutable, punishedButRoutable) {
     // if we got here, the path was not found
 
     return undefined;
+}
+
+/**
+ * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
+ * @param {Set} set set of points
+ * @param {Object} point object containing numeric attributes `x` and `y`
+ */
+function setHasThisPoint(set, point) {
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = set[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var item = _step.value;
+
+            if (item.x === point.x && item.y === point.y) {
+                return true;
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
+ * @param  {Object} point     object containing numeric attributes `x` and `y`
+ * @param  {number} direction directions:
+ *     - 0: up
+ *     - 1: right
+ *     - 2: down
+ *     - 3: left
+ * @return {Object}           object containing numeric attributes `x` and `y`
+ */
+function movePoint(point, direction) {
+    switch (direction) {
+        case 0:
+            // up
+            return {
+                x: point.x,
+                y: point.y - 1
+            };
+        case 1:
+            // right
+            return {
+                x: point.x + 1,
+                y: point.y
+            };
+        case 2:
+            // down
+            return {
+                x: point.x,
+                y: point.y + 1
+            };
+        case 3:
+            // left
+            return {
+                x: point.x - 1,
+                y: point.y
+            };
+    }
+}
+
+/**
+ * helper backtracking function used by the aStar algorithm to construct the final path
+ * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
+ * @param  {Object} currentNode object containing numeric attributes `x` and `y`
+ * @return {Array} array of objects containing numeric attributes `x` and `y`
+ */
+function reconstructPath(cameFrom, currentNode) {
+    var path = [];
+
+    path.push({
+        x: currentNode.x,
+        y: currentNode.y
+    });
+
+    while (cameFrom.has(currentNode)) {
+        currentNode = cameFrom.get(currentNode);
+        path.push({
+            x: currentNode.x,
+            y: currentNode.y
+        });
+    }
+
+    return path;
 }
 
 },{"./helperFunctions":15,"./mapWithDefaultValue":19,"libstl":9}],14:[function(require,module,exports){
@@ -6924,16 +6932,32 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Message = function () {
-    function Message(text) {
-        var onHide = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+/** @module Messages */
 
+/**
+ * a generic message that can be displayed in the {@link Messages} box
+ */
+var Message = function () {
+    /**
+     * @param {string} text               text of the message
+     * @param {Function} [onHide] a function that will be called when the `hide()` method is called
+     */
+    function Message(text, onHide) {
         _classCallCheck(this, Message);
 
         this.$el = $("<div>").addClass("message").text(text);
 
+        /**
+         * callback function that will be called when the `hide()` method is called
+         * @type {Function}
+         */
         this.onHide = onHide;
     }
+
+    /**
+     * hide the message (and call the onHide callback if there is any)
+     */
+
 
     _createClass(Message, [{
         key: "hide",
@@ -6948,6 +6972,12 @@ var Message = function () {
 
     return Message;
 }();
+
+/**
+ * a loading message that can be displayed in the {@link Messages} box
+ * @extends Message
+ */
+
 
 var LoadingMessage = function (_Message) {
     _inherits(LoadingMessage, _Message);
@@ -6965,6 +6995,12 @@ var LoadingMessage = function (_Message) {
 
     return LoadingMessage;
 }(Message);
+
+/**
+ * a message that has a close button and that can be displayed in the {@link Messages} box
+ * @extends Message
+ */
+
 
 var ClosableMessage = function (_Message2) {
     _inherits(ClosableMessage, _Message2);
@@ -6985,6 +7021,12 @@ var ClosableMessage = function (_Message2) {
     return ClosableMessage;
 }(Message);
 
+/**
+ * an error message that can be displayed in the {@link Messages} box
+ * @extends ClosableMessage
+ */
+
+
 var ErrorMessage = function (_ClosableMessage) {
     _inherits(ErrorMessage, _ClosableMessage);
 
@@ -7001,6 +7043,12 @@ var ErrorMessage = function (_ClosableMessage) {
 
     return ErrorMessage;
 }(ClosableMessage);
+
+/**
+ * a warning message that can be displayed in the {@link Messages} box
+ * @extends ClosableMessage
+ */
+
 
 var WarningMessage = function (_ClosableMessage2) {
     _inherits(WarningMessage, _ClosableMessage2);
@@ -7028,24 +7076,56 @@ var Messages = function () {
     function Messages() {
         _classCallCheck(this, Messages);
 
+        /**
+         * jQuery element that represents the message interface. This element contains all the currently displayed messages.
+         * @type {jQuery.element}
+         */
         this.$el = $("<div>").addClass('messages');
 
+        /**
+         * number of currently displayed messages, has a specified setter and getter
+         * @type {number}
+         */
         this.count = 0;
 
         // place the progress info element
         $('body').append(this.$el);
     }
 
+    /**
+     * get the number of currently displayed messages
+     * @return {number} [description]
+     */
+
+
     _createClass(Messages, [{
         key: "hide",
+
+
+        /**
+         * hide the message box by adding a `hidden` class to the element
+         */
         value: function hide() {
             this.$el.addClass('hidden');
         }
+
+        /**
+         * display the message box by removing the `hidden` class to the element
+         */
+
     }, {
         key: "display",
         value: function display() {
             this.$el.removeClass('hidden');
         }
+
+        /**
+         * add a new message to the message box
+         * @param  {string} text             text of the message
+         * @param  {Message} [constr=Message] constructor of the message, must be a derivate of the {@link Message} class
+         * @return {Message}                  the newly constructed message (instance made by the specified constructor)
+         */
+
     }, {
         key: "newMessage",
         value: function newMessage(text) {
@@ -7053,6 +7133,9 @@ var Messages = function () {
 
             var constr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Message;
 
+            // Create the message by calling the constructor,
+            // provide it with text and a callback function that will be called when hiding the message.
+            // This callback subtracts 1 from the
             var message = new constr(text, function () {
                 _this5.count--;
             });
@@ -7062,16 +7145,37 @@ var Messages = function () {
 
             return message;
         }
+
+        /**
+         * create a new loading message and add it to the message box
+         * @param  {string} text text of the message
+         * @return {LoadingMessage} the newly constructed {@link LoadingMessage}
+         */
+
     }, {
         key: "newLoadingMessage",
         value: function newLoadingMessage(text) {
             return this.newMessage(text, LoadingMessage);
         }
+
+        /**
+         * create a new error message and add it to the message box
+         * @param  {string} text text of the message
+         * @return {ErrorMessage} the newly constructed {@link ErrorMessage}
+         */
+
     }, {
         key: "newErrorMessage",
         value: function newErrorMessage(text) {
             return this.newMessage(text, ErrorMessage);
         }
+
+        /**
+         * create a new warning message and add it to the message box
+         * @param  {string} text text of the message
+         * @return {WarningMessage} the newly constructed {@link WarningMessage}
+         */
+
     }, {
         key: "newWarningMessage",
         value: function newWarningMessage(text) {
@@ -7081,7 +7185,16 @@ var Messages = function () {
         key: "count",
         get: function get() {
             return this.messageCount;
-        },
+        }
+
+        /**
+         * Set the number of currently displayed messages. Should be called only through functions that add messages.
+         *
+         * If the message count is >= 1, the jQuery element for the UI is displayed, if the message count is <1, the UI is hidden.
+         * @param  {number} value [description]
+         * @return {number}       [description]
+         */
+        ,
         set: function set(value) {
             this.messageCount = value;
 

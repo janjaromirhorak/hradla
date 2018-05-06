@@ -201,6 +201,10 @@ class BlackboxMenuItem extends ContextMenuItem {
     }
 }
 
+/**
+ * Menu item that has a custom click callback function that adds a specified Network to the [Canvas](./module-Canvas.html)
+ * @extends ContextMenuItem
+ */
 class NetworkMenuItem extends ContextMenuItem {
     constructor(name, file, contextMenu) {
         super(

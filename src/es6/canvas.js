@@ -7,11 +7,11 @@ import ContextMenu from './contextMenu'
 import FloatingMenu from './floatingMenu'
 import Simulation from './simulation'
 import { addMouseScrollEventListener, manhattanDistance } from './helperFunctions'
-import Tutorial from './tutorial';
+import Tutorial from './tutorial'
 import ViewBox from './viewbox'
 import Messages from './messages'
 
-import { PriorityQueue } from 'libstl'; // note: imported from a node module
+import { PriorityQueue } from 'libstl' // note: imported from a node module
 
 const
     ctrlKey = 17,

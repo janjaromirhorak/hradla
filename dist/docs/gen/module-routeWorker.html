@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Module: Library | Hradla</title>
+    <title>Module: routeWorker | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,7 +50,7 @@
 
 <header>
     
-        <h2>Library</h2>
+        <h2>routeWorker</h2>
         
     
 </header>
@@ -88,14 +88,14 @@
 
 <dt>
     
-        <h4 class="name" id=".getLibrary">
+        <h4 class="name" id="~findPaths">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>getLibrary<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span>
+                <span class="type-signature"><span class="icon green">inner</span> </span>findPaths<span class="signature">(wires, nonRoutableNodes, inconvenientNodes)</span><span class="type-signature"> &rarr; {Array}</span>
                 
             
             <div class="container-source members">
-                <code><a href="networkLibrary.js.html">networkLibrary.js</a></code>,
-                <code><a href="networkLibrary.js.html#line11">line 11</a></code>
+                <code><a href="routeWorker.js.html">routeWorker.js</a></code>,
+                <code><a href="routeWorker.js.html#line29">line 29</a></code>
             </div>
             
         </h4>
@@ -107,7 +107,7 @@
 
     
     <div class="description">
-        <p>get list of networks from the library</p>
+        <p>find paths for all the specified wires</p>
     </div>
     
 
@@ -117,6 +117,103 @@
 
     
 
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>wires</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>array of objects with attributes <code>from</code> and <code>to</code>, both of them which are objects
+                                   with values <code>x</code> and <code>y</code> containing coordinates of the wire endpoints</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>nonRoutableNodes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Iterable</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Set or array of non routable nodes</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>inconvenientNodes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Iterable</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Set or array of inconvenient nodes</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
     
 
     
@@ -137,13 +234,14 @@
 
 
 
-<span class="param-type">Promise</span>
+<span class="param-type">Array</span>
 
 
 
 
 
-- <p>promise, the resolution is an object containing a list of libraries</p>
+- <p>array of paths, each item is an array of points of the path
+                                   the returned array contains paths for the wires with corresponding indexes from the <code>wires</code> parameter</p>
 
 
 
@@ -198,14 +296,14 @@
 
 <dt>
     
-        <h4 class="name" id=".getNetworkFromLibrary">
+        <h4 class="name" id="~onmessage">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>getNetworkFromLibrary<span class="signature">(networkName)</span><span class="type-signature"> &rarr; {Promise}</span>
+                <span class="type-signature"><span class="icon green">inner</span> </span>onmessage<span class="signature">(event)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="networkLibrary.js.html">networkLibrary.js</a></code>,
-                <code><a href="networkLibrary.js.html#line38">line 38</a></code>
+                <code><a href="routeWorker.js.html">routeWorker.js</a></code>,
+                <code><a href="routeWorker.js.html#line11">line 11</a></code>
             </div>
             
         </h4>
@@ -217,7 +315,7 @@
 
     
     <div class="description">
-        <p>get a network from the library, specified by filename</p>
+        <p>callback when a message is sent to the web worker</p>
     </div>
     
 
@@ -253,13 +351,13 @@
 
         <tr>
             
-                <td class="name"><code>networkName</code></td>
+                <td class="name"><code>event</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">Object</span>
 
 
             
@@ -269,7 +367,8 @@
 
             
 
-            <td class="description last"><p>library file name without the extension</p></td>
+            <td class="description last"><p>web worker event object (the <code>data</code> item of the event object is expected to contain
+                      these items: <code>wires</code> (array), <code>nonRoutableNodes</code> (iterable) and <code>inconvenientNodes</code> (iterable))</p></td>
         </tr>
 
     
@@ -289,27 +388,6 @@
 
     
 
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">Promise</span>
-
-
-
-
-
-- <p>promise, the resolution is an object containing the library import data</p>
-
-
-
-
-            
-    </div>
     
 
     
@@ -378,7 +456,7 @@
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'module:Library_sub'.replace(/"/g, '_');
+        var id = 'module:routeWorker_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

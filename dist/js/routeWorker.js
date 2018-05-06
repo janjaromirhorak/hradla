@@ -949,105 +949,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // note: imported from a node module
 
-/**
- * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
- * @param {Set} set set of points
- * @param {Object} point object containing numeric attributes `x` and `y`
- */
-function setHasThisPoint(set, point) {
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = set[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var item = _step.value;
-
-            if (item.x === point.x && item.y === point.y) {
-                return true;
-            }
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return false;
-}
-
-/**
- * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
- * @param  {Object} point     object containing numeric attributes `x` and `y`
- * @param  {number} direction directions:
- *                              - 0: up
- *                              - 1: right
- *                              - 2: down
- *                              - 3: left
- * @return {Object}           object containing numeric attributes `x` and `y`
- */
-function movePoint(point, direction) {
-    switch (direction) {
-        case 0:
-            // up
-            return {
-                x: point.x,
-                y: point.y - 1
-            };
-        case 1:
-            // right
-            return {
-                x: point.x + 1,
-                y: point.y
-            };
-        case 2:
-            // down
-            return {
-                x: point.x,
-                y: point.y + 1
-            };
-        case 3:
-            // left
-            return {
-                x: point.x - 1,
-                y: point.y
-            };
-    }
-}
-
-/**
- * helper backtracking function used by the aStar algorithm to construct the final path
- * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
- * @param  {Object} currentNode object containing numeric attributes `x` and `y`
- * @return {TODO}
- */
-function reconstructPath(cameFrom, currentNode) {
-    var path = [];
-
-    path.push({
-        x: currentNode.x,
-        y: currentNode.y
-    });
-
-    while (cameFrom.has(currentNode)) {
-        currentNode = cameFrom.get(currentNode);
-        path.push({
-            x: currentNode.x,
-            y: currentNode.y
-        });
-    }
-
-    return path;
-}
+/** @module findPath */
 
 /**
  * Heavily modified implementation of the A* algorithm
@@ -1055,7 +957,7 @@ function reconstructPath(cameFrom, currentNode) {
  * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
  * @param  {Set} nonRoutable set of non routable nodes
  * @param  {Set} punishedButRoutable set of nodes that are not optimal for routing
- * @return {TODO}
+ * @return {Array} array of objects containing numeric attributes `x` and `y`
  */
 function findPath(start, end, nonRoutable, punishedButRoutable) {
 
@@ -1187,6 +1089,106 @@ function findPath(start, end, nonRoutable, punishedButRoutable) {
     return undefined;
 }
 
+/**
+ * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
+ * @param {Set} set set of points
+ * @param {Object} point object containing numeric attributes `x` and `y`
+ */
+function setHasThisPoint(set, point) {
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = set[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var item = _step.value;
+
+            if (item.x === point.x && item.y === point.y) {
+                return true;
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
+ * @param  {Object} point     object containing numeric attributes `x` and `y`
+ * @param  {number} direction directions:
+ *     - 0: up
+ *     - 1: right
+ *     - 2: down
+ *     - 3: left
+ * @return {Object}           object containing numeric attributes `x` and `y`
+ */
+function movePoint(point, direction) {
+    switch (direction) {
+        case 0:
+            // up
+            return {
+                x: point.x,
+                y: point.y - 1
+            };
+        case 1:
+            // right
+            return {
+                x: point.x + 1,
+                y: point.y
+            };
+        case 2:
+            // down
+            return {
+                x: point.x,
+                y: point.y + 1
+            };
+        case 3:
+            // left
+            return {
+                x: point.x - 1,
+                y: point.y
+            };
+    }
+}
+
+/**
+ * helper backtracking function used by the aStar algorithm to construct the final path
+ * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
+ * @param  {Object} currentNode object containing numeric attributes `x` and `y`
+ * @return {Array} array of objects containing numeric attributes `x` and `y`
+ */
+function reconstructPath(cameFrom, currentNode) {
+    var path = [];
+
+    path.push({
+        x: currentNode.x,
+        y: currentNode.y
+    });
+
+    while (cameFrom.has(currentNode)) {
+        currentNode = cameFrom.get(currentNode);
+        path.push({
+            x: currentNode.x,
+            y: currentNode.y
+        });
+    }
+
+    return path;
+}
+
 },{"./helperFunctions":11,"./mapWithDefaultValue":12,"libstl":9}],11:[function(require,module,exports){
 "use strict";
 
@@ -1304,7 +1306,7 @@ exports.default = function (defaultValue) {
 },{}],13:[function(require,module,exports){
 'use strict';
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /** @module routeWorker */
 
 var _findPath = require('./findPath');
 
@@ -1313,15 +1315,34 @@ var _findPath2 = _interopRequireDefault(_findPath);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
- * TODO
+ * callback when a message is sent to the web worker
+ *
+ * @param {Object} event web worker event object (the `data` item of the event object is expected to contain
+ *                       these items: `wires` (array), `nonRoutableNodes` (iterable) and `inconvenientNodes` (iterable))
  */
 onmessage = function onmessage(event) {
     var _event$data = event.data,
         wires = _event$data.wires,
-        nonRoutableNodes = _event$data.nonRoutableNodes;
-    var inconvenientNodes = event.data.inconvenientNodes;
+        nonRoutableNodes = _event$data.nonRoutableNodes,
+        inconvenientNodes = _event$data.inconvenientNodes;
 
 
+    var paths = findPaths(wires, nonRoutableNodes, inconvenientNodes);
+
+    postMessage({ paths: paths });
+    close();
+};
+
+/**
+ * find paths for all the specified wires
+ * @param  {Array} wires              array of objects with attributes `from` and `to`, both of them which are objects
+ *                                    with values `x` and `y` containing coordinates of the wire endpoints
+ * @param  {Iterable} nonRoutableNodes  Set or array of non routable nodes
+ * @param  {Iterable} inconvenientNodes Set or array of inconvenient nodes
+ * @return {Array}                    array of paths, each item is an array of points of the path
+ *                                    the returned array contains paths for the wires with corresponding indexes from the `wires` parameter
+ */
+function findPaths(wires, nonRoutableNodes, inconvenientNodes) {
     var paths = [];
 
     var _iteratorNormalCompletion = true;
@@ -1403,9 +1424,8 @@ onmessage = function onmessage(event) {
         }
     }
 
-    postMessage({ paths: paths });
-    close();
-};
+    return paths;
+}
 
 },{"./findPath":10}]},{},[13])
 

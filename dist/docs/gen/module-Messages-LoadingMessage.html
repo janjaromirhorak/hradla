@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Module: Library | Hradla</title>
+    <title>Class: LoadingMessage | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,7 +50,10 @@
 
 <header>
     
-        <h2>Library</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-Messages.html">Messages</a>~</span>LoadingMessage<span class="signature">()</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>a loading message that can be displayed in the Messages box</p></div>
         
     
 </header>
@@ -61,261 +64,102 @@
         
             
 
+<dt>
+    
+        <h4 class="name" id="LoadingMessage">
             
+                new <span class="type-signature"></span>LoadingMessage<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="messages.js.html">messages.js</a></code>,
+                <code><a href="messages.js.html#line37">line 37</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
         
         </div>
     
 
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
-                
-
-<dt>
-    
-        <h4 class="name" id=".getLibrary">
-            
-                <span class="type-signature"><span class="icon green">static</span> </span>getLibrary<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="networkLibrary.js.html">networkLibrary.js</a></code>,
-                <code><a href="networkLibrary.js.html#line11">line 11</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get list of networks from the library</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">Promise</span>
-
-
-
-
-
-- <p>promise, the resolution is an object containing a list of libraries</p>
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id=".getNetworkFromLibrary">
-            
-                <span class="type-signature"><span class="icon green">static</span> </span>getNetworkFromLibrary<span class="signature">(networkName)</span><span class="type-signature"> &rarr; {Promise}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="networkLibrary.js.html">networkLibrary.js</a></code>,
-                <code><a href="networkLibrary.js.html#line38">line 38</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        <p>get a network from the library, specified by filename</p>
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
+        <h3 class="subsection-title">Extends</h3>
 
         
 
-        
 
-        <th class="last">Description</th>
-    </tr>
-    </thead>
+    <ul>
+        <li>Message</li>
+    </ul>
 
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>networkName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>library file name without the extension</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">Promise</span>
-
-
-
-
-
-- <p>promise, the resolution is an object containing the library import data</p>
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
 
     
 
@@ -331,29 +175,6 @@
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            </dl>
     
 
     
@@ -378,7 +199,7 @@
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'module:Library_sub'.replace(/"/g, '_');
+        var id = 'module:Messages~LoadingMessage_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 
