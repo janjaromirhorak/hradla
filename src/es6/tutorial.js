@@ -57,6 +57,9 @@ export default class Tutorial {
      * @param  {Number} value the step of the tutorial to be displayed
      */
     set step(value) {
+        // reset all hooks
+        this.resetHooks();
+
         this.currentStep = value;
 
         if(this.step < this.steps.length) {
@@ -148,9 +151,6 @@ export default class Tutorial {
 
         this.onContextMenuOpened = () => {
             this.next();
-
-            // this function runs only once
-            this.onContextMenuOpened = () => {}
         }
     }
 
@@ -186,9 +186,6 @@ export default class Tutorial {
             }
 
             if(elementsAdded.inputBox && elementsAdded.outputBox && elementsAdded.notGate) {
-                // remove the action
-                this.onElementAdded = () => {}
-
                 // proceed to the next step of the tutorial
                 this.next();
             }
@@ -206,7 +203,6 @@ export default class Tutorial {
 
         this.onCanvasMoved = () => {
             this.next();
-            this.onCanvasMoved = () => {}
         }
     }
 
@@ -242,17 +238,11 @@ export default class Tutorial {
 
         this.onBoxMoved = () => {
             boxMoved = true;
-
-            this.onBoxMoved = () => {}
-
             moveRotateCallback()
         }
 
         this.onBoxRotated = () => {
             boxRotated = true;
-
-            this.onBoxRotated = () => {}
-
             moveRotateCallback()
         }
     }
@@ -269,8 +259,6 @@ export default class Tutorial {
 
         this.onOutputBoxTrue = () => {
             this.next();
-
-            this.onOutputBoxTrue = () => {};
         };
     }
 
@@ -286,8 +274,6 @@ export default class Tutorial {
 
         this.onChangeInputBoxState = () => {
             this.next();
-
-            this.onChangeInputBoxState = () => {};
         };
     }
 
@@ -303,8 +289,6 @@ export default class Tutorial {
 
         this.onElementRemoved = () => {
             this.next();
-
-            this.onElementRemoved = () => {};
         }
     }
 
