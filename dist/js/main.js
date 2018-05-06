@@ -1127,8 +1127,8 @@ var Canvas = function () {
         });
 
         (0, _helperFunctions.addMouseScrollEventListener)(canvas, function (event) {
-            // zoom only if the ctrl key is pressed
-            if (event.ctrlKey) {
+            // zoom only if the ctrl key is not pressed
+            if (!event.ctrlKey) {
                 switch (event.delta) {
                     case 1:
                         _this.zoom += 0.1;
@@ -1137,9 +1137,9 @@ var Canvas = function () {
                         _this.zoom -= 0.1;
                         break;
                 }
-            }
 
-            event.preventDefault();
+                event.preventDefault();
+            }
         });
 
         /**

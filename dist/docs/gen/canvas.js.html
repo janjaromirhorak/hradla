@@ -59,11 +59,11 @@ import ContextMenu from './contextMenu'
 import FloatingMenu from './floatingMenu'
 import Simulation from './simulation'
 import { addMouseScrollEventListener, manhattanDistance } from './helperFunctions'
-import Tutorial from './tutorial';
+import Tutorial from './tutorial'
 import ViewBox from './viewbox'
 import Messages from './messages'
 
-import { PriorityQueue } from 'libstl'; // note: imported from a node module
+import { PriorityQueue } from 'libstl' // note: imported from a node module
 
 const
     ctrlKey = 17,
@@ -201,8 +201,8 @@ export default class Canvas {
         });
 
         addMouseScrollEventListener(canvas, event => {
-            // zoom only if the ctrl key is pressed
-            if(event.ctrlKey) {
+            // zoom only if the ctrl key is not pressed
+            if(!event.ctrlKey) {
                 switch (event.delta) {
                     case 1:
                         this.zoom += 0.1
@@ -211,9 +211,9 @@ export default class Canvas {
                         this.zoom -= 0.1
                         break
                 }
-            }
 
-            event.preventDefault()
+                event.preventDefault()
+            }
         })
 
         /**
