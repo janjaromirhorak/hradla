@@ -960,7 +960,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @return {Array} array of objects containing numeric attributes `x` and `y`
  */
 function findPath(start, end, nonRoutable, punishedButRoutable) {
-
     var distanceFunction = _helperFunctions.manhattanDistance;
 
     var wireCrossPunishment = 1;

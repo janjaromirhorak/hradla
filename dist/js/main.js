@@ -1210,6 +1210,9 @@ var Canvas = function () {
     }, {
         key: 'onMouseDown',
         value: function onMouseDown(event) {
+            // any click on canvas cancels the wire creation
+            this.cancelWireCreation();
+
             // middle mouse or left mouse + ctrl moves the canvas
             if (event.which === 2 || event.which === 1 && event.ctrlKey) {
                 this.$svg.addClass('grabbed');
@@ -1764,17 +1767,78 @@ var Canvas = function () {
         /**
          * When user clicks on a connector, remember it until they click on some other connector.
          * Than call newWire with the last two connectors ids as arguments.
+         * Visualize the process by displaying a grey wire between the first conenctor and the mouse pointer.
          * @param  {string} connectorId id of the connector that the user clicked on
          */
 
     }, {
         key: 'wireCreationHelper',
-        value: function wireCreationHelper(connectorId) {
-            if (!this.firstConnectorId) {
-                this.firstConnectorId = connectorId;
+        value: function wireCreationHelper(connectorId, mousePosition) {
+            if (!this.wireCreation) {
+                this.wireCreation = {
+                    fromId: connectorId
+                };
+
+                this.displayCreatedWire(mousePosition);
             } else {
-                this.newWire(this.firstConnectorId, connectorId);
-                this.firstConnectorId = undefined;
+                if (this.wireCreation.fromId !== connectorId) {
+                    this.hideCreatedWire();
+
+                    this.newWire(this.wireCreation.fromId, connectorId);
+
+                    this.wireCreation = undefined;
+                }
+            }
+        }
+
+        /**
+         * helper for wireCreationHelper that displays a grey wire between the first connector and the specified mousePosition
+         * @param  {Object} mousePosition object with x and y coordinates in SVG pixels
+         */
+
+    }, {
+        key: 'displayCreatedWire',
+        value: function displayCreatedWire(mousePosition) {
+            var _this4 = this;
+
+            this.wireCreation.tempWire = new editorElements.HelperWire(this, this.wireCreation.fromId, mousePosition);
+
+            $(window).on('mousemove.wireCreation', function (event) {
+                mousePosition = {
+                    x: event.clientX,
+                    y: event.clientY
+                };
+
+                _this4.wireCreation.tempWire.updateMousePosition(mousePosition);
+            });
+
+            this.appendElement(this.wireCreation.tempWire);
+            this.moveToBackById(this.wireCreation.tempWire.id);
+        }
+
+        /**
+         * helper for wireCreationHelper that hides the temporary wire when wire creation is done
+         */
+
+    }, {
+        key: 'hideCreatedWire',
+        value: function hideCreatedWire() {
+            $(window).off('mousemove.wireCreation');
+
+            this.wireCreation.tempWire.get().remove();
+            this.wireCreation.tempWire = undefined;
+        }
+
+        /**
+         * helper for wireCreationHelper that cancels the wire creation process
+         */
+
+    }, {
+        key: 'cancelWireCreation',
+        value: function cancelWireCreation() {
+            if (this.wireCreation) {
+                this.hideCreatedWire();
+                this.wireCreation = undefined;
             }
         }
 
@@ -1973,7 +2037,7 @@ var Canvas = function () {
     }, {
         key: 'newWire',
         value: function newWire(fromId, toId) {
-            var _this4 = this;
+            var _this5 = this;
 
             var refresh = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
             var route = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
@@ -1985,13 +2049,13 @@ var Canvas = function () {
 
             // input connectors can be connected to one wire max
             connectors.forEach(function (conn) {
-                if (conn.isInputConnector) _this4.removeWiresByConnectorId(conn.id);
+                if (conn.isInputConnector) _this5.removeWiresByConnectorId(conn.id);
             });
             var index = this.wires.length;
             this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh, route);
 
             connectors.forEach(function (conn) {
-                conn.addWireId(_this4.wires[index].svgObj.id);
+                conn.addWireId(_this5.wires[index].svgObj.id);
             });
 
             this.appendElement(this.wires[index], refresh);
@@ -2214,17 +2278,17 @@ var Canvas = function () {
     }, {
         key: 'removeWiresByConnectorId',
         value: function removeWiresByConnectorId(connectorId) {
-            var _this5 = this;
+            var _this6 = this;
 
             var connector = this.getConnectorById(connectorId);
 
             connector.wireIds.forEach(function (wireId) {
-                var wire = _this5.getWireById(wireId);
+                var wire = _this6.getWireById(wireId);
 
                 // get the other connector that is the wire connected to
-                var otherConnector = _this5.getConnectorById(wire.fromId, wire);
+                var otherConnector = _this6.getConnectorById(wire.fromId, wire);
                 if (otherConnector.svgObj.id === connectorId) {
-                    otherConnector = _this5.getConnectorById(wire.toId, wire);
+                    otherConnector = _this6.getConnectorById(wire.toId, wire);
                 }
 
                 // delete the wire record from the other connector
@@ -2235,7 +2299,7 @@ var Canvas = function () {
 
                 // if otherConnector is an input connector, set its state to unknown
                 if (otherConnector.isInputConnector) {
-                    _this5.startNewSimulation(otherConnector, _logic2.default.state.unknown);
+                    _this6.startNewSimulation(otherConnector, _logic2.default.state.unknown);
                 }
             });
 
@@ -3494,7 +3558,7 @@ exports.default = ContextMenu;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.Wire = exports.Blackbox = exports.Gate = exports.OutputBox = exports.InputBox = exports.OutputConnector = exports.InputConnector = exports.Transform = undefined;
+exports.Wire = exports.HelperWire = exports.Blackbox = exports.Gate = exports.OutputBox = exports.InputBox = exports.OutputConnector = exports.InputConnector = exports.Transform = undefined;
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
@@ -4160,8 +4224,16 @@ var Connector = function (_NetworkElement) {
 
     }, {
         key: 'onMouseUp',
-        value: function onMouseUp() {
-            this.parentSVG.wireCreationHelper(this.svgObj.id);
+        value: function onMouseUp(event) {
+            // only left click counts
+            if (event.which === 1) {
+                var mousePosition = {
+                    x: event.clientX,
+                    y: event.clientY
+                };
+
+                this.parentSVG.wireCreationHelper(this.svgObj.id, mousePosition);
+            }
         }
     }, {
         key: 'isOutputConnector',
@@ -5681,13 +5753,65 @@ var Blackbox = exports.Blackbox = function (_Box4) {
 }(Box);
 
 /**
+ * A temporary wire that is connecting a {@link Connector} with a mouse pointer when user creates a wire.
+ * @extends NetworkElement
+ */
+
+
+var HelperWire = exports.HelperWire = function (_NetworkElement3) {
+    _inherits(HelperWire, _NetworkElement3);
+
+    function HelperWire(parentSVG, fromId, mousePosition) {
+        _classCallCheck(this, HelperWire);
+
+        var _this10 = _possibleConstructorReturn(this, (HelperWire.__proto__ || Object.getPrototypeOf(HelperWire)).call(this, parentSVG));
+
+        var connector = _this10.parentSVG.getConnectorById(fromId);
+        _this10.connectorPosition = _this10.parentSVG.getConnectorPosition(connector, true);
+
+        var from = new svgObj.PolylinePoint(_this10.connectorPosition.x, _this10.connectorPosition.y);
+        var to = new svgObj.PolylinePoint(mousePosition.x, mousePosition.y);
+
+        var points = new svgObj.PolylinePoints([from, to]);
+
+        _this10.svgObj = new svgObj.PolyLine(points, 2, "#8b8b8b");
+        return _this10;
+    }
+
+    _createClass(HelperWire, [{
+        key: 'updateMousePosition',
+        value: function updateMousePosition(mousePosition) {
+            var from = new svgObj.PolylinePoint(this.connectorPosition.x, this.connectorPosition.y);
+            var to = new svgObj.PolylinePoint(mousePosition.x, mousePosition.y);
+
+            var points = new svgObj.PolylinePoints([from, to]);
+
+            this.svgObj.updatePoints(points);
+        }
+
+        /**
+         * get the jQuery element for this helper wire
+         * @return {jQuery.element}
+         */
+
+    }, {
+        key: 'get',
+        value: function get() {
+            return this.svgObj.get();
+        }
+    }]);
+
+    return HelperWire;
+}(NetworkElement);
+
+/**
  * Wire represents connection of two {@link Connector}s.
  * @extends NetworkElement
  */
 
 
-var Wire = exports.Wire = function (_NetworkElement3) {
-    _inherits(Wire, _NetworkElement3);
+var Wire = exports.Wire = function (_NetworkElement4) {
+    _inherits(Wire, _NetworkElement4);
 
     /**
      * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
@@ -5701,41 +5825,41 @@ var Wire = exports.Wire = function (_NetworkElement3) {
 
         _classCallCheck(this, Wire);
 
-        var _this10 = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this, parentSVG));
+        var _this11 = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this, parentSVG));
 
-        _this10.gridSize = parentSVG.gridSize;
+        _this11.gridSize = parentSVG.gridSize;
 
-        _this10.fromId = fromId;
-        _this10.toId = toId;
+        _this11.fromId = fromId;
+        _this11.toId = toId;
 
-        _this10.startBox = _this10.parentSVG.getBoxByConnectorId(fromId);
-        _this10.endBox = _this10.parentSVG.getBoxByConnectorId(toId);
+        _this11.startBox = _this11.parentSVG.getBoxByConnectorId(fromId);
+        _this11.endBox = _this11.parentSVG.getBoxByConnectorId(toId);
 
-        _this10.boxes = [_this10.startBox, _this10.endBox];
+        _this11.boxes = [_this11.startBox, _this11.endBox];
 
-        _this10.startConnector = _this10.parentSVG.getConnectorById(fromId);
-        _this10.endConnector = _this10.parentSVG.getConnectorById(toId);
+        _this11.startConnector = _this11.parentSVG.getConnectorById(fromId);
+        _this11.endConnector = _this11.parentSVG.getConnectorById(toId);
 
-        _this10.connectors = [_this10.startConnector, _this10.endConnector];
+        _this11.connectors = [_this11.startConnector, _this11.endConnector];
 
         if (route) {
-            _this10.routeWire(true, refresh);
+            _this11.routeWire(true, refresh);
         } else {
-            _this10.temporaryWire();
+            _this11.temporaryWire();
         }
 
-        _this10.elementState = _logic2.default.state.unknown;
+        _this11.elementState = _logic2.default.state.unknown;
 
         var _iteratorNormalCompletion14 = true;
         var _didIteratorError14 = false;
         var _iteratorError14 = undefined;
 
         try {
-            for (var _iterator14 = _this10.connectors[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+            for (var _iterator14 = _this11.connectors[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
                 var connector = _step14.value;
 
                 if (connector.isOutputConnector) {
-                    _this10.setState(connector.state);
+                    _this11.setState(connector.state);
                 }
             }
         } catch (err) {
@@ -5753,8 +5877,8 @@ var Wire = exports.Wire = function (_NetworkElement3) {
             }
         }
 
-        _this10.svgObj.$el.addClass("wire");
-        return _this10;
+        _this11.svgObj.$el.addClass("wire");
+        return _this11;
     }
 
     /**
@@ -6029,19 +6153,19 @@ var Wire = exports.Wire = function (_NetworkElement3) {
     }, {
         key: 'generateInconvenientNodes',
         value: function generateInconvenientNodes() {
-            var _this11 = this;
+            var _this12 = this;
 
             this.inconvenientNodes = new Set();
 
             var prevPoint = void 0;
 
             this.points.forEach(function (point) {
-                var x = _this11.parentSVG.SVGToGrid(point.x),
-                    y = _this11.parentSVG.SVGToGrid(point.y);
+                var x = _this12.parentSVG.SVGToGrid(point.x),
+                    y = _this12.parentSVG.SVGToGrid(point.y);
 
                 if (prevPoint === undefined) {
                     // if the prevPoint is undefined, add the first point
-                    _this11.inconvenientNodes.add({ x: x, y: y });
+                    _this12.inconvenientNodes.add({ x: x, y: y });
                 } else {
                     // else add all the point between the prevPoint (excluded) and point (included)
 
@@ -6051,7 +6175,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         var to = Math.max(prevPoint.y, y);
 
                         while (from <= to) {
-                            _this11.inconvenientNodes.add({ x: x, y: from });
+                            _this12.inconvenientNodes.add({ x: x, y: from });
                             from++;
                         }
                     } else if (prevPoint.y === y) {
@@ -6060,7 +6184,7 @@ var Wire = exports.Wire = function (_NetworkElement3) {
                         var _to = Math.max(prevPoint.x, x);
 
                         while (_from <= _to) {
-                            _this11.inconvenientNodes.add({ x: _from, y: y });
+                            _this12.inconvenientNodes.add({ x: _from, y: y });
                             _from++;
                         }
                     } else {
@@ -6122,7 +6246,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @return {Array} array of objects containing numeric attributes `x` and `y`
  */
 function findPath(start, end, nonRoutable, punishedButRoutable) {
-
     var distanceFunction = _helperFunctions.manhattanDistance;
 
     var wireCrossPunishment = 1;
