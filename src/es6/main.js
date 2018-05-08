@@ -1,4 +1,4 @@
-import Canvas from './canvas';
+import Canvas from './modules/Canvas';
 
 /**
  * When the document is ready, initialize the application

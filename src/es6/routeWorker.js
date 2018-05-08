@@ -1,12 +1,32 @@
-import findPath from './findPath'
+/** @module routeWorker */
+
+import findPath from './modules/findPath'
 
 /**
- * TODO
+ * callback when a message is sent to the web worker
+ *
+ * @param {Object} event web worker event object (the `data` item of the event object is expected to contain
+ *                       these items: `wires` (array), `nonRoutableNodes` (iterable) and `inconvenientNodes` (iterable))
  */
 onmessage = (event) => {
-    const {wires, nonRoutableNodes} = event.data;
-    let {inconvenientNodes} = event.data;
+    const {wires, nonRoutableNodes, inconvenientNodes} = event.data;
 
+    const paths = findPaths(wires, nonRoutableNodes, inconvenientNodes);
+
+    postMessage({paths});
+    close();
+}
+
+/**
+ * find paths for all the specified wires
+ * @param  {Array} wires              array of objects with attributes `from` and `to`, both of them which are objects
+ *                                    with values `x` and `y` containing coordinates of the wire endpoints
+ * @param  {Iterable} nonRoutableNodes  Set or array of non routable nodes
+ * @param  {Iterable} inconvenientNodes Set or array of inconvenient nodes
+ * @return {Array}                    array of paths, each item is an array of points of the path
+ *                                    the returned array contains paths for the wires with corresponding indexes from the `wires` parameter
+ */
+function findPaths(wires, nonRoutableNodes, inconvenientNodes) {
     let paths = [];
 
     for (const [from, to] of wires) {
@@ -39,10 +59,7 @@ onmessage = (event) => {
 
             prevPoint = point;
         }
-
-
     }
 
-    postMessage({paths})
-    close();
+    return paths;
 }
