@@ -669,9 +669,11 @@ export default class Canvas {
         this.wireCreation.tempWire = new editorElements.HelperWire(this, this.wireCreation.fromId, mousePosition);
 
         $(window).on('mousemove.wireCreation', event => {
+            event = this.viewbox.transformEvent(event)
+
             mousePosition = {
-                x: event.clientX,
-                y: event.clientY
+                x: event.pageX,
+                y: event.pageY
             }
 
             this.wireCreation.tempWire.updateMousePosition(mousePosition);

@@ -156,9 +156,11 @@ export default class Connector extends NetworkElement {
     onMouseUp(event) {
         // only left click counts
         if(event.which === 1) {
+            event = this.parentSVG.viewbox.transformEvent(event);
+
             const mousePosition = {
-                x: event.clientX,
-                y: event.clientY
+                x: event.pageX,
+                y: event.pageY
             }
 
             this.parentSVG.wireCreationHelper(this.svgObj.id, mousePosition);

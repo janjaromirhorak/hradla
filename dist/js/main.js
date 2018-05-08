@@ -1820,9 +1820,11 @@ var Canvas = function () {
             this.wireCreation.tempWire = new editorElements.HelperWire(this, this.wireCreation.fromId, mousePosition);
 
             $(window).on('mousemove.wireCreation', function (event) {
+                event = _this4.viewbox.transformEvent(event);
+
                 mousePosition = {
-                    x: event.clientX,
-                    y: event.clientY
+                    x: event.pageX,
+                    y: event.pageY
                 };
 
                 _this4.wireCreation.tempWire.updateMousePosition(mousePosition);
@@ -4780,9 +4782,11 @@ var Connector = function (_NetworkElement) {
     value: function onMouseUp(event) {
       // only left click counts
       if (event.which === 1) {
+        event = this.parentSVG.viewbox.transformEvent(event);
+
         var mousePosition = {
-          x: event.clientX,
-          y: event.clientY
+          x: event.pageX,
+          y: event.pageY
         };
 
         this.parentSVG.wireCreationHelper(this.svgObj.id, mousePosition);
