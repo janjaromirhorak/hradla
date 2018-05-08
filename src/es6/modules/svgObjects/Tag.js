@@ -1,5 +1,7 @@
 import Id from '../other/id'
 
+/** @module svgObjects.Tag */
+
 /**
  * Parent class for all svgObjects
  */

@@ -5,6 +5,8 @@ import InputConnector from './InputConnector'
 import OutputConnector from './OutputConnector'
 import Transform from './Transform'
 
+/** @module editorElements.Box */
+
 /**
  * Parent class for gates and input and output boxes. Defines all the factors
  * that the boxes have in common (svgObj structure, draggability and rotatability...)

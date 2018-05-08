@@ -2,6 +2,8 @@ import Logic from '../Logic'
 
 import Box from './Box'
 
+/** @module editorElements.Gate */
+
 /**
  * Gate is a box that processes the states of its input connectors and returns the result in its output connectors.
  * @extends Box

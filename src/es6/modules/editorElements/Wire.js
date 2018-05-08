@@ -1,3 +1,5 @@
+/** @module editorElements.Wire */
+
 import * as svgObj from '../svgObjects'
 import Logic from '../Logic'
 import stateClasses from './stateClasses'

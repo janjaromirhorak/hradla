@@ -1,5 +1,7 @@
 import Tag from './Tag'
 
+/** @module svgObjects.Text */
+
 /**
  * Text element in SVG
  * @extends Tag

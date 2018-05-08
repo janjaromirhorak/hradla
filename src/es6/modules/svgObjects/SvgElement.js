@@ -1,5 +1,7 @@
 import Tag from './Tag'
 
+/** @module svgObjects.SvgElement */
+
 /**
  * represents visible element in SVG that has position and dimensions (for example `rectangle` is a SvgElement, but `pattern` is not, even though both are tags)
  * @extends Tag

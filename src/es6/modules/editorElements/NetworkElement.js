@@ -1,3 +1,5 @@
+/** @module editorElements.NetworkElement */
+
 /**
  * parent class for all network elements
  */

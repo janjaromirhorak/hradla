@@ -2,6 +2,8 @@ import Logic from '../Logic'
 
 import Box from './Box'
 
+/** @module editorElements.OutputBox */
+
 /**
  * OutputBox has only input connectors and is used to visualize the output states of the logic network.
  * @extends Box

@@ -1,3 +1,5 @@
+/** @module editorElements.Transform */
+
 /**
  * Helper class used by {@link Transform}.
  *

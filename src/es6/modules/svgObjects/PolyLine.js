@@ -1,5 +1,7 @@
 import Tag from './Tag'
 
+/** @module svgObjects.PolyLine */
+
 /**
  * SVG polyline (a path defined by sequence of points on plane)
  * @extends Tag

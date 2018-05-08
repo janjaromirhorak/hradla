@@ -1,5 +1,7 @@
 import SvgElement from './SvgElement'
 
+/** @module svgObjects.Rectangle */
+
 /**
  * a rectangle in SVG
  * @extends SvgElement

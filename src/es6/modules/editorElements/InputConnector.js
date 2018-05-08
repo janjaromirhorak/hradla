@@ -1,6 +1,8 @@
 import Connector from './Connector'
 import Logic from '../Logic'
 
+/** @module editorElements.InputConnector */
+
 /**
  * Connector that gets its state from a connected value and passes it through to the {@link Box} this connector belongs to.
  * @extends Connector

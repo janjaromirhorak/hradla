@@ -1,6 +1,8 @@
 import Tag from './Tag'
 import Text from './Text'
 
+/** @module svgObjects.MultiLineText */
+
 /**
  * Multi line text element in SVG
  *

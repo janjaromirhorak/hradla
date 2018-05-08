@@ -1,5 +1,7 @@
 import Tag from './Tag'
 
+/** @module svgObjects.Group */
+
 /**
  * SVG group, used for grouping elements, for example a gate is represented by many elements (rectangle, image, inivisible hitbox rectangle...),
  * but all of the elements need to be transformed together. Using groups the transform property can be set on the group which contains all the elements.

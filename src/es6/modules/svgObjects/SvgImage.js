@@ -1,5 +1,7 @@
 import SvgElement from './SvgElement'
 
+/** @module svgObjects.SvgImage */
+
 /**
  * an image in SVG
  * @extends SvgElement

@@ -3,6 +3,8 @@ import Logic from '../Logic'
 
 import Box from './Box'
 
+/** @module editorElements.Blackbox */
+
 /**
  * Blackbox is a box that is defined by its evaluation function
  * @extends Box

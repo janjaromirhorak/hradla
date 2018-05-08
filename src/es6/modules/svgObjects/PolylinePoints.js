@@ -1,5 +1,7 @@
 import PolylinePoint from './PolylinePoint'
 
+/** @module svgObjects.PolylinePoints */
+
 /**
  * array-like structure used in {@link PolylinePoints}
  */

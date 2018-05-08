@@ -1,3 +1,5 @@
+/** @module svgObjects.PolylinePoint */
+
 /**
  * one point of {@link PolylinePoints}, used in the {@link PolyLine} object
  */

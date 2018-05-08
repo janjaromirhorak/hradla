@@ -1,5 +1,7 @@
 import Connector from './Connector'
 
+/** @module editorElements.OutputConnector */
+
 /**
  * Connector that takes a state defined by the {@link Box} it belongs to and passes it to all connected wire
  * @extends Connector

@@ -2,6 +2,8 @@ import * as svgObj from '../svgObjects'
 
 import NetworkElement from './NetworkElement'
 
+/** @module editorElements.HelperWire */
+
 /**
  * A temporary wire that is connecting a {@link Connector} with a mouse pointer when user creates a wire.
  * @extends NetworkElement

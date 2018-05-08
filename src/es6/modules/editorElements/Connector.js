@@ -4,6 +4,8 @@ import Logic from '../Logic'
 
 import stateClasses from './stateClasses'
 
+/** @module editorElements.Connector */
+
 /**
  * parent class for input and output connectors
  * @extends NetworkElement

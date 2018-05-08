@@ -1,5 +1,7 @@
 import Tag from './Tag'
 
+/** @module svgObjects.Pattern */
+
 /**
  * pattern object in SVG
  * @extends Tag
