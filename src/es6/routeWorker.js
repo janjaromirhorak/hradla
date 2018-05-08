@@ -1,6 +1,6 @@
 /** @module routeWorker */
 
-import findPath from './findPath'
+import findPath from './modules/findPath'
 
 /**
  * callback when a message is sent to the web worker

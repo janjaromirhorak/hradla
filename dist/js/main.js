@@ -932,6 +932,22 @@ module.exports = {
 },{"./Datastructures/DoublyLinkedList":2,"./Datastructures/Heap":3,"./Datastructures/MaxHeap":4,"./Datastructures/MinHeap":5,"./Datastructures/PriorityQueue":6,"./Datastructures/Queue":7,"./Datastructures/Stack":8}],10:[function(require,module,exports){
 "use strict";
 
+var _Canvas = require("./modules/Canvas");
+
+var _Canvas2 = _interopRequireDefault(_Canvas);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * When the document is ready, initialize the application
+ */
+$(function () {
+  new _Canvas2.default("#canvas", 10);
+});
+
+},{"./modules/Canvas":11}],11:[function(require,module,exports){
+"use strict";
+
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
@@ -948,35 +964,35 @@ var _editorElements = require('./editorElements');
 
 var editorElements = _interopRequireWildcard(_editorElements);
 
-var _logic = require('./logic');
+var _Logic = require('./Logic');
 
-var _logic2 = _interopRequireDefault(_logic);
+var _Logic2 = _interopRequireDefault(_Logic);
 
-var _contextMenu = require('./contextMenu');
+var _ContextMenu = require('./ui/ContextMenu');
 
-var _contextMenu2 = _interopRequireDefault(_contextMenu);
+var _ContextMenu2 = _interopRequireDefault(_ContextMenu);
 
-var _floatingMenu = require('./floatingMenu');
+var _FloatingMenu = require('./ui/FloatingMenu');
 
-var _floatingMenu2 = _interopRequireDefault(_floatingMenu);
+var _FloatingMenu2 = _interopRequireDefault(_FloatingMenu);
 
-var _simulation = require('./simulation');
+var _Simulation = require('./Simulation');
 
-var _simulation2 = _interopRequireDefault(_simulation);
+var _Simulation2 = _interopRequireDefault(_Simulation);
 
-var _helperFunctions = require('./helperFunctions');
+var _helperFunctions = require('./other/helperFunctions');
 
-var _tutorial = require('./tutorial');
+var _Tutorial = require('./ui/Tutorial');
 
-var _tutorial2 = _interopRequireDefault(_tutorial);
+var _Tutorial2 = _interopRequireDefault(_Tutorial);
 
-var _viewbox = require('./viewbox');
+var _ViewBox = require('./ui/ViewBox');
 
-var _viewbox2 = _interopRequireDefault(_viewbox);
+var _ViewBox2 = _interopRequireDefault(_ViewBox);
 
-var _messages = require('./messages');
+var _Messages = require('./ui/Messages');
 
-var _messages2 = _interopRequireDefault(_messages);
+var _Messages2 = _interopRequireDefault(_Messages);
 
 var _libstl = require('libstl');
 
@@ -1034,10 +1050,10 @@ var Canvas = function () {
         this.wires = []; // stores all wires
 
         // TODO document this
-        this.messages = new _messages2.default();
+        this.messages = new _Messages2.default();
 
         this.simulationEnabled = true;
-        this.simulation = new _simulation2.default(this); // dummy, will be overwritten on startNewSimulation
+        this.simulation = new _Simulation2.default(this); // dummy, will be overwritten on startNewSimulation
 
         /**
          * distance from the left top corner to the first element in the imported network
@@ -1064,14 +1080,14 @@ var Canvas = function () {
 
         // set the viewbox for future zooming and moving of the canvas
         this.$svg.attr('preserveAspectRatio', 'xMinYMin slice');
-        this.viewbox = new _viewbox2.default(0, 0, this.width, this.height);
+        this.viewbox = new _ViewBox2.default(0, 0, this.width, this.height);
         this.applyViewbox();
 
         // CONSTRUCT CONTEXT MENU
-        this.contextMenu = new _contextMenu2.default(this);
+        this.contextMenu = new _ContextMenu2.default(this);
 
         // CONSTRUCT FLOATING MENU
-        this.floatingMenu = new _floatingMenu2.default(this);
+        this.floatingMenu = new _FloatingMenu2.default(this);
 
         var target = void 0;
 
@@ -1300,7 +1316,7 @@ var Canvas = function () {
             var _this2 = this;
 
             // instantiate the tutorial
-            this.tutorial = new _tutorial2.default(this, function () {
+            this.tutorial = new _Tutorial2.default(this, function () {
                 // set userHasVisited to true when user closes (or finishes) the tutorial
                 localStorage.userHasVisited = true;
 
@@ -1854,7 +1870,7 @@ var Canvas = function () {
         key: 'startNewSimulation',
         value: function startNewSimulation(startingConnector, state) {
             if (this.simulationEnabled) {
-                this.simulation = new _simulation2.default(this);
+                this.simulation = new _Simulation2.default(this);
                 this.simulation.notifyChange(startingConnector.id, state);
                 this.simulation.run();
             }
@@ -2177,7 +2193,7 @@ var Canvas = function () {
                 }
 
                 return Array.from(new Array(outputs), function () {
-                    return _logic2.default.state.unknown;
+                    return _Logic2.default.state.unknown;
                 });
             }, name);
 
@@ -2299,7 +2315,7 @@ var Canvas = function () {
 
                 // if otherConnector is an input connector, set its state to unknown
                 if (otherConnector.isInputConnector) {
-                    _this6.startNewSimulation(otherConnector, _logic2.default.state.unknown);
+                    _this6.startNewSimulation(otherConnector, _Logic2.default.state.unknown);
                 }
             });
 
@@ -2307,7 +2323,7 @@ var Canvas = function () {
             connector.wireIds.clear();
             // if connector is an input connector, set its state to unknown
             if (connector.isInputConnector) {
-                connector.setState(_logic2.default.state.unknown);
+                connector.setState(_Logic2.default.state.unknown);
             }
         }
 
@@ -2883,7 +2899,5149 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./contextMenu":11,"./editorElements":12,"./floatingMenu":14,"./helperFunctions":15,"./logic":17,"./messages":20,"./simulation":22,"./svgObjects":23,"./tutorial":24,"./viewbox":25,"libstl":9}],11:[function(require,module,exports){
+},{"./Logic":12,"./Simulation":13,"./editorElements":14,"./other/helperFunctions":29,"./svgObjects":32,"./ui/ContextMenu":44,"./ui/FloatingMenu":45,"./ui/Messages":46,"./ui/Tutorial":47,"./ui/ViewBox":48,"libstl":9}],12:[function(require,module,exports){
+"use strict";
+
+/** @module Logic */
+/**
+ * definitions of logic states and basic logic functions used in the simulation
+ */
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Logic = function () {
+    function Logic() {
+        _classCallCheck(this, Logic);
+    }
+
+    _createClass(Logic, null, [{
+        key: "and",
+
+
+        /**
+         * Logic AND
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+        value: function and(a, b) {
+            return Logic.runSymmetricRules(a, b, [[Logic.state.on, Logic.state.on, Logic.state.on], [Logic.state.on, Logic.state.off, Logic.state.off], [Logic.state.on, Logic.state.unknown, Logic.state.unknown], [Logic.state.on, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.off], [Logic.state.off, Logic.state.oscillating, Logic.state.off], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
+        }
+        /**
+         * Logic NAND
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+
+    }, {
+        key: "nand",
+        value: function nand(a, b) {
+            return Logic.not(Logic.and(a, b));
+        }
+
+        /**
+         * Logic NOR
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+
+    }, {
+        key: "nor",
+        value: function nor(a, b) {
+            return Logic.not(Logic.or(a, b));
+        }
+
+        /**
+         * Logic NOT
+         * @param  {Logic.state} a first input state
+         * @return {Logic.state}   output state
+         */
+
+    }, {
+        key: "not",
+        value: function not(a) {
+            if (a === Logic.state.on) {
+                return Logic.state.off;
+            } else if (a === Logic.state.off) {
+                return Logic.state.on;
+            } else {
+                return a;
+            }
+        }
+
+        /**
+         * Logic OR
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+
+    }, {
+        key: "or",
+        value: function or(a, b) {
+            return Logic.runSymmetricRules(a, b, [[Logic.state.on, Logic.state.on, Logic.state.on], [Logic.state.on, Logic.state.off, Logic.state.on], [Logic.state.on, Logic.state.unknown, Logic.state.on], [Logic.state.on, Logic.state.oscillating, Logic.state.on], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.unknown], [Logic.state.off, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
+        }
+
+        /**
+         * Logic XNOR
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+
+    }, {
+        key: "xnor",
+        value: function xnor(a, b) {
+            return Logic.not(Logic.xor(a, b));
+        }
+
+        /**
+         * Logic XOR
+         * @param  {Logic.state} a first input state
+         * @param  {Logic.state} b second input state
+         * @return {Logic.state}   output state
+         */
+
+    }, {
+        key: "xor",
+        value: function xor(a, b) {
+            return Logic.runSymmetricRules(a, b, [[Logic.state.on, Logic.state.on, Logic.state.off], [Logic.state.on, Logic.state.off, Logic.state.on], [Logic.state.on, Logic.state.unknown, Logic.state.unknown], [Logic.state.on, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.unknown], [Logic.state.off, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
+        }
+
+        /**
+         * Finds the correct rule in the array of rules and returns the corresponding return value.
+         * This function expects rules to be symmetric (so `a RULE b` should returns the same value as `b RULE a`),
+         * which allows to cut down on the `rules` array quite a bit
+         * @param  {Logic.state} a     first input state
+         * @param  {Logic.state} b     second input state
+         * @param  {Array} rules       Array of arrays. Each inner array represents a rule in the format [input1, input2, output].
+         *                             The function finds an array, where `a === input1` and `b === input1` (or `a === input2` and `b === input1`)
+         *                             and returns `output` from this array.
+         * @return {Logic.state}       output state
+         */
+
+    }, {
+        key: "runSymmetricRules",
+        value: function runSymmetricRules(a, b, rules) {
+            // iterate through all the rules
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = rules[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var rule = _step.value;
+
+                    if (rule[0] === a && rule[1] === b || rule[0] === b && rule[1] === a) {
+                        return rule[2];
+                    }
+                }
+
+                // if no rule matches, the output state is unknown
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            return Logic.state.unknown;
+        }
+    }, {
+        key: "state",
+
+        /**
+         * Enum for logic states.
+         *
+         * States:
+         * - `unknown`
+         * - `on`
+         * - `off`
+         * - `oscillating`
+         * @type {Number}
+         */
+        get: function get() {
+            return {
+                unknown: 0,
+                on: 1,
+                off: 2,
+                oscillating: 3
+            };
+        }
+
+        /**
+         * list of all states that can be used in the simulation
+         *
+         * This getter iterates over Logic.state and returns an array containing all values of Logic.state's members
+         * @type {Array}
+         */
+
+    }, {
+        key: "stateList",
+        get: function get() {
+            var states = [];
+
+            // iterate over all defined states and add their values to the states array
+            Object.keys(Logic.state).forEach(function (key) {
+                states.push(Logic.state[key]);
+            });
+
+            return states;
+        }
+    }]);
+
+    return Logic;
+}();
+
+exports.default = Logic;
+
+},{}],13:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Logic = require('./Logic');
+
+var _Logic2 = _interopRequireDefault(_Logic);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @module Simulation
+ */
+
+var stateChange = function stateChange(connectorId, state, whoCausedIt) {
+    _classCallCheck(this, stateChange);
+
+    this.connectorId = connectorId;
+    this.state = state;
+    this.whoCausedIt = whoCausedIt;
+};
+
+/**
+ * This class runs the network simulation.
+ *
+ * _note: all connectors that are used in this class are **output connectors**_
+ */
+
+
+var Simulation = function () {
+    /**
+     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+     */
+    function Simulation(parentSVG) {
+        _classCallCheck(this, Simulation);
+
+        /**
+         * instance of Canvas this Simulation belongs to
+         * @type {Canvas}
+         */
+        this.parentSVG = parentSVG;
+
+        /**
+         * maps each affected output connector to it's directly preceeding output connectors
+         * @type {Map}
+         */
+        this.predecessors = new Map();
+
+        /**
+         * maps waveId to an array of affected outputConnectors
+         * @type {Map}
+         */
+        this.waves = new Map();
+        this.wave = 0;
+
+        /**
+         * maps cycled connector id to set of states this connector was in
+         * @type {Map}
+         */
+        this.cycledConnectors = new Map();
+
+        /**
+         * set of cycled connectors that have been already resolved
+         * @type {Set}
+         */
+        this.resolvedCycledConnectors = new Set();
+    }
+
+    /**
+     * run the simulation
+     */
+
+
+    _createClass(Simulation, [{
+        key: 'run',
+        value: function run() {
+            this.wave++;
+            while (this.waves.has(this.wave)) {
+                this.step();
+                this.waves.delete(this.wave); // clean old waves on the go
+                this.wave++;
+            }
+        }
+
+        /**
+         * one step/wave of the simulation
+         *
+         * determines states of the connectors in the current wave, detects cycles
+         */
+
+    }, {
+        key: 'step',
+        value: function step() {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = this.waves.get(this.wave)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var _ref = _step.value;
+                    var connectorId = _ref.connectorId;
+                    var state = _ref.state;
+                    var whoCausedIt = _ref.whoCausedIt;
+
+                    // skip resolved cycles
+                    if (this.resolvedCycledConnectors.has(connectorId)) {
+                        continue;
+                    }
+
+                    // skip connector that are cycles
+                    if (this.cycledConnectors.has(connectorId)) {
+                        // get the set of states that this connector appeared from the moment the signal first cycled
+                        var states = this.cycledConnectors.get(connectorId);
+
+                        // if the connector already had this state in this cycle, resolve the cycle
+                        if (states.has(state)) {
+
+                            // if there are more states in the set, the connector is oscillating
+                            // (else it keeps its state and we just break the cycle)
+                            if (states.size > 1) {
+                                state = _Logic2.default.state.oscillating;
+                            }
+
+                            // mark this connector as resolved
+                            this.resolvedCycledConnectors.add(connectorId);
+
+                            // this is a new, unseen state, add it to the set and continue simulating the cycle
+                        } else {
+                            states.add(state);
+                        }
+
+                        // map the modified set of states to the connector
+                        this.cycledConnectors.set(connectorId, states);
+                    }
+
+                    this.whoCausedIt = connectorId;
+                    /*  process all outputConnectors by setting their state
+                        this will trigger a following event chain:
+                            outputConnector changes
+                            -> all connected wires change
+                            -> all inputConnectors connected to these wires change
+                            -> all elements that contain these inputConnectors change
+                            -> these elements compute the new state of their output connectors and call notifyChange()
+                    */
+
+                    if (whoCausedIt) {
+                        this.addPredecessor(connectorId, whoCausedIt);
+                    }
+
+                    if (!this.cycledConnectors.has(connectorId) && this.getAllPredecessors(connectorId).has(connectorId)) {
+                        this.cycledConnectors.set(connectorId, new Set([state]));
+                    }
+
+                    // reflect the changes in SVG
+                    var connector = this.parentSVG.getConnectorById(connectorId);
+                    if (connector) {
+                        connector.setState(state);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            this.whoCausedIt = undefined;
+        }
+
+        /**
+         * mark a predecessorConnectorId as a predecessor of connectorId
+         * @param {string} connectorId ID of a connector
+         * @param {string} predecessorConnectorId predecessor of `connectorId`
+         */
+
+    }, {
+        key: 'addPredecessor',
+        value: function addPredecessor(connectorId, predecessorConnectorId) {
+            if (!this.predecessors.has(connectorId)) {
+                this.predecessors.set(connectorId, new Set());
+            }
+
+            this.predecessors.get(connectorId).add(predecessorConnectorId);
+        }
+
+        /**
+         * get set of all output connectors that are before this output connector
+         * @param  {string} connectorId ID of a connector
+         * @return {Set}                set of connector ids that are before this output connector
+         */
+
+    }, {
+        key: 'getAllPredecessors',
+        value: function getAllPredecessors(connectorId) {
+            if (!this.predecessors.has(connectorId)) {
+                this.predecessors.set(connectorId, new Set());
+            }
+
+            var all = new Set();
+
+            this.predecessors.get(connectorId).forEach(all.add, all);
+
+            var prevSize = 0;
+            var size = all.size;
+            while (prevSize < size) {
+                var _iteratorNormalCompletion2 = true;
+                var _didIteratorError2 = false;
+                var _iteratorError2 = undefined;
+
+                try {
+                    for (var _iterator2 = all[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                        var connector = _step2.value;
+
+                        if (this.predecessors.has(connector)) {
+                            this.predecessors.get(connector).forEach(all.add, all);
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError2 = true;
+                    _iteratorError2 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                            _iterator2.return();
+                        }
+                    } finally {
+                        if (_didIteratorError2) {
+                            throw _iteratorError2;
+                        }
+                    }
+                }
+
+                prevSize = size;
+                size = all.size;
+            }
+
+            return all;
+        }
+
+        /**
+         * Notify a change in the network. This function adds the changed connector to the next wave
+         * @param  {string} connectorId ID of the changed connector
+         * @param  {Logic.state} state  new [Logic.state](./module-Logic.html#.state) of the connector
+         */
+
+    }, {
+        key: 'notifyChange',
+        value: function notifyChange(connectorId, state) {
+            var waveId = this.wave + 1;
+
+            if (!this.waves.has(waveId)) {
+                this.waves.set(waveId, []);
+            }
+
+            this.waves.get(waveId).push(new stateChange(connectorId, state, this.whoCausedIt));
+        }
+    }]);
+
+    return Simulation;
+}();
+
+exports.default = Simulation;
+
+},{"./Logic":12}],14:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _Transform = require('./editorElements/Transform');
+
+Object.defineProperty(exports, 'Transform', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Transform).default;
+  }
+});
+
+var _InputConnector = require('./editorElements/InputConnector');
+
+Object.defineProperty(exports, 'InputConnector', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_InputConnector).default;
+  }
+});
+
+var _OutputConnector = require('./editorElements/OutputConnector');
+
+Object.defineProperty(exports, 'OutputConnector', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_OutputConnector).default;
+  }
+});
+
+var _InputBox = require('./editorElements/InputBox');
+
+Object.defineProperty(exports, 'InputBox', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_InputBox).default;
+  }
+});
+
+var _OutputBox = require('./editorElements/OutputBox');
+
+Object.defineProperty(exports, 'OutputBox', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_OutputBox).default;
+  }
+});
+
+var _Gate = require('./editorElements/Gate');
+
+Object.defineProperty(exports, 'Gate', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Gate).default;
+  }
+});
+
+var _Blackbox = require('./editorElements/Blackbox');
+
+Object.defineProperty(exports, 'Blackbox', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Blackbox).default;
+  }
+});
+
+var _HelperWire = require('./editorElements/HelperWire');
+
+Object.defineProperty(exports, 'HelperWire', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_HelperWire).default;
+  }
+});
+
+var _Wire = require('./editorElements/Wire');
+
+Object.defineProperty(exports, 'Wire', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Wire).default;
+  }
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+},{"./editorElements/Blackbox":15,"./editorElements/Gate":18,"./editorElements/HelperWire":19,"./editorElements/InputBox":20,"./editorElements/InputConnector":21,"./editorElements/OutputBox":23,"./editorElements/OutputConnector":24,"./editorElements/Transform":25,"./editorElements/Wire":26}],15:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _svgObjects = require('../svgObjects');
+
+var svgObj = _interopRequireWildcard(_svgObjects);
+
+var _Logic = require('../Logic');
+
+var _Logic2 = _interopRequireDefault(_Logic);
+
+var _Box2 = require('./Box');
+
+var _Box3 = _interopRequireDefault(_Box2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Blackbox is a box that is defined by its evaluation function
+ * @extends Box
+ */
+var Blackbox = function (_Box) {
+    _inherits(Blackbox, _Box);
+
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {number} inputConnectors  number of input connectors
+     * @param {number} outputConnectors number of output connectors
+     * @param {Function} evalFunction   function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
+     *                                  and returns `outputConnectors` Logic.states.
+     * @param {String} [name]        name that will be displayed on the blackbox
+     */
+    function Blackbox(parentSVG, inputConnectors, outputConnectors, evalFunction) {
+        var name = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "";
+
+        _classCallCheck(this, Blackbox);
+
+        var width = 11;
+        var height = Math.max(inputConnectors, outputConnectors) * 2;
+
+        var _this = _possibleConstructorReturn(this, (Blackbox.__proto__ || Object.getPrototypeOf(Blackbox)).call(this, parentSVG, name, "blackbox", width, height));
+
+        var connectorPinLenght = 2.5 * _this.gridSize;
+
+        // override default svgObj structure
+        _this.svgObj = new svgObj.Group();
+
+        // transparent background rectangle
+        var hitbox = new svgObj.Rectangle(0, 0, _this.width, _this.height, "none", "none");
+        hitbox.$el.addClass('rect');
+
+        _this.svgObj.addChild(hitbox);
+
+        // main rectangle
+        var bodyWidth = _this.width - 2 * connectorPinLenght;
+
+        var rectangle = new svgObj.Rectangle(connectorPinLenght, 0, bodyWidth, _this.height, "white", "black");
+        rectangle.addAttr({ 'stroke-width': '2.5' });
+        rectangle.$el.addClass('rect');
+
+        _this.svgObj.addChild(rectangle);
+
+        // text description of the box
+        var textWidth = bodyWidth - _this.gridSize;
+        var textHeight = _this.height - _this.gridSize;
+        var text = new svgObj.MultiLineText((_this.width - textWidth) / 2, // horizontal centering
+        (_this.height - textHeight) / 2, // vertical centering
+        textWidth, textHeight, name.toUpperCase(), _this.gridSize * 1.2);
+        _this.svgObj.addChild(text);
+
+        // add input connectors
+        for (var i = 0; i < inputConnectors; ++i) {
+            var gridPosition = i * 2 + 1;
+            var pixelPosition = gridPosition * _this.gridSize;
+
+            var pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(0, pixelPosition), new svgObj.PolylinePoint(connectorPinLenght, pixelPosition)]), 1, "black");
+
+            _this.svgObj.addChild(pin);
+
+            // add the connector
+            _this.addInputConnector(0, gridPosition);
+        }
+
+        // add output connectors
+        for (var _i = 0; _i < outputConnectors; ++_i) {
+            var _gridPosition = _i * 2 + 1;
+            var _pixelPosition = _gridPosition * _this.gridSize;
+
+            var _pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(_this.width - connectorPinLenght, _pixelPosition), new svgObj.PolylinePoint(_this.width, _pixelPosition)]), 1, "black");
+
+            _this.svgObj.addChild(_pin);
+
+            _this.addOutputConnector(width, _gridPosition);
+        }
+
+        _this.svgObj.$el.addClass("box");
+
+        /**
+         * function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
+         * and returns `outputConnectors` Logic.states.
+         */
+        _this.evalFunction = evalFunction;
+
+        // regenerate the blocked nodes after adding all the connectors
+        _this.generateBlockNodes();
+        return _this;
+    }
+
+    /**
+     * get data of this blackbox as a JSON-ready object
+     * @return {Object} javascript object containing essential data for this blackbox
+     */
+
+
+    _createClass(Blackbox, [{
+        key: 'refreshState',
+
+
+        /**
+         * proccess the input connector states and reflect them in the output connector states according
+         * to the logic defined by this.evalFunction
+         */
+        value: function refreshState() {
+            var inputStates = this.inputConnectors.map(function (conn) {
+                return conn.state;
+            });
+            // call the evalFunction to get the output states
+            var outputStates = this.evalFunction.apply(this, _toConsumableArray(inputStates));
+
+            // apply the outputStates to the outputConnectors
+            for (var i = 0; i < outputStates.length; ++i) {
+                this.outputConnectors[i].setState(outputStates[i]);
+            }
+        }
+    }, {
+        key: 'generateBlockNodes',
+        value: function generateBlockNodes() {
+            var _get2;
+
+            // add blocked nodes on the connectors and between them as well
+
+            var specialNodes = [];
+            for (var i = 1; i < this.inputConnectors.length * 2; ++i) {
+                specialNodes.push({
+                    x: 0,
+                    y: i
+                });
+            }
+            for (var _i2 = 1; _i2 < this.outputConnectors.length * 2; ++_i2) {
+                specialNodes.push({
+                    x: this.gridWidth,
+                    y: _i2
+                });
+            }
+
+            (_get2 = _get(Blackbox.prototype.__proto__ || Object.getPrototypeOf(Blackbox.prototype), 'generateBlockNodes', this)).call.apply(_get2, [this, 0, 1, 0, 1].concat(specialNodes));
+        }
+    }, {
+        key: 'exportData',
+        get: function get() {
+            var data = _get(Blackbox.prototype.__proto__ || Object.getPrototypeOf(Blackbox.prototype), 'exportData', this);
+            data.inputs = this.inputConnectors.length;
+            data.outputs = this.outputConnectors.length;
+
+            // generate the truth table
+
+            data.table = [];
+
+            // array of tested input states
+            var stateList = _Logic2.default.stateList;
+
+            // recursive function that generates all possible inputs
+            var getPermutations = function getPermutations(length) {
+                var permutations = [];
+                switch (length) {
+                    case 0:
+                        return [];
+                    case 1:
+                        var _iteratorNormalCompletion = true;
+                        var _didIteratorError = false;
+                        var _iteratorError = undefined;
+
+                        try {
+                            for (var _iterator = stateList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                var state = _step.value;
+
+                                permutations.push([state]);
+                            }
+                        } catch (err) {
+                            _didIteratorError = true;
+                            _iteratorError = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion && _iterator.return) {
+                                    _iterator.return();
+                                }
+                            } finally {
+                                if (_didIteratorError) {
+                                    throw _iteratorError;
+                                }
+                            }
+                        }
+
+                        return permutations;
+                    default:
+                        var _iteratorNormalCompletion2 = true;
+                        var _didIteratorError2 = false;
+                        var _iteratorError2 = undefined;
+
+                        try {
+                            for (var _iterator2 = stateList[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                                var _state = _step2.value;
+                                var _iteratorNormalCompletion3 = true;
+                                var _didIteratorError3 = false;
+                                var _iteratorError3 = undefined;
+
+                                try {
+                                    for (var _iterator3 = getPermutations(length - 1)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                                        var perm = _step3.value;
+
+                                        permutations.push([_state].concat(_toConsumableArray(perm)));
+                                    }
+                                } catch (err) {
+                                    _didIteratorError3 = true;
+                                    _iteratorError3 = err;
+                                } finally {
+                                    try {
+                                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                            _iterator3.return();
+                                        }
+                                    } finally {
+                                        if (_didIteratorError3) {
+                                            throw _iteratorError3;
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            _didIteratorError2 = true;
+                            _iteratorError2 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                    _iterator2.return();
+                                }
+                            } finally {
+                                if (_didIteratorError2) {
+                                    throw _iteratorError2;
+                                }
+                            }
+                        }
+
+                        return permutations;
+                }
+            };
+
+            // generate outputs for all the possible inputs
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = getPermutations(data.inputs)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var inputValues = _step4.value;
+
+                    var outputValues = this.evalFunction.apply(this, _toConsumableArray(inputValues));
+
+                    // if there is an output value that is not Logic.state.unknown, add this line to the
+                    // truthtable, otherwise don't add it (if all output values are Logic.state.unknown,
+                    // the input combination does not have to be defines, because Logic.state.unknown is the default value)
+                    if (outputValues.reduce(function (accumulator, current) {
+                        return accumulator || current !== _Logic2.default.state.unknown;
+                    })) {
+                        data.table.push([].concat(_toConsumableArray(inputValues), _toConsumableArray(outputValues)));
+                    }
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
+
+            return data;
+        }
+    }]);
+
+    return Blackbox;
+}(_Box3.default);
+
+exports.default = Blackbox;
+
+},{"../Logic":12,"../svgObjects":32,"./Box":16}],16:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _svgObjects = require('../svgObjects');
+
+var svgObj = _interopRequireWildcard(_svgObjects);
+
+var _NetworkElement2 = require('./NetworkElement');
+
+var _NetworkElement3 = _interopRequireDefault(_NetworkElement2);
+
+var _InputConnector = require('./InputConnector');
+
+var _InputConnector2 = _interopRequireDefault(_InputConnector);
+
+var _OutputConnector = require('./OutputConnector');
+
+var _OutputConnector2 = _interopRequireDefault(_OutputConnector);
+
+var _Transform = require('./Transform');
+
+var _Transform2 = _interopRequireDefault(_Transform);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Parent class for gates and input and output boxes. Defines all the factors
+ * that the boxes have in common (svgObj structure, draggability and rotatability...)
+ * @extends NetworkElement
+ */
+var Box = function (_NetworkElement) {
+    _inherits(Box, _NetworkElement);
+
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {string} name       name of the element (input, output, and, or, xor...)
+     * @param {string} category   type of the element (io, gate)
+     * @param {number} gridWidth  width of the element in grid pixels
+     * @param {number} gridHeight height of the element in grid pixels
+     */
+    function Box(parentSVG, name, category, gridWidth, gridHeight) {
+        _classCallCheck(this, Box);
+
+        /**
+         * specifies the box type within the category (input/output in io, and/or/... in gate)
+         * @type {string}
+         */
+        var _this = _possibleConstructorReturn(this, (Box.__proto__ || Object.getPrototypeOf(Box)).call(this, parentSVG));
+
+        _this.name = name;
+
+        /**
+         * specifies the box category (io for input or output, gate for logic gates)
+         * @type {string}
+         */
+        _this.category = category;
+
+        /**
+         * size of the grid in SVG pixels
+         * @type {number}
+         */
+        _this.gridSize = _this.parentSVG.gridSize;
+
+        /**
+         * array of connectors of this box
+         * @type {Array}
+         */
+        _this.connectors = [];
+
+        /**
+         * svgObj containing all SVG data used to display this box
+         * @type {svgObj}
+         */
+        _this.svgObj = new svgObj.Group();
+
+        /**
+         * width of this element in SVG pixels
+         * @type {number}
+         */
+        _this.width = gridWidth * _this.gridSize;
+        /**
+         * height of this element in SVG pixels
+         * @type {number}
+         */
+        _this.height = gridHeight * _this.gridSize;
+
+        /**
+         * width of this element in grid pixels
+         * @type {number}
+         */
+        _this.gridWidth = gridWidth;
+        /**
+         * height of this element in grid pixels
+         * @type {number}
+         */
+        _this.gridHeight = gridHeight;
+
+        // transparent background rectangle
+        var rectangle = new svgObj.Rectangle(0, 0, _this.width, _this.height, "none", "none");
+        rectangle.$el.addClass('rect');
+
+        _this.svgObj.addChild(rectangle);
+
+        // image of the element
+        _this.image = new svgObj.SvgImage(0, 0, _this.width, _this.height, _this.url);
+        _this.svgObj.addChild(_this.image);
+
+        // add type="gate", used in special callbacks in contextmenu
+        _this.svgObj.addAttr({ "type": category });
+
+        _this.svgObj.$el.addClass("box");
+        _this.svgObj.$el.addClass(category);
+        return _this;
+    }
+
+    /**
+     * url of the image depicting this object
+     * @type {string}
+     */
+
+
+    _createClass(Box, [{
+        key: 'generateBlockNodes',
+
+
+        /**
+         * get set of nodes that are not suitable for wire routing
+         * @param  {Number} [marginTop=0]    top margin of the element (distance from the element that should be also blocked)
+         * @param  {Number} [marginRight=0]  right margin of the element
+         * @param  {Number} [marginBottom=0] bottom margin of the element
+         * @param  {Number} [marginLeft=0]   left margin of the element
+         * @param  {Number} specialNodes     additional nodes that should be added to the set
+         * @return {Set}                     set of not suitable nodes
+         */
+        value: function generateBlockNodes() {
+            var marginTop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+            var marginRight = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+            var marginBottom = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+            var marginLeft = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+
+            this.blockedNodes = new Set();
+            for (var x = marginLeft; x <= this.gridWidth - marginRight; x++) {
+                for (var y = marginTop; y <= this.gridHeight - marginBottom; y++) {
+                    this.blockedNodes.add({
+                        x: x,
+                        y: y
+                    });
+                }
+            }
+
+            for (var _len = arguments.length, specialNodes = Array(_len > 4 ? _len - 4 : 0), _key = 4; _key < _len; _key++) {
+                specialNodes[_key - 4] = arguments[_key];
+            }
+
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = specialNodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var node = _step.value;
+
+                    this.blockedNodes.add(node);
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+
+        /**
+         * empty function, redefined in inherited elements
+         * refreshState takes input connector values and sets output values accordingly
+         */
+
+    }, {
+        key: 'refreshState',
+        value: function refreshState() {
+            console.warn("Calling the virtual function refreshState has no effect.");
+        }
+
+        /**
+         * change image to another one that ends with a specified suffix
+         *
+         * *usage:* `changeImage("abc")` changes image url to `image-abc.svg`,
+         * `changeImage()` changes image url to the default one (`image.svg`)
+         * @param  {string} [suffix] new suffix for the image
+         */
+
+    }, {
+        key: 'changeImage',
+        value: function changeImage(suffix) {
+            if (suffix === undefined || suffix === "") {
+                this.imgSuffix = "";
+            } else {
+                this.imgSuffix = "-" + suffix;
+            }
+
+            this.image.changeUrl(this.url);
+        }
+
+        /**
+         * get a jQuery element representing this box
+         * @return {jQuery.element}
+         */
+
+    }, {
+        key: 'get',
+        value: function get() {
+            return this.svgObj.get();
+        }
+
+        /**
+         * rotate the set of blocked nodes by 90 degrees to the right or to the left, depending on the parameter
+         *
+         * used to rotate the nodes when the object itself is rotated
+         * @param  {boolean} right rotate clockwise if true, counterclockwise if false
+         */
+
+    }, {
+        key: 'rotateBlockedNodes',
+        value: function rotateBlockedNodes(right) {
+            if (this.rotationParity === undefined) {
+                this.rotationParity = false;
+            }
+
+            this.rotationParity = !this.rotationParity;
+
+            var newBlockedNodes = new Set();
+
+            // rotate the node
+
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = this.blockedNodes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var node = _step2.value;
+
+                    var newNode = void 0;
+
+                    if (this.rotationParity) {
+                        if (right) {
+                            newNode = {
+                                x: Math.abs(node.y - this.gridHeight),
+                                y: node.x
+                            };
+                        } else {
+                            newNode = {
+                                x: node.y,
+                                y: Math.abs(node.x - this.gridWidth)
+                            };
+                        }
+                    } else {
+                        if (right) {
+                            newNode = {
+                                x: Math.abs(node.y - this.gridWidth),
+                                y: node.x
+                            };
+                        } else {
+                            newNode = {
+                                x: node.y,
+                                y: Math.abs(node.x - this.gridHeight)
+                            };
+                        }
+                    }
+
+                    newBlockedNodes.add(newNode);
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+
+            this.blockedNodes = newBlockedNodes;
+        }
+
+        /**
+         * rotate the set of blocked nodes to the right
+         *
+         * used to rotate the nodes when the object itself is rotated
+         */
+
+    }, {
+        key: 'rotateBlockedNodesRight',
+        value: function rotateBlockedNodesRight() {
+            this.rotateBlockedNodes(true);
+        }
+
+        /**
+         * rotate the set of blocked nodes to the right
+         *
+         * used to rotate the nodes when the object itself is rotated
+         */
+
+    }, {
+        key: 'rotateBlockedNodesLeft',
+        value: function rotateBlockedNodesLeft() {
+            this.rotateBlockedNodes(false);
+        }
+
+        /**
+         * add a connector to the element on the specified position
+         * @param {number}  left             horizontal distance from the left edge of the element
+         * @param {number}  top              vertical distance from the top edge of the element
+         * @param {Boolean} isInputConnector whether or not should this connector an input connector (`true` for input connector, `false` for output connector)
+         */
+
+    }, {
+        key: 'addConnector',
+        value: function addConnector(left, top, isInputConnector) {
+            var index = this.connectors.length;
+            if (isInputConnector) {
+                this.connectors[index] = new _InputConnector2.default(this.parentSVG, left, top);
+            } else {
+                this.connectors[index] = new _OutputConnector2.default(this.parentSVG, left, top);
+            }
+            this.svgObj.addChild(this.connectors[index].get());
+        }
+
+        /**
+         * add an input connector to the element on the specified position
+         * @param {number} left horizontal distance from the left edge of the element
+         * @param {number} top  vertical distance from the top edge of the element
+         */
+
+    }, {
+        key: 'addInputConnector',
+        value: function addInputConnector(left, top) {
+            return this.addConnector(left, top, true);
+        }
+
+        /**
+         * add an output connector to the element on the specified position
+         * @param {number} left horizontal distance from the left edge of the element
+         * @param {number} top  vertical distance from the top edge of the element
+         */
+
+    }, {
+        key: 'addOutputConnector',
+        value: function addOutputConnector(left, top) {
+            return this.addConnector(left, top, false);
+        }
+
+        /**
+         * get the connector object based on its id
+         * @param  {string} connectorId ID of the {@link Connector}
+         * @return {Connector}             instance of the {@link Connector} or `undefined` if not found
+         */
+
+    }, {
+        key: 'getConnectorById',
+        value: function getConnectorById(connectorId) {
+            for (var i = 0; i < this.connectors.length; i++) {
+                if (this.connectors[i].id === connectorId) {
+                    return this.connectors[i];
+                }
+            }
+            // if connector not found, return undefined
+            return undefined;
+        }
+
+        /**
+         * get the instance of {@link Transform} representing the state of the transform attribute of this element
+         * @param  {Boolean} [gridPixels=false] if `true`, function will return the result in grid pixels instead of SVG pixels
+         * @return {Transform}                  {@link Transform} of the element
+         */
+
+    }, {
+        key: 'getTransform',
+        value: function getTransform() {
+            var gridPixels = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+            var transform = void 0;
+            if (!this.svgObj.$el.attr("transform")) {
+                // the element does not have a "transform" property --> create it
+                transform = new _Transform2.default();
+                transform.setTranslate(0, 0);
+                this.svgObj.addAttr({ "transform": transform.get() });
+            } else {
+                // the element does have a "transform" property --> change it
+                transform = new _Transform2.default(this.svgObj.$el.attr("transform"));
+            }
+
+            // convert values to grid pixels
+            if (gridPixels) {
+                transform.toGridPixels(this.parentSVG);
+            }
+
+            return transform;
+        }
+
+        /**
+         * get the instance of {@link Transform} representing the state of the transform attribute of this element _with lenght units in grid pixels_
+         * @return {Transform} {@link Transform} of the element
+         */
+
+    }, {
+        key: 'getGridPixelTransform',
+        value: function getGridPixelTransform() {
+            return this.getTransform(true);
+        }
+
+        /**
+         * set the transform attribute of this element
+         * @param {Transform} transform {@link Transform} of the element (with lengths specified in SVG pixels)
+         */
+
+    }, {
+        key: 'setTransform',
+        value: function setTransform(transform) {
+            this.svgObj.addAttr({ "transform": transform.get() });
+        }
+
+        /**
+         * function that is called on every mouse down on this element
+         *
+         * moves the element to the front and calls onMouseDownLeft if applicable
+         * @param  {jQuery.MouseEvent} event
+         */
+
+    }, {
+        key: 'onMouseDown',
+        value: function onMouseDown(event) {
+            this.mouseLeft = false;
+            if (event.which === 1) {
+                this.mouseLeft = true;
+                this.onMouseDownLeft(event);
+
+                // move the DOM element to front
+                this.parentSVG.moveToFrontById(this.svgObj.id);
+            }
+        }
+
+        /**
+         * function that is called on every left mouse down on this element
+         *
+         * prepares element for the "click" and "drag and drop" actions
+         * @param  {jQuery.MouseEvent} event
+         */
+
+    }, {
+        key: 'onMouseDownLeft',
+        value: function onMouseDownLeft(event) {
+            this.mouseMoved = false;
+
+            var transform = this.getTransform();
+
+            // save the current item position into a variable
+            var currentPosition = transform.getTranslate();
+
+            var _parentSVG$viewbox$tr = this.parentSVG.viewbox.transformEvent(event),
+                pageX = _parentSVG$viewbox$tr.pageX,
+                pageY = _parentSVG$viewbox$tr.pageY;
+
+            // calculate mouse offset from the object origin
+
+
+            this.offset = {
+                x: pageX - currentPosition.x,
+                y: pageY - currentPosition.y
+            };
+        }
+
+        /**
+         * function that is called on every left mouse move with this element
+         * applies the correct transform values to provide the "drag and drop" functionality
+         * @param  {jQuery.MouseEvent} event
+         */
+
+    }, {
+        key: 'onMouseMove',
+        value: function onMouseMove(event) {
+            if (this.mouseLeft) {
+                this.svgObj.$el.addClass('grabbed');
+
+                this.mouseMoved = true;
+
+                var _parentSVG$viewbox$tr2 = this.parentSVG.viewbox.transformEvent(event),
+                    pageX = _parentSVG$viewbox$tr2.pageX,
+                    pageY = _parentSVG$viewbox$tr2.pageY;
+
+                var left = pageX - this.offset.x;
+                var top = pageY - this.offset.y;
+
+                var transform = this.getTransform();
+                transform.setTranslate(left, top);
+
+                this.setTransform(transform);
+
+                this.updateWires(true);
+            }
+        }
+
+        /**
+         * function that is called on every mouse up on this element
+         * provides the "click" functionality and calls the onDrop handler for the "drag and drop" functionality
+         * @param  {jQuery.MouseEvent} event
+         */
+
+    }, {
+        key: 'onMouseUp',
+        value: function onMouseUp(event) {
+            if (event.which === 1) {
+                if (this.mouseMoved) {
+                    this.onDrop(event);
+                } else {
+                    this.onClick();
+                }
+            } else if (event.which === 2) {
+                this.onClickMiddle(event);
+            }
+
+            this.svgObj.$el.removeClass('grabbed');
+        }
+
+        /**
+         * called by onMouseUp when the mouse has been moved between onMouseDown and onMouseUp
+         *
+         * applies grid snapping of the element on the end of the "drag and drop" action
+         * @param  {jQuery.MouseEvent} event
+         */
+
+    }, {
+        key: 'onDrop',
+        value: function onDrop(event) {
+            var _parentSVG$viewbox$tr3 = this.parentSVG.viewbox.transformEvent(event),
+                pageX = _parentSVG$viewbox$tr3.pageX,
+                pageY = _parentSVG$viewbox$tr3.pageY;
+
+            var left = pageX - this.offset.x;
+            var top = pageY - this.offset.y;
+
+            left = this.parentSVG.snapToGrid(left);
+            top = this.parentSVG.snapToGrid(top);
+
+            var transform = this.getTransform();
+            transform.setTranslate(left, top);
+
+            this.setTransform(transform);
+
+            this.updateWires();
+
+            // if tutorial exists, call tutorial callback
+            if (this.parentSVG.tutorial) {
+                this.parentSVG.tutorial.onBoxMoved();
+            }
+        }
+
+        /**
+         * empty function, will be redefined in InputBox
+         */
+
+    }, {
+        key: 'onClick',
+        value: function onClick() {}
+
+        /**
+         * custom callback function for middle click that rotates the box by 90 degrees to the right
+         */
+
+    }, {
+        key: 'onClickMiddle',
+        value: function onClickMiddle(event) {
+            // get the transform value for this box
+            var transform = this.getTransform();
+
+            // get the bounding rectangle for this box
+            var rect = this.svgObj.$el[0].getBoundingClientRect();
+
+            // use the bounding rectangle dimensions to figure out the geometrical centre of the box
+            var centreX = Math.round(rect.width / 2);
+            var centreY = Math.round(rect.height / 2);
+
+            centreX -= centreX % this.gridSize;
+            centreY -= centreY % this.gridSize;
+
+            // apply the rotation to the transform object
+            if (event.ctrlKey) {
+                transform.rotateLeft(centreX, centreY);
+            } else {
+                transform.rotateRight(centreX, centreY);
+            }
+
+            // apply the modified transform object ot the svgObj
+            this.svgObj.addAttr({ "transform": transform.get() });
+
+            // rotate also the blocked nodes
+            if (event.ctrlKey) {
+                this.rotateBlockedNodesLeft();
+            } else {
+                this.rotateBlockedNodesRight();
+            }
+
+            // update the wires
+            this.updateWires();
+
+            // if tutorial exists, call tutorial callback
+            if (this.parentSVG.tutorial) {
+                this.parentSVG.tutorial.onBoxRotated();
+            }
+        }
+
+        /**
+         * Updates all wires connected to this box. Iterates over all wires that are connected to this box
+         * and calls routeWire (or temporaryWire if the `temporary` parameter is set to true) to update the wire routing
+         * @param  {Boolean} [temporary=false] [description]
+         */
+
+    }, {
+        key: 'updateWires',
+        value: function updateWires() {
+            var _this2 = this;
+
+            var temporary = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+            this.connectors.forEach(function (conn) {
+                conn.wireIds.forEach(function (wireId) {
+                    var wire = _this2.parentSVG.getWireById(wireId);
+                    if (temporary) {
+                        wire.temporaryWire();
+                    } else {
+                        wire.routeWire();
+                    }
+                });
+            });
+        }
+    }, {
+        key: 'url',
+        get: function get() {
+            var category = this.category || "",
+                name = this.name || "",
+                suffix = this.imgSuffix || "";
+
+            return 'img/svg/' + category + '/' + name + suffix + '.svg';
+        }
+
+        /**
+         * get all input connectors of this box
+         * @return {Array} array of input connectors
+         */
+
+    }, {
+        key: 'inputConnectors',
+        get: function get() {
+            return this.connectors.filter(function (conn) {
+                return conn.isInputConnector;
+            });
+        }
+
+        /**
+         * get all output connectors of this box
+         * @return {Array} array of output connectors
+         */
+
+    }, {
+        key: 'outputConnectors',
+        get: function get() {
+            return this.connectors.filter(function (conn) {
+                return conn.isOutputConnector;
+            });
+        }
+
+        /**
+         * get data of this box as a JSON-ready object
+         * @return {Object} javascript object containing essential data for this box
+         */
+
+    }, {
+        key: 'exportData',
+        get: function get() {
+            var connections = [];
+
+            // go through all connectors
+            var counter = 0;
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+                for (var _iterator3 = this.connectors[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var conn = _step3.value;
+
+                    // go through each its wire id
+                    var _iteratorNormalCompletion4 = true;
+                    var _didIteratorError4 = false;
+                    var _iteratorError4 = undefined;
+
+                    try {
+                        for (var _iterator4 = conn.wireIds[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                            var item = _step4.value;
+
+                            var thisWireId = void 0;
+                            if (!this.parentSVG.exportWireIdMap.has(item)) {
+                                // if the wire id is not in the map, add it and assign new arbitrary id
+                                this.parentSVG.exportWireIdMap.set(item, this.parentSVG.exportWireId);
+                                thisWireId = this.parentSVG.exportWireId;
+                                this.parentSVG.exportWireId++;
+                            } else {
+                                // else get id from the map
+                                thisWireId = this.parentSVG.exportWireIdMap.get(item);
+                            }
+
+                            // add this connection to the list
+                            connections[connections.length] = {
+                                index: counter,
+                                type: conn.type,
+                                wireId: thisWireId
+                            };
+                        }
+                    } catch (err) {
+                        _didIteratorError4 = true;
+                        _iteratorError4 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                                _iterator4.return();
+                            }
+                        } finally {
+                            if (_didIteratorError4) {
+                                throw _iteratorError4;
+                            }
+                        }
+                    }
+
+                    counter++;
+                }
+            } catch (err) {
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                        _iterator3.return();
+                    }
+                } finally {
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
+                    }
+                }
+            }
+
+            return {
+                name: this.name,
+                category: this.category,
+                transform: this.getTransform(true),
+                connections: connections
+            };
+        }
+    }]);
+
+    return Box;
+}(_NetworkElement3.default);
+
+exports.default = Box;
+
+},{"../svgObjects":32,"./InputConnector":21,"./NetworkElement":22,"./OutputConnector":24,"./Transform":25}],17:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _NetworkElement2 = require('./NetworkElement');
+
+var _NetworkElement3 = _interopRequireDefault(_NetworkElement2);
+
+var _svgObjects = require('../svgObjects');
+
+var svgObj = _interopRequireWildcard(_svgObjects);
+
+var _Logic = require('../Logic');
+
+var _Logic2 = _interopRequireDefault(_Logic);
+
+var _stateClasses = require('./stateClasses');
+
+var _stateClasses2 = _interopRequireDefault(_stateClasses);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * parent class for input and output connectors
+ * @extends NetworkElement
+ */
+var Connector = function (_NetworkElement) {
+  _inherits(Connector, _NetworkElement);
+
+  /**
+   * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+   * @param {number} gridSize  size of the grid in SVG pixels
+   * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
+   * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
+   */
+  function Connector(parentSVG, left, top) {
+    _classCallCheck(this, Connector);
+
+    /**
+     * size of the grid in SVG pixels
+     * @type {number}
+     */
+    var _this = _possibleConstructorReturn(this, (Connector.__proto__ || Object.getPrototypeOf(Connector)).call(this, parentSVG));
+
+    _this.gridSize = parentSVG.gridSize;
+    /**
+     * size of the connector in SVG pixels
+     * @type {number}
+     */
+    _this.connectorSize = parentSVG.gridSize;
+    /**
+     * offset of the connector from the grid in SVG pixels
+     * @type {number}
+     */
+    _this.connectorOffset = _this.connectorSize / 2;
+
+    /**
+     * instance of {@link svgObjects.svgObj} that holds all SVG information about this connector
+     * @type {svgObj}
+     */
+    _this.svgObj = new svgObj.Rectangle(left * _this.gridSize - _this.connectorOffset, top * _this.gridSize - _this.connectorOffset, _this.connectorSize, _this.connectorSize, "none", "black");
+
+    _this.svgObj.$el.addClass("connector");
+
+    /**
+     * this flag describes whether this connector is an input connector
+     * @type {Boolean}
+     */
+    _this.isInputConnector = false;
+
+    /**
+     * current logical state of this connector
+     * @type {Logic.state}
+     */
+    _this.elementState = _Logic2.default.state.unknown;
+    _this.svgObj.addClass(_stateClasses2.default.unknown);
+
+    /**
+     * set of ids of all wires connected to this connector
+     * @type {Set}
+     */
+    _this.wireIds = new Set();
+    return _this;
+  }
+
+  /**
+   * whether this connector is an output connector
+   * @return {Boolean}
+   */
+
+
+  _createClass(Connector, [{
+    key: 'addWireId',
+
+
+    /**
+     * add a wire id to the list of wire ids
+     * @param {string} wireId
+     */
+    value: function addWireId(wireId) {
+      this.wireIds.add(wireId);
+    }
+
+    /**
+     * remove a wire id from the list of wire ids
+     * @param {string} wireId
+     */
+
+  }, {
+    key: 'removeWireId',
+    value: function removeWireId(wireId) {
+      this.wireIds.delete(wireId);
+    }
+
+    /**
+     * remove a wire specified by ID and update the connector
+     * @param  {string} wireId ID of the wire to be removed
+     */
+
+  }, {
+    key: 'removeWireIdAndUpdate',
+    value: function removeWireIdAndUpdate(wireId) {
+      this.removeWireId(wireId);
+    }
+
+    /**
+     * set logical state of the connector
+     * @param {Logic.state} state new state of the connector
+     */
+
+  }, {
+    key: 'setState',
+    value: function setState(state) {
+      this.svgObj.removeClasses(_stateClasses2.default.on, _stateClasses2.default.off, _stateClasses2.default.unknown, _stateClasses2.default.oscillating);
+
+      switch (state) {
+        case _Logic2.default.state.unknown:
+          this.svgObj.addClass(_stateClasses2.default.unknown);
+          break;
+        case _Logic2.default.state.on:
+          this.svgObj.addClass(_stateClasses2.default.on);
+          break;
+        case _Logic2.default.state.off:
+          this.svgObj.addClass(_stateClasses2.default.off);
+          break;
+        case _Logic2.default.state.oscillating:
+          this.svgObj.addClass(_stateClasses2.default.oscillating);
+          break;
+      }
+
+      this.elementState = state;
+    }
+
+    /**
+     * get state of this connector
+     * @return {Logic.state}
+     */
+
+  }, {
+    key: 'get',
+
+
+    /**
+     * get svgObj instance content of this connector
+     * @return {svgObjects.Rectangle}
+     */
+    value: function get() {
+      return this.svgObj;
+    }
+
+    /**
+     * call [wireCreationHelper](./module-Canvas.html#wireCreationHelper) on mouse up
+     */
+
+  }, {
+    key: 'onMouseUp',
+    value: function onMouseUp(event) {
+      // only left click counts
+      if (event.which === 1) {
+        var mousePosition = {
+          x: event.clientX,
+          y: event.clientY
+        };
+
+        this.parentSVG.wireCreationHelper(this.svgObj.id, mousePosition);
+      }
+    }
+  }, {
+    key: 'isOutputConnector',
+    get: function get() {
+      return !this.isInputConnector;
+    }
+
+    /**
+     * whether this connector is an output connector
+     * @return {Boolean}
+     */
+    ,
+    set: function set(value) {
+      this.isInputConnector = !value;
+    }
+  }, {
+    key: 'state',
+    get: function get() {
+      return this.elementState;
+    }
+  }]);
+
+  return Connector;
+}(_NetworkElement3.default);
+
+exports.default = Connector;
+
+},{"../Logic":12,"../svgObjects":32,"./NetworkElement":22,"./stateClasses":27}],18:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _Logic = require('../Logic');
+
+var _Logic2 = _interopRequireDefault(_Logic);
+
+var _Box2 = require('./Box');
+
+var _Box3 = _interopRequireDefault(_Box2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Gate is a box that processes the states of its input connectors and returns the result in its output connectors.
+ * @extends Box
+ */
+var Gate = function (_Box) {
+    _inherits(Gate, _Box);
+
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {string} name       name of the gate (and, not, xor...)
+     */
+    function Gate(parentSVG, name) {
+        _classCallCheck(this, Gate);
+
+        var width = 9;
+        var height = 4;
+
+        // ADD CONNECTORS
+
+        var _this = _possibleConstructorReturn(this, (Gate.__proto__ || Object.getPrototypeOf(Gate)).call(this, parentSVG, name, "gate", width, height));
+
+        var specialNodes = [];
+
+        // output
+        _this.addConnector(width, height / 2, false);
+
+        // block the output connector
+        specialNodes.push({
+            x: width,
+            y: height / 2
+        });
+
+        if (_this.name === "not" || _this.name === "repeater") {
+            // input
+            _this.addConnector(0, height / 2, true);
+            // block the input connector
+            specialNodes.push({
+                x: 0,
+                y: height / 2
+            });
+        } else {
+            // input
+            _this.addConnector(0, height / 4, true);
+            _this.addConnector(0, height / (4 / 3), true);
+
+            // block the input connectors
+            specialNodes.push({
+                x: 0,
+                y: height / 4
+            });
+            specialNodes.push({
+                x: 0,
+                y: height / (4 / 3)
+            });
+
+            // add one blocked node between the inputs (for better looking wiring)
+            specialNodes.push({
+                x: 0,
+                y: height / 2
+            });
+        }
+
+        _this.generateBlockNodes.apply(_this, specialNodes);
+
+        _this.refreshState();
+        return _this;
+    }
+
+    /**
+     * array of valid gate names
+     * @type {Set}
+     */
+
+
+    _createClass(Gate, [{
+        key: 'generateBlockNodes',
+        value: function generateBlockNodes() {
+            for (var _len = arguments.length, specialNodes = Array(_len), _key = 0; _key < _len; _key++) {
+                specialNodes[_key] = arguments[_key];
+            }
+
+            if (specialNodes !== undefined) {
+                var _get2;
+
+                (_get2 = _get(Gate.prototype.__proto__ || Object.getPrototypeOf(Gate.prototype), 'generateBlockNodes', this)).call.apply(_get2, [this, 0, 1, 0, 1].concat(specialNodes));
+            } else {
+                _get(Gate.prototype.__proto__ || Object.getPrototypeOf(Gate.prototype), 'generateBlockNodes', this).call(this, 0, 1, 0, 1);
+            }
+        }
+
+        /**
+         * proccess the input connector states and reflect them in the output connector states according
+         * to the logic corresponding to this gate's name
+         */
+
+    }, {
+        key: 'refreshState',
+        value: function refreshState() {
+            var state = _Logic2.default.state.unknown;
+            switch (this.name) {
+                case "and":
+                    state = _Logic2.default.and(this.connectors[1].state, this.connectors[2].state);
+                    break;
+                case "nand":
+                    state = _Logic2.default.nand(this.connectors[1].state, this.connectors[2].state);
+                    break;
+                case "nor":
+                    state = _Logic2.default.nor(this.connectors[1].state, this.connectors[2].state);
+                    break;
+                case "not":
+                    state = _Logic2.default.not(this.connectors[1].state);
+                    break;
+                case "or":
+                    state = _Logic2.default.or(this.connectors[1].state, this.connectors[2].state);
+                    break;
+                case "xnor":
+                    state = _Logic2.default.xnor(this.connectors[1].state, this.connectors[2].state);
+                    break;
+                case "xor":
+                    state = _Logic2.default.xor(this.connectors[1].state, this.connectors[2].state);
+                    break;
+                case "repeater":
+                    state = this.connectors[1].state;
+                    break;
+            }
+            // notify the simulator about this change
+            this.parentSVG.simulation.notifyChange(this.connectors[0].id, state);
+        }
+    }], [{
+        key: 'validGates',
+        get: function get() {
+            return new Set(["not", "and", "or", "nand", "nor", "xor", "xnor", "repeater"]);
+        }
+    }]);
+
+    return Gate;
+}(_Box3.default);
+
+exports.default = Gate;
+
+},{"../Logic":12,"./Box":16}],19:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _svgObjects = require('../svgObjects');
+
+var svgObj = _interopRequireWildcard(_svgObjects);
+
+var _NetworkElement2 = require('./NetworkElement');
+
+var _NetworkElement3 = _interopRequireDefault(_NetworkElement2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * A temporary wire that is connecting a {@link Connector} with a mouse pointer when user creates a wire.
+ * @extends NetworkElement
+ */
+var HelperWire = function (_NetworkElement) {
+    _inherits(HelperWire, _NetworkElement);
+
+    function HelperWire(parentSVG, fromId, mousePosition) {
+        _classCallCheck(this, HelperWire);
+
+        var _this = _possibleConstructorReturn(this, (HelperWire.__proto__ || Object.getPrototypeOf(HelperWire)).call(this, parentSVG));
+
+        var connector = _this.parentSVG.getConnectorById(fromId);
+        _this.connectorPosition = _this.parentSVG.getConnectorPosition(connector, true);
+
+        var from = new svgObj.PolylinePoint(_this.connectorPosition.x, _this.connectorPosition.y);
+        var to = new svgObj.PolylinePoint(mousePosition.x, mousePosition.y);
+
+        var points = new svgObj.PolylinePoints([from, to]);
+
+        _this.svgObj = new svgObj.PolyLine(points, 2, "#8b8b8b");
+        return _this;
+    }
+
+    _createClass(HelperWire, [{
+        key: 'updateMousePosition',
+        value: function updateMousePosition(mousePosition) {
+            var from = new svgObj.PolylinePoint(this.connectorPosition.x, this.connectorPosition.y);
+            var to = new svgObj.PolylinePoint(mousePosition.x, mousePosition.y);
+
+            var points = new svgObj.PolylinePoints([from, to]);
+
+            this.svgObj.updatePoints(points);
+        }
+
+        /**
+         * get the jQuery element for this helper wire
+         * @return {jQuery.element}
+         */
+
+    }, {
+        key: 'get',
+        value: function get() {
+            return this.svgObj.get();
+        }
+    }]);
+
+    return HelperWire;
+}(_NetworkElement3.default);
+
+exports.default = HelperWire;
+
+},{"../svgObjects":32,"./NetworkElement":22}],20:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _Logic = require('../Logic');
+
+var _Logic2 = _interopRequireDefault(_Logic);
+
+var _Box2 = require('./Box');
+
+var _Box3 = _interopRequireDefault(_Box2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * InputBox has only output connectors and is used to set the input states for the logic network.
+ * @extends Box
+ */
+var InputBox = function (_Box) {
+    _inherits(InputBox, _Box);
+
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {Boolean} [isOn=false] the initial state of the inputbox (`true` is *on*, `false` is *off*)
+     */
+    function InputBox(parentSVG) {
+        var isOn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+        _classCallCheck(this, InputBox);
+
+        var gridWidth = 7;
+        var gridHeight = 4;
+
+        var _this = _possibleConstructorReturn(this, (InputBox.__proto__ || Object.getPrototypeOf(InputBox)).call(this, parentSVG, "input", "other", gridWidth, gridHeight));
+
+        _this.addConnector(gridWidth, gridHeight / 2, false);
+
+        _this.on = isOn;
+
+        _this.generateBlockNodes();
+        return _this;
+    }
+
+    /**
+     * get data of this input box as a JSON-ready object
+     * @return {Object} javascript object containing essential data for this input box
+     */
+
+
+    _createClass(InputBox, [{
+        key: 'generateBlockNodes',
+        value: function generateBlockNodes() {
+            // block the input connector node
+            var specialNode = {
+                x: this.gridWidth,
+                y: this.gridHeight / 2
+            };
+            _get(InputBox.prototype.__proto__ || Object.getPrototypeOf(InputBox.prototype), 'generateBlockNodes', this).call(this, 0, 1, 1, 0, specialNode);
+        }
+
+        /**
+         * start a new simulation from the output connector
+         */
+
+    }, {
+        key: 'refreshState',
+        value: function refreshState() {
+            this.parentSVG.startNewSimulation(this.connectors[0], this.connectors[0].state);
+        }
+
+        /**
+         * set the state of the inputbox to the corresponding value
+         * @param  {Boolean} isOn set to *on* if `true`, set to *off* if `false`
+         */
+
+    }, {
+        key: 'onClick',
+
+
+        /**
+         * toggle the state of the inputbox
+         */
+        value: function onClick() {
+            this.on = !this.on;
+
+            if (this.parentSVG.tutorial) {
+                this.parentSVG.tutorial.onChangeInputBoxState();
+            }
+        }
+    }, {
+        key: 'exportData',
+        get: function get() {
+            var data = _get(InputBox.prototype.__proto__ || Object.getPrototypeOf(InputBox.prototype), 'exportData', this);
+            data.isOn = this.isOn;
+
+            return data;
+        }
+    }, {
+        key: 'on',
+        set: function set(isOn) {
+            if (isOn) {
+                // turn on
+                this.changeImage("on");
+                this.connectors[0].setState(_Logic2.default.state.on);
+                this.refreshState();
+            } else {
+                // turn off
+                this.changeImage();
+                this.connectors[0].setState(_Logic2.default.state.off);
+                this.refreshState();
+            }
+
+            this.isOn = isOn;
+        }
+
+        /**
+         * get the state of the inputbox (`true` if *on*, `false` if *off*)
+         * @return {Boolean} [description]
+         */
+        ,
+        get: function get() {
+            return this.isOn;
+        }
+    }]);
+
+    return InputBox;
+}(_Box3.default);
+
+exports.default = InputBox;
+
+},{"../Logic":12,"./Box":16}],21:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _Connector2 = require('./Connector');
+
+var _Connector3 = _interopRequireDefault(_Connector2);
+
+var _Logic = require('../Logic');
+
+var _Logic2 = _interopRequireDefault(_Logic);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Connector that gets its state from a connected value and passes it through to the {@link Box} this connector belongs to.
+ * @extends Connector
+ */
+var InputConnector = function (_Connector) {
+  _inherits(InputConnector, _Connector);
+
+  /**
+   * Call the constructor from the parent {@link Connector} class and set isInputConnector to true.
+   * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+   * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
+   * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
+   */
+  function InputConnector(parentSVG, left, top) {
+    _classCallCheck(this, InputConnector);
+
+    var _this = _possibleConstructorReturn(this, (InputConnector.__proto__ || Object.getPrototypeOf(InputConnector)).call(this, parentSVG, left, top));
+
+    _this.isInputConnector = true;
+    return _this;
+  }
+
+  /**
+   * Call the setState method of {@link Connector} and than refresh the state of the connected {@link Box}
+   * @param {Logic.state} state new {@link Logic.state} of the connector
+   */
+
+
+  _createClass(InputConnector, [{
+    key: 'setState',
+    value: function setState(state) {
+      _get(InputConnector.prototype.__proto__ || Object.getPrototypeOf(InputConnector.prototype), 'setState', this).call(this, state);
+
+      var gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
+      gate.refreshState();
+    }
+
+    /**
+     * remove the wire (by calling the removeWireIdAndUpdate of {@link Connector})
+     * and update state of this connector by setting it to undefined using the setState method
+     * @param  {string} wireId ID of the {@link Wire}
+     */
+
+  }, {
+    key: 'removeWireIdAndUpdate',
+    value: function removeWireIdAndUpdate(wireId) {
+      _get(InputConnector.prototype.__proto__ || Object.getPrototypeOf(InputConnector.prototype), 'removeWireIdAndUpdate', this).call(this, wireId);
+      this.setState(_Logic2.default.state.unknown);
+    }
+  }]);
+
+  return InputConnector;
+}(_Connector3.default);
+
+exports.default = InputConnector;
+
+},{"../Logic":12,"./Connector":17}],22:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * parent class for all network elements
+ */
+var NetworkElement = function () {
+  /**
+   * Basic constructor for NetworkElement
+   * @param {Canvas} parentSVG reference to the instance of {@link Canvas} that this element belongs to
+   */
+  function NetworkElement(parentSVG) {
+    _classCallCheck(this, NetworkElement);
+
+    if (!parentSVG) {
+      console.error("Parent SVG element has to be defined.");
+    }
+    this.parentSVG = parentSVG;
+
+    // used to store the svjObject's instance of this element
+    this.svgObj = undefined;
+  }
+
+  /**
+   * Get the unique ID of the SVG element tied to this logical element
+   * @return {string} ID of the SVG element
+   */
+
+
+  _createClass(NetworkElement, [{
+    key: "onMouseDown",
+
+
+    /**
+     * empty callback function to prevent error messages, function is implemented later in the {@link Box} class
+     */
+    value: function onMouseDown() {}
+
+    /**
+     * empty function to prevent error messages, function is implemented later in the {@link Box} and {@link Connector} classes
+     */
+
+  }, {
+    key: "onMouseUp",
+    value: function onMouseUp() {}
+
+    /**
+     * empty function to prevent error messages, function is implemented later in the {@link Box} class
+     */
+
+  }, {
+    key: "onMouseMove",
+    value: function onMouseMove() {}
+
+    /**
+     * "virtual" getter for json data, prints an error that it has to be redefined in the derived classes
+     */
+
+  }, {
+    key: "id",
+    get: function get() {
+      return this.svgObj.id;
+    }
+  }, {
+    key: "exportData",
+    get: function get() {
+      console.error("'json' getter has not been defined for this element", this);
+      return undefined;
+    }
+  }]);
+
+  return NetworkElement;
+}();
+
+exports.default = NetworkElement;
+
+},{}],23:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _Logic = require('../Logic');
+
+var _Logic2 = _interopRequireDefault(_Logic);
+
+var _Box2 = require('./Box');
+
+var _Box3 = _interopRequireDefault(_Box2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * OutputBox has only input connectors and is used to visualize the output states of the logic network.
+ * @extends Box
+ */
+var OutputBox = function (_Box) {
+    _inherits(OutputBox, _Box);
+
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     */
+    function OutputBox(parentSVG) {
+        _classCallCheck(this, OutputBox);
+
+        var gridHeight = 4;
+        var gridWidth = 5;
+
+        var _this = _possibleConstructorReturn(this, (OutputBox.__proto__ || Object.getPrototypeOf(OutputBox)).call(this, parentSVG, "output", "other", gridWidth, gridHeight));
+
+        _this.addConnector(0, gridHeight / 2, true);
+
+        _this.generateBlockNodes();
+        return _this;
+    }
+
+    /**
+     * set state of this output box to match the state of its input connector
+     */
+
+
+    _createClass(OutputBox, [{
+        key: 'refreshState',
+        value: function refreshState() {
+            this.setState(this.connectors[0].state);
+        }
+
+        /**
+         * Reflect the input connector state in the appearance of the element - set
+         * the element image to represent the corresponding state
+         * @param {Logic.state} state new state of this outputBox
+         */
+
+    }, {
+        key: 'setState',
+        value: function setState(state) {
+            switch (state) {
+                case _Logic2.default.state.on:
+                    this.changeImage("on");
+
+                    // if tutorial exists, call tutorial callback
+                    if (this.parentSVG.tutorial) {
+                        this.parentSVG.tutorial.onOutputBoxTrue();
+                    }
+                    break;
+                case _Logic2.default.state.off:
+                    this.changeImage("off");
+                    break;
+                case _Logic2.default.state.unknown:
+                    this.changeImage();
+                    break;
+                case _Logic2.default.state.oscillating:
+                    this.changeImage("osc");
+                    break;
+            }
+        }
+    }, {
+        key: 'generateBlockNodes',
+        value: function generateBlockNodes() {
+            // block the input connector node
+            var specialNode = {
+                x: 0,
+                y: this.gridHeight / 2
+            };
+            _get(OutputBox.prototype.__proto__ || Object.getPrototypeOf(OutputBox.prototype), 'generateBlockNodes', this).call(this, 0, 0, 0, 1, specialNode);
+        }
+    }]);
+
+    return OutputBox;
+}(_Box3.default);
+
+exports.default = OutputBox;
+
+},{"../Logic":12,"./Box":16}],24:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _Connector2 = require('./Connector');
+
+var _Connector3 = _interopRequireDefault(_Connector2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Connector that takes a state defined by the {@link Box} it belongs to and passes it to all connected wire
+ * @extends Connector
+ */
+var OutputConnector = function (_Connector) {
+    _inherits(OutputConnector, _Connector);
+
+    /**
+     * Call the constructor from the parent {@link Connector} class and set isOutputConnector to true.
+     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
+     * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
+     */
+    function OutputConnector(parentSVG, left, top) {
+        _classCallCheck(this, OutputConnector);
+
+        var _this = _possibleConstructorReturn(this, (OutputConnector.__proto__ || Object.getPrototypeOf(OutputConnector)).call(this, parentSVG, left, top));
+
+        _this.isOutputConnector = true;
+        return _this;
+    }
+
+    /**
+     * Call the setState method of {@link Connector} and than set the state of the connected {@link Wire}s
+     * @param {Logic.state} state new {@link Logic.state} of the connector
+     */
+
+
+    _createClass(OutputConnector, [{
+        key: 'setState',
+        value: function setState(state) {
+            _get(OutputConnector.prototype.__proto__ || Object.getPrototypeOf(OutputConnector.prototype), 'setState', this).call(this, state);
+
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = this.wireIds[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var wireId = _step.value;
+
+                    this.parentSVG.getWireById(wireId).setState(state);
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    }]);
+
+    return OutputConnector;
+}(_Connector3.default);
+
+exports.default = OutputConnector;
+
+},{"./Connector":17}],25:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Helper class used by {@link Transform}.
+ *
+ * Represents one single property of the transform argument, for example `translate(360 150)`
+ * that may be a part of longer transform argument like `transform="translate(360 150) rotate(90 30 20)"`
+ */
+var Property = function () {
+    /**
+     * Initialize the Property object
+     * @param {string} [string] string in the property format `propertyname(list of space separated values)`
+     */
+    function Property(string) {
+        _classCallCheck(this, Property);
+
+        if (string !== undefined) {
+            this.name = string.replace(/^[ ]*([^(]+).*/, "$1");
+            this.args = string.replace(/^[^(]+\((.*)\)/, "$1").split(' ');
+        }
+    }
+
+    /**
+     * set or replace the name of this property
+     * @param {string} name new name for this property
+     */
+
+
+    _createClass(Property, [{
+        key: "setName",
+        value: function setName(name) {
+            this.name = name;
+        }
+
+        /**
+         * set arguments of this property
+         * @param {array} args array of arguments
+         */
+
+    }, {
+        key: "setArguments",
+        value: function setArguments(args) {
+            this.args = args;
+        }
+
+        /**
+         * get string representation of the property
+         * @return {string} property in the property format `name(arg1 arg2)`
+         */
+
+    }, {
+        key: "get",
+        value: function get() {
+            return this.name + "(" + this.args.join(" ") + ")";
+        }
+    }]);
+
+    return Property;
+}();
+
+/**
+ * API for manipulating the transform argument used in SVG
+ */
+
+
+var Transform = function () {
+    /**
+     * Initialize the Transform object
+     * @param {string} [string] string in the format of the `transform` argument in SVG, for example `translate(360 150) rotate(90 30 20)`
+     */
+    function Transform(string) {
+        _classCallCheck(this, Transform);
+
+        /**
+         * array of {@link Property} instances
+         * @type {Array}
+         */
+        this.items = [];
+
+        if (string !== undefined) {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = string.split(")")[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var item = _step.value;
+
+                    if (item) {
+                        // if not empty
+                        this.items.push(new Property(item + ")"));
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * convert distances from SVG pixels to grid pixels
+     * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+     */
+
+
+    _createClass(Transform, [{
+        key: "toGridPixels",
+        value: function toGridPixels(parentSVG) {
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = this.items[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var item = _step2.value;
+
+                    if (item.name === "translate") {
+                        item.args = [parentSVG.SVGToGrid(item.args[0]), parentSVG.SVGToGrid(item.args[1])];
+                    } else if (item.name === "rotate") {
+                        item.args = [item.args[0], parentSVG.SVGToGrid(item.args[1]), parentSVG.SVGToGrid(item.args[2])];
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+        }
+
+        /**
+         * convert distances from grid pixels to SVG pixels
+         * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+         */
+
+    }, {
+        key: "toSVGPixels",
+        value: function toSVGPixels(parentSVG) {
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+                for (var _iterator3 = this.items[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var item = _step3.value;
+
+                    if (item.name === "translate") {
+                        item.args = [parentSVG.gridToSVG(item.args[0]), parentSVG.gridToSVG(item.args[1])];
+                    } else if (item.name === "rotate") {
+                        item.args = [item.args[0], parentSVG.gridToSVG(item.args[1]), parentSVG.gridToSVG(item.args[2])];
+                    }
+                }
+            } catch (err) {
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                        _iterator3.return();
+                    }
+                } finally {
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
+                    }
+                }
+            }
+        }
+
+        /**
+         * find a transform property by name and get its index in the [items](#items) array
+         * @param  {string} name name of the property
+         * @return {number}      index of the property in the array of properties or `-1` if not found
+         */
+
+    }, {
+        key: "getIndex",
+        value: function getIndex(name) {
+            for (var i = 0; i < this.items.length; i++) {
+                if (name === this.items[i].name) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        /**
+         * get the translate property
+         * @return {Object} object containing parameters of the translate attribute
+         */
+
+    }, {
+        key: "getTranslate",
+        value: function getTranslate() {
+            var args = this.getArguments(this.getIndex("translate"));
+
+            return {
+                x: Number(args[0]),
+                y: Number(args[1])
+            };
+        }
+
+        /**
+         * get the rotate property
+         * @return {Object} object containing parameters of the rotate attribute
+         */
+
+    }, {
+        key: "getRotate",
+        value: function getRotate() {
+            var args = this.getArguments(this.getIndex("rotate"));
+
+            return {
+                deg: Number(args[0]),
+                centreX: Number(args[1]),
+                centreY: Number(args[2])
+            };
+        }
+
+        /**
+         * set translate to the specified values
+         * @param {number} x horizontal translation
+         * @param {number} y vertical translation
+         */
+
+    }, {
+        key: "setTranslate",
+        value: function setTranslate(x, y) {
+            this.setParameter("translate", [x, y]);
+        }
+
+        /**
+         * set rotate to the specified values
+         * @param {number} deg     angle of the rotation in degrees
+         * @param {number} centreX horizontal position of the centre of the rotation
+         * @param {number} centreY vertical position of the centre of the rotation
+         */
+
+    }, {
+        key: "setRotate",
+        value: function setRotate(deg, centreX, centreY) {
+            this.setParameter("rotate", [deg, centreX, centreY]);
+        }
+
+        /**
+         * rotate by 90 degrees to the right or left, depending on the parameter `right`
+         * @param {number} centreX horizontal position of the centre of the rotation
+         * @param {number} centreY vertical position of the centre of the rotation
+         * @param {boolean} right rotate to the right if `true`, to the left if `false`
+         */
+
+    }, {
+        key: "rotateRightAngle",
+        value: function rotateRightAngle(centreX, centreY, right) {
+            var amount = right ? 90 : 270;
+
+            if (this.getIndex("rotate") === -1) {
+                this.setRotate(amount, centreX, centreY);
+            } else {
+                var newRotation = (parseInt(this.getRotate().deg) + amount) % 360;
+
+                if (newRotation === 180) {
+                    // swap centre coordinates
+                    // because rotate(c, x, y) is defined like transform(-x, -y) rotate(c) transform(x, y)
+                    var a = centreX;
+                    centreX = centreY;
+                    centreY = a;
+                }
+
+                this.setRotate(newRotation, centreX, centreY);
+            }
+        }
+
+        /**
+         * rotate by 90 degrees to the right
+         * @param  {number} centreX horizontal position of the centre of the rotation
+         * @param  {number} centreY vertical position of the centre of the rotation
+         */
+
+    }, {
+        key: "rotateRight",
+        value: function rotateRight(centreX, centreY) {
+            this.rotateRightAngle(centreX, centreY, true);
+        }
+
+        /**
+         * rotate by 90 degrees to the left
+         * @param  {number} centreX horizontal position of the centre of the rotation
+         * @param  {number} centreY vertical position of the centre of the rotation
+         */
+
+    }, {
+        key: "rotateLeft",
+        value: function rotateLeft(centreX, centreY) {
+            this.rotateRightAngle(centreX, centreY, false);
+        }
+
+        /**
+         * get the transform values in a string
+         * @return {string} string that can be used as a value for the transform property of a SVG element
+         */
+
+    }, {
+        key: "get",
+        value: function get() {
+            var retVal = void 0;
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = this.items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var item = _step4.value;
+
+                    if (retVal) {
+                        retVal += " " + item.get();
+                    } else {
+                        retVal = item.get();
+                    }
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
+
+            return retVal;
+        }
+
+        /**
+         * get arguments of a property specified by index
+         * @param  {number} index index of the property
+         * @return {array}       array of arguments of the specified property
+         */
+
+    }, {
+        key: "getArguments",
+        value: function getArguments(index) {
+            return this.items[index].args;
+        }
+
+        /**
+         * set argumets of a property specified by name
+         * @param {string} name name of the property
+         * @param {array} args array of arguments of the specified property
+         */
+
+    }, {
+        key: "setParameter",
+        value: function setParameter(name, args) {
+            // determine index of the parameter (if set), else index == -1
+            var index = this.getIndex(name);
+
+            // if the property has been already set, change it (rewrite the array in the right index)
+            // else create a new one (set index to the length of an array --> ad an item to the end)
+            if (index === -1) {
+                index = this.items.length;
+                this.items[index] = new Property();
+                this.items[index].setName(name);
+            }
+
+            // save args under the right index
+            this.items[index].setArguments(args);
+        }
+    }]);
+
+    return Transform;
+}();
+
+exports.default = Transform;
+
+},{}],26:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _svgObjects = require('../svgObjects');
+
+var svgObj = _interopRequireWildcard(_svgObjects);
+
+var _Logic = require('../Logic');
+
+var _Logic2 = _interopRequireDefault(_Logic);
+
+var _stateClasses = require('./stateClasses');
+
+var _stateClasses2 = _interopRequireDefault(_stateClasses);
+
+var _findPath = require('../findPath');
+
+var _findPath2 = _interopRequireDefault(_findPath);
+
+var _NetworkElement2 = require('./NetworkElement');
+
+var _NetworkElement3 = _interopRequireDefault(_NetworkElement2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Wire represents connection of two {@link Connector}s.
+ * @extends NetworkElement
+ */
+var Wire = function (_NetworkElement) {
+    _inherits(Wire, _NetworkElement);
+
+    /**
+     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {string}  fromId    id of the first connector this wire will be connected to
+     * @param {string}  toId      id of the second connector this wire will be connected to
+     * @param {Boolean} [refresh=true] if `true`, the [Canvas](./module-Canvas.html) will refresh after creating this wire
+     */
+    function Wire(parentSVG, fromId, toId) {
+        var refresh = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+        var route = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
+
+        _classCallCheck(this, Wire);
+
+        var _this = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this, parentSVG));
+
+        _this.gridSize = parentSVG.gridSize;
+
+        _this.fromId = fromId;
+        _this.toId = toId;
+
+        _this.startBox = _this.parentSVG.getBoxByConnectorId(fromId);
+        _this.endBox = _this.parentSVG.getBoxByConnectorId(toId);
+
+        _this.boxes = [_this.startBox, _this.endBox];
+
+        _this.startConnector = _this.parentSVG.getConnectorById(fromId);
+        _this.endConnector = _this.parentSVG.getConnectorById(toId);
+
+        _this.connectors = [_this.startConnector, _this.endConnector];
+
+        if (route) {
+            _this.routeWire(true, refresh);
+        } else {
+            _this.temporaryWire();
+        }
+
+        _this.elementState = _Logic2.default.state.unknown;
+
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = _this.connectors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var connector = _step.value;
+
+                if (connector.isOutputConnector) {
+                    _this.setState(connector.state);
+                }
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+
+        _this.svgObj.$el.addClass("wire");
+        return _this;
+    }
+
+    /**
+     * get data of this wire as a JSON-ready object
+     * @return {Object} javascript object containing essential data for this wire
+     */
+
+
+    _createClass(Wire, [{
+        key: 'setState',
+
+
+        /**
+         * set the state of this wire to match the state of the input connector it is connected to
+         * @param {Logic.state} state [description]
+         */
+        value: function setState(state) {
+            this.svgObj.removeClasses(_stateClasses2.default.on, _stateClasses2.default.off, _stateClasses2.default.unknown, _stateClasses2.default.oscillating);
+
+            switch (state) {
+                case _Logic2.default.state.unknown:
+                    this.svgObj.addClass(_stateClasses2.default.unknown);
+                    break;
+                case _Logic2.default.state.on:
+                    this.svgObj.addClass(_stateClasses2.default.on);
+                    break;
+                case _Logic2.default.state.off:
+                    this.svgObj.addClass(_stateClasses2.default.off);
+                    break;
+                case _Logic2.default.state.oscillating:
+                    this.svgObj.addClass(_stateClasses2.default.oscillating);
+                    break;
+            }
+
+            if (this.startConnector.isInputConnector) {
+                this.startConnector.setState(state);
+            }
+            if (this.endConnector.isInputConnector) {
+                this.endConnector.setState(state);
+            }
+
+            this.elementState = state;
+        }
+
+        /**
+         * get the current [Logic.state](./modules-Logic.html#.state) of this wire
+         * @return {Logic.state}
+         */
+
+    }, {
+        key: 'updateWireState',
+
+
+        /**
+         * update the state of this wire
+         */
+        value: function updateWireState() {
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = this.boxes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var box = _step2.value;
+
+                    box.refreshState();
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+        }
+
+        /**
+         * get the jQuery element for this wire
+         * @return {jQuery.element}
+         */
+
+    }, {
+        key: 'get',
+        value: function get() {
+            return this.svgObj.get();
+        }
+
+        /**
+         * get the polyline points for a temporary wire placement connecting the two connectors
+         * @return {PolylinePoints} new instance of {@link PolylinePoints}
+         */
+
+    }, {
+        key: 'getTemporaryWirePoints',
+        value: function getTemporaryWirePoints() {
+            var points = new svgObj.PolylinePoints();
+            points.append(new svgObj.PolylinePoint(this.wireStart.x, this.wireStart.y));
+            points.append(new svgObj.PolylinePoint(this.wireEnd.x, this.wireEnd.y));
+            return points;
+        }
+
+        /**
+         * route the wire using the temporary wire points
+         */
+
+    }, {
+        key: 'temporaryWire',
+        value: function temporaryWire() {
+            this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, false);
+            this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, false);
+
+            this.setWirePath(this.getTemporaryWirePoints());
+        }
+
+        /**
+         * route the wire using the modified A* wire routing algorithm
+         */
+
+    }, {
+        key: 'routeWire',
+        value: function routeWire() {
+            var snapToGrid = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+            var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+            this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, snapToGrid);
+            this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, snapToGrid);
+
+            this.points = this.findRoute({
+                x: this.wireStart.x / this.gridSize,
+                y: this.wireStart.y / this.gridSize
+            }, {
+                x: this.wireEnd.x / this.gridSize,
+                y: this.wireEnd.y / this.gridSize
+            });
+
+            this.setWirePath(this.points);
+
+            if (refresh) this.updateWireState();
+
+            // regenerate inconvenient nodes
+            this.generateInconvenientNodes();
+        }
+
+        /**
+         * set the wire to follow the specified points
+         * @param {PolylinePoints} points instance of {@link PolylinePoints}
+         */
+
+    }, {
+        key: 'setWirePath',
+        value: function setWirePath(points) {
+            // set the line
+            if (this.svgObj !== undefined) {
+                // this.svgObj.updatePoints(points);
+                var _iteratorNormalCompletion3 = true;
+                var _didIteratorError3 = false;
+                var _iteratorError3 = undefined;
+
+                try {
+                    for (var _iterator3 = this.svgObj.children[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                        var child = _step3.value;
+
+                        child.updatePoints(points);
+                    }
+                } catch (err) {
+                    _didIteratorError3 = true;
+                    _iteratorError3 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                            _iterator3.return();
+                        }
+                    } finally {
+                        if (_didIteratorError3) {
+                            throw _iteratorError3;
+                        }
+                    }
+                }
+            } else {
+                this.svgObj = new svgObj.Group();
+
+                var hitbox = new svgObj.PolyLine(points, 10, 'white');
+                hitbox.addClass("hitbox");
+                hitbox.addAttr({ opacity: 0 });
+                this.svgObj.addChild(hitbox);
+
+                var mainLine = new svgObj.PolyLine(points, 2);
+                mainLine.addClass("main", "stateUnknown");
+                this.svgObj.addChild(mainLine);
+            }
+        }
+    }, {
+        key: 'pathToPolyline',
+        value: function pathToPolyline(path) {
+            var totalPath = new svgObj.PolylinePoints();
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = path[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var point = _step4.value;
+
+                    totalPath.append(new svgObj.PolylinePoint(point.x * this.gridSize, point.y * this.gridSize));
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
+
+            return totalPath;
+        }
+
+        /**
+         * find a nice route for the wire
+         * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
+         * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
+         * @return {PolylinePoints}       [description]
+         */
+
+    }, {
+        key: 'findRoute',
+        value: function findRoute(start, end) {
+            var nonRoutable = this.parentSVG.getNonRoutableNodes();
+
+            var punishedButRoutable = void 0;
+            if (this.svgObj === undefined) {
+                punishedButRoutable = this.parentSVG.getInconvenientNodes();
+            } else {
+                punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
+            }
+
+            var path = (0, _findPath2.default)(start, end, nonRoutable, punishedButRoutable, this.gridSize);
+
+            if (path) {
+                return this.pathToPolyline(path);
+            }
+
+            // if a path was not found, try again but don't take into account the punished and non routable node
+            path = (0, _findPath2.default)(start, end, new Set(), new Set(), this.gridSize);
+
+            if (path) {
+                return this.pathToPolyline(path);
+            }
+
+            // if the path was still not found, give up and return temporary points
+            return this.getTemporaryWirePoints();
+        }
+
+        /**
+         * generate a set of nodes, that are inconvenient for wiring, but can be used, just are not preferred
+         * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
+         */
+
+    }, {
+        key: 'generateInconvenientNodes',
+        value: function generateInconvenientNodes() {
+            var _this2 = this;
+
+            this.inconvenientNodes = new Set();
+
+            var prevPoint = void 0;
+
+            this.points.forEach(function (point) {
+                var x = _this2.parentSVG.SVGToGrid(point.x),
+                    y = _this2.parentSVG.SVGToGrid(point.y);
+
+                if (prevPoint === undefined) {
+                    // if the prevPoint is undefined, add the first point
+                    _this2.inconvenientNodes.add({ x: x, y: y });
+                } else {
+                    // else add all the point between the prevPoint (excluded) and point (included)
+
+                    if (prevPoint.x === x) {
+                        // if the line is horizontal
+                        var from = Math.min(prevPoint.y, y);
+                        var to = Math.max(prevPoint.y, y);
+
+                        while (from <= to) {
+                            _this2.inconvenientNodes.add({ x: x, y: from });
+                            from++;
+                        }
+                    } else if (prevPoint.y === y) {
+                        // if the line is vertical
+                        var _from = Math.min(prevPoint.x, x);
+                        var _to = Math.max(prevPoint.x, x);
+
+                        while (_from <= _to) {
+                            _this2.inconvenientNodes.add({ x: _from, y: y });
+                            _from++;
+                        }
+                    } else {
+                        // line is neither horizontal nor vertical, throw an error for better future debugging
+                        // console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
+                    }
+                }
+
+                // set new prevPoint
+                prevPoint = { x: x, y: y };
+            });
+        }
+    }, {
+        key: 'exportData',
+        get: function get() {
+            return {
+                fromId: this.fromId,
+                toId: this.toId
+            };
+        }
+    }, {
+        key: 'state',
+        get: function get() {
+            return this.elementState;
+        }
+    }]);
+
+    return Wire;
+}(_NetworkElement3.default);
+
+exports.default = Wire;
+
+},{"../Logic":12,"../findPath":28,"../svgObjects":32,"./NetworkElement":22,"./stateClasses":27}],27:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+/**
+ * mapping of logical states to css classes
+ * @type {Object}
+ */
+exports.default = {
+    on: "stateOn",
+    off: "stateOff",
+    unknown: "stateUnknown",
+    oscillating: "stateOscillating"
+};
+
+},{}],28:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = findPath;
+
+var _helperFunctions = require('./other/helperFunctions');
+
+var _mapWithDefaultValue = require('./other/mapWithDefaultValue');
+
+var _mapWithDefaultValue2 = _interopRequireDefault(_mapWithDefaultValue);
+
+var _libstl = require('libstl');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// note: imported from a node module
+
+/** @module findPath */
+
+/**
+ * Heavily modified implementation of the A* algorithm
+ * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixels
+ * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
+ * @param  {Set} nonRoutable set of non routable nodes
+ * @param  {Set} punishedButRoutable set of nodes that are not optimal for routing
+ * @return {Array} array of objects containing numeric attributes `x` and `y`
+ */
+function findPath(start, end, nonRoutable, punishedButRoutable) {
+    var distanceFunction = _helperFunctions.manhattanDistance;
+
+    var wireCrossPunishment = 1;
+    var wireBendPunishment = 1;
+
+    // number of nodes, that can be opened at once
+    // once is this limit exceeded, aStar will fail and return undefined
+    var maxNodeLimit = 100000;
+
+    var closedNodes = new Set();
+    var openNodes = new Set();
+    var openNodeQueue = new _libstl.PriorityQueue();
+
+    // functions for working with open nodes:
+
+    /**
+     * add a new open node to the structure
+     * @param {Object} node   object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
+     * @param {number} fscore fScore of this node
+     */
+    var addOpenNode = function addOpenNode(node, fscore) {
+        openNodes.add(node);
+        // flip the fscore, because PriorityQueue uses max heap
+        openNodeQueue.enqueue(node, 1 / fscore);
+    };
+
+    /**
+     * get the open node with the lowest fScore and remove it
+     * @return {Object} object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
+     */
+    var getOpenNode = function getOpenNode() {
+        var node = openNodeQueue.dequeue();
+        openNodes.delete(node);
+        return node;
+    };
+
+    var cameFrom = new Map();
+
+    // default value: infinity
+    var gScore = new _mapWithDefaultValue2.default(Infinity);
+    gScore.set(start, 0);
+
+    var startFScore = distanceFunction(start, end);
+
+    addOpenNode(start, startFScore);
+
+    openNodes.add(start);
+    openNodeQueue.enqueue(start, 1 / startFScore);
+
+    while (openNodes.size > 0) {
+        // get the value from openNodes that has the lowest fScore
+        var currentNode = getOpenNode();
+
+        // if we reached the end point, reconstruct the path and return it
+        if (currentNode.x == end.x && currentNode.y == end.y) {
+            return reconstructPath(cameFrom, currentNode);
+        }
+
+        // add this node to the closed nodes
+        closedNodes.add(currentNode);
+
+        // the farthest points accessible without avoiding obstacles in every direction
+        // (but max 50 in each direction)
+        for (var direction = 0; direction < 4; direction++) {
+            var newPoint = movePoint(currentNode, direction);
+
+            var wiresCrossed = 0;
+
+            for (var i = 0; i < 50; i++) {
+                // if newPoint is in the set of non routable points,
+                // don't add it and stop proceeding in this direction
+                if (setHasThisPoint(nonRoutable, newPoint)) {
+                    // if this not the end point, break
+                    if (newPoint.x !== end.x || newPoint.y !== end.y) {
+                        break;
+                    }
+                }
+
+                // skip this node, if it has been already closed
+                // or if it is on the list of non routable nodes
+                if (closedNodes.has(newPoint)) {
+                    continue;
+                }
+
+                // calculate possible GScore by applying a punishment for each node ("bend") in the path
+                var newGScore = wireBendPunishment + gScore.getWithDefault(currentNode);
+
+                if (setHasThisPoint(punishedButRoutable, newPoint)) {
+                    // if the node is in the set of punished nodes, apply the punishment
+                    wiresCrossed++;
+                }
+
+                // apply the punishment for each wire crossed in this direction
+                // note: we are counting the wires crossed when exporting this direction, not the wires
+                // crossed in the final path, there will be probably only at most of these nodes in the
+                // final path, not multiple
+                newGScore += wiresCrossed * wireCrossPunishment;
+
+                // skip this node if it has worst estimage gscore than in the gscore table
+                if (newGScore >= gScore.getWithDefault(newPoint)) {
+                    continue;
+                }
+
+                cameFrom.set(newPoint, currentNode);
+                gScore.set(newPoint, newGScore);
+
+                var newFScore = newGScore + distanceFunction(newPoint, end);
+
+                if (!openNodes.has(newPoint)) {
+                    // add the point to the list of points
+                    addOpenNode(newPoint, newFScore);
+                }
+
+                // move to the next point in the direciton
+                newPoint = movePoint(newPoint, direction);
+            }
+        }
+
+        if (openNodes.size > maxNodeLimit) {
+            console.log('aStar: Number of open nodes (' + openNodes.size + ') exceeded the limit for open nodes (' + maxNodeLimit + ').');
+            break;
+        }
+    }
+    // if we got here, the path was not found
+
+    return undefined;
+}
+
+/**
+ * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
+ * @param {Set} set set of points
+ * @param {Object} point object containing numeric attributes `x` and `y`
+ */
+function setHasThisPoint(set, point) {
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = set[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var item = _step.value;
+
+            if (item.x === point.x && item.y === point.y) {
+                return true;
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
+ * @param  {Object} point     object containing numeric attributes `x` and `y`
+ * @param  {number} direction directions:
+ *     - 0: up
+ *     - 1: right
+ *     - 2: down
+ *     - 3: left
+ * @return {Object}           object containing numeric attributes `x` and `y`
+ */
+function movePoint(point, direction) {
+    switch (direction) {
+        case 0:
+            // up
+            return {
+                x: point.x,
+                y: point.y - 1
+            };
+        case 1:
+            // right
+            return {
+                x: point.x + 1,
+                y: point.y
+            };
+        case 2:
+            // down
+            return {
+                x: point.x,
+                y: point.y + 1
+            };
+        case 3:
+            // left
+            return {
+                x: point.x - 1,
+                y: point.y
+            };
+    }
+}
+
+/**
+ * helper backtracking function used by the aStar algorithm to construct the final path
+ * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
+ * @param  {Object} currentNode object containing numeric attributes `x` and `y`
+ * @return {Array} array of objects containing numeric attributes `x` and `y`
+ */
+function reconstructPath(cameFrom, currentNode) {
+    var path = [];
+
+    path.push({
+        x: currentNode.x,
+        y: currentNode.y
+    });
+
+    while (cameFrom.has(currentNode)) {
+        currentNode = cameFrom.get(currentNode);
+        path.push({
+            x: currentNode.x,
+            y: currentNode.y
+        });
+    }
+
+    return path;
+}
+
+},{"./other/helperFunctions":29,"./other/mapWithDefaultValue":31,"libstl":9}],29:[function(require,module,exports){
+"use strict";
+
+/**
+ * @module HelperFunctions
+ */
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.addMouseScrollEventListener = addMouseScrollEventListener;
+exports.getJSONString = getJSONString;
+exports.manhattanDistance = manhattanDistance;
+
+var _jsonStringifyPrettyCompact = require("json-stringify-pretty-compact");
+
+var _jsonStringifyPrettyCompact2 = _interopRequireDefault(_jsonStringifyPrettyCompact);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// note: imported from a module
+
+/**
+ * add a cross browser event listener on a mouse scroll
+ * @param {string} query DOM query of the element that the listener will be added to
+ * @param {Function} func  Function that will be called when the event occurs. The function takes as a parameter an event object.
+ */
+function addMouseScrollEventListener(query, func) {
+    var MouseWheelHandler = function MouseWheelHandler(event) {
+        // redeclare for old IE support
+        var event = window.event || event; // eslint-disable-line no-redeclare
+
+        event.delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
+
+        func(event);
+
+        return false;
+    };
+
+    var svgelement = void 0;
+
+    // if the query is a simple DOM id selector, we can use getElementById which has better backwards compatibility
+    if (query.match(/^#\w+$/)) {
+        svgelement = document.getElementById(query.substr(1));
+    } else {
+        svgelement = document.querySelector(query);
+    }
+
+    if (svgelement.addEventListener) {
+        // IE9, Chrome, Safari, Opera
+        svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
+        // Firefox
+        svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+    } else {
+        // IE 6/7/8
+        svgelement.attachEvent("onmousewheel", MouseWheelHandler);
+    }
+    svgelement.addEventListener('mousewheel', function (e) {
+        console.log('event', e);
+    }, false);
+}
+
+/**
+ * convert a data object to JSON string or to a data URI containing a JSON string
+ * @param  {Object}  data            object that will be serialized into a JSON string
+ * @param  {Boolean} [pretty=false]  if `true`, the code will be proprerly indented, else a more compact syntax will be used
+ * @param  {Boolean} [dataUri=false] return dataUri containing the JSON string instead of the pure JSON string
+ * @return {string}
+ */
+function getJSONString(data) {
+    var pretty = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    var dataUri = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+    if (dataUri) {
+        return 'data:application/json;charset=utf-8,' + encodeURIComponent(getJSONString(data, pretty));
+    } else {
+        switch (pretty) {
+            case true:
+                return (0, _jsonStringifyPrettyCompact2.default)(data, { maxLength: 50 });
+            case false:
+                return JSON.stringify(data);
+        }
+    }
+}
+
+/**
+ * returns the Manhattan distance between the points _a_ and _b_
+ * @param  {Object} a object containing numeric attributes `x` and `y`
+ * @param  {Object} b object containing numeric attributes `x` and `y`
+ * @return {number}
+ */
+function manhattanDistance(a, b) {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+}
+
+},{"json-stringify-pretty-compact":1}],30:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/** @module Id */
+
+/**
+ * the current instance of Id
+ * @type {Id}
+ */
+var existingIdInstance = void 0;
+
+/**
+ * singleton to generate unique id's
+ *
+ * usage: `let id = new Id().unique`
+ */
+
+var Id = function () {
+  function Id() {
+    _classCallCheck(this, Id);
+
+    if (!existingIdInstance) {
+      existingIdInstance = this;
+    }
+
+    /**
+     * prefix for the id, that is common in all the Ids
+     * @type {String}
+     */
+    this.prefix = "id";
+
+    /**
+     * numeric part of the next id (the next id without the prefix)
+     * @type {number}
+     */
+    this.nextId = 0;
+
+    return existingIdInstance;
+  }
+
+  /**
+   * get unique ID
+   * @return {string} new unique ID
+   */
+
+
+  _createClass(Id, [{
+    key: "unique",
+    get: function get() {
+      var retVal = this.prefix + this.nextId;
+
+      // find next unused idXXXX to prevent id collision that might be caused by some other component
+      // (it really should not happen, but this is a simple way to ensure it)
+      while ($("#" + retVal).length) {
+        this.nextId++;
+        retVal = this.generate();
+      }
+      // return this id
+      this.nextId++;
+
+      return retVal;
+    }
+  }]);
+
+  return Id;
+}();
+
+exports.default = Id;
+
+},{}],31:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function (defaultValue) {
+    var map = new Map();
+    /**
+     * @param  {any} key key of a requested item
+     * @return {any} value of the item with the corresponding key, or defaultValue if the key is not found in the map
+     */
+    map.getWithDefault = function (key) {
+        return map.has(key) ? map.get(key) : defaultValue;
+    };
+    return map;
+};
+
+},{}],32:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _PolylinePoint = require('./svgObjects/PolylinePoint');
+
+Object.defineProperty(exports, 'PolylinePoint', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_PolylinePoint).default;
+  }
+});
+
+var _PolylinePoints = require('./svgObjects/PolylinePoints');
+
+Object.defineProperty(exports, 'PolylinePoints', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_PolylinePoints).default;
+  }
+});
+
+var _Pattern = require('./svgObjects/Pattern');
+
+Object.defineProperty(exports, 'Pattern', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Pattern).default;
+  }
+});
+
+var _Group = require('./svgObjects/Group');
+
+Object.defineProperty(exports, 'Group', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Group).default;
+  }
+});
+
+var _Rectangle = require('./svgObjects/Rectangle');
+
+Object.defineProperty(exports, 'Rectangle', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Rectangle).default;
+  }
+});
+
+var _SvgImage = require('./svgObjects/SvgImage');
+
+Object.defineProperty(exports, 'SvgImage', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_SvgImage).default;
+  }
+});
+
+var _PolyLine = require('./svgObjects/PolyLine');
+
+Object.defineProperty(exports, 'PolyLine', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_PolyLine).default;
+  }
+});
+
+var _Text = require('./svgObjects/Text');
+
+Object.defineProperty(exports, 'Text', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Text).default;
+  }
+});
+
+var _MultiLineText = require('./svgObjects/MultiLineText');
+
+Object.defineProperty(exports, 'MultiLineText', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_MultiLineText).default;
+  }
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+},{"./svgObjects/Group":33,"./svgObjects/MultiLineText":34,"./svgObjects/Pattern":35,"./svgObjects/PolyLine":36,"./svgObjects/PolylinePoint":37,"./svgObjects/PolylinePoints":38,"./svgObjects/Rectangle":39,"./svgObjects/SvgImage":41,"./svgObjects/Text":43}],33:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Tag2 = require("./Tag");
+
+var _Tag3 = _interopRequireDefault(_Tag2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * SVG group, used for grouping elements, for example a gate is represented by many elements (rectangle, image, inivisible hitbox rectangle...),
+ * but all of the elements need to be transformed together. Using groups the transform property can be set on the group which contains all the elements.
+ * @extends Tag
+ */
+var Group = function (_Tag) {
+    _inherits(Group, _Tag);
+
+    function Group() {
+        _classCallCheck(this, Group);
+
+        var _this = _possibleConstructorReturn(this, (Group.__proto__ || Object.getPrototypeOf(Group)).call(this, "g"));
+
+        _this.children = [];
+        return _this;
+    }
+
+    /**
+     * add an element to the group
+     * @param {SvgElement} el an instance of {@link SvgElement}
+     */
+
+
+    _createClass(Group, [{
+        key: "addChild",
+        value: function addChild(el) {
+            this.children.push(el);
+
+            this.$el.append(el.$el);
+            return el; // pro jednodussi "let rect = g.addChild(new Rectangle(..."
+        }
+    }]);
+
+    return Group;
+}(_Tag3.default);
+
+exports.default = Group;
+
+},{"./Tag":42}],34:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _Tag2 = require('./Tag');
+
+var _Tag3 = _interopRequireDefault(_Tag2);
+
+var _Text = require('./Text');
+
+var _Text2 = _interopRequireDefault(_Text);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Multi line text element in SVG
+ *
+ * Multi line text is not natively supportend in SVG 1.1,
+ * the workaround is to use the <foreignObject> element and display
+ * a HTML paragraph inside of the SVG document.
+ *
+ * Because this technique is not supported by all of the browsers,
+ * the foreignObject element is wrapped in <switch>, which
+ * provides fallback for those cases.
+ *
+ * read more: [foreignObject on MDN web docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject)
+ *
+ * @extends Tag
+ */
+var MultiLineText = function (_Tag) {
+    _inherits(MultiLineText, _Tag);
+
+    /**
+     * @param {number} x       horizontal position in SVG pixels
+     * @param {number} y       vertical position in SVG pixels
+     * @param {number} w       width of the text box in SVG pixels
+     * @param {number} h       height of the text box in SVG pixels
+     * @param {number} text    text content of the text box
+     * @param {string} size    CSS font size of the text
+     * @param {String} [color="black"] color of the text
+     *
+     */
+    function MultiLineText(x, y, w, h, text, size) {
+        var color = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : "black";
+
+        _classCallCheck(this, MultiLineText);
+
+        var _this = _possibleConstructorReturn(this, (MultiLineText.__proto__ || Object.getPrototypeOf(MultiLineText)).call(this, "switch"));
+
+        var foreignObject = new _Tag3.default("foreignObject");
+        var alternativeText = new _Text2.default(x, y, w, h, text, size, color);
+
+        foreignObject.addAttr({
+            x: x,
+            y: y,
+            width: w,
+            height: h
+        });
+
+        var $wrapper = $("<div>").attr("xmlns", "http://www.w3.org/1999/xhtml").addClass("multilinetext").css("height", h);
+
+        var $paragraph = $("<p>").attr("xmlns", "http://www.w3.org/1999/xhtml").css("font-size", size).append(text);
+
+        $wrapper.append($paragraph);
+        foreignObject.$el.append($wrapper);
+
+        _this.$el.append(foreignObject.$el).append(alternativeText.$el);
+        return _this;
+    }
+
+    return MultiLineText;
+}(_Tag3.default);
+
+exports.default = MultiLineText;
+
+},{"./Tag":42,"./Text":43}],35:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Tag2 = require("./Tag");
+
+var _Tag3 = _interopRequireDefault(_Tag2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * pattern object in SVG
+ * @extends Tag
+ */
+var Pattern = function (_Tag) {
+    _inherits(Pattern, _Tag);
+
+    /**
+     * @param {string} id     unique id of this pattern
+     * @param {number} width  width of one pattern tile in SVG pixels
+     * @param {number} height height of one pattern tile in SVG pixels
+     */
+    function Pattern(id, width, height) {
+        _classCallCheck(this, Pattern);
+
+        var _this = _possibleConstructorReturn(this, (Pattern.__proto__ || Object.getPrototypeOf(Pattern)).call(this, "pattern"));
+
+        _this.addAttr({
+            id: id,
+            x: 0,
+            y: 0,
+            width: width,
+            height: height,
+            patternUnits: "userSpaceOnUse",
+            viewBox: "0 0 " + width + " " + height
+        });
+        return _this;
+    }
+
+    /**
+     * add a child to this pattern
+     *
+     * pattern behaves a little like {@link Group} - it contains child elements, which represent the content of one tile of the pattern
+     * and the whole package of the child elements is repeated on each tile of the pattern
+     * @param {SvgElement} el element that will be added to the pattern
+     */
+
+
+    _createClass(Pattern, [{
+        key: "addChild",
+        value: function addChild(el) {
+            this.$el.append(el.$el);
+            return el;
+        }
+    }]);
+
+    return Pattern;
+}(_Tag3.default);
+
+exports.default = Pattern;
+
+},{"./Tag":42}],36:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Tag2 = require("./Tag");
+
+var _Tag3 = _interopRequireDefault(_Tag2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * SVG polyline (a path defined by sequence of points on plane)
+ * @extends Tag
+ */
+var PolyLine = function (_Tag) {
+    _inherits(PolyLine, _Tag);
+
+    /**
+     * @param {PolylinePoints} points points describing this polyline
+     * @param {number} [strokeWidth] width of the stroke for this polyline in SVG pixels
+     * @param {string} [color] CSS color of this polyline
+     */
+    function PolyLine(points, strokeWidth, color) {
+        _classCallCheck(this, PolyLine);
+
+        var _this = _possibleConstructorReturn(this, (PolyLine.__proto__ || Object.getPrototypeOf(PolyLine)).call(this, "polyline"));
+
+        var attributes = {
+            points: points.string,
+            fill: "none",
+            "stroke-width": strokeWidth
+        };
+
+        if (color !== undefined) {
+            attributes.stroke = color;
+        }
+
+        _this.addAttr(attributes);
+        return _this;
+    }
+
+    /**
+     * update points of this polyline
+     * @param {PolylinePoints} points new set of points describing this polyline
+     */
+
+
+    _createClass(PolyLine, [{
+        key: "updatePoints",
+        value: function updatePoints(points) {
+            this.addAttr({
+                points: points.string
+            });
+        }
+    }]);
+
+    return PolyLine;
+}(_Tag3.default);
+
+exports.default = PolyLine;
+
+},{"./Tag":42}],37:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * one point of {@link PolylinePoints}, used in the {@link PolyLine} object
+ */
+var PolylinePoint = function () {
+    /**
+     * @param {number} x horizontal coordinate of the polyline point
+     * @param {number} y vertical coordinate of the polyline point
+     */
+    function PolylinePoint(x, y) {
+        _classCallCheck(this, PolylinePoint);
+
+        this.x = 0;
+        this.y = 0;
+        if (x !== undefined && y !== undefined) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    /**
+     * change the coordinates of this point
+     * @param {number} x horizontal coordinate of the polyline point
+     * @param {number} y vertical coordinate of the polyline point
+     */
+
+
+    _createClass(PolylinePoint, [{
+        key: "set",
+        value: function set(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        /**
+         * create polyline from a comma separated string (e.g. from a string formatted like this: "x,y", for example "15,8")
+         * @param  {string} string string in the format "x,y" representing a point in the SVG polyline
+         * @return {PolylinePoint} newly created instance of {@link PolylinePoint}
+         */
+
+    }, {
+        key: "string",
+
+
+        /**
+         * return a string representation of this polyline point
+         * @return {string} string in the format "x,y"
+         */
+        get: function get() {
+            return this.x + "," + this.y;
+        }
+
+        /**
+         * compare polyline points, return `true` if they are equal, else return `false`
+         * @param  {PolylinePoint} a
+         * @param  {PolylinePoint} b
+         * @return {boolean}
+         */
+
+    }], [{
+        key: "parseFromString",
+        value: function parseFromString(string) {
+            var arr = string.split(",");
+            return new PolylinePoint(arr[0], arr[1]);
+        }
+    }, {
+        key: "equals",
+        value: function equals(a, b) {
+            return a.x === b.x && a.y === b.y;
+        }
+    }]);
+
+    return PolylinePoint;
+}();
+
+exports.default = PolylinePoint;
+
+},{}],38:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _PolylinePoint = require("./PolylinePoint");
+
+var _PolylinePoint2 = _interopRequireDefault(_PolylinePoint);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * array-like structure used in {@link PolylinePoints}
+ */
+var SmartArray = function () {
+    /**
+     * @param {Array} [arr] if set, initialized SmartArray will contain these values
+     */
+    function SmartArray(arr) {
+        _classCallCheck(this, SmartArray);
+
+        if (arr !== undefined) {
+            this.arr = arr;
+        } else {
+            this.arr = [];
+        }
+    }
+
+    /**
+     * get a deep copy of this array
+     * @return {SmartArray}
+     */
+
+
+    _createClass(SmartArray, [{
+        key: "copy",
+        value: function copy() {
+            return SmartArray($.extend(true, [], this.arr));
+        }
+
+        /**
+         * append an item to the array
+         * @param item new item that will be appended to the array
+         */
+
+    }, {
+        key: "append",
+        value: function append(item) {
+            return this.addWithIndex(item, this.arr.length);
+        }
+
+        /**
+         * prepend an item to the array
+         * @param item new item that will be prepended to the array
+         */
+
+    }, {
+        key: "prepend",
+        value: function prepend(item) {
+            return this.addWithIndex(item, 0);
+        }
+
+        /**
+         * add a new item at the specified index, move all following items
+         * @param item new item that will be added at the specified index
+         * @param {number} index index of this item
+         */
+
+    }, {
+        key: "addWithIndex",
+        value: function addWithIndex(item, index) {
+            for (var i = this.arr.length; i > index; --i) {
+                this.arr[i] = this.arr[i - 1];
+            }
+            this.arr[index] = item;
+            return this; // to enable chaining of append / preppend / addWithIndex commands
+        }
+
+        /**
+         * get length of the array
+         * @return {number}
+         */
+
+    }, {
+        key: "getItem",
+
+
+        /**
+         * get item by index
+         * @param  {number} index index of the item
+         * @return contents of the array on the specified index
+         */
+        value: function getItem(index) {
+            return this.arr[index];
+        }
+
+        /**
+         * @return last element of the array
+         */
+
+    }, {
+        key: "remove",
+
+
+        /**
+         * remove an item from the array by index
+         * @param  {number} index index of the item that will be removed
+         */
+        value: function remove(index) {
+            var length = this.length;
+
+            for (var i = index; i < length; ++i) {
+                this.arr[i] = this.arr[i + 1];
+            }
+            this.arr.pop();
+        }
+    }, {
+        key: "length",
+        get: function get() {
+            return this.arr.length;
+        }
+    }, {
+        key: "last",
+        get: function get() {
+            if (this.length !== 0) {
+                return this.arr[this.length - 1];
+            } else {
+                return false;
+            }
+        }
+
+        /**
+         * @return first element of the array
+         */
+
+    }, {
+        key: "first",
+        get: function get() {
+            if (this.length !== 0) {
+                return this.arr[0];
+            } else {
+                return false;
+            }
+        }
+    }]);
+
+    return SmartArray;
+}();
+
+/**
+ * points of the {@link PolyLine}
+ * @extends SmartArray
+ */
+
+
+var PolylinePoints = function (_SmartArray) {
+    _inherits(PolylinePoints, _SmartArray);
+
+    /**
+     * @param {Array} [arr] array containing instances of {@link PolylinePoint}
+     */
+    function PolylinePoints(arr) {
+        _classCallCheck(this, PolylinePoints);
+
+        return _possibleConstructorReturn(this, (PolylinePoints.__proto__ || Object.getPrototypeOf(PolylinePoints)).call(this, arr));
+    }
+
+    /**
+     * get a deep copy of this object
+     * @return {PolylinePoints}
+     */
+
+
+    _createClass(PolylinePoints, [{
+        key: "copy",
+        value: function copy() {
+            return new PolylinePoints($.extend(true, [], this.arr));
+        }
+
+        /**
+         * append a point
+         * @param  {PolylinePoint} point a new point
+         */
+
+    }, {
+        key: "append",
+        value: function append(point) {
+            // call inherited function to handle the appending
+            _get(PolylinePoints.prototype.__proto__ || Object.getPrototypeOf(PolylinePoints.prototype), "append", this).call(this, point);
+
+            // if the second to last point is unnecessary, remove it
+            var length = this.length;
+            if (length >= 3 && (this.getItem(length - 3).x === this.getItem(length - 2).x && this.getItem(length - 2).x === this.getItem(length - 1).x || this.getItem(length - 3).y === this.getItem(length - 2).y && this.getItem(length - 2).y === this.getItem(length - 1).y)) {
+                this.remove(length - 2);
+            }
+
+            // return this element (to allow chaining)
+            return this;
+        }
+
+        /**
+         * parse polyline from string
+         * @param  {string} string string in the polyline format (`x1,y1 x2,y2, x3,y3`)
+         * @return {PolylinePoints} a new instance of {@link PolylinePoints} created by parsing the string
+         */
+
+    }, {
+        key: "forEach",
+
+
+        /**
+         * wrapper for foreach on the polyline points
+         * @param  {Function} func function that will be called on each element
+         */
+        value: function forEach(func) {
+            for (var i = 0; i < this.arr.length; ++i) {
+                func(this.arr[i]);
+            }
+        }
+    }, {
+        key: "string",
+
+
+        /**
+         * get a string representation of this polyline
+         * @return {string} string in the polyline format (`x1,y1 x2,y2, x3,y3`)
+         */
+        get: function get() {
+            var string = "";
+            for (var i = 0; i < this.length; ++i) {
+                if (i !== 0) {
+                    string += " ";
+                }
+                string += this.arr[i].string;
+            }
+            return string;
+        }
+    }], [{
+        key: "parseFromString",
+        value: function parseFromString(string) {
+            var pointStrings = string.split(" ");
+            var points = new PolylinePoints();
+
+            for (var i = 0; i < pointStrings.length; ++i) {
+                points.append(_PolylinePoint2.default.parseFromString(pointStrings[i]));
+            }
+
+            return points;
+        }
+    }]);
+
+    return PolylinePoints;
+}(SmartArray);
+
+exports.default = PolylinePoints;
+
+},{"./PolylinePoint":37}],39:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _SvgElement2 = require('./SvgElement');
+
+var _SvgElement3 = _interopRequireDefault(_SvgElement2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * a rectangle in SVG
+ * @extends SvgElement
+ */
+var Rectangle = function (_SvgElement) {
+    _inherits(Rectangle, _SvgElement);
+
+    /**
+     * @param {number} x       horizontal position in SVG pixels
+     * @param {number} y       vertical position in SVG pixels
+     * @param {number} w       width in SVG pixels
+     * @param {number} h       height in SVG pixels
+     * @param {string} fill    filling color of the rectangle
+     * @param {string} stroke  stroke color of the rectangle
+     */
+    function Rectangle(x, y, w, h, fill, stroke) {
+        _classCallCheck(this, Rectangle);
+
+        var _this = _possibleConstructorReturn(this, (Rectangle.__proto__ || Object.getPrototypeOf(Rectangle)).call(this, x, y, w, h, "rect"));
+
+        _this.addAttr({
+            fill: fill,
+            stroke: stroke,
+            'stroke-width': 0.5,
+            'pointer-events': 'all' // to trigger hover even with transparent background
+        });
+        return _this;
+    }
+
+    return Rectangle;
+}(_SvgElement3.default);
+
+exports.default = Rectangle;
+
+},{"./SvgElement":40}],40:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _Tag2 = require('./Tag');
+
+var _Tag3 = _interopRequireDefault(_Tag2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * represents visible element in SVG that has position and dimensions (for example `rectangle` is a SvgElement, but `pattern` is not, even though both are tags)
+ * @extends Tag
+ */
+var SvgElement = function (_Tag) {
+    _inherits(SvgElement, _Tag);
+
+    /**
+     * @param {number} x       horizontal position in SVG pixels
+     * @param {number} y       vertical position in SVG pixels
+     * @param {number} w       width in SVG pixels
+     * @param {number} h       height in SVG pixels
+     * @param {string} tagName tag name of the element
+     */
+    function SvgElement(x, y, w, h, tagName) {
+        _classCallCheck(this, SvgElement);
+
+        var _this = _possibleConstructorReturn(this, (SvgElement.__proto__ || Object.getPrototypeOf(SvgElement)).call(this, tagName));
+
+        _this.addAttr({
+            x: x,
+            y: y,
+            width: w,
+            height: h
+        });
+        return _this;
+    }
+
+    return SvgElement;
+}(_Tag3.default);
+
+exports.default = SvgElement;
+
+},{"./Tag":42}],41:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _SvgElement2 = require("./SvgElement");
+
+var _SvgElement3 = _interopRequireDefault(_SvgElement2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * an image in SVG
+ * @extends SvgElement
+ */
+var SvgImage = function (_SvgElement) {
+    _inherits(SvgImage, _SvgElement);
+
+    function SvgImage(x, y, w, h, url) {
+        _classCallCheck(this, SvgImage);
+
+        var _this = _possibleConstructorReturn(this, (SvgImage.__proto__ || Object.getPrototypeOf(SvgImage)).call(this, x, y, w, h, "image"));
+
+        _this.addAttr({
+            "xlink:href": url
+        });
+        return _this;
+    }
+
+    /**
+     * change url of the image
+     * @param {string} url the new url of the image
+     */
+
+
+    _createClass(SvgImage, [{
+        key: "changeUrl",
+        value: function changeUrl(url) {
+            this.addAttr({
+                "xlink:href": url
+            });
+        }
+    }]);
+
+    return SvgImage;
+}(_SvgElement3.default);
+
+exports.default = SvgImage;
+
+},{"./SvgElement":40}],42:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _id = require("../other/id");
+
+var _id2 = _interopRequireDefault(_id);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Parent class for all svgObjects
+ */
+var Tag = function () {
+  /**
+   * @param {string} tagName SVG tag identifier (`rect`, `image`, `polyline`)
+   */
+  function Tag(tagName) {
+    _classCallCheck(this, Tag);
+
+    /**
+     * SVG tag identifier (`rect`, `image`, `polyline`)
+     * @type {string}
+     */
+    this.tagName = tagName;
+
+    /**
+     * jQuery element for this tag
+     * @type {jQuery.element}
+     */
+    this.$el = $("<" + this.tagName + ">");
+
+    /**
+     * unique ID of this SVG object
+     * @type {string}
+     */
+    this.id = new _id2.default().unique;
+  }
+
+  /**
+   * add a class to this element
+   * @param {string} name class name to be added
+   */
+
+
+  _createClass(Tag, [{
+    key: "addClass",
+    value: function addClass(name) {
+      this.$el.addClass(name);
+    }
+
+    /**
+     * remove class names from this element
+     * @param  {string} classes class names to be removed
+     */
+
+  }, {
+    key: "removeClasses",
+    value: function removeClasses() {
+      for (var _len = arguments.length, classes = Array(_len), _key = 0; _key < _len; _key++) {
+        classes[_key] = arguments[_key];
+      }
+
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = classes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var item = _step.value;
+
+          this.$el.removeClass(item);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    }
+
+    /**
+     * set attributes of this element
+     * @param {Object} assoc javascript object that will be mapped into attributes (`{key: value}` -> `key="value"`)
+     */
+
+  }, {
+    key: "addAttr",
+    value: function addAttr(assoc) {
+      this.checkIfElementExistsInDOM();
+
+      // add attributes to the element
+      this.$el.attr(assoc);
+    }
+
+    /**
+     * get attribute value by name
+     * @param  {string} name name of the attribute
+     * @return {string}      value of the attribute
+     */
+
+  }, {
+    key: "getAttr",
+    value: function getAttr(name) {
+      this.checkIfElementExistsInDOM();
+
+      return this.$el.attr(name);
+    }
+
+    /**
+     * remove attribute by value
+     * @param  {string} name name of the attribute to be removed
+     */
+
+  }, {
+    key: "removeAttr",
+    value: function removeAttr(name) {
+      this.checkIfElementExistsInDOM();
+
+      this.$el.removeAttr(name);
+    }
+
+    /**
+     * set id of this SVG object
+     * @param  {string} id new id for this object
+     */
+
+  }, {
+    key: "get",
+
+
+    /**
+     * get jQuery element for this SVG object
+     * @return {jQuery.element}
+     */
+    value: function get() {
+      this.checkIfElementExistsInDOM();
+      return this.$el;
+    }
+
+    /**
+     * check if the element exists in dom, if so, refetch it from DOM using jQuery
+     */
+
+  }, {
+    key: "checkIfElementExistsInDOM",
+    value: function checkIfElementExistsInDOM() {
+      var $jqElement = $("#" + this.$el.attr('id'));
+      if ($jqElement.length) {
+        this.$el = $jqElement;
+      }
+    }
+  }, {
+    key: "id",
+    set: function set(id) {
+      this.addAttr({ "id": id });
+    }
+
+    /**
+     * get id of this SVG object
+     * @return {string}
+     */
+    ,
+    get: function get() {
+      return this.getAttr("id");
+    }
+  }]);
+
+  return Tag;
+}();
+
+exports.default = Tag;
+
+},{"../other/id":30}],43:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _Tag2 = require("./Tag");
+
+var _Tag3 = _interopRequireDefault(_Tag2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Text element in SVG
+ * @extends Tag
+ */
+var Text = function (_Tag) {
+    _inherits(Text, _Tag);
+
+    /**
+     * @param {number} x       horizontal position in SVG pixels
+     * @param {number} y       vertical position in SVG pixels
+     * @param {number} w       width of the text box in SVG pixels
+     * @param {number} h       height of the text box in SVG pixels
+     * @param {number} text    text content of the text box
+     * @param {string} size    CSS font size of the text
+     * @param {String} [color="black"] color of the text
+     *
+     */
+    function Text(x, y, w, h, text, size) {
+        var color = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : "black";
+
+        _classCallCheck(this, Text);
+
+        var _this = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, "text"));
+
+        _this.addAttr({
+            x: x,
+            y: y,
+            width: w,
+            height: h,
+            fill: color
+        });
+
+        if (size) {
+            _this.addAttr({
+                'font-size': size
+            });
+        }
+
+        _this.$el.append(text);
+        return _this;
+    }
+
+    return Text;
+}(_Tag3.default);
+
+exports.default = Text;
+
+},{"./Tag":42}],44:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2894,7 +8052,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _networkLibrary = require('./networkLibrary');
 
-var _editorElements = require('./editorElements');
+var _editorElements = require('../editorElements');
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
@@ -3552,2929 +8710,7 @@ var ContextMenu = function () {
 
 exports.default = ContextMenu;
 
-},{"./editorElements":12,"./networkLibrary":21}],12:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.Wire = exports.HelperWire = exports.Blackbox = exports.Gate = exports.OutputBox = exports.InputBox = exports.OutputConnector = exports.InputConnector = exports.Transform = undefined;
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _svgObjects = require('./svgObjects');
-
-var svgObj = _interopRequireWildcard(_svgObjects);
-
-var _logic = require('./logic');
-
-var _logic2 = _interopRequireDefault(_logic);
-
-var _findPath = require('./findPath');
-
-var _findPath2 = _interopRequireDefault(_findPath);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * mapping of logical states to css classes
- * @type {Object}
- */
-var stateClasses = {
-    on: "stateOn",
-    off: "stateOff",
-    unknown: "stateUnknown",
-    oscillating: "stateOscillating"
-};
-
-/**
- * Helper class used by {@link Transform}.
- *
- * Represents one single property of the transform argument, for example `translate(360 150)`
- * that may be a part of longer transform argument like `transform="translate(360 150) rotate(90 30 20)"`
- */
-
-var Property = function () {
-    /**
-     * Initialize the Property object
-     * @param {string} [string] string in the property format `propertyname(list of space separated values)`
-     */
-    function Property(string) {
-        _classCallCheck(this, Property);
-
-        if (string !== undefined) {
-            this.name = string.replace(/^[ ]*([^(]+).*/, "$1");
-            this.args = string.replace(/^[^(]+\((.*)\)/, "$1").split(' ');
-        }
-    }
-
-    /**
-     * set or replace the name of this property
-     * @param {string} name new name for this property
-     */
-
-
-    _createClass(Property, [{
-        key: 'setName',
-        value: function setName(name) {
-            this.name = name;
-        }
-
-        /**
-         * set arguments of this property
-         * @param {array} args array of arguments
-         */
-
-    }, {
-        key: 'setArguments',
-        value: function setArguments(args) {
-            this.args = args;
-        }
-
-        /**
-         * get string representation of the property
-         * @return {string} property in the property format `name(arg1 arg2)`
-         */
-
-    }, {
-        key: 'get',
-        value: function get() {
-            return this.name + "(" + this.args.join(" ") + ")";
-        }
-    }]);
-
-    return Property;
-}();
-
-/**
- * API for manipulating the transform argument used in SVG
- */
-
-
-var Transform = exports.Transform = function () {
-    /**
-     * Initialize the Transform object
-     * @param {string} [string] string in the format of the `transform` argument in SVG, for example `translate(360 150) rotate(90 30 20)`
-     */
-    function Transform(string) {
-        _classCallCheck(this, Transform);
-
-        /**
-         * array of {@link Property} instances
-         * @type {Array}
-         */
-        this.items = [];
-
-        if (string !== undefined) {
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = string.split(")")[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var item = _step.value;
-
-                    if (item) {
-                        // if not empty
-                        this.items.push(new Property(item + ")"));
-                    }
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * convert distances from SVG pixels to grid pixels
-     * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
-     */
-
-
-    _createClass(Transform, [{
-        key: 'toGridPixels',
-        value: function toGridPixels(parentSVG) {
-            var _iteratorNormalCompletion2 = true;
-            var _didIteratorError2 = false;
-            var _iteratorError2 = undefined;
-
-            try {
-                for (var _iterator2 = this.items[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                    var item = _step2.value;
-
-                    if (item.name === "translate") {
-                        item.args = [parentSVG.SVGToGrid(item.args[0]), parentSVG.SVGToGrid(item.args[1])];
-                    } else if (item.name === "rotate") {
-                        item.args = [item.args[0], parentSVG.SVGToGrid(item.args[1]), parentSVG.SVGToGrid(item.args[2])];
-                    }
-                }
-            } catch (err) {
-                _didIteratorError2 = true;
-                _iteratorError2 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                        _iterator2.return();
-                    }
-                } finally {
-                    if (_didIteratorError2) {
-                        throw _iteratorError2;
-                    }
-                }
-            }
-        }
-
-        /**
-         * convert distances from grid pixels to SVG pixels
-         * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
-         */
-
-    }, {
-        key: 'toSVGPixels',
-        value: function toSVGPixels(parentSVG) {
-            var _iteratorNormalCompletion3 = true;
-            var _didIteratorError3 = false;
-            var _iteratorError3 = undefined;
-
-            try {
-                for (var _iterator3 = this.items[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                    var item = _step3.value;
-
-                    if (item.name === "translate") {
-                        item.args = [parentSVG.gridToSVG(item.args[0]), parentSVG.gridToSVG(item.args[1])];
-                    } else if (item.name === "rotate") {
-                        item.args = [item.args[0], parentSVG.gridToSVG(item.args[1]), parentSVG.gridToSVG(item.args[2])];
-                    }
-                }
-            } catch (err) {
-                _didIteratorError3 = true;
-                _iteratorError3 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                        _iterator3.return();
-                    }
-                } finally {
-                    if (_didIteratorError3) {
-                        throw _iteratorError3;
-                    }
-                }
-            }
-        }
-
-        /**
-         * find a transform property by name and get its index in the [items](#items) array
-         * @param  {string} name name of the property
-         * @return {number}      index of the property in the array of properties or `-1` if not found
-         */
-
-    }, {
-        key: 'getIndex',
-        value: function getIndex(name) {
-            for (var i = 0; i < this.items.length; i++) {
-                if (name === this.items[i].name) {
-                    return i;
-                }
-            }
-
-            return -1;
-        }
-
-        /**
-         * get the translate property
-         * @return {Object} object containing parameters of the translate attribute
-         */
-
-    }, {
-        key: 'getTranslate',
-        value: function getTranslate() {
-            var args = this.getArguments(this.getIndex("translate"));
-
-            return {
-                x: Number(args[0]),
-                y: Number(args[1])
-            };
-        }
-
-        /**
-         * get the rotate property
-         * @return {Object} object containing parameters of the rotate attribute
-         */
-
-    }, {
-        key: 'getRotate',
-        value: function getRotate() {
-            var args = this.getArguments(this.getIndex("rotate"));
-
-            return {
-                deg: Number(args[0]),
-                centreX: Number(args[1]),
-                centreY: Number(args[2])
-            };
-        }
-
-        /**
-         * set translate to the specified values
-         * @param {number} x horizontal translation
-         * @param {number} y vertical translation
-         */
-
-    }, {
-        key: 'setTranslate',
-        value: function setTranslate(x, y) {
-            this.setParameter("translate", [x, y]);
-        }
-
-        /**
-         * set rotate to the specified values
-         * @param {number} deg     angle of the rotation in degrees
-         * @param {number} centreX horizontal position of the centre of the rotation
-         * @param {number} centreY vertical position of the centre of the rotation
-         */
-
-    }, {
-        key: 'setRotate',
-        value: function setRotate(deg, centreX, centreY) {
-            this.setParameter("rotate", [deg, centreX, centreY]);
-        }
-
-        /**
-         * rotate by 90 degrees to the right or left, depending on the parameter `right`
-         * @param {number} centreX horizontal position of the centre of the rotation
-         * @param {number} centreY vertical position of the centre of the rotation
-         * @param {boolean} right rotate to the right if `true`, to the left if `false`
-         */
-
-    }, {
-        key: 'rotateRightAngle',
-        value: function rotateRightAngle(centreX, centreY, right) {
-            var amount = right ? 90 : 270;
-
-            if (this.getIndex("rotate") === -1) {
-                this.setRotate(amount, centreX, centreY);
-            } else {
-                var newRotation = (parseInt(this.getRotate().deg) + amount) % 360;
-
-                if (newRotation === 180) {
-                    // swap centre coordinates
-                    // because rotate(c, x, y) is defined like transform(-x, -y) rotate(c) transform(x, y)
-                    var a = centreX;
-                    centreX = centreY;
-                    centreY = a;
-                }
-
-                this.setRotate(newRotation, centreX, centreY);
-            }
-        }
-
-        /**
-         * rotate by 90 degrees to the right
-         * @param  {number} centreX horizontal position of the centre of the rotation
-         * @param  {number} centreY vertical position of the centre of the rotation
-         */
-
-    }, {
-        key: 'rotateRight',
-        value: function rotateRight(centreX, centreY) {
-            this.rotateRightAngle(centreX, centreY, true);
-        }
-
-        /**
-         * rotate by 90 degrees to the left
-         * @param  {number} centreX horizontal position of the centre of the rotation
-         * @param  {number} centreY vertical position of the centre of the rotation
-         */
-
-    }, {
-        key: 'rotateLeft',
-        value: function rotateLeft(centreX, centreY) {
-            this.rotateRightAngle(centreX, centreY, false);
-        }
-
-        /**
-         * get the transform values in a string
-         * @return {string} string that can be used as a value for the transform property of a SVG element
-         */
-
-    }, {
-        key: 'get',
-        value: function get() {
-            var retVal = void 0;
-            var _iteratorNormalCompletion4 = true;
-            var _didIteratorError4 = false;
-            var _iteratorError4 = undefined;
-
-            try {
-                for (var _iterator4 = this.items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                    var item = _step4.value;
-
-                    if (retVal) {
-                        retVal += " " + item.get();
-                    } else {
-                        retVal = item.get();
-                    }
-                }
-            } catch (err) {
-                _didIteratorError4 = true;
-                _iteratorError4 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                        _iterator4.return();
-                    }
-                } finally {
-                    if (_didIteratorError4) {
-                        throw _iteratorError4;
-                    }
-                }
-            }
-
-            return retVal;
-        }
-
-        /**
-         * get arguments of a property specified by index
-         * @param  {number} index index of the property
-         * @return {array}       array of arguments of the specified property
-         */
-
-    }, {
-        key: 'getArguments',
-        value: function getArguments(index) {
-            return this.items[index].args;
-        }
-
-        /**
-         * set argumets of a property specified by name
-         * @param {string} name name of the property
-         * @param {array} args array of arguments of the specified property
-         */
-
-    }, {
-        key: 'setParameter',
-        value: function setParameter(name, args) {
-            // determine index of the parameter (if set), else index == -1
-            var index = this.getIndex(name);
-
-            // if the property has been already set, change it (rewrite the array in the right index)
-            // else create a new one (set index to the length of an array --> ad an item to the end)
-            if (index === -1) {
-                index = this.items.length;
-                this.items[index] = new Property();
-                this.items[index].setName(name);
-            }
-
-            // save args under the right index
-            this.items[index].setArguments(args);
-        }
-    }]);
-
-    return Transform;
-}();
-
-/**
- * parent class for all network elements
- */
-
-
-var NetworkElement = function () {
-    /**
-     * Basic constructor for NetworkElement
-     * @param {Canvas} parentSVG reference to the instance of {@link Canvas} that this element belongs to
-     */
-    function NetworkElement(parentSVG) {
-        _classCallCheck(this, NetworkElement);
-
-        if (!parentSVG) {
-            console.error("Parent SVG element has to be defined.");
-        }
-        this.parentSVG = parentSVG;
-
-        // used to store the svjObject's instance of this element
-        this.svgObj = undefined;
-    }
-
-    /**
-     * Get the unique ID of the SVG element tied to this logical element
-     * @return {string} ID of the SVG element
-     */
-
-
-    _createClass(NetworkElement, [{
-        key: 'onMouseDown',
-
-
-        /**
-         * empty callback function to prevent error messages, function is implemented later in the {@link Box} class
-         */
-        value: function onMouseDown() {}
-
-        /**
-         * empty function to prevent error messages, function is implemented later in the {@link Box} and {@link Connector} classes
-         */
-
-    }, {
-        key: 'onMouseUp',
-        value: function onMouseUp() {}
-
-        /**
-         * empty function to prevent error messages, function is implemented later in the {@link Box} class
-         */
-
-    }, {
-        key: 'onMouseMove',
-        value: function onMouseMove() {}
-
-        /**
-         * "virtual" getter for json data, prints an error that it has to be redefined in the derived classes
-         */
-
-    }, {
-        key: 'id',
-        get: function get() {
-            return this.svgObj.id;
-        }
-    }, {
-        key: 'exportData',
-        get: function get() {
-            console.error("'json' getter has not been defined for this element", this);
-            return undefined;
-        }
-    }]);
-
-    return NetworkElement;
-}();
-
-/**
- * parent class for input and output connectors
- * @extends NetworkElement
- */
-
-
-var Connector = function (_NetworkElement) {
-    _inherits(Connector, _NetworkElement);
-
-    /**
-     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
-     * @param {number} gridSize  size of the grid in SVG pixels
-     * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
-     * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
-     */
-    function Connector(parentSVG, left, top) {
-        _classCallCheck(this, Connector);
-
-        /**
-         * size of the grid in SVG pixels
-         * @type {number}
-         */
-        var _this = _possibleConstructorReturn(this, (Connector.__proto__ || Object.getPrototypeOf(Connector)).call(this, parentSVG));
-
-        _this.gridSize = parentSVG.gridSize;
-        /**
-         * size of the connector in SVG pixels
-         * @type {number}
-         */
-        _this.connectorSize = parentSVG.gridSize;
-        /**
-         * offset of the connector from the grid in SVG pixels
-         * @type {number}
-         */
-        _this.connectorOffset = _this.connectorSize / 2;
-
-        /**
-         * instance of {@link svgObjects.svgObj} that holds all SVG information about this connector
-         * @type {svgObj}
-         */
-        _this.svgObj = new svgObj.Rectangle(left * _this.gridSize - _this.connectorOffset, top * _this.gridSize - _this.connectorOffset, _this.connectorSize, _this.connectorSize, "none", "black");
-
-        _this.svgObj.$el.addClass("connector");
-
-        /**
-         * this flag describes whether this connector is an input connector
-         * @type {Boolean}
-         */
-        _this.isInputConnector = false;
-
-        /**
-         * current logical state of this connector
-         * @type {Logic.state}
-         */
-        _this.elementState = _logic2.default.state.unknown;
-        _this.svgObj.addClass(stateClasses.unknown);
-
-        /**
-         * set of ids of all wires connected to this connector
-         * @type {Set}
-         */
-        _this.wireIds = new Set();
-        return _this;
-    }
-
-    /**
-     * whether this connector is an output connector
-     * @return {Boolean}
-     */
-
-
-    _createClass(Connector, [{
-        key: 'addWireId',
-
-
-        /**
-         * add a wire id to the list of wire ids
-         * @param {string} wireId
-         */
-        value: function addWireId(wireId) {
-            this.wireIds.add(wireId);
-        }
-
-        /**
-         * remove a wire id from the list of wire ids
-         * @param {string} wireId
-         */
-
-    }, {
-        key: 'removeWireId',
-        value: function removeWireId(wireId) {
-            this.wireIds.delete(wireId);
-        }
-
-        /**
-         * remove a wire specified by ID and update the connector
-         * @param  {string} wireId ID of the wire to be removed
-         */
-
-    }, {
-        key: 'removeWireIdAndUpdate',
-        value: function removeWireIdAndUpdate(wireId) {
-            this.removeWireId(wireId);
-        }
-
-        /**
-         * set logical state of the connector
-         * @param {Logic.state} state new state of the connector
-         */
-
-    }, {
-        key: 'setState',
-        value: function setState(state) {
-            this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
-
-            switch (state) {
-                case _logic2.default.state.unknown:
-                    this.svgObj.addClass(stateClasses.unknown);
-                    break;
-                case _logic2.default.state.on:
-                    this.svgObj.addClass(stateClasses.on);
-                    break;
-                case _logic2.default.state.off:
-                    this.svgObj.addClass(stateClasses.off);
-                    break;
-                case _logic2.default.state.oscillating:
-                    this.svgObj.addClass(stateClasses.oscillating);
-                    break;
-            }
-
-            this.elementState = state;
-        }
-
-        /**
-         * get state of this connector
-         * @return {Logic.state}
-         */
-
-    }, {
-        key: 'get',
-
-
-        /**
-         * get svgObj instance content of this connector
-         * @return {svgObjects.Rectangle}
-         */
-        value: function get() {
-            return this.svgObj;
-        }
-
-        /**
-         * call [wireCreationHelper](./module-Canvas.html#wireCreationHelper) on mouse up
-         */
-
-    }, {
-        key: 'onMouseUp',
-        value: function onMouseUp(event) {
-            // only left click counts
-            if (event.which === 1) {
-                var mousePosition = {
-                    x: event.clientX,
-                    y: event.clientY
-                };
-
-                this.parentSVG.wireCreationHelper(this.svgObj.id, mousePosition);
-            }
-        }
-    }, {
-        key: 'isOutputConnector',
-        get: function get() {
-            return !this.isInputConnector;
-        }
-
-        /**
-         * whether this connector is an output connector
-         * @return {Boolean}
-         */
-        ,
-        set: function set(value) {
-            this.isInputConnector = !value;
-        }
-    }, {
-        key: 'state',
-        get: function get() {
-            return this.elementState;
-        }
-    }]);
-
-    return Connector;
-}(NetworkElement);
-
-/**
- * Connector that gets its state from a connected value and passes it through to the {@link Box} this connector belongs to.
- * @extends Connector
- */
-
-
-var InputConnector = exports.InputConnector = function (_Connector) {
-    _inherits(InputConnector, _Connector);
-
-    /**
-     * Call the constructor from the parent {@link Connector} class and set isInputConnector to true.
-     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
-     * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
-     * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
-     */
-    function InputConnector(parentSVG, left, top) {
-        _classCallCheck(this, InputConnector);
-
-        var _this2 = _possibleConstructorReturn(this, (InputConnector.__proto__ || Object.getPrototypeOf(InputConnector)).call(this, parentSVG, left, top));
-
-        _this2.isInputConnector = true;
-        return _this2;
-    }
-
-    /**
-     * Call the setState method of {@link Connector} and than refresh the state of the connected {@link Box}
-     * @param {Logic.state} state new {@link Logic.state} of the connector
-     */
-
-
-    _createClass(InputConnector, [{
-        key: 'setState',
-        value: function setState(state) {
-            _get(InputConnector.prototype.__proto__ || Object.getPrototypeOf(InputConnector.prototype), 'setState', this).call(this, state);
-
-            var gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
-            gate.refreshState();
-        }
-
-        /**
-         * remove the wire (by calling the removeWireIdAndUpdate of {@link Connector})
-         * and update state of this connector by setting it to undefined using the setState method
-         * @param  {string} wireId ID of the {@link Wire}
-         */
-
-    }, {
-        key: 'removeWireIdAndUpdate',
-        value: function removeWireIdAndUpdate(wireId) {
-            _get(InputConnector.prototype.__proto__ || Object.getPrototypeOf(InputConnector.prototype), 'removeWireIdAndUpdate', this).call(this, wireId);
-            this.setState(_logic2.default.state.unknown);
-        }
-    }]);
-
-    return InputConnector;
-}(Connector);
-
-/**
- * Connector that takes a state defined by the {@link Box} it belongs to and passes it to all connected wire
- * @extends Connector
- */
-
-
-var OutputConnector = exports.OutputConnector = function (_Connector2) {
-    _inherits(OutputConnector, _Connector2);
-
-    /**
-     * Call the constructor from the parent {@link Connector} class and set isOutputConnector to true.
-     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
-     * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
-     * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
-     */
-    function OutputConnector(parentSVG, left, top) {
-        _classCallCheck(this, OutputConnector);
-
-        var _this3 = _possibleConstructorReturn(this, (OutputConnector.__proto__ || Object.getPrototypeOf(OutputConnector)).call(this, parentSVG, left, top));
-
-        _this3.isOutputConnector = true;
-        return _this3;
-    }
-
-    /**
-     * Call the setState method of {@link Connector} and than set the state of the connected {@link Wire}s
-     * @param {Logic.state} state new {@link Logic.state} of the connector
-     */
-
-
-    _createClass(OutputConnector, [{
-        key: 'setState',
-        value: function setState(state) {
-            _get(OutputConnector.prototype.__proto__ || Object.getPrototypeOf(OutputConnector.prototype), 'setState', this).call(this, state);
-
-            var _iteratorNormalCompletion5 = true;
-            var _didIteratorError5 = false;
-            var _iteratorError5 = undefined;
-
-            try {
-                for (var _iterator5 = this.wireIds[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                    var wireId = _step5.value;
-
-                    this.parentSVG.getWireById(wireId).setState(state);
-                }
-            } catch (err) {
-                _didIteratorError5 = true;
-                _iteratorError5 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                        _iterator5.return();
-                    }
-                } finally {
-                    if (_didIteratorError5) {
-                        throw _iteratorError5;
-                    }
-                }
-            }
-        }
-    }]);
-
-    return OutputConnector;
-}(Connector);
-
-/**
- * Parent class for gates and input and output boxes. Defines all the factors
- * that the boxes have in common (svgObj structure, draggability and rotatability...)
- * @extends NetworkElement
- */
-
-
-var Box = function (_NetworkElement2) {
-    _inherits(Box, _NetworkElement2);
-
-    /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
-     * @param {string} name       name of the element (input, output, and, or, xor...)
-     * @param {string} category   type of the element (io, gate)
-     * @param {number} gridWidth  width of the element in grid pixels
-     * @param {number} gridHeight height of the element in grid pixels
-     */
-    function Box(parentSVG, name, category, gridWidth, gridHeight) {
-        _classCallCheck(this, Box);
-
-        /**
-         * specifies the box type within the category (input/output in io, and/or/... in gate)
-         * @type {string}
-         */
-        var _this4 = _possibleConstructorReturn(this, (Box.__proto__ || Object.getPrototypeOf(Box)).call(this, parentSVG));
-
-        _this4.name = name;
-
-        /**
-         * specifies the box category (io for input or output, gate for logic gates)
-         * @type {string}
-         */
-        _this4.category = category;
-
-        /**
-         * size of the grid in SVG pixels
-         * @type {number}
-         */
-        _this4.gridSize = _this4.parentSVG.gridSize;
-
-        /**
-         * array of connectors of this box
-         * @type {Array}
-         */
-        _this4.connectors = [];
-
-        /**
-         * svgObj containing all SVG data used to display this box
-         * @type {svgObj}
-         */
-        _this4.svgObj = new svgObj.Group();
-
-        /**
-         * width of this element in SVG pixels
-         * @type {number}
-         */
-        _this4.width = gridWidth * _this4.gridSize;
-        /**
-         * height of this element in SVG pixels
-         * @type {number}
-         */
-        _this4.height = gridHeight * _this4.gridSize;
-
-        /**
-         * width of this element in grid pixels
-         * @type {number}
-         */
-        _this4.gridWidth = gridWidth;
-        /**
-         * height of this element in grid pixels
-         * @type {number}
-         */
-        _this4.gridHeight = gridHeight;
-
-        // transparent background rectangle
-        var rectangle = new svgObj.Rectangle(0, 0, _this4.width, _this4.height, "none", "none");
-        rectangle.$el.addClass('rect');
-
-        _this4.svgObj.addChild(rectangle);
-
-        // image of the element
-        _this4.image = new svgObj.SvgImage(0, 0, _this4.width, _this4.height, _this4.url);
-        _this4.svgObj.addChild(_this4.image);
-
-        // add type="gate", used in special callbacks in contextmenu
-        _this4.svgObj.addAttr({ "type": category });
-
-        _this4.svgObj.$el.addClass("box");
-        _this4.svgObj.$el.addClass(category);
-        return _this4;
-    }
-
-    /**
-     * url of the image depicting this object
-     * @type {string}
-     */
-
-
-    _createClass(Box, [{
-        key: 'generateBlockNodes',
-
-
-        /**
-         * get set of nodes that are not suitable for wire routing
-         * @param  {Number} [marginTop=0]    top margin of the element (distance from the element that should be also blocked)
-         * @param  {Number} [marginRight=0]  right margin of the element
-         * @param  {Number} [marginBottom=0] bottom margin of the element
-         * @param  {Number} [marginLeft=0]   left margin of the element
-         * @param  {Number} specialNodes     additional nodes that should be added to the set
-         * @return {Set}                     set of not suitable nodes
-         */
-        value: function generateBlockNodes() {
-            var marginTop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-            var marginRight = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-            var marginBottom = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-            var marginLeft = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
-
-            this.blockedNodes = new Set();
-            for (var x = marginLeft; x <= this.gridWidth - marginRight; x++) {
-                for (var y = marginTop; y <= this.gridHeight - marginBottom; y++) {
-                    this.blockedNodes.add({
-                        x: x,
-                        y: y
-                    });
-                }
-            }
-
-            for (var _len = arguments.length, specialNodes = Array(_len > 4 ? _len - 4 : 0), _key = 4; _key < _len; _key++) {
-                specialNodes[_key - 4] = arguments[_key];
-            }
-
-            var _iteratorNormalCompletion6 = true;
-            var _didIteratorError6 = false;
-            var _iteratorError6 = undefined;
-
-            try {
-                for (var _iterator6 = specialNodes[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                    var node = _step6.value;
-
-                    this.blockedNodes.add(node);
-                }
-            } catch (err) {
-                _didIteratorError6 = true;
-                _iteratorError6 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion6 && _iterator6.return) {
-                        _iterator6.return();
-                    }
-                } finally {
-                    if (_didIteratorError6) {
-                        throw _iteratorError6;
-                    }
-                }
-            }
-        }
-
-        /**
-         * empty function, redefined in inherited elements
-         * refreshState takes input connector values and sets output values accordingly
-         */
-
-    }, {
-        key: 'refreshState',
-        value: function refreshState() {
-            console.warn("Calling the virtual function refreshState has no effect.");
-        }
-
-        /**
-         * change image to another one that ends with a specified suffix
-         *
-         * *usage:* `changeImage("abc")` changes image url to `image-abc.svg`,
-         * `changeImage()` changes image url to the default one (`image.svg`)
-         * @param  {string} [suffix] new suffix for the image
-         */
-
-    }, {
-        key: 'changeImage',
-        value: function changeImage(suffix) {
-            if (suffix === undefined || suffix === "") {
-                this.imgSuffix = "";
-            } else {
-                this.imgSuffix = "-" + suffix;
-            }
-
-            this.image.changeUrl(this.url);
-        }
-
-        /**
-         * get a jQuery element representing this box
-         * @return {jQuery.element}
-         */
-
-    }, {
-        key: 'get',
-        value: function get() {
-            return this.svgObj.get();
-        }
-
-        /**
-         * rotate the set of blocked nodes by 90 degrees to the right or to the left, depending on the parameter
-         *
-         * used to rotate the nodes when the object itself is rotated
-         * @param  {boolean} right rotate clockwise if true, counterclockwise if false
-         */
-
-    }, {
-        key: 'rotateBlockedNodes',
-        value: function rotateBlockedNodes(right) {
-            if (this.rotationParity === undefined) {
-                this.rotationParity = false;
-            }
-
-            this.rotationParity = !this.rotationParity;
-
-            var newBlockedNodes = new Set();
-
-            // rotate the node
-
-            var _iteratorNormalCompletion7 = true;
-            var _didIteratorError7 = false;
-            var _iteratorError7 = undefined;
-
-            try {
-                for (var _iterator7 = this.blockedNodes[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                    var node = _step7.value;
-
-                    var newNode = void 0;
-
-                    if (this.rotationParity) {
-                        if (right) {
-                            newNode = {
-                                x: Math.abs(node.y - this.gridHeight),
-                                y: node.x
-                            };
-                        } else {
-                            newNode = {
-                                x: node.y,
-                                y: Math.abs(node.x - this.gridWidth)
-                            };
-                        }
-                    } else {
-                        if (right) {
-                            newNode = {
-                                x: Math.abs(node.y - this.gridWidth),
-                                y: node.x
-                            };
-                        } else {
-                            newNode = {
-                                x: node.y,
-                                y: Math.abs(node.x - this.gridHeight)
-                            };
-                        }
-                    }
-
-                    newBlockedNodes.add(newNode);
-                }
-            } catch (err) {
-                _didIteratorError7 = true;
-                _iteratorError7 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                        _iterator7.return();
-                    }
-                } finally {
-                    if (_didIteratorError7) {
-                        throw _iteratorError7;
-                    }
-                }
-            }
-
-            this.blockedNodes = newBlockedNodes;
-        }
-
-        /**
-         * rotate the set of blocked nodes to the right
-         *
-         * used to rotate the nodes when the object itself is rotated
-         */
-
-    }, {
-        key: 'rotateBlockedNodesRight',
-        value: function rotateBlockedNodesRight() {
-            this.rotateBlockedNodes(true);
-        }
-
-        /**
-         * rotate the set of blocked nodes to the right
-         *
-         * used to rotate the nodes when the object itself is rotated
-         */
-
-    }, {
-        key: 'rotateBlockedNodesLeft',
-        value: function rotateBlockedNodesLeft() {
-            this.rotateBlockedNodes(false);
-        }
-
-        /**
-         * add a connector to the element on the specified position
-         * @param {number}  left             horizontal distance from the left edge of the element
-         * @param {number}  top              vertical distance from the top edge of the element
-         * @param {Boolean} isInputConnector whether or not should this connector an input connector (`true` for input connector, `false` for output connector)
-         */
-
-    }, {
-        key: 'addConnector',
-        value: function addConnector(left, top, isInputConnector) {
-            var index = this.connectors.length;
-            if (isInputConnector) {
-                this.connectors[index] = new InputConnector(this.parentSVG, left, top);
-            } else {
-                this.connectors[index] = new OutputConnector(this.parentSVG, left, top);
-            }
-            this.svgObj.addChild(this.connectors[index].get());
-        }
-
-        /**
-         * add an input connector to the element on the specified position
-         * @param {number} left horizontal distance from the left edge of the element
-         * @param {number} top  vertical distance from the top edge of the element
-         */
-
-    }, {
-        key: 'addInputConnector',
-        value: function addInputConnector(left, top) {
-            return this.addConnector(left, top, true);
-        }
-
-        /**
-         * add an output connector to the element on the specified position
-         * @param {number} left horizontal distance from the left edge of the element
-         * @param {number} top  vertical distance from the top edge of the element
-         */
-
-    }, {
-        key: 'addOutputConnector',
-        value: function addOutputConnector(left, top) {
-            return this.addConnector(left, top, false);
-        }
-
-        /**
-         * get the connector object based on its id
-         * @param  {string} connectorId ID of the {@link Connector}
-         * @return {Connector}             instance of the {@link Connector} or `undefined` if not found
-         */
-
-    }, {
-        key: 'getConnectorById',
-        value: function getConnectorById(connectorId) {
-            for (var i = 0; i < this.connectors.length; i++) {
-                if (this.connectors[i].id === connectorId) {
-                    return this.connectors[i];
-                }
-            }
-            // if connector not found, return undefined
-            return undefined;
-        }
-
-        /**
-         * get the instance of {@link Transform} representing the state of the transform attribute of this element
-         * @param  {Boolean} [gridPixels=false] if `true`, function will return the result in grid pixels instead of SVG pixels
-         * @return {Transform}                  {@link Transform} of the element
-         */
-
-    }, {
-        key: 'getTransform',
-        value: function getTransform() {
-            var gridPixels = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-            var transform = void 0;
-            if (!this.svgObj.$el.attr("transform")) {
-                // the element does not have a "transform" property --> create it
-                transform = new Transform();
-                transform.setTranslate(0, 0);
-                this.svgObj.addAttr({ "transform": transform.get() });
-            } else {
-                // the element does have a "transform" property --> change it
-                transform = new Transform(this.svgObj.$el.attr("transform"));
-            }
-
-            // convert values to grid pixels
-            if (gridPixels) {
-                transform.toGridPixels(this.parentSVG);
-            }
-
-            return transform;
-        }
-
-        /**
-         * get the instance of {@link Transform} representing the state of the transform attribute of this element _with lenght units in grid pixels_
-         * @return {Transform} {@link Transform} of the element
-         */
-
-    }, {
-        key: 'getGridPixelTransform',
-        value: function getGridPixelTransform() {
-            return this.getTransform(true);
-        }
-
-        /**
-         * set the transform attribute of this element
-         * @param {Transform} transform {@link Transform} of the element (with lengths specified in SVG pixels)
-         */
-
-    }, {
-        key: 'setTransform',
-        value: function setTransform(transform) {
-            this.svgObj.addAttr({ "transform": transform.get() });
-        }
-
-        /**
-         * function that is called on every mouse down on this element
-         *
-         * moves the element to the front and calls onMouseDownLeft if applicable
-         * @param  {jQuery.MouseEvent} event
-         */
-
-    }, {
-        key: 'onMouseDown',
-        value: function onMouseDown(event) {
-            this.mouseLeft = false;
-            if (event.which === 1) {
-                this.mouseLeft = true;
-                this.onMouseDownLeft(event);
-
-                // move the DOM element to front
-                this.parentSVG.moveToFrontById(this.svgObj.id);
-            }
-        }
-
-        /**
-         * function that is called on every left mouse down on this element
-         *
-         * prepares element for the "click" and "drag and drop" actions
-         * @param  {jQuery.MouseEvent} event
-         */
-
-    }, {
-        key: 'onMouseDownLeft',
-        value: function onMouseDownLeft(event) {
-            this.mouseMoved = false;
-
-            var transform = this.getTransform();
-
-            // save the current item position into a variable
-            var currentPosition = transform.getTranslate();
-
-            var _parentSVG$viewbox$tr = this.parentSVG.viewbox.transformEvent(event),
-                pageX = _parentSVG$viewbox$tr.pageX,
-                pageY = _parentSVG$viewbox$tr.pageY;
-
-            // calculate mouse offset from the object origin
-
-
-            this.offset = {
-                x: pageX - currentPosition.x,
-                y: pageY - currentPosition.y
-            };
-        }
-
-        /**
-         * function that is called on every left mouse move with this element
-         * applies the correct transform values to provide the "drag and drop" functionality
-         * @param  {jQuery.MouseEvent} event
-         */
-
-    }, {
-        key: 'onMouseMove',
-        value: function onMouseMove(event) {
-            if (this.mouseLeft) {
-                this.svgObj.$el.addClass('grabbed');
-
-                this.mouseMoved = true;
-
-                var _parentSVG$viewbox$tr2 = this.parentSVG.viewbox.transformEvent(event),
-                    pageX = _parentSVG$viewbox$tr2.pageX,
-                    pageY = _parentSVG$viewbox$tr2.pageY;
-
-                var left = pageX - this.offset.x;
-                var top = pageY - this.offset.y;
-
-                var transform = this.getTransform();
-                transform.setTranslate(left, top);
-
-                this.setTransform(transform);
-
-                this.updateWires(true);
-            }
-        }
-
-        /**
-         * function that is called on every mouse up on this element
-         * provides the "click" functionality and calls the onDrop handler for the "drag and drop" functionality
-         * @param  {jQuery.MouseEvent} event
-         */
-
-    }, {
-        key: 'onMouseUp',
-        value: function onMouseUp(event) {
-            if (event.which === 1) {
-                if (this.mouseMoved) {
-                    this.onDrop(event);
-                } else {
-                    this.onClick();
-                }
-            } else if (event.which === 2) {
-                this.onClickMiddle(event);
-            }
-
-            this.svgObj.$el.removeClass('grabbed');
-        }
-
-        /**
-         * called by onMouseUp when the mouse has been moved between onMouseDown and onMouseUp
-         *
-         * applies grid snapping of the element on the end of the "drag and drop" action
-         * @param  {jQuery.MouseEvent} event
-         */
-
-    }, {
-        key: 'onDrop',
-        value: function onDrop(event) {
-            var _parentSVG$viewbox$tr3 = this.parentSVG.viewbox.transformEvent(event),
-                pageX = _parentSVG$viewbox$tr3.pageX,
-                pageY = _parentSVG$viewbox$tr3.pageY;
-
-            var left = pageX - this.offset.x;
-            var top = pageY - this.offset.y;
-
-            left = this.parentSVG.snapToGrid(left);
-            top = this.parentSVG.snapToGrid(top);
-
-            var transform = this.getTransform();
-            transform.setTranslate(left, top);
-
-            this.setTransform(transform);
-
-            this.updateWires();
-
-            // if tutorial exists, call tutorial callback
-            if (this.parentSVG.tutorial) {
-                this.parentSVG.tutorial.onBoxMoved();
-            }
-        }
-
-        /**
-         * empty function, will be redefined in InputBox
-         */
-
-    }, {
-        key: 'onClick',
-        value: function onClick() {}
-
-        /**
-         * custom callback function for middle click that rotates the box by 90 degrees to the right
-         */
-
-    }, {
-        key: 'onClickMiddle',
-        value: function onClickMiddle(event) {
-            // get the transform value for this box
-            var transform = this.getTransform();
-
-            // get the bounding rectangle for this box
-            var rect = this.svgObj.$el[0].getBoundingClientRect();
-
-            // use the bounding rectangle dimensions to figure out the geometrical centre of the box
-            var centreX = Math.round(rect.width / 2);
-            var centreY = Math.round(rect.height / 2);
-
-            centreX -= centreX % this.gridSize;
-            centreY -= centreY % this.gridSize;
-
-            // apply the rotation to the transform object
-            if (event.ctrlKey) {
-                transform.rotateLeft(centreX, centreY);
-            } else {
-                transform.rotateRight(centreX, centreY);
-            }
-
-            // apply the modified transform object ot the svgObj
-            this.svgObj.addAttr({ "transform": transform.get() });
-
-            // rotate also the blocked nodes
-            if (event.ctrlKey) {
-                this.rotateBlockedNodesLeft();
-            } else {
-                this.rotateBlockedNodesRight();
-            }
-
-            // update the wires
-            this.updateWires();
-
-            // if tutorial exists, call tutorial callback
-            if (this.parentSVG.tutorial) {
-                this.parentSVG.tutorial.onBoxRotated();
-            }
-        }
-
-        /**
-         * Updates all wires connected to this box. Iterates over all wires that are connected to this box
-         * and calls routeWire (or temporaryWire if the `temporary` parameter is set to true) to update the wire routing
-         * @param  {Boolean} [temporary=false] [description]
-         */
-
-    }, {
-        key: 'updateWires',
-        value: function updateWires() {
-            var _this5 = this;
-
-            var temporary = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-            this.connectors.forEach(function (conn) {
-                conn.wireIds.forEach(function (wireId) {
-                    var wire = _this5.parentSVG.getWireById(wireId);
-                    if (temporary) {
-                        wire.temporaryWire();
-                    } else {
-                        wire.routeWire();
-                    }
-                });
-            });
-        }
-    }, {
-        key: 'url',
-        get: function get() {
-            var category = this.category || "",
-                name = this.name || "",
-                suffix = this.imgSuffix || "";
-
-            return 'img/svg/' + category + '/' + name + suffix + '.svg';
-        }
-
-        /**
-         * get all input connectors of this box
-         * @return {Array} array of input connectors
-         */
-
-    }, {
-        key: 'inputConnectors',
-        get: function get() {
-            return this.connectors.filter(function (conn) {
-                return conn.isInputConnector;
-            });
-        }
-
-        /**
-         * get all output connectors of this box
-         * @return {Array} array of output connectors
-         */
-
-    }, {
-        key: 'outputConnectors',
-        get: function get() {
-            return this.connectors.filter(function (conn) {
-                return conn.isOutputConnector;
-            });
-        }
-
-        /**
-         * get data of this box as a JSON-ready object
-         * @return {Object} javascript object containing essential data for this box
-         */
-
-    }, {
-        key: 'exportData',
-        get: function get() {
-            var connections = [];
-
-            // go through all connectors
-            var counter = 0;
-            var _iteratorNormalCompletion8 = true;
-            var _didIteratorError8 = false;
-            var _iteratorError8 = undefined;
-
-            try {
-                for (var _iterator8 = this.connectors[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                    var conn = _step8.value;
-
-                    // go through each its wire id
-                    var _iteratorNormalCompletion9 = true;
-                    var _didIteratorError9 = false;
-                    var _iteratorError9 = undefined;
-
-                    try {
-                        for (var _iterator9 = conn.wireIds[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                            var item = _step9.value;
-
-                            var thisWireId = void 0;
-                            if (!this.parentSVG.exportWireIdMap.has(item)) {
-                                // if the wire id is not in the map, add it and assign new arbitrary id
-                                this.parentSVG.exportWireIdMap.set(item, this.parentSVG.exportWireId);
-                                thisWireId = this.parentSVG.exportWireId;
-                                this.parentSVG.exportWireId++;
-                            } else {
-                                // else get id from the map
-                                thisWireId = this.parentSVG.exportWireIdMap.get(item);
-                            }
-
-                            // add this connection to the list
-                            connections[connections.length] = {
-                                index: counter,
-                                type: conn.type,
-                                wireId: thisWireId
-                            };
-                        }
-                    } catch (err) {
-                        _didIteratorError9 = true;
-                        _iteratorError9 = err;
-                    } finally {
-                        try {
-                            if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                                _iterator9.return();
-                            }
-                        } finally {
-                            if (_didIteratorError9) {
-                                throw _iteratorError9;
-                            }
-                        }
-                    }
-
-                    counter++;
-                }
-            } catch (err) {
-                _didIteratorError8 = true;
-                _iteratorError8 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion8 && _iterator8.return) {
-                        _iterator8.return();
-                    }
-                } finally {
-                    if (_didIteratorError8) {
-                        throw _iteratorError8;
-                    }
-                }
-            }
-
-            return {
-                name: this.name,
-                category: this.category,
-                transform: this.getTransform(true),
-                connections: connections
-            };
-        }
-    }]);
-
-    return Box;
-}(NetworkElement);
-
-/**
- * InputBox has only output connectors and is used to set the input states for the logic network.
- * @extends Box
- */
-
-
-var InputBox = exports.InputBox = function (_Box) {
-    _inherits(InputBox, _Box);
-
-    /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
-     * @param {Boolean} [isOn=false] the initial state of the inputbox (`true` is *on*, `false` is *off*)
-     */
-    function InputBox(parentSVG) {
-        var isOn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-        _classCallCheck(this, InputBox);
-
-        var gridWidth = 7;
-        var gridHeight = 4;
-
-        var _this6 = _possibleConstructorReturn(this, (InputBox.__proto__ || Object.getPrototypeOf(InputBox)).call(this, parentSVG, "input", "other", gridWidth, gridHeight));
-
-        _this6.addConnector(gridWidth, gridHeight / 2, false);
-
-        _this6.on = isOn;
-
-        _this6.generateBlockNodes();
-        return _this6;
-    }
-
-    /**
-     * get data of this input box as a JSON-ready object
-     * @return {Object} javascript object containing essential data for this input box
-     */
-
-
-    _createClass(InputBox, [{
-        key: 'generateBlockNodes',
-        value: function generateBlockNodes() {
-            // block the input connector node
-            var specialNode = {
-                x: this.gridWidth,
-                y: this.gridHeight / 2
-            };
-            _get(InputBox.prototype.__proto__ || Object.getPrototypeOf(InputBox.prototype), 'generateBlockNodes', this).call(this, 0, 1, 1, 0, specialNode);
-        }
-
-        /**
-         * start a new simulation from the output connector
-         */
-
-    }, {
-        key: 'refreshState',
-        value: function refreshState() {
-            this.parentSVG.startNewSimulation(this.connectors[0], this.connectors[0].state);
-        }
-
-        /**
-         * set the state of the inputbox to the corresponding value
-         * @param  {Boolean} isOn set to *on* if `true`, set to *off* if `false`
-         */
-
-    }, {
-        key: 'onClick',
-
-
-        /**
-         * toggle the state of the inputbox
-         */
-        value: function onClick() {
-            this.on = !this.on;
-
-            if (this.parentSVG.tutorial) {
-                this.parentSVG.tutorial.onChangeInputBoxState();
-            }
-        }
-    }, {
-        key: 'exportData',
-        get: function get() {
-            var data = _get(InputBox.prototype.__proto__ || Object.getPrototypeOf(InputBox.prototype), 'exportData', this);
-            data.isOn = this.isOn;
-
-            return data;
-        }
-    }, {
-        key: 'on',
-        set: function set(isOn) {
-            if (isOn) {
-                // turn on
-                this.changeImage("on");
-                this.connectors[0].setState(_logic2.default.state.on);
-                this.refreshState();
-            } else {
-                // turn off
-                this.changeImage();
-                this.connectors[0].setState(_logic2.default.state.off);
-                this.refreshState();
-            }
-
-            this.isOn = isOn;
-        }
-
-        /**
-         * get the state of the inputbox (`true` if *on*, `false` if *off*)
-         * @return {Boolean} [description]
-         */
-        ,
-        get: function get() {
-            return this.isOn;
-        }
-    }]);
-
-    return InputBox;
-}(Box);
-
-/**
- * OutputBox has only input connectors and is used to visualize the output states of the logic network.
- * @extends Box
- */
-
-
-var OutputBox = exports.OutputBox = function (_Box2) {
-    _inherits(OutputBox, _Box2);
-
-    /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
-     */
-    function OutputBox(parentSVG) {
-        _classCallCheck(this, OutputBox);
-
-        var gridHeight = 4;
-        var gridWidth = 5;
-
-        var _this7 = _possibleConstructorReturn(this, (OutputBox.__proto__ || Object.getPrototypeOf(OutputBox)).call(this, parentSVG, "output", "other", gridWidth, gridHeight));
-
-        _this7.addConnector(0, gridHeight / 2, true);
-
-        _this7.generateBlockNodes();
-        return _this7;
-    }
-
-    /**
-     * set state of this output box to match the state of its input connector
-     */
-
-
-    _createClass(OutputBox, [{
-        key: 'refreshState',
-        value: function refreshState() {
-            this.setState(this.connectors[0].state);
-        }
-
-        /**
-         * Reflect the input connector state in the appearance of the element - set
-         * the element image to represent the corresponding state
-         * @param {Logic.state} state new state of this outputBox
-         */
-
-    }, {
-        key: 'setState',
-        value: function setState(state) {
-            switch (state) {
-                case _logic2.default.state.on:
-                    this.changeImage("on");
-
-                    // if tutorial exists, call tutorial callback
-                    if (this.parentSVG.tutorial) {
-                        this.parentSVG.tutorial.onOutputBoxTrue();
-                    }
-                    break;
-                case _logic2.default.state.off:
-                    this.changeImage("off");
-                    break;
-                case _logic2.default.state.unknown:
-                    this.changeImage();
-                    break;
-                case _logic2.default.state.oscillating:
-                    this.changeImage("osc");
-                    break;
-            }
-        }
-    }, {
-        key: 'generateBlockNodes',
-        value: function generateBlockNodes() {
-            // block the input connector node
-            var specialNode = {
-                x: 0,
-                y: this.gridHeight / 2
-            };
-            _get(OutputBox.prototype.__proto__ || Object.getPrototypeOf(OutputBox.prototype), 'generateBlockNodes', this).call(this, 0, 0, 0, 1, specialNode);
-        }
-    }]);
-
-    return OutputBox;
-}(Box);
-
-/**
- * Gate is a box that processes the states of its input connectors and returns the result in its output connectors.
- * @extends Box
- */
-
-
-var Gate = exports.Gate = function (_Box3) {
-    _inherits(Gate, _Box3);
-
-    /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
-     * @param {string} name       name of the gate (and, not, xor...)
-     */
-    function Gate(parentSVG, name) {
-        _classCallCheck(this, Gate);
-
-        var width = 9;
-        var height = 4;
-
-        // ADD CONNECTORS
-
-        var _this8 = _possibleConstructorReturn(this, (Gate.__proto__ || Object.getPrototypeOf(Gate)).call(this, parentSVG, name, "gate", width, height));
-
-        var specialNodes = [];
-
-        // output
-        _this8.addConnector(width, height / 2, false);
-
-        // block the output connector
-        specialNodes.push({
-            x: width,
-            y: height / 2
-        });
-
-        if (_this8.name === "not" || _this8.name === "repeater") {
-            // input
-            _this8.addConnector(0, height / 2, true);
-            // block the input connector
-            specialNodes.push({
-                x: 0,
-                y: height / 2
-            });
-        } else {
-            // input
-            _this8.addConnector(0, height / 4, true);
-            _this8.addConnector(0, height / (4 / 3), true);
-
-            // block the input connectors
-            specialNodes.push({
-                x: 0,
-                y: height / 4
-            });
-            specialNodes.push({
-                x: 0,
-                y: height / (4 / 3)
-            });
-
-            // add one blocked node between the inputs (for better looking wiring)
-            specialNodes.push({
-                x: 0,
-                y: height / 2
-            });
-        }
-
-        _this8.generateBlockNodes.apply(_this8, specialNodes);
-
-        _this8.refreshState();
-        return _this8;
-    }
-
-    /**
-     * array of valid gate names
-     * @type {Set}
-     */
-
-
-    _createClass(Gate, [{
-        key: 'generateBlockNodes',
-        value: function generateBlockNodes() {
-            for (var _len2 = arguments.length, specialNodes = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-                specialNodes[_key2] = arguments[_key2];
-            }
-
-            if (specialNodes !== undefined) {
-                var _get2;
-
-                (_get2 = _get(Gate.prototype.__proto__ || Object.getPrototypeOf(Gate.prototype), 'generateBlockNodes', this)).call.apply(_get2, [this, 0, 1, 0, 1].concat(specialNodes));
-            } else {
-                _get(Gate.prototype.__proto__ || Object.getPrototypeOf(Gate.prototype), 'generateBlockNodes', this).call(this, 0, 1, 0, 1);
-            }
-        }
-
-        /**
-         * proccess the input connector states and reflect them in the output connector states according
-         * to the logic corresponding to this gate's name
-         */
-
-    }, {
-        key: 'refreshState',
-        value: function refreshState() {
-            var state = _logic2.default.state.unknown;
-            switch (this.name) {
-                case "and":
-                    state = _logic2.default.and(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "nand":
-                    state = _logic2.default.nand(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "nor":
-                    state = _logic2.default.nor(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "not":
-                    state = _logic2.default.not(this.connectors[1].state);
-                    break;
-                case "or":
-                    state = _logic2.default.or(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "xnor":
-                    state = _logic2.default.xnor(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "xor":
-                    state = _logic2.default.xor(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "repeater":
-                    state = this.connectors[1].state;
-                    break;
-            }
-            // notify the simulator about this change
-            this.parentSVG.simulation.notifyChange(this.connectors[0].id, state);
-        }
-    }], [{
-        key: 'validGates',
-        get: function get() {
-            return new Set(["not", "and", "or", "nand", "nor", "xor", "xnor", "repeater"]);
-        }
-    }]);
-
-    return Gate;
-}(Box);
-
-/**
- * Blackbox is a box that is defined by its evaluation function
- * @extends Box
- */
-
-
-var Blackbox = exports.Blackbox = function (_Box4) {
-    _inherits(Blackbox, _Box4);
-
-    /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
-     * @param {number} inputConnectors  number of input connectors
-     * @param {number} outputConnectors number of output connectors
-     * @param {Function} evalFunction   function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
-     *                                  and returns `outputConnectors` Logic.states.
-     * @param {String} [name]        name that will be displayed on the blackbox
-     */
-    function Blackbox(parentSVG, inputConnectors, outputConnectors, evalFunction) {
-        var name = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "";
-
-        _classCallCheck(this, Blackbox);
-
-        var width = 11;
-        var height = Math.max(inputConnectors, outputConnectors) * 2;
-
-        var _this9 = _possibleConstructorReturn(this, (Blackbox.__proto__ || Object.getPrototypeOf(Blackbox)).call(this, parentSVG, name, "blackbox", width, height));
-
-        var connectorPinLenght = 2.5 * _this9.gridSize;
-
-        // override default svgObj structure
-        _this9.svgObj = new svgObj.Group();
-
-        // transparent background rectangle
-        var hitbox = new svgObj.Rectangle(0, 0, _this9.width, _this9.height, "none", "none");
-        hitbox.$el.addClass('rect');
-
-        _this9.svgObj.addChild(hitbox);
-
-        // main rectangle
-        var bodyWidth = _this9.width - 2 * connectorPinLenght;
-
-        var rectangle = new svgObj.Rectangle(connectorPinLenght, 0, bodyWidth, _this9.height, "white", "black");
-        rectangle.addAttr({ 'stroke-width': '2.5' });
-        rectangle.$el.addClass('rect');
-
-        _this9.svgObj.addChild(rectangle);
-
-        // text description of the box
-        var textWidth = bodyWidth - _this9.gridSize;
-        var textHeight = _this9.height - _this9.gridSize;
-        var text = new svgObj.MultiLineText((_this9.width - textWidth) / 2, // horizontal centering
-        (_this9.height - textHeight) / 2, // vertical centering
-        textWidth, textHeight, name.toUpperCase(), _this9.gridSize * 1.2);
-        _this9.svgObj.addChild(text);
-
-        // add input connectors
-        for (var i = 0; i < inputConnectors; ++i) {
-            var gridPosition = i * 2 + 1;
-            var pixelPosition = gridPosition * _this9.gridSize;
-
-            var pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(0, pixelPosition), new svgObj.PolylinePoint(connectorPinLenght, pixelPosition)]), 1, "black");
-
-            _this9.svgObj.addChild(pin);
-
-            // add the connector
-            _this9.addInputConnector(0, gridPosition);
-        }
-
-        // add output connectors
-        for (var _i = 0; _i < outputConnectors; ++_i) {
-            var _gridPosition = _i * 2 + 1;
-            var _pixelPosition = _gridPosition * _this9.gridSize;
-
-            var _pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(_this9.width - connectorPinLenght, _pixelPosition), new svgObj.PolylinePoint(_this9.width, _pixelPosition)]), 1, "black");
-
-            _this9.svgObj.addChild(_pin);
-
-            _this9.addOutputConnector(width, _gridPosition);
-        }
-
-        _this9.svgObj.$el.addClass("box");
-
-        /**
-         * function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
-         * and returns `outputConnectors` Logic.states.
-         */
-        _this9.evalFunction = evalFunction;
-
-        // regenerate the blocked nodes after adding all the connectors
-        _this9.generateBlockNodes();
-        return _this9;
-    }
-
-    /**
-     * get data of this blackbox as a JSON-ready object
-     * @return {Object} javascript object containing essential data for this blackbox
-     */
-
-
-    _createClass(Blackbox, [{
-        key: 'refreshState',
-
-
-        /**
-         * proccess the input connector states and reflect them in the output connector states according
-         * to the logic defined by this.evalFunction
-         */
-        value: function refreshState() {
-            var inputStates = this.inputConnectors.map(function (conn) {
-                return conn.state;
-            });
-            // call the evalFunction to get the output states
-            var outputStates = this.evalFunction.apply(this, _toConsumableArray(inputStates));
-
-            // apply the outputStates to the outputConnectors
-            for (var i = 0; i < outputStates.length; ++i) {
-                this.outputConnectors[i].setState(outputStates[i]);
-            }
-        }
-    }, {
-        key: 'generateBlockNodes',
-        value: function generateBlockNodes() {
-            var _get3;
-
-            // add blocked nodes on the connectors and between them as well
-
-            var specialNodes = [];
-            for (var i = 1; i < this.inputConnectors.length * 2; ++i) {
-                specialNodes.push({
-                    x: 0,
-                    y: i
-                });
-            }
-            for (var _i2 = 1; _i2 < this.outputConnectors.length * 2; ++_i2) {
-                specialNodes.push({
-                    x: this.gridWidth,
-                    y: _i2
-                });
-            }
-
-            (_get3 = _get(Blackbox.prototype.__proto__ || Object.getPrototypeOf(Blackbox.prototype), 'generateBlockNodes', this)).call.apply(_get3, [this, 0, 1, 0, 1].concat(specialNodes));
-        }
-    }, {
-        key: 'exportData',
-        get: function get() {
-            var data = _get(Blackbox.prototype.__proto__ || Object.getPrototypeOf(Blackbox.prototype), 'exportData', this);
-            data.inputs = this.inputConnectors.length;
-            data.outputs = this.outputConnectors.length;
-
-            // generate the truth table
-
-            data.table = [];
-
-            // array of tested input states
-            var stateList = _logic2.default.stateList;
-
-            // recursive function that generates all possible inputs
-            var getPermutations = function getPermutations(length) {
-                var permutations = [];
-                switch (length) {
-                    case 0:
-                        return [];
-                    case 1:
-                        var _iteratorNormalCompletion10 = true;
-                        var _didIteratorError10 = false;
-                        var _iteratorError10 = undefined;
-
-                        try {
-                            for (var _iterator10 = stateList[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-                                var state = _step10.value;
-
-                                permutations.push([state]);
-                            }
-                        } catch (err) {
-                            _didIteratorError10 = true;
-                            _iteratorError10 = err;
-                        } finally {
-                            try {
-                                if (!_iteratorNormalCompletion10 && _iterator10.return) {
-                                    _iterator10.return();
-                                }
-                            } finally {
-                                if (_didIteratorError10) {
-                                    throw _iteratorError10;
-                                }
-                            }
-                        }
-
-                        return permutations;
-                    default:
-                        var _iteratorNormalCompletion11 = true;
-                        var _didIteratorError11 = false;
-                        var _iteratorError11 = undefined;
-
-                        try {
-                            for (var _iterator11 = stateList[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-                                var _state = _step11.value;
-                                var _iteratorNormalCompletion12 = true;
-                                var _didIteratorError12 = false;
-                                var _iteratorError12 = undefined;
-
-                                try {
-                                    for (var _iterator12 = getPermutations(length - 1)[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-                                        var perm = _step12.value;
-
-                                        permutations.push([_state].concat(_toConsumableArray(perm)));
-                                    }
-                                } catch (err) {
-                                    _didIteratorError12 = true;
-                                    _iteratorError12 = err;
-                                } finally {
-                                    try {
-                                        if (!_iteratorNormalCompletion12 && _iterator12.return) {
-                                            _iterator12.return();
-                                        }
-                                    } finally {
-                                        if (_didIteratorError12) {
-                                            throw _iteratorError12;
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (err) {
-                            _didIteratorError11 = true;
-                            _iteratorError11 = err;
-                        } finally {
-                            try {
-                                if (!_iteratorNormalCompletion11 && _iterator11.return) {
-                                    _iterator11.return();
-                                }
-                            } finally {
-                                if (_didIteratorError11) {
-                                    throw _iteratorError11;
-                                }
-                            }
-                        }
-
-                        return permutations;
-                }
-            };
-
-            // generate outputs for all the possible inputs
-            var _iteratorNormalCompletion13 = true;
-            var _didIteratorError13 = false;
-            var _iteratorError13 = undefined;
-
-            try {
-                for (var _iterator13 = getPermutations(data.inputs)[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-                    var inputValues = _step13.value;
-
-                    var outputValues = this.evalFunction.apply(this, _toConsumableArray(inputValues));
-
-                    // if there is an output value that is not Logic.state.unknown, add this line to the
-                    // truthtable, otherwise don't add it (if all output values are Logic.state.unknown,
-                    // the input combination does not have to be defines, because Logic.state.unknown is the default value)
-                    if (outputValues.reduce(function (accumulator, current) {
-                        return accumulator || current !== _logic2.default.state.unknown;
-                    })) {
-                        data.table.push([].concat(_toConsumableArray(inputValues), _toConsumableArray(outputValues)));
-                    }
-                }
-            } catch (err) {
-                _didIteratorError13 = true;
-                _iteratorError13 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
-                        _iterator13.return();
-                    }
-                } finally {
-                    if (_didIteratorError13) {
-                        throw _iteratorError13;
-                    }
-                }
-            }
-
-            return data;
-        }
-    }]);
-
-    return Blackbox;
-}(Box);
-
-/**
- * A temporary wire that is connecting a {@link Connector} with a mouse pointer when user creates a wire.
- * @extends NetworkElement
- */
-
-
-var HelperWire = exports.HelperWire = function (_NetworkElement3) {
-    _inherits(HelperWire, _NetworkElement3);
-
-    function HelperWire(parentSVG, fromId, mousePosition) {
-        _classCallCheck(this, HelperWire);
-
-        var _this10 = _possibleConstructorReturn(this, (HelperWire.__proto__ || Object.getPrototypeOf(HelperWire)).call(this, parentSVG));
-
-        var connector = _this10.parentSVG.getConnectorById(fromId);
-        _this10.connectorPosition = _this10.parentSVG.getConnectorPosition(connector, true);
-
-        var from = new svgObj.PolylinePoint(_this10.connectorPosition.x, _this10.connectorPosition.y);
-        var to = new svgObj.PolylinePoint(mousePosition.x, mousePosition.y);
-
-        var points = new svgObj.PolylinePoints([from, to]);
-
-        _this10.svgObj = new svgObj.PolyLine(points, 2, "#8b8b8b");
-        return _this10;
-    }
-
-    _createClass(HelperWire, [{
-        key: 'updateMousePosition',
-        value: function updateMousePosition(mousePosition) {
-            var from = new svgObj.PolylinePoint(this.connectorPosition.x, this.connectorPosition.y);
-            var to = new svgObj.PolylinePoint(mousePosition.x, mousePosition.y);
-
-            var points = new svgObj.PolylinePoints([from, to]);
-
-            this.svgObj.updatePoints(points);
-        }
-
-        /**
-         * get the jQuery element for this helper wire
-         * @return {jQuery.element}
-         */
-
-    }, {
-        key: 'get',
-        value: function get() {
-            return this.svgObj.get();
-        }
-    }]);
-
-    return HelperWire;
-}(NetworkElement);
-
-/**
- * Wire represents connection of two {@link Connector}s.
- * @extends NetworkElement
- */
-
-
-var Wire = exports.Wire = function (_NetworkElement4) {
-    _inherits(Wire, _NetworkElement4);
-
-    /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
-     * @param {string}  fromId    id of the first connector this wire will be connected to
-     * @param {string}  toId      id of the second connector this wire will be connected to
-     * @param {Boolean} [refresh=true] if `true`, the [Canvas](./module-Canvas.html) will refresh after creating this wire
-     */
-    function Wire(parentSVG, fromId, toId) {
-        var refresh = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-        var route = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
-
-        _classCallCheck(this, Wire);
-
-        var _this11 = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this, parentSVG));
-
-        _this11.gridSize = parentSVG.gridSize;
-
-        _this11.fromId = fromId;
-        _this11.toId = toId;
-
-        _this11.startBox = _this11.parentSVG.getBoxByConnectorId(fromId);
-        _this11.endBox = _this11.parentSVG.getBoxByConnectorId(toId);
-
-        _this11.boxes = [_this11.startBox, _this11.endBox];
-
-        _this11.startConnector = _this11.parentSVG.getConnectorById(fromId);
-        _this11.endConnector = _this11.parentSVG.getConnectorById(toId);
-
-        _this11.connectors = [_this11.startConnector, _this11.endConnector];
-
-        if (route) {
-            _this11.routeWire(true, refresh);
-        } else {
-            _this11.temporaryWire();
-        }
-
-        _this11.elementState = _logic2.default.state.unknown;
-
-        var _iteratorNormalCompletion14 = true;
-        var _didIteratorError14 = false;
-        var _iteratorError14 = undefined;
-
-        try {
-            for (var _iterator14 = _this11.connectors[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                var connector = _step14.value;
-
-                if (connector.isOutputConnector) {
-                    _this11.setState(connector.state);
-                }
-            }
-        } catch (err) {
-            _didIteratorError14 = true;
-            _iteratorError14 = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                    _iterator14.return();
-                }
-            } finally {
-                if (_didIteratorError14) {
-                    throw _iteratorError14;
-                }
-            }
-        }
-
-        _this11.svgObj.$el.addClass("wire");
-        return _this11;
-    }
-
-    /**
-     * get data of this wire as a JSON-ready object
-     * @return {Object} javascript object containing essential data for this wire
-     */
-
-
-    _createClass(Wire, [{
-        key: 'setState',
-
-
-        /**
-         * set the state of this wire to match the state of the input connector it is connected to
-         * @param {Logic.state} state [description]
-         */
-        value: function setState(state) {
-            this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
-
-            switch (state) {
-                case _logic2.default.state.unknown:
-                    this.svgObj.addClass(stateClasses.unknown);
-                    break;
-                case _logic2.default.state.on:
-                    this.svgObj.addClass(stateClasses.on);
-                    break;
-                case _logic2.default.state.off:
-                    this.svgObj.addClass(stateClasses.off);
-                    break;
-                case _logic2.default.state.oscillating:
-                    this.svgObj.addClass(stateClasses.oscillating);
-                    break;
-            }
-
-            if (this.startConnector.isInputConnector) {
-                this.startConnector.setState(state);
-            }
-            if (this.endConnector.isInputConnector) {
-                this.endConnector.setState(state);
-            }
-
-            this.elementState = state;
-        }
-
-        /**
-         * get the current [Logic.state](./modules-Logic.html#.state) of this wire
-         * @return {Logic.state}
-         */
-
-    }, {
-        key: 'updateWireState',
-
-
-        /**
-         * update the state of this wire
-         */
-        value: function updateWireState() {
-            var _iteratorNormalCompletion15 = true;
-            var _didIteratorError15 = false;
-            var _iteratorError15 = undefined;
-
-            try {
-                for (var _iterator15 = this.boxes[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-                    var box = _step15.value;
-
-                    box.refreshState();
-                }
-            } catch (err) {
-                _didIteratorError15 = true;
-                _iteratorError15 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
-                        _iterator15.return();
-                    }
-                } finally {
-                    if (_didIteratorError15) {
-                        throw _iteratorError15;
-                    }
-                }
-            }
-        }
-
-        /**
-         * get the jQuery element for this wire
-         * @return {jQuery.element}
-         */
-
-    }, {
-        key: 'get',
-        value: function get() {
-            return this.svgObj.get();
-        }
-
-        /**
-         * get the polyline points for a temporary wire placement connecting the two connectors
-         * @return {PolylinePoints} new instance of {@link PolylinePoints}
-         */
-
-    }, {
-        key: 'getTemporaryWirePoints',
-        value: function getTemporaryWirePoints() {
-            var points = new svgObj.PolylinePoints();
-            points.append(new svgObj.PolylinePoint(this.wireStart.x, this.wireStart.y));
-            points.append(new svgObj.PolylinePoint(this.wireEnd.x, this.wireEnd.y));
-            return points;
-        }
-
-        /**
-         * route the wire using the temporary wire points
-         */
-
-    }, {
-        key: 'temporaryWire',
-        value: function temporaryWire() {
-            this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, false);
-            this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, false);
-
-            this.setWirePath(this.getTemporaryWirePoints());
-        }
-
-        /**
-         * route the wire using the modified A* wire routing algorithm
-         */
-
-    }, {
-        key: 'routeWire',
-        value: function routeWire() {
-            var snapToGrid = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-            var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-            this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, snapToGrid);
-            this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, snapToGrid);
-
-            this.points = this.findRoute({
-                x: this.wireStart.x / this.gridSize,
-                y: this.wireStart.y / this.gridSize
-            }, {
-                x: this.wireEnd.x / this.gridSize,
-                y: this.wireEnd.y / this.gridSize
-            });
-
-            this.setWirePath(this.points);
-
-            if (refresh) this.updateWireState();
-
-            // regenerate inconvenient nodes
-            this.generateInconvenientNodes();
-        }
-
-        /**
-         * set the wire to follow the specified points
-         * @param {PolylinePoints} points instance of {@link PolylinePoints}
-         */
-
-    }, {
-        key: 'setWirePath',
-        value: function setWirePath(points) {
-            // set the line
-            if (this.svgObj !== undefined) {
-                // this.svgObj.updatePoints(points);
-                var _iteratorNormalCompletion16 = true;
-                var _didIteratorError16 = false;
-                var _iteratorError16 = undefined;
-
-                try {
-                    for (var _iterator16 = this.svgObj.children[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
-                        var child = _step16.value;
-
-                        child.updatePoints(points);
-                    }
-                } catch (err) {
-                    _didIteratorError16 = true;
-                    _iteratorError16 = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion16 && _iterator16.return) {
-                            _iterator16.return();
-                        }
-                    } finally {
-                        if (_didIteratorError16) {
-                            throw _iteratorError16;
-                        }
-                    }
-                }
-            } else {
-                this.svgObj = new svgObj.Group();
-
-                var hitbox = new svgObj.PolyLine(points, 10, 'white');
-                hitbox.addClass("hitbox");
-                hitbox.addAttr({ opacity: 0 });
-                this.svgObj.addChild(hitbox);
-
-                var mainLine = new svgObj.PolyLine(points, 2);
-                mainLine.addClass("main", "stateUnknown");
-                this.svgObj.addChild(mainLine);
-            }
-        }
-    }, {
-        key: 'pathToPolyline',
-        value: function pathToPolyline(path) {
-            var totalPath = new svgObj.PolylinePoints();
-            var _iteratorNormalCompletion17 = true;
-            var _didIteratorError17 = false;
-            var _iteratorError17 = undefined;
-
-            try {
-                for (var _iterator17 = path[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
-                    var point = _step17.value;
-
-                    totalPath.append(new svgObj.PolylinePoint(point.x * this.gridSize, point.y * this.gridSize));
-                }
-            } catch (err) {
-                _didIteratorError17 = true;
-                _iteratorError17 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
-                        _iterator17.return();
-                    }
-                } finally {
-                    if (_didIteratorError17) {
-                        throw _iteratorError17;
-                    }
-                }
-            }
-
-            return totalPath;
-        }
-
-        /**
-         * find a nice route for the wire
-         * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
-         * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
-         * @return {PolylinePoints}       [description]
-         */
-
-    }, {
-        key: 'findRoute',
-        value: function findRoute(start, end) {
-            var nonRoutable = this.parentSVG.getNonRoutableNodes();
-
-            var punishedButRoutable = void 0;
-            if (this.svgObj === undefined) {
-                punishedButRoutable = this.parentSVG.getInconvenientNodes();
-            } else {
-                punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
-            }
-
-            var path = (0, _findPath2.default)(start, end, nonRoutable, punishedButRoutable, this.gridSize);
-
-            if (path) {
-                return this.pathToPolyline(path);
-            }
-
-            // if a path was not found, try again but don't take into account the punished and non routable node
-            path = (0, _findPath2.default)(start, end, new Set(), new Set(), this.gridSize);
-
-            if (path) {
-                return this.pathToPolyline(path);
-            }
-
-            // if the path was still not found, give up and return temporary points
-            return this.getTemporaryWirePoints();
-        }
-
-        /**
-         * generate a set of nodes, that are inconvenient for wiring, but can be used, just are not preferred
-         * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
-         */
-
-    }, {
-        key: 'generateInconvenientNodes',
-        value: function generateInconvenientNodes() {
-            var _this12 = this;
-
-            this.inconvenientNodes = new Set();
-
-            var prevPoint = void 0;
-
-            this.points.forEach(function (point) {
-                var x = _this12.parentSVG.SVGToGrid(point.x),
-                    y = _this12.parentSVG.SVGToGrid(point.y);
-
-                if (prevPoint === undefined) {
-                    // if the prevPoint is undefined, add the first point
-                    _this12.inconvenientNodes.add({ x: x, y: y });
-                } else {
-                    // else add all the point between the prevPoint (excluded) and point (included)
-
-                    if (prevPoint.x === x) {
-                        // if the line is horizontal
-                        var from = Math.min(prevPoint.y, y);
-                        var to = Math.max(prevPoint.y, y);
-
-                        while (from <= to) {
-                            _this12.inconvenientNodes.add({ x: x, y: from });
-                            from++;
-                        }
-                    } else if (prevPoint.y === y) {
-                        // if the line is vertical
-                        var _from = Math.min(prevPoint.x, x);
-                        var _to = Math.max(prevPoint.x, x);
-
-                        while (_from <= _to) {
-                            _this12.inconvenientNodes.add({ x: _from, y: y });
-                            _from++;
-                        }
-                    } else {
-                        // line is neither horizontal nor vertical, throw an error for better future debugging
-                        // console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
-                    }
-                }
-
-                // set new prevPoint
-                prevPoint = { x: x, y: y };
-            });
-        }
-    }, {
-        key: 'exportData',
-        get: function get() {
-            return {
-                fromId: this.fromId,
-                toId: this.toId
-            };
-        }
-    }, {
-        key: 'state',
-        get: function get() {
-            return this.elementState;
-        }
-    }]);
-
-    return Wire;
-}(NetworkElement);
-
-},{"./findPath":13,"./logic":17,"./svgObjects":23}],13:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = findPath;
-
-var _helperFunctions = require('./helperFunctions');
-
-var _mapWithDefaultValue = require('./mapWithDefaultValue');
-
-var _mapWithDefaultValue2 = _interopRequireDefault(_mapWithDefaultValue);
-
-var _libstl = require('libstl');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// note: imported from a node module
-
-/** @module findPath */
-
-/**
- * Heavily modified implementation of the A* algorithm
- * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixels
- * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
- * @param  {Set} nonRoutable set of non routable nodes
- * @param  {Set} punishedButRoutable set of nodes that are not optimal for routing
- * @return {Array} array of objects containing numeric attributes `x` and `y`
- */
-function findPath(start, end, nonRoutable, punishedButRoutable) {
-    var distanceFunction = _helperFunctions.manhattanDistance;
-
-    var wireCrossPunishment = 1;
-    var wireBendPunishment = 1;
-
-    // number of nodes, that can be opened at once
-    // once is this limit exceeded, aStar will fail and return undefined
-    var maxNodeLimit = 100000;
-
-    var closedNodes = new Set();
-    var openNodes = new Set();
-    var openNodeQueue = new _libstl.PriorityQueue();
-
-    // functions for working with open nodes:
-
-    /**
-     * add a new open node to the structure
-     * @param {Object} node   object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-     * @param {number} fscore fScore of this node
-     */
-    var addOpenNode = function addOpenNode(node, fscore) {
-        openNodes.add(node);
-        // flip the fscore, because PriorityQueue uses max heap
-        openNodeQueue.enqueue(node, 1 / fscore);
-    };
-
-    /**
-     * get the open node with the lowest fScore and remove it
-     * @return {Object} object containing numeric attributes `x` and `y` that represent the first endpoint of the wire
-     */
-    var getOpenNode = function getOpenNode() {
-        var node = openNodeQueue.dequeue();
-        openNodes.delete(node);
-        return node;
-    };
-
-    var cameFrom = new Map();
-
-    // default value: infinity
-    var gScore = new _mapWithDefaultValue2.default(Infinity);
-    gScore.set(start, 0);
-
-    var startFScore = distanceFunction(start, end);
-
-    addOpenNode(start, startFScore);
-
-    openNodes.add(start);
-    openNodeQueue.enqueue(start, 1 / startFScore);
-
-    while (openNodes.size > 0) {
-        // get the value from openNodes that has the lowest fScore
-        var currentNode = getOpenNode();
-
-        // if we reached the end point, reconstruct the path and return it
-        if (currentNode.x == end.x && currentNode.y == end.y) {
-            return reconstructPath(cameFrom, currentNode);
-        }
-
-        // add this node to the closed nodes
-        closedNodes.add(currentNode);
-
-        // the farthest points accessible without avoiding obstacles in every direction
-        // (but max 50 in each direction)
-        for (var direction = 0; direction < 4; direction++) {
-            var newPoint = movePoint(currentNode, direction);
-
-            var wiresCrossed = 0;
-
-            for (var i = 0; i < 50; i++) {
-                // if newPoint is in the set of non routable points,
-                // don't add it and stop proceeding in this direction
-                if (setHasThisPoint(nonRoutable, newPoint)) {
-                    // if this not the end point, break
-                    if (newPoint.x !== end.x || newPoint.y !== end.y) {
-                        break;
-                    }
-                }
-
-                // skip this node, if it has been already closed
-                // or if it is on the list of non routable nodes
-                if (closedNodes.has(newPoint)) {
-                    continue;
-                }
-
-                // calculate possible GScore by applying a punishment for each node ("bend") in the path
-                var newGScore = wireBendPunishment + gScore.getWithDefault(currentNode);
-
-                if (setHasThisPoint(punishedButRoutable, newPoint)) {
-                    // if the node is in the set of punished nodes, apply the punishment
-                    wiresCrossed++;
-                }
-
-                // apply the punishment for each wire crossed in this direction
-                // note: we are counting the wires crossed when exporting this direction, not the wires
-                // crossed in the final path, there will be probably only at most of these nodes in the
-                // final path, not multiple
-                newGScore += wiresCrossed * wireCrossPunishment;
-
-                // skip this node if it has worst estimage gscore than in the gscore table
-                if (newGScore >= gScore.getWithDefault(newPoint)) {
-                    continue;
-                }
-
-                cameFrom.set(newPoint, currentNode);
-                gScore.set(newPoint, newGScore);
-
-                var newFScore = newGScore + distanceFunction(newPoint, end);
-
-                if (!openNodes.has(newPoint)) {
-                    // add the point to the list of points
-                    addOpenNode(newPoint, newFScore);
-                }
-
-                // move to the next point in the direciton
-                newPoint = movePoint(newPoint, direction);
-            }
-        }
-
-        if (openNodes.size > maxNodeLimit) {
-            console.log('aStar: Number of open nodes (' + openNodes.size + ') exceeded the limit for open nodes (' + maxNodeLimit + ').');
-            break;
-        }
-    }
-    // if we got here, the path was not found
-
-    return undefined;
-}
-
-/**
- * returns `true` if the specified set of points contains the specified point (and returns `false` otherwise)
- * @param {Set} set set of points
- * @param {Object} point object containing numeric attributes `x` and `y`
- */
-function setHasThisPoint(set, point) {
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = set[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var item = _step.value;
-
-            if (item.x === point.x && item.y === point.y) {
-                return true;
-            }
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return false;
-}
-
-/**
- * Helper that moves the passed point in the specified direction. It simply adds or subtracts 1 from one of the coordinates depending on the direction attribute.
- * @param  {Object} point     object containing numeric attributes `x` and `y`
- * @param  {number} direction directions:
- *     - 0: up
- *     - 1: right
- *     - 2: down
- *     - 3: left
- * @return {Object}           object containing numeric attributes `x` and `y`
- */
-function movePoint(point, direction) {
-    switch (direction) {
-        case 0:
-            // up
-            return {
-                x: point.x,
-                y: point.y - 1
-            };
-        case 1:
-            // right
-            return {
-                x: point.x + 1,
-                y: point.y
-            };
-        case 2:
-            // down
-            return {
-                x: point.x,
-                y: point.y + 1
-            };
-        case 3:
-            // left
-            return {
-                x: point.x - 1,
-                y: point.y
-            };
-    }
-}
-
-/**
- * helper backtracking function used by the aStar algorithm to construct the final path
- * @param  {Object} cameFrom    object containing numeric attributes `x` and `y`
- * @param  {Object} currentNode object containing numeric attributes `x` and `y`
- * @return {Array} array of objects containing numeric attributes `x` and `y`
- */
-function reconstructPath(cameFrom, currentNode) {
-    var path = [];
-
-    path.push({
-        x: currentNode.x,
-        y: currentNode.y
-    });
-
-    while (cameFrom.has(currentNode)) {
-        currentNode = cameFrom.get(currentNode);
-        path.push({
-            x: currentNode.x,
-            y: currentNode.y
-        });
-    }
-
-    return path;
-}
-
-},{"./helperFunctions":15,"./mapWithDefaultValue":19,"libstl":9}],14:[function(require,module,exports){
+},{"../editorElements":14,"./networkLibrary":49}],45:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6483,7 +8719,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _helperFunctions = require("./helperFunctions");
+var _helperFunctions = require("../other/helperFunctions");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -6632,426 +8868,7 @@ var FloatingMenu = function () {
 
 exports.default = FloatingMenu;
 
-},{"./helperFunctions":15}],15:[function(require,module,exports){
-"use strict";
-
-/**
- * @module HelperFunctions
- */
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.addMouseScrollEventListener = addMouseScrollEventListener;
-exports.getJSONString = getJSONString;
-exports.manhattanDistance = manhattanDistance;
-
-var _jsonStringifyPrettyCompact = require("json-stringify-pretty-compact");
-
-var _jsonStringifyPrettyCompact2 = _interopRequireDefault(_jsonStringifyPrettyCompact);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// note: imported from a module
-
-/**
- * add a cross browser event listener on a mouse scroll
- * @param {string} query DOM query of the element that the listener will be added to
- * @param {Function} func  Function that will be called when the event occurs. The function takes as a parameter an event object.
- */
-function addMouseScrollEventListener(query, func) {
-    var MouseWheelHandler = function MouseWheelHandler(event) {
-        // redeclare for old IE support
-        var event = window.event || event; // eslint-disable-line no-redeclare
-
-        event.delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
-
-        func(event);
-
-        return false;
-    };
-
-    var svgelement = void 0;
-
-    // if the query is a simple DOM id selector, we can use getElementById which has better backwards compatibility
-    if (query.match(/^#\w+$/)) {
-        svgelement = document.getElementById(query.substr(1));
-    } else {
-        svgelement = document.querySelector(query);
-    }
-
-    if (svgelement.addEventListener) {
-        // IE9, Chrome, Safari, Opera
-        svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
-        // Firefox
-        svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
-    } else {
-        // IE 6/7/8
-        svgelement.attachEvent("onmousewheel", MouseWheelHandler);
-    }
-    svgelement.addEventListener('mousewheel', function (e) {
-        console.log('event', e);
-    }, false);
-}
-
-/**
- * convert a data object to JSON string or to a data URI containing a JSON string
- * @param  {Object}  data            object that will be serialized into a JSON string
- * @param  {Boolean} [pretty=false]  if `true`, the code will be proprerly indented, else a more compact syntax will be used
- * @param  {Boolean} [dataUri=false] return dataUri containing the JSON string instead of the pure JSON string
- * @return {string}
- */
-function getJSONString(data) {
-    var pretty = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-    var dataUri = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-    if (dataUri) {
-        return 'data:application/json;charset=utf-8,' + encodeURIComponent(getJSONString(data, pretty));
-    } else {
-        switch (pretty) {
-            case true:
-                return (0, _jsonStringifyPrettyCompact2.default)(data, { maxLength: 50 });
-            case false:
-                return JSON.stringify(data);
-        }
-    }
-}
-
-/**
- * returns the Manhattan distance between the points _a_ and _b_
- * @param  {Object} a object containing numeric attributes `x` and `y`
- * @param  {Object} b object containing numeric attributes `x` and `y`
- * @return {number}
- */
-function manhattanDistance(a, b) {
-    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-}
-
-},{"json-stringify-pretty-compact":1}],16:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/** @module Id */
-
-/**
- * the current instance of Id
- * @type {Id}
- */
-var existingIdInstance = void 0;
-
-/**
- * singleton to generate unique id's
- *
- * usage: `let id = new Id().unique`
- */
-
-var Id = function () {
-  function Id() {
-    _classCallCheck(this, Id);
-
-    if (!existingIdInstance) {
-      existingIdInstance = this;
-    }
-
-    /**
-     * prefix for the id, that is common in all the Ids
-     * @type {String}
-     */
-    this.prefix = "id";
-
-    /**
-     * numeric part of the next id (the next id without the prefix)
-     * @type {number}
-     */
-    this.nextId = 0;
-
-    return existingIdInstance;
-  }
-
-  /**
-   * get unique ID
-   * @return {string} new unique ID
-   */
-
-
-  _createClass(Id, [{
-    key: "unique",
-    get: function get() {
-      var retVal = this.prefix + this.nextId;
-
-      // find next unused idXXXX to prevent id collision that might be caused by some other component
-      // (it really should not happen, but this is a simple way to ensure it)
-      while ($("#" + retVal).length) {
-        this.nextId++;
-        retVal = this.generate();
-      }
-      // return this id
-      this.nextId++;
-
-      return retVal;
-    }
-  }]);
-
-  return Id;
-}();
-
-exports.default = Id;
-
-},{}],17:[function(require,module,exports){
-"use strict";
-
-/** @module Logic */
-/**
- * definitions of logic states and basic logic functions used in the simulation
- */
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Logic = function () {
-    function Logic() {
-        _classCallCheck(this, Logic);
-    }
-
-    _createClass(Logic, null, [{
-        key: "and",
-
-
-        /**
-         * Logic AND
-         * @param  {Logic.state} a first input state
-         * @param  {Logic.state} b second input state
-         * @return {Logic.state}   output state
-         */
-        value: function and(a, b) {
-            return Logic.runSymmetricRules(a, b, [[Logic.state.on, Logic.state.on, Logic.state.on], [Logic.state.on, Logic.state.off, Logic.state.off], [Logic.state.on, Logic.state.unknown, Logic.state.unknown], [Logic.state.on, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.off], [Logic.state.off, Logic.state.oscillating, Logic.state.off], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
-        }
-        /**
-         * Logic NAND
-         * @param  {Logic.state} a first input state
-         * @param  {Logic.state} b second input state
-         * @return {Logic.state}   output state
-         */
-
-    }, {
-        key: "nand",
-        value: function nand(a, b) {
-            return Logic.not(Logic.and(a, b));
-        }
-
-        /**
-         * Logic NOR
-         * @param  {Logic.state} a first input state
-         * @param  {Logic.state} b second input state
-         * @return {Logic.state}   output state
-         */
-
-    }, {
-        key: "nor",
-        value: function nor(a, b) {
-            return Logic.not(Logic.or(a, b));
-        }
-
-        /**
-         * Logic NOT
-         * @param  {Logic.state} a first input state
-         * @return {Logic.state}   output state
-         */
-
-    }, {
-        key: "not",
-        value: function not(a) {
-            if (a === Logic.state.on) {
-                return Logic.state.off;
-            } else if (a === Logic.state.off) {
-                return Logic.state.on;
-            } else {
-                return a;
-            }
-        }
-
-        /**
-         * Logic OR
-         * @param  {Logic.state} a first input state
-         * @param  {Logic.state} b second input state
-         * @return {Logic.state}   output state
-         */
-
-    }, {
-        key: "or",
-        value: function or(a, b) {
-            return Logic.runSymmetricRules(a, b, [[Logic.state.on, Logic.state.on, Logic.state.on], [Logic.state.on, Logic.state.off, Logic.state.on], [Logic.state.on, Logic.state.unknown, Logic.state.on], [Logic.state.on, Logic.state.oscillating, Logic.state.on], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.unknown], [Logic.state.off, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
-        }
-
-        /**
-         * Logic XNOR
-         * @param  {Logic.state} a first input state
-         * @param  {Logic.state} b second input state
-         * @return {Logic.state}   output state
-         */
-
-    }, {
-        key: "xnor",
-        value: function xnor(a, b) {
-            return Logic.not(Logic.xor(a, b));
-        }
-
-        /**
-         * Logic XOR
-         * @param  {Logic.state} a first input state
-         * @param  {Logic.state} b second input state
-         * @return {Logic.state}   output state
-         */
-
-    }, {
-        key: "xor",
-        value: function xor(a, b) {
-            return Logic.runSymmetricRules(a, b, [[Logic.state.on, Logic.state.on, Logic.state.off], [Logic.state.on, Logic.state.off, Logic.state.on], [Logic.state.on, Logic.state.unknown, Logic.state.unknown], [Logic.state.on, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.off, Logic.state.off, Logic.state.off], [Logic.state.off, Logic.state.unknown, Logic.state.unknown], [Logic.state.off, Logic.state.oscillating, Logic.state.oscillating], [Logic.state.unknown, Logic.state.unknown, Logic.state.unknown], [Logic.state.unknown, Logic.state.oscillating, Logic.state.unknown], [Logic.state.oscillating, Logic.state.oscillating, Logic.state.oscillating]]);
-        }
-
-        /**
-         * Finds the correct rule in the array of rules and returns the corresponding return value.
-         * This function expects rules to be symmetric (so `a RULE b` should returns the same value as `b RULE a`),
-         * which allows to cut down on the `rules` array quite a bit
-         * @param  {Logic.state} a     first input state
-         * @param  {Logic.state} b     second input state
-         * @param  {Array} rules       Array of arrays. Each inner array represents a rule in the format [input1, input2, output].
-         *                             The function finds an array, where `a === input1` and `b === input1` (or `a === input2` and `b === input1`)
-         *                             and returns `output` from this array.
-         * @return {Logic.state}       output state
-         */
-
-    }, {
-        key: "runSymmetricRules",
-        value: function runSymmetricRules(a, b, rules) {
-            // iterate through all the rules
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = rules[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var rule = _step.value;
-
-                    if (rule[0] === a && rule[1] === b || rule[0] === b && rule[1] === a) {
-                        return rule[2];
-                    }
-                }
-
-                // if no rule matches, the output state is unknown
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
-            }
-
-            return Logic.state.unknown;
-        }
-    }, {
-        key: "state",
-
-        /**
-         * Enum for logic states.
-         *
-         * States:
-         * - `unknown`
-         * - `on`
-         * - `off`
-         * - `oscillating`
-         * @type {Number}
-         */
-        get: function get() {
-            return {
-                unknown: 0,
-                on: 1,
-                off: 2,
-                oscillating: 3
-            };
-        }
-
-        /**
-         * list of all states that can be used in the simulation
-         *
-         * This getter iterates over Logic.state and returns an array containing all values of Logic.state's members
-         * @type {Array}
-         */
-
-    }, {
-        key: "stateList",
-        get: function get() {
-            var states = [];
-
-            // iterate over all defined states and add their values to the states array
-            Object.keys(Logic.state).forEach(function (key) {
-                states.push(Logic.state[key]);
-            });
-
-            return states;
-        }
-    }]);
-
-    return Logic;
-}();
-
-exports.default = Logic;
-
-},{}],18:[function(require,module,exports){
-"use strict";
-
-var _canvas = require("./canvas");
-
-var _canvas2 = _interopRequireDefault(_canvas);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * When the document is ready, initialize the application
- */
-$(function () {
-  new _canvas2.default("#canvas", 10);
-});
-
-},{"./canvas":10}],19:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function (defaultValue) {
-    var map = new Map();
-    /**
-     * @param  {any} key key of a requested item
-     * @return {any} value of the item with the corresponding key, or defaultValue if the key is not found in the map
-     */
-    map.getWithDefault = function (key) {
-        return map.has(key) ? map.get(key) : defaultValue;
-    };
-    return map;
-};
-
-},{}],20:[function(require,module,exports){
+},{"../other/helperFunctions":29}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7345,1217 +9162,7 @@ var Messages = function () {
 
 exports.default = Messages;
 
-},{}],21:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.getLibrary = getLibrary;
-exports.getNetworkFromLibrary = getNetworkFromLibrary;
-/**
- * @module Library
- */
-
-var libraryDir = './library/';
-
-/**
- * get list of networks from the library
- * @return {Promise} promise, the resolution is an object containing a list of libraries
- */
-function getLibrary() {
-    return new Promise(function (resolve, reject) {
-        var libraryFile = libraryDir + 'networkList.json';
-
-        var request = new XMLHttpRequest();
-
-        request.addEventListener("load", function () {
-            if (this.response) {
-                resolve(this.response.networks);
-            }
-        });
-
-        request.addEventListener(["error", "abort"], function () {
-            reject("Failed loading libraries.");
-        });
-
-        request.open('GET', libraryFile, true);
-        request.responseType = 'json';
-        request.send();
-    });
-}
-
-/**
- * get a network from the library, specified by filename
- * @param  {string} networkName library file name without the extension
- * @return {Promise} promise, the resolution is an object containing the library import data
- */
-function getNetworkFromLibrary(networkName) {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest();
-
-        request.addEventListener("load", function () {
-            if (this.response) {
-                resolve(this.response);
-            }
-        });
-
-        request.addEventListener(["error", "abort"], function () {
-            reject('Failed loading library ' + networkName + '.');
-        });
-
-        request.open('GET', libraryDir + networkName + '.json', true);
-        request.responseType = 'json';
-        request.send();
-    });
-}
-
-},{}],22:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _logic = require('./logic');
-
-var _logic2 = _interopRequireDefault(_logic);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * @module Simulation
- */
-
-var stateChange = function stateChange(connectorId, state, whoCausedIt) {
-    _classCallCheck(this, stateChange);
-
-    this.connectorId = connectorId;
-    this.state = state;
-    this.whoCausedIt = whoCausedIt;
-};
-
-/**
- * This class runs the network simulation.
- *
- * _note: all connectors that are used in this class are **output connectors**_
- */
-
-
-var Simulation = function () {
-    /**
-     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
-     */
-    function Simulation(parentSVG) {
-        _classCallCheck(this, Simulation);
-
-        /**
-         * instance of Canvas this Simulation belongs to
-         * @type {Canvas}
-         */
-        this.parentSVG = parentSVG;
-
-        /**
-         * maps each affected output connector to it's directly preceeding output connectors
-         * @type {Map}
-         */
-        this.predecessors = new Map();
-
-        /**
-         * maps waveId to an array of affected outputConnectors
-         * @type {Map}
-         */
-        this.waves = new Map();
-        this.wave = 0;
-
-        /**
-         * maps cycled connector id to set of states this connector was in
-         * @type {Map}
-         */
-        this.cycledConnectors = new Map();
-
-        /**
-         * set of cycled connectors that have been already resolved
-         * @type {Set}
-         */
-        this.resolvedCycledConnectors = new Set();
-    }
-
-    /**
-     * run the simulation
-     */
-
-
-    _createClass(Simulation, [{
-        key: 'run',
-        value: function run() {
-            this.wave++;
-            while (this.waves.has(this.wave)) {
-                this.step();
-                this.waves.delete(this.wave); // clean old waves on the go
-                this.wave++;
-            }
-        }
-
-        /**
-         * one step/wave of the simulation
-         *
-         * determines states of the connectors in the current wave, detects cycles
-         */
-
-    }, {
-        key: 'step',
-        value: function step() {
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = this.waves.get(this.wave)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var _ref = _step.value;
-                    var connectorId = _ref.connectorId;
-                    var state = _ref.state;
-                    var whoCausedIt = _ref.whoCausedIt;
-
-                    // skip resolved cycles
-                    if (this.resolvedCycledConnectors.has(connectorId)) {
-                        continue;
-                    }
-
-                    // skip connector that are cycles
-                    if (this.cycledConnectors.has(connectorId)) {
-                        // get the set of states that this connector appeared from the moment the signal first cycled
-                        var states = this.cycledConnectors.get(connectorId);
-
-                        // if the connector already had this state in this cycle, resolve the cycle
-                        if (states.has(state)) {
-
-                            // if there are more states in the set, the connector is oscillating
-                            // (else it keeps its state and we just break the cycle)
-                            if (states.size > 1) {
-                                state = _logic2.default.state.oscillating;
-                            }
-
-                            // mark this connector as resolved
-                            this.resolvedCycledConnectors.add(connectorId);
-
-                            // this is a new, unseen state, add it to the set and continue simulating the cycle
-                        } else {
-                            states.add(state);
-                        }
-
-                        // map the modified set of states to the connector
-                        this.cycledConnectors.set(connectorId, states);
-                    }
-
-                    this.whoCausedIt = connectorId;
-                    /*  process all outputConnectors by setting their state
-                        this will trigger a following event chain:
-                            outputConnector changes
-                            -> all connected wires change
-                            -> all inputConnectors connected to these wires change
-                            -> all elements that contain these inputConnectors change
-                            -> these elements compute the new state of their output connectors and call notifyChange()
-                    */
-
-                    if (whoCausedIt) {
-                        this.addPredecessor(connectorId, whoCausedIt);
-                    }
-
-                    if (!this.cycledConnectors.has(connectorId) && this.getAllPredecessors(connectorId).has(connectorId)) {
-                        this.cycledConnectors.set(connectorId, new Set([state]));
-                    }
-
-                    // reflect the changes in SVG
-                    var connector = this.parentSVG.getConnectorById(connectorId);
-                    if (connector) {
-                        connector.setState(state);
-                    }
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
-            }
-
-            this.whoCausedIt = undefined;
-        }
-
-        /**
-         * mark a predecessorConnectorId as a predecessor of connectorId
-         * @param {string} connectorId ID of a connector
-         * @param {string} predecessorConnectorId predecessor of `connectorId`
-         */
-
-    }, {
-        key: 'addPredecessor',
-        value: function addPredecessor(connectorId, predecessorConnectorId) {
-            if (!this.predecessors.has(connectorId)) {
-                this.predecessors.set(connectorId, new Set());
-            }
-
-            this.predecessors.get(connectorId).add(predecessorConnectorId);
-        }
-
-        /**
-         * get set of all output connectors that are before this output connector
-         * @param  {string} connectorId ID of a connector
-         * @return {Set}                set of connector ids that are before this output connector
-         */
-
-    }, {
-        key: 'getAllPredecessors',
-        value: function getAllPredecessors(connectorId) {
-            if (!this.predecessors.has(connectorId)) {
-                this.predecessors.set(connectorId, new Set());
-            }
-
-            var all = new Set();
-
-            this.predecessors.get(connectorId).forEach(all.add, all);
-
-            var prevSize = 0;
-            var size = all.size;
-            while (prevSize < size) {
-                var _iteratorNormalCompletion2 = true;
-                var _didIteratorError2 = false;
-                var _iteratorError2 = undefined;
-
-                try {
-                    for (var _iterator2 = all[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                        var connector = _step2.value;
-
-                        if (this.predecessors.has(connector)) {
-                            this.predecessors.get(connector).forEach(all.add, all);
-                        }
-                    }
-                } catch (err) {
-                    _didIteratorError2 = true;
-                    _iteratorError2 = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                            _iterator2.return();
-                        }
-                    } finally {
-                        if (_didIteratorError2) {
-                            throw _iteratorError2;
-                        }
-                    }
-                }
-
-                prevSize = size;
-                size = all.size;
-            }
-
-            return all;
-        }
-
-        /**
-         * Notify a change in the network. This function adds the changed connector to the next wave
-         * @param  {string} connectorId ID of the changed connector
-         * @param  {Logic.state} state  new [Logic.state](./module-Logic.html#.state) of the connector
-         */
-
-    }, {
-        key: 'notifyChange',
-        value: function notifyChange(connectorId, state) {
-            var waveId = this.wave + 1;
-
-            if (!this.waves.has(waveId)) {
-                this.waves.set(waveId, []);
-            }
-
-            this.waves.get(waveId).push(new stateChange(connectorId, state, this.whoCausedIt));
-        }
-    }]);
-
-    return Simulation;
-}();
-
-exports.default = Simulation;
-
-},{"./logic":17}],23:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.Pattern = exports.MultiLineText = exports.Text = exports.PolyLine = exports.PolylinePoints = exports.PolylinePoint = exports.Group = exports.SvgImage = exports.Rectangle = undefined;
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _id = require("./id");
-
-var _id2 = _interopRequireDefault(_id);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Parent class for all svgObjects
- */
-var Tag = function () {
-    /**
-     * @param {string} tagName SVG tag identifier (`rect`, `image`, `polyline`)
-     */
-    function Tag(tagName) {
-        _classCallCheck(this, Tag);
-
-        /**
-         * SVG tag identifier (`rect`, `image`, `polyline`)
-         * @type {string}
-         */
-        this.tagName = tagName;
-
-        /**
-         * jQuery element for this tag
-         * @type {jQuery.element}
-         */
-        this.$el = $("<" + this.tagName + ">");
-
-        /**
-         * unique ID of this SVG object
-         * @type {string}
-         */
-        this.id = new _id2.default().unique;
-    }
-
-    /**
-     * add a class to this element
-     * @param {string} name class name to be added
-     */
-
-
-    _createClass(Tag, [{
-        key: "addClass",
-        value: function addClass(name) {
-            this.$el.addClass(name);
-        }
-
-        /**
-         * remove class names from this element
-         * @param  {string} classes class names to be removed
-         */
-
-    }, {
-        key: "removeClasses",
-        value: function removeClasses() {
-            for (var _len = arguments.length, classes = Array(_len), _key = 0; _key < _len; _key++) {
-                classes[_key] = arguments[_key];
-            }
-
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = classes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var item = _step.value;
-
-                    this.$el.removeClass(item);
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
-            }
-        }
-
-        /**
-         * set attributes of this element
-         * @param {Object} assoc javascript object that will be mapped into attributes (`{key: value}` -> `key="value"`)
-         */
-
-    }, {
-        key: "addAttr",
-        value: function addAttr(assoc) {
-            this.checkIfElementExistsInDOM();
-
-            // add attributes to the element
-            this.$el.attr(assoc);
-        }
-
-        /**
-         * get attribute value by name
-         * @param  {string} name name of the attribute
-         * @return {string}      value of the attribute
-         */
-
-    }, {
-        key: "getAttr",
-        value: function getAttr(name) {
-            this.checkIfElementExistsInDOM();
-
-            return this.$el.attr(name);
-        }
-
-        /**
-         * remove attribute by value
-         * @param  {string} name name of the attribute to be removed
-         */
-
-    }, {
-        key: "removeAttr",
-        value: function removeAttr(name) {
-            this.checkIfElementExistsInDOM();
-
-            this.$el.removeAttr(name);
-        }
-
-        /**
-         * set id of this SVG object
-         * @param  {string} id new id for this object
-         */
-
-    }, {
-        key: "get",
-
-
-        /**
-         * get jQuery element for this SVG object
-         * @return {jQuery.element}
-         */
-        value: function get() {
-            this.checkIfElementExistsInDOM();
-            return this.$el;
-        }
-
-        /**
-         * check if the element exists in dom, if so, refetch it from DOM using jQuery
-         */
-
-    }, {
-        key: "checkIfElementExistsInDOM",
-        value: function checkIfElementExistsInDOM() {
-            var $jqElement = $("#" + this.$el.attr('id'));
-            if ($jqElement.length) {
-                this.$el = $jqElement;
-            }
-        }
-    }, {
-        key: "id",
-        set: function set(id) {
-            this.addAttr({ "id": id });
-        }
-
-        /**
-         * get id of this SVG object
-         * @return {string}
-         */
-        ,
-        get: function get() {
-            return this.getAttr("id");
-        }
-    }]);
-
-    return Tag;
-}();
-
-/**
- * represents visible element in SVG that has position and dimensions (for example `rectangle` is a SvgElement, but `pattern` is not, even though both are tags)
- * @extends Tag
- */
-
-
-var SvgElement = function (_Tag) {
-    _inherits(SvgElement, _Tag);
-
-    /**
-     * @param {number} x       horizontal position in SVG pixels
-     * @param {number} y       vertical position in SVG pixels
-     * @param {number} w       width in SVG pixels
-     * @param {number} h       height in SVG pixels
-     * @param {string} tagName tag name of the element
-     */
-    function SvgElement(x, y, w, h, tagName) {
-        _classCallCheck(this, SvgElement);
-
-        var _this = _possibleConstructorReturn(this, (SvgElement.__proto__ || Object.getPrototypeOf(SvgElement)).call(this, tagName));
-
-        _this.addAttr({
-            x: x,
-            y: y,
-            width: w,
-            height: h
-        });
-        return _this;
-    }
-
-    return SvgElement;
-}(Tag);
-
-/**
- * a rectangle in SVG
- * @extends SvgElement
- */
-
-
-var Rectangle = exports.Rectangle = function (_SvgElement) {
-    _inherits(Rectangle, _SvgElement);
-
-    /**
-     * @param {number} x       horizontal position in SVG pixels
-     * @param {number} y       vertical position in SVG pixels
-     * @param {number} w       width in SVG pixels
-     * @param {number} h       height in SVG pixels
-     * @param {string} fill    filling color of the rectangle
-     * @param {string} stroke  stroke color of the rectangle
-     */
-    function Rectangle(x, y, w, h, fill, stroke) {
-        _classCallCheck(this, Rectangle);
-
-        var _this2 = _possibleConstructorReturn(this, (Rectangle.__proto__ || Object.getPrototypeOf(Rectangle)).call(this, x, y, w, h, "rect"));
-
-        _this2.addAttr({
-            fill: fill,
-            stroke: stroke,
-            'stroke-width': 0.5,
-            'pointer-events': 'all' // to trigger hover even with transparent background
-        });
-        return _this2;
-    }
-
-    return Rectangle;
-}(SvgElement);
-
-/**
- * an image in SVG
- * @extends SvgElement
- */
-
-
-var SvgImage = exports.SvgImage = function (_SvgElement2) {
-    _inherits(SvgImage, _SvgElement2);
-
-    function SvgImage(x, y, w, h, url) {
-        _classCallCheck(this, SvgImage);
-
-        var _this3 = _possibleConstructorReturn(this, (SvgImage.__proto__ || Object.getPrototypeOf(SvgImage)).call(this, x, y, w, h, "image"));
-
-        _this3.addAttr({
-            "xlink:href": url
-        });
-        return _this3;
-    }
-
-    /**
-     * change url of the image
-     * @param {string} url the new url of the image
-     */
-
-
-    _createClass(SvgImage, [{
-        key: "changeUrl",
-        value: function changeUrl(url) {
-            this.addAttr({
-                "xlink:href": url
-            });
-        }
-    }]);
-
-    return SvgImage;
-}(SvgElement);
-
-/**
- * SVG group, used for grouping elements, for example a gate is represented by many elements (rectangle, image, inivisible hitbox rectangle...),
- * but all of the elements need to be transformed together. Using groups the transform property can be set on the group which contains all the elements.
- * @extends Tag
- */
-
-
-var Group = exports.Group = function (_Tag2) {
-    _inherits(Group, _Tag2);
-
-    function Group() {
-        _classCallCheck(this, Group);
-
-        var _this4 = _possibleConstructorReturn(this, (Group.__proto__ || Object.getPrototypeOf(Group)).call(this, "g"));
-
-        _this4.children = [];
-        return _this4;
-    }
-
-    /**
-     * add an element to the group
-     * @param {SvgElement} el an instance of {@link SvgElement}
-     */
-
-
-    _createClass(Group, [{
-        key: "addChild",
-        value: function addChild(el) {
-            this.children.push(el);
-
-            this.$el.append(el.$el);
-            return el; // pro jednodussi "let rect = g.addChild(new Rectangle(..."
-        }
-    }]);
-
-    return Group;
-}(Tag);
-
-/**
- * one point of {@link PolylinePoints}, used in the {@link PolyLine} object
- */
-
-
-var PolylinePoint = exports.PolylinePoint = function () {
-    /**
-     * @param {number} x horizontal coordinate of the polyline point
-     * @param {number} y vertical coordinate of the polyline point
-     */
-    function PolylinePoint(x, y) {
-        _classCallCheck(this, PolylinePoint);
-
-        this.x = 0;
-        this.y = 0;
-        if (x !== undefined && y !== undefined) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
-    /**
-     * change the coordinates of this point
-     * @param {number} x horizontal coordinate of the polyline point
-     * @param {number} y vertical coordinate of the polyline point
-     */
-
-
-    _createClass(PolylinePoint, [{
-        key: "set",
-        value: function set(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        /**
-         * create polyline from a comma separated string (e.g. from a string formatted like this: "x,y", for example "15,8")
-         * @param  {string} string string in the format "x,y" representing a point in the SVG polyline
-         * @return {PolylinePoint} newly created instance of {@link PolylinePoint}
-         */
-
-    }, {
-        key: "string",
-
-
-        /**
-         * return a string representation of this polyline point
-         * @return {string} string in the format "x,y"
-         */
-        get: function get() {
-            return this.x + "," + this.y;
-        }
-
-        /**
-         * compare polyline points, return `true` if they are equal, else return `false`
-         * @param  {PolylinePoint} a
-         * @param  {PolylinePoint} b
-         * @return {boolean}
-         */
-
-    }], [{
-        key: "parseFromString",
-        value: function parseFromString(string) {
-            var arr = string.split(",");
-            return new PolylinePoint(arr[0], arr[1]);
-        }
-    }, {
-        key: "equals",
-        value: function equals(a, b) {
-            return a.x === b.x && a.y === b.y;
-        }
-    }]);
-
-    return PolylinePoint;
-}();
-
-/**
- * array-like structure used in {@link PolylinePoints}
- */
-
-
-var SmartArray = function () {
-    /**
-     * @param {Array} [arr] if set, initialized SmartArray will contain these values
-     */
-    function SmartArray(arr) {
-        _classCallCheck(this, SmartArray);
-
-        if (arr !== undefined) {
-            this.arr = arr;
-        } else {
-            this.arr = [];
-        }
-    }
-
-    /**
-     * get a deep copy of this array
-     * @return {SmartArray}
-     */
-
-
-    _createClass(SmartArray, [{
-        key: "copy",
-        value: function copy() {
-            return SmartArray($.extend(true, [], this.arr));
-        }
-
-        /**
-         * append an item to the array
-         * @param item new item that will be appended to the array
-         */
-
-    }, {
-        key: "append",
-        value: function append(item) {
-            return this.addWithIndex(item, this.arr.length);
-        }
-
-        /**
-         * prepend an item to the array
-         * @param item new item that will be prepended to the array
-         */
-
-    }, {
-        key: "prepend",
-        value: function prepend(item) {
-            return this.addWithIndex(item, 0);
-        }
-
-        /**
-         * add a new item at the specified index, move all following items
-         * @param item new item that will be added at the specified index
-         * @param {number} index index of this item
-         */
-
-    }, {
-        key: "addWithIndex",
-        value: function addWithIndex(item, index) {
-            for (var i = this.arr.length; i > index; --i) {
-                this.arr[i] = this.arr[i - 1];
-            }
-            this.arr[index] = item;
-            return this; // to enable chaining of append / preppend / addWithIndex commands
-        }
-
-        /**
-         * get length of the array
-         * @return {number}
-         */
-
-    }, {
-        key: "getItem",
-
-
-        /**
-         * get item by index
-         * @param  {number} index index of the item
-         * @return contents of the array on the specified index
-         */
-        value: function getItem(index) {
-            return this.arr[index];
-        }
-
-        /**
-         * @return last element of the array
-         */
-
-    }, {
-        key: "remove",
-
-
-        /**
-         * remove an item from the array by index
-         * @param  {number} index index of the item that will be removed
-         */
-        value: function remove(index) {
-            var length = this.length;
-
-            for (var i = index; i < length; ++i) {
-                this.arr[i] = this.arr[i + 1];
-            }
-            this.arr.pop();
-        }
-    }, {
-        key: "length",
-        get: function get() {
-            return this.arr.length;
-        }
-    }, {
-        key: "last",
-        get: function get() {
-            if (this.length !== 0) {
-                return this.arr[this.length - 1];
-            } else {
-                return false;
-            }
-        }
-
-        /**
-         * @return first element of the array
-         */
-
-    }, {
-        key: "first",
-        get: function get() {
-            if (this.length !== 0) {
-                return this.arr[0];
-            } else {
-                return false;
-            }
-        }
-    }]);
-
-    return SmartArray;
-}();
-
-/**
- * points of the {@link PolyLine}
- * @extends SmartArray
- */
-
-
-var PolylinePoints = exports.PolylinePoints = function (_SmartArray) {
-    _inherits(PolylinePoints, _SmartArray);
-
-    /**
-     * @param {Array} [arr] array containing instances of {@link PolylinePoint}
-     */
-    function PolylinePoints(arr) {
-        _classCallCheck(this, PolylinePoints);
-
-        return _possibleConstructorReturn(this, (PolylinePoints.__proto__ || Object.getPrototypeOf(PolylinePoints)).call(this, arr));
-    }
-
-    /**
-     * get a deep copy of this object
-     * @return {PolylinePoints}
-     */
-
-
-    _createClass(PolylinePoints, [{
-        key: "copy",
-        value: function copy() {
-            return new PolylinePoints($.extend(true, [], this.arr));
-        }
-
-        /**
-         * append a point
-         * @param  {PolylinePoint} point a new point
-         */
-
-    }, {
-        key: "append",
-        value: function append(point) {
-            // call inherited function to handle the appending
-            _get(PolylinePoints.prototype.__proto__ || Object.getPrototypeOf(PolylinePoints.prototype), "append", this).call(this, point);
-
-            // if the second to last point is unnecessary, remove it
-            var length = this.length;
-            if (length >= 3 && (this.getItem(length - 3).x === this.getItem(length - 2).x && this.getItem(length - 2).x === this.getItem(length - 1).x || this.getItem(length - 3).y === this.getItem(length - 2).y && this.getItem(length - 2).y === this.getItem(length - 1).y)) {
-                this.remove(length - 2);
-            }
-
-            // return this element (to allow chaining)
-            return this;
-        }
-
-        /**
-         * parse polyline from string
-         * @param  {string} string string in the polyline format (`x1,y1 x2,y2, x3,y3`)
-         * @return {PolylinePoints} a new instance of {@link PolylinePoints} created by parsing the string
-         */
-
-    }, {
-        key: "forEach",
-
-
-        /**
-         * wrapper for foreach on the polyline points
-         * @param  {Function} func function that will be called on each element
-         */
-        value: function forEach(func) {
-            for (var i = 0; i < this.arr.length; ++i) {
-                func(this.arr[i]);
-            }
-        }
-    }, {
-        key: "string",
-
-
-        /**
-         * get a string representation of this polyline
-         * @return {string} string in the polyline format (`x1,y1 x2,y2, x3,y3`)
-         */
-        get: function get() {
-            var string = "";
-            for (var i = 0; i < this.length; ++i) {
-                if (i !== 0) {
-                    string += " ";
-                }
-                string += this.arr[i].string;
-            }
-            return string;
-        }
-    }], [{
-        key: "parseFromString",
-        value: function parseFromString(string) {
-            var pointStrings = string.split(" ");
-            var points = new PolylinePoints();
-
-            for (var i = 0; i < pointStrings.length; ++i) {
-                points.append(PolylinePoint.parseFromString(pointStrings[i]));
-            }
-
-            return points;
-        }
-    }]);
-
-    return PolylinePoints;
-}(SmartArray);
-
-/**
- * SVG polyline (a path defined by sequence of points on plane)
- * @extends Tag
- */
-
-
-var PolyLine = exports.PolyLine = function (_Tag3) {
-    _inherits(PolyLine, _Tag3);
-
-    /**
-     * @param {PolylinePoints} points points describing this polyline
-     * @param {number} [strokeWidth] width of the stroke for this polyline in SVG pixels
-     * @param {string} [color] CSS color of this polyline
-     */
-    function PolyLine(points, strokeWidth, color) {
-        _classCallCheck(this, PolyLine);
-
-        var _this6 = _possibleConstructorReturn(this, (PolyLine.__proto__ || Object.getPrototypeOf(PolyLine)).call(this, "polyline"));
-
-        var attributes = {
-            points: points.string,
-            fill: "none",
-            "stroke-width": strokeWidth
-        };
-
-        if (color !== undefined) {
-            attributes.stroke = color;
-        }
-
-        _this6.addAttr(attributes);
-        return _this6;
-    }
-
-    /**
-     * update points of this polyline
-     * @param {PolylinePoints} points new set of points describing this polyline
-     */
-
-
-    _createClass(PolyLine, [{
-        key: "updatePoints",
-        value: function updatePoints(points) {
-            this.addAttr({
-                points: points.string
-            });
-        }
-    }]);
-
-    return PolyLine;
-}(Tag);
-
-/**
- * Text element in SVG
- * @extends Tag
- */
-
-
-var Text = exports.Text = function (_Tag4) {
-    _inherits(Text, _Tag4);
-
-    /**
-     * @param {number} x       horizontal position in SVG pixels
-     * @param {number} y       vertical position in SVG pixels
-     * @param {number} w       width of the text box in SVG pixels
-     * @param {number} h       height of the text box in SVG pixels
-     * @param {number} text    text content of the text box
-     * @param {string} size    CSS font size of the text
-     * @param {String} [color="black"] color of the text
-     *
-     */
-    function Text(x, y, w, h, text, size) {
-        var color = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : "black";
-
-        _classCallCheck(this, Text);
-
-        var _this7 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, "text"));
-
-        _this7.addAttr({
-            x: x,
-            y: y,
-            width: w,
-            height: h,
-            fill: color
-        });
-
-        if (size) {
-            _this7.addAttr({
-                'font-size': size
-            });
-        }
-
-        _this7.$el.append(text);
-        return _this7;
-    }
-
-    return Text;
-}(Tag);
-
-/**
- * Multi line text element in SVG
- *
- * Multi line text is not natively supportend in SVG 1.1,
- * the workaround is to use the <foreignObject> element and display
- * a HTML paragraph inside of the SVG document.
- *
- * Because this technique is not supported by all of the browsers,
- * the foreignObject element is wrapped in <switch>, which
- * provides fallback for those cases.
- *
- * read more: [foreignObject on MDN web docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject)
- *
- * @extends Tag
- */
-
-
-var MultiLineText = exports.MultiLineText = function (_Tag5) {
-    _inherits(MultiLineText, _Tag5);
-
-    /**
-     * @param {number} x       horizontal position in SVG pixels
-     * @param {number} y       vertical position in SVG pixels
-     * @param {number} w       width of the text box in SVG pixels
-     * @param {number} h       height of the text box in SVG pixels
-     * @param {number} text    text content of the text box
-     * @param {string} size    CSS font size of the text
-     * @param {String} [color="black"] color of the text
-     *
-     */
-    function MultiLineText(x, y, w, h, text, size) {
-        var color = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : "black";
-
-        _classCallCheck(this, MultiLineText);
-
-        var _this8 = _possibleConstructorReturn(this, (MultiLineText.__proto__ || Object.getPrototypeOf(MultiLineText)).call(this, "switch"));
-
-        var foreignObject = new Tag("foreignObject");
-        var alternativeText = new Text(x, y, w, h, text, size, color);
-
-        foreignObject.addAttr({
-            x: x,
-            y: y,
-            width: w,
-            height: h
-        });
-
-        var $wrapper = $("<div>").attr("xmlns", "http://www.w3.org/1999/xhtml").addClass("multilinetext").css("height", h);
-
-        var $paragraph = $("<p>").attr("xmlns", "http://www.w3.org/1999/xhtml").css("font-size", size).append(text);
-
-        $wrapper.append($paragraph);
-        foreignObject.$el.append($wrapper);
-
-        _this8.$el.append(foreignObject.$el).append(alternativeText.$el);
-        return _this8;
-    }
-
-    return MultiLineText;
-}(Tag);
-
-/**
- * pattern object in SVG
- * @extends Tag
- */
-
-
-var Pattern = exports.Pattern = function (_Tag6) {
-    _inherits(Pattern, _Tag6);
-
-    /**
-     * @param {string} id     unique id of this pattern
-     * @param {number} width  width of one pattern tile in SVG pixels
-     * @param {number} height height of one pattern tile in SVG pixels
-     */
-    function Pattern(id, width, height) {
-        _classCallCheck(this, Pattern);
-
-        var _this9 = _possibleConstructorReturn(this, (Pattern.__proto__ || Object.getPrototypeOf(Pattern)).call(this, "pattern"));
-
-        _this9.addAttr({
-            id: id,
-            x: 0,
-            y: 0,
-            width: width,
-            height: height,
-            patternUnits: "userSpaceOnUse",
-            viewBox: "0 0 " + width + " " + height
-        });
-        return _this9;
-    }
-
-    /**
-     * add a child to this pattern
-     *
-     * pattern behaves a little like {@link Group} - it contains child elements, which represent the content of one tile of the pattern
-     * and the whole package of the child elements is repeated on each tile of the pattern
-     * @param {SvgElement} el element that will be added to the pattern
-     */
-
-
-    _createClass(Pattern, [{
-        key: "addChild",
-        value: function addChild(el) {
-            this.$el.append(el.$el);
-            return el;
-        }
-    }]);
-
-    return Pattern;
-}(Tag);
-
-},{"./id":16}],24:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9168,7 +9775,7 @@ var Tutorial = function () {
 
 exports.default = Tutorial;
 
-},{}],25:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9369,6 +9976,71 @@ var ViewBox = function () {
 
 exports.default = ViewBox;
 
-},{}]},{},[18])
+},{}],49:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.getLibrary = getLibrary;
+exports.getNetworkFromLibrary = getNetworkFromLibrary;
+/**
+ * @module Library
+ */
+
+var libraryDir = './library/';
+
+/**
+ * get list of networks from the library
+ * @return {Promise} promise, the resolution is an object containing a list of libraries
+ */
+function getLibrary() {
+    return new Promise(function (resolve, reject) {
+        var libraryFile = libraryDir + 'networkList.json';
+
+        var request = new XMLHttpRequest();
+
+        request.addEventListener("load", function () {
+            if (this.response) {
+                resolve(this.response.networks);
+            }
+        });
+
+        request.addEventListener(["error", "abort"], function () {
+            reject("Failed loading libraries.");
+        });
+
+        request.open('GET', libraryFile, true);
+        request.responseType = 'json';
+        request.send();
+    });
+}
+
+/**
+ * get a network from the library, specified by filename
+ * @param  {string} networkName library file name without the extension
+ * @return {Promise} promise, the resolution is an object containing the library import data
+ */
+function getNetworkFromLibrary(networkName) {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest();
+
+        request.addEventListener("load", function () {
+            if (this.response) {
+                resolve(this.response);
+            }
+        });
+
+        request.addEventListener(["error", "abort"], function () {
+            reject('Failed loading library ' + networkName + '.');
+        });
+
+        request.open('GET', libraryDir + networkName + '.json', true);
+        request.responseType = 'json';
+        request.send();
+    });
+}
+
+},{}]},{},[10])
 
 //# sourceMappingURL=main.js.map

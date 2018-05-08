@@ -937,9 +937,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = findPath;
 
-var _helperFunctions = require('./helperFunctions');
+var _helperFunctions = require('./other/helperFunctions');
 
-var _mapWithDefaultValue = require('./mapWithDefaultValue');
+var _mapWithDefaultValue = require('./other/mapWithDefaultValue');
 
 var _mapWithDefaultValue2 = _interopRequireDefault(_mapWithDefaultValue);
 
@@ -1188,7 +1188,7 @@ function reconstructPath(cameFrom, currentNode) {
     return path;
 }
 
-},{"./helperFunctions":11,"./mapWithDefaultValue":12,"libstl":9}],11:[function(require,module,exports){
+},{"./other/helperFunctions":11,"./other/mapWithDefaultValue":12,"libstl":9}],11:[function(require,module,exports){
 "use strict";
 
 /**
@@ -1307,7 +1307,7 @@ exports.default = function (defaultValue) {
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /** @module routeWorker */
 
-var _findPath = require('./findPath');
+var _findPath = require('./modules/findPath');
 
 var _findPath2 = _interopRequireDefault(_findPath);
 
@@ -1426,6 +1426,6 @@ function findPaths(wires, nonRoutableNodes, inconvenientNodes) {
     return paths;
 }
 
-},{"./findPath":10}]},{},[13])
+},{"./modules/findPath":10}]},{},[13])
 
 //# sourceMappingURL=routeWorker.js.map
