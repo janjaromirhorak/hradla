@@ -1472,6 +1472,8 @@ var Canvas = function () {
                             // proccess box transforms (translation and rotation)
                             var transform = new editorElements.Transform();
 
+                            var rotationCount = 0;
+
                             if (_boxData.transform && _boxData.transform.items) {
                                 var _iteratorNormalCompletion6 = true;
                                 var _didIteratorError6 = false;
@@ -1492,13 +1494,10 @@ var Canvas = function () {
                                                 );
                                                 break;
                                             case "rotate":
-                                                // expected 3 arguments
-                                                transform.setRotate.apply(transform, _toConsumableArray(transformItem.args));
+                                                // rotate cannot be solved only using setRotate
+                                                // because the blocked nodes for the box have to be rotated as well
 
-                                                // update the blocked nodes
-                                                for (var i = 0; i < transformItem.args[0] % 360 / 90; ++i) {
-                                                    box.rotateBlockedNodesRight();
-                                                }
+                                                rotationCount = transformItem.args[0] % 360 / 90;
 
                                                 break;
                                             case undefined:
@@ -1526,6 +1525,10 @@ var Canvas = function () {
 
                             transform.toSVGPixels(_this3);
                             box.setTransform(transform);
+
+                            for (var i = 0; i < rotationCount; ++i) {
+                                box.rotate(true);
+                            }
 
                             // add all wires to the list of wires to be added
                             if (_boxData.connections) {
@@ -2297,6 +2300,9 @@ var Canvas = function () {
 
                             connector.removeWireIdAndUpdate(wireId);
                         }
+
+                        // start simulation from the input connector to
+                        // refresh the network after this wire
                     } catch (err) {
                         _didIteratorError12 = true;
                         _iteratorError12 = err;
@@ -2311,6 +2317,9 @@ var Canvas = function () {
                             }
                         }
                     }
+
+                    var inputConnector = this.wires[i].connection.to.connector;
+                    this.startNewSimulation(inputConnector, inputConnector.state);
 
                     this.wires[i].svgObj.$el.remove();
                     this.wires.splice(i, 1);
@@ -4097,9 +4106,6 @@ var Box = function (_NetworkElement) {
             var newBlockedNodes = new Set();
 
             // rotate the node
-
-            console.log(this.rotationParity, right);
-            console.log(center);
 
             var _iteratorNormalCompletion2 = true;
             var _didIteratorError2 = false;

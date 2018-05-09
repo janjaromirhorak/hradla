@@ -238,9 +238,6 @@ export default class Box extends NetworkElement {
 
         // rotate the node
 
-        console.log(this.rotationParity, right);
-        console.log(center);
-
         for (const node of this.blockedNodes) {
             let newNode;
 

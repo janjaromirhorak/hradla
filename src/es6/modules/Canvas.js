@@ -442,6 +442,8 @@ export default class Canvas {
                     // proccess box transforms (translation and rotation)
                     let transform = new editorElements.Transform();
 
+                    let rotationCount = 0;
+
                     if(boxData.transform && boxData.transform.items) {
                         for(const transformItem of boxData.transform.items) {
                             switch (transformItem.name) {
@@ -458,13 +460,10 @@ export default class Canvas {
                                     );
                                     break;
                                 case "rotate":
-                                    // expected 3 arguments
-                                    transform.setRotate(...transformItem.args);
+                                    // rotate cannot be solved only using setRotate
+                                    // because the blocked nodes for the box have to be rotated as well
 
-                                    // update the blocked nodes
-                                    for(let i = 0 ; i < (transformItem.args[0] % 360) / 90 ; ++i) {
-                                        box.rotateBlockedNodesRight();
-                                    }
+                                    rotationCount = transformItem.args[0] % 360 / 90;
 
                                     break;
                                 case undefined:
@@ -478,6 +477,10 @@ export default class Canvas {
 
                     transform.toSVGPixels(this);
                     box.setTransform(transform);
+
+                    for (let i = 0 ; i < rotationCount ; ++i) {
+                        box.rotate(true);
+                    }
 
                     // add all wires to the list of wires to be added
                     if(boxData.connections) {
@@ -1004,6 +1007,12 @@ export default class Canvas {
                 for (let connector of connectors) {
                     connector.removeWireIdAndUpdate(wireId);
                 }
+
+                // start simulation from the input connector to
+                // refresh the network after this wire
+
+                let inputConnector = this.wires[i].connection.to.connector;
+                this.startNewSimulation(inputConnector, inputConnector.state);
 
                 this.wires[i].svgObj.$el.remove();
                 this.wires.splice(i, 1);
