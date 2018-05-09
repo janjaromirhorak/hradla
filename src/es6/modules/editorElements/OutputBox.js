@@ -36,25 +36,19 @@ export default class OutputBox extends Box {
      * @param {Logic.state} state new state of this outputBox
      */
     setState(state) {
-        switch (state) {
-            case Logic.state.on:
-                this.changeImage("on");
-
-                // if tutorial exists, call tutorial callback
-                if(this.parentSVG.tutorial) {
-                    this.parentSVG.tutorial.onOutputBoxTrue();
-                }
-                break;
-            case Logic.state.off:
-                this.changeImage("off");
-                break;
-            case Logic.state.unknown:
-                this.changeImage();
-                break;
-            case Logic.state.oscillating:
-                this.changeImage("osc");
-                break;
+        if(state===Logic.state.on){
+            if(this.parentSVG.tutorial) {
+                this.parentSVG.tutorial.onOutputBoxTrue();
+            }
         }
+
+        let stateMap = {};
+        stateMap[Logic.state.on] = "on"
+        stateMap[Logic.state.off] = "off"
+        stateMap[Logic.state.unknown] = ""
+        stateMap[Logic.state.oscillating] = "osc"
+
+        this.changeImage(stateMap[state]);
     }
 
     generateBlockNodes() {

@@ -95,22 +95,8 @@ export default class Wire extends NetworkElement {
      * @param {Logic.state} state [description]
      */
     setState(state) {
-        this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
-
-        switch (state) {
-            case Logic.state.unknown:
-                this.svgObj.addClass(stateClasses.unknown);
-                break;
-            case Logic.state.on:
-                this.svgObj.addClass(stateClasses.on);
-                break;
-            case Logic.state.off:
-                this.svgObj.addClass(stateClasses.off);
-                break;
-            case Logic.state.oscillating:
-                this.svgObj.addClass(stateClasses.oscillating);
-                break;
-        }
+        this.svgObj.removeClasses(...stateClasses);
+        this.svgObj.addClass(stateClasses[state]);
 
         this.connection.to.connector.setState(state);
 

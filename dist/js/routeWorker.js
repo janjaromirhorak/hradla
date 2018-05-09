@@ -1134,33 +1134,29 @@ function setHasThisPoint(set, point) {
  *     - 3: left
  * @return {Object}           object containing numeric attributes `x` and `y`
  */
-function movePoint(point, direction) {
-    switch (direction) {
-        case 0:
-            // up
-            return {
-                x: point.x,
-                y: point.y - 1
-            };
-        case 1:
-            // right
-            return {
-                x: point.x + 1,
-                y: point.y
-            };
-        case 2:
-            // down
-            return {
-                x: point.x,
-                y: point.y + 1
-            };
-        case 3:
-            // left
-            return {
-                x: point.x - 1,
-                y: point.y
-            };
-    }
+function movePoint(_ref, direction) {
+    var x = _ref.x,
+        y = _ref.y;
+
+    // map direction do point coordinate modification
+    var dirMap = {
+        0: function _() {
+            y -= 1;
+        },
+        1: function _() {
+            x += 1;
+        },
+        2: function _() {
+            y += 1;
+        },
+        3: function _() {
+            x -= 1;
+        }
+    };
+
+    dirMap[direction]();
+
+    return { x: x, y: y };
 }
 
 /**

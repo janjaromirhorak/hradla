@@ -151,27 +151,20 @@ export default class Canvas {
         addMouseScrollEventListener(canvas, event => {
             // zoom only if the ctrl key is not pressed
             if(!event.ctrlKey) {
-                switch (event.delta) {
-                    case 1:
-                        this.zoom += 0.1
-                        break
-                    case -1:
-                        this.zoom -= 0.1
-                        break
-                }
+                this.zoom += event.delta * 0.1;
 
                 event.preventDefault()
             }
         })
 
         $(window).on('keydown', (event) => {
-            switch (event.key) {
-                case '+':
-                    this.zoom += 0.1
-                    break
-                case '-':
-                    this.zoom -= 0.1
-                    break
+            const actions = {
+                '+': 0.1,
+                '-': -0.1
+            }
+
+            if(actions[event.key]) {
+                this.zoom += actions[event.key];
             }
         })
 
@@ -404,74 +397,83 @@ export default class Canvas {
             }
 
             for(let boxData of data.boxes) {
-                // add box
+                // mapping of dataBox.name of the objects that have category "other"
+                const otherMap = {
+                    "input": () => this.newInput(0, 0, boxData.isOn, false),
+                    "output": () => this.newOutput(0, 0, false)
+                }
+
+                // mapping of dataBox.category
+                const boxMap = {
+                    "gate": () => this.newGate(boxData.name, 0, 0, false),
+                    "blackbox": () => this.newBlackbox(boxData.inputs, boxData.outputs, boxData.table, boxData.name, 0, 0, false),
+                    "other": () => {
+                        if(!boxData.name)
+                            throw `This network contains a box without a name.`
+
+                        if(!otherMap[boxData.name])
+                            throw `This network contains unknown box names. (${boxData.name})`
+
+                        return otherMap[boxData.name]()
+                    }
+                }
+
+                const createBox = () => {
+                    if(!boxData.category)
+                        throw `This network a box without a category.`;
+
+                    if(!boxMap[boxData.category])
+                        throw `This network contains unknown box categories. (${boxData.category})`;
+
+                    return boxMap[boxData.category]()
+                }
+
                 let box;
-                switch (boxData.category) {
-                    case "gate":
-                        // add new gate (without reloading the SVG, we will reload it once after the import)
-                        box = this.newGate(boxData.name, 0, 0, false);
-                        break;
-                    case "other":
-                        switch (boxData.name) {
-                            case "input":
-                                // add new input (without reloading the SVG, we will reload it once after the import)
-                                box = this.newInput(0, 0, boxData.isOn, false);
-                                break;
-                            case "output":
-                                // add new output (without reloading the SVG, we will reload it once after the import)
-                                box = this.newOutput(0, 0, false);
-                                break;
-                            case undefined:
-                                warnings.push(`This network contains a box without a name.`);
-                                break;
-                            default:
-                                warnings.push(`This network contains unknown box names. (${boxData.name})`);
-                        }
-                        break;
-                    case "blackbox":
-                        box = this.newBlackbox(boxData.inputs, boxData.outputs, boxData.table, boxData.name, 0, 0, false)
-                        break;
-                    case undefined:
-                        warnings.push(`This network a box without a category.`);
-                        break;
-                    default:
-                        warnings.push(`This network contains unknown box categories. (${boxData.category})`);
+
+                try {
+                    box = createBox();
+                } catch(e) {
+                    warnings.push(e);
                 }
 
                 if (box) {
                     // proccess box transforms (translation and rotation)
                     let transform = new editorElements.Transform();
-
                     let rotationCount = 0;
+
+                    const transformItemMap = {
+                        "translate": (args) => {
+                            transform.setTranslate(
+                                args[0]
+                                    - leftTopCorner.x // make it the relative distance from the leftmost element
+                                    + x // apply the position
+                                    ,
+
+                                args[1]
+                                    - leftTopCorner.y // make it the relative distance from the topmost element
+                                    + y // apply the position
+                            );
+                        },
+                        "rotate": (args) => {
+                            rotationCount = args[0] % 360 / 90;
+                        }
+                    }
 
                     if(boxData.transform && boxData.transform.items) {
                         for(const transformItem of boxData.transform.items) {
-                            switch (transformItem.name) {
-                                case "translate":
-                                    transform.setTranslate(
-                                        transformItem.args[0]
-                                            - leftTopCorner.x // make it the relative distance from the leftmost element
-                                            + x // apply the position
-                                            ,
+                            const {name, args} = transformItem;
 
-                                        transformItem.args[1]
-                                            - leftTopCorner.y // make it the relative distance from the topmost element
-                                            + y // apply the position
-                                    );
-                                    break;
-                                case "rotate":
-                                    // rotate cannot be solved only using setRotate
-                                    // because the blocked nodes for the box have to be rotated as well
-
-                                    rotationCount = transformItem.args[0] % 360 / 90;
-
-                                    break;
-                                case undefined:
-                                    warnings.push(`This network contains unnamed transform properties.`);
-                                    break;
-                                default:
-                                    warnings.push(`This network contains unknown transform properties. (${transformItem.name})`);
+                            if(!name) {
+                                warnings.push(`This network contains unnamed transform properties.`);
+                                break;
                             }
+
+                            if(!transformItemMap[name]) {
+                                warnings.push(`This network contains unknown transform properties. (${transformItem.name})`);
+                                break;
+                            }
+
+                            transformItemMap[name](args)
                         }
                     }
 
@@ -629,18 +631,6 @@ export default class Canvas {
             this.refresh();
 
             this.simulationEnabled = true;
-            for (let box of this.boxes) {
-                if (box instanceof editorElements.InputBox) {
-                    // switch the input box state to the opposite and back:
-                    // for some reason calling box.refreshState()
-                    // results in weird unfinished simulation
-                    // this causes update of the output connector and thus a start of a new simulation
-
-                    // TODO find better solution instead of this workaround, if there is any
-                    // box.on = !box.on
-                    // box.on = !box.on
-                }
-            }
 
             resolve(warnings)
         })
@@ -812,7 +802,7 @@ export default class Canvas {
         if(gateIndex > -1) {
             // remove all wires connected to this gate
             for(let i = 0; i < this.boxes[gateIndex].connectors.length; i++) {
-                this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[i].svgObj.id);
+                this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[i].id);
             }
 
             // remove the gate
@@ -1045,6 +1035,7 @@ export default class Canvas {
 
             // if otherConnector is an input connector, set its state to unknown
             if(otherConnector.isInputConnector) {
+                otherConnector.setState(Logic.state.unknown)
                 this.startNewSimulation(otherConnector, Logic.state.unknown)
             }
         });
@@ -1053,7 +1044,8 @@ export default class Canvas {
         connector.wireIds.clear();
         // if connector is an input connector, set its state to unknown
         if(connector.isInputConnector) {
-            connector.setState(Logic.state.unknown);
+            connector.setState(Logic.state.unknown)
+            this.startNewSimulation(connector, Logic.state.unknown)
         }
     }
 

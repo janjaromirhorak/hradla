@@ -62,7 +62,7 @@ export default class Connector extends NetworkElement {
          * @type {Logic.state}
          */
         this.elementState = Logic.state.unknown;
-        this.svgObj.addClass(stateClasses.unknown);
+        this.svgObj.addClass(stateClasses[Logic.state.unknown]);
 
         /**
          * set of ids of all wires connected to this connector
@@ -116,22 +116,8 @@ export default class Connector extends NetworkElement {
      * @param {Logic.state} state new state of the connector
      */
     setState(state) {
-        this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
-
-        switch (state) {
-            case Logic.state.unknown:
-                this.svgObj.addClass(stateClasses.unknown);
-                break;
-            case Logic.state.on:
-                this.svgObj.addClass(stateClasses.on);
-                break;
-            case Logic.state.off:
-                this.svgObj.addClass(stateClasses.off);
-                break;
-            case Logic.state.oscillating:
-                this.svgObj.addClass(stateClasses.oscillating);
-                break;
-        }
+        this.svgObj.removeClasses(...stateClasses);
+        this.svgObj.addClass(stateClasses[state]);
 
         this.elementState = state;
     }

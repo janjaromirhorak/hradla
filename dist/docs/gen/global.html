@@ -1,10 +1,8 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: modules/svgObjects/PolyLine.js | Hradla</title>
+    <title>Global | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -47,52 +45,356 @@
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import Tag from './Tag'
+        <h2>Global</h2>
+    
+</header>
 
-/** @module svgObjects.PolyLine */
+<article>
+    
 
-/**
- * SVG polyline (a path defined by sequence of points on plane)
- * @extends Tag
- */
-export default class PolyLine extends Tag {
-    /**
-     * @param {PolylinePoints} points points describing this polyline
-     * @param {number} [strokeWidth] width of the stroke for this polyline in SVG pixels
-     * @param {string} [color] CSS color of this polyline
-     */
-    constructor(points, strokeWidth, color) {
-        super("polyline");
+    
 
-        let attributes = {
-            points: points.string,
-            fill: "none",
-            "stroke-width": strokeWidth
-        };
+    
 
-        if(color!==undefined) {
-            attributes.stroke = color
-        }
+    
 
-        this.addAttr(attributes);
-    }
+    
 
-    /**
-     * update points of this polyline
-     * @param {PolylinePoints} points new set of points describing this polyline
-     */
-    updatePoints(points) {
-        this.addAttr({
-            points: points.string
-        });
-    }
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+
+<dt>
+<h4 class="name" id="map">
+    <span class="type-signature"></span>map<span class="type-signature"> :Object</span>
+    
+    <div class="container-source members">
+        <code><a href="modules_editorElements_stateClasses.js.html">modules/editorElements/stateClasses.js</a></code>,
+        <code><a href="modules_editorElements_stateClasses.js.html#line8">line 8</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>mapping of logical states to css classes</p>
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Object</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+                
+
+<dt>
+    
+        <h4 class="name" id="module:findPath">
+            
+                <span class="type-signature"></span>module:findPath<span class="signature">(start, end, nonRoutable, punishedButRoutable)</span><span class="type-signature"> &rarr; {Array}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="modules_findPath.js.html">modules/findPath.js</a></code>,
+                <code><a href="modules_findPath.js.html#line16">line 16</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Heavily modified implementation of the A* algorithm</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>start</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>object containing numeric attributes <code>x</code> and <code>y</code> that represent the first endpoint of the wire in grid pixels</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>end</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>object containing numeric attributes <code>x</code> and <code>y</code> that represent the second endpoint of the wire in grid pixels</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>nonRoutable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Set</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>set of non routable nodes</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>punishedButRoutable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Set</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>set of nodes that are not optimal for routing</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">Array</span>
+
+
+
+
+
+- <p>array of objects containing numeric attributes <code>x</code> and <code>y</code></p>
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

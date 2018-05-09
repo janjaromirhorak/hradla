@@ -1145,27 +1145,20 @@ var Canvas = function () {
         (0, _helperFunctions.addMouseScrollEventListener)(canvas, function (event) {
             // zoom only if the ctrl key is not pressed
             if (!event.ctrlKey) {
-                switch (event.delta) {
-                    case 1:
-                        _this.zoom += 0.1;
-                        break;
-                    case -1:
-                        _this.zoom -= 0.1;
-                        break;
-                }
+                _this.zoom += event.delta * 0.1;
 
                 event.preventDefault();
             }
         });
 
         $(window).on('keydown', function (event) {
-            switch (event.key) {
-                case '+':
-                    _this.zoom += 0.1;
-                    break;
-                case '-':
-                    _this.zoom -= 0.1;
-                    break;
+            var actions = {
+                '+': 0.1,
+                '-': -0.1
+            };
+
+            if (actions[event.key]) {
+                _this.zoom += actions[event.key];
             }
         });
 
@@ -1373,13 +1366,13 @@ var Canvas = function () {
                         var boxData = _step.value;
 
                         if (boxData.transform && boxData.transform.items) {
-                            var _iteratorNormalCompletion5 = true;
-                            var _didIteratorError5 = false;
-                            var _iteratorError5 = undefined;
+                            var _iteratorNormalCompletion4 = true;
+                            var _didIteratorError4 = false;
+                            var _iteratorError4 = undefined;
 
                             try {
-                                for (var _iterator5 = boxData.transform.items[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                                    var transformInfo = _step5.value;
+                                for (var _iterator4 = boxData.transform.items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                                    var transformInfo = _step4.value;
 
                                     if (transformInfo.name === "translate") {
                                         if (leftTopCorner) {
@@ -1396,16 +1389,16 @@ var Canvas = function () {
                                     }
                                 }
                             } catch (err) {
-                                _didIteratorError5 = true;
-                                _iteratorError5 = err;
+                                _didIteratorError4 = true;
+                                _iteratorError4 = err;
                             } finally {
                                 try {
-                                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                                        _iterator5.return();
+                                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                                        _iterator4.return();
                                     }
                                 } finally {
-                                    if (_didIteratorError5) {
-                                        throw _iteratorError5;
+                                    if (_didIteratorError4) {
+                                        throw _iteratorError4;
                                     }
                                 }
                             }
@@ -1426,6 +1419,166 @@ var Canvas = function () {
                     }
                 }
 
+                var _loop = function _loop(_boxData) {
+                    // mapping of dataBox.name of the objects that have category "other"
+                    var otherMap = {
+                        "input": function input() {
+                            return _this3.newInput(0, 0, _boxData.isOn, false);
+                        },
+                        "output": function output() {
+                            return _this3.newOutput(0, 0, false);
+                        }
+
+                        // mapping of dataBox.category
+                    };var boxMap = {
+                        "gate": function gate() {
+                            return _this3.newGate(_boxData.name, 0, 0, false);
+                        },
+                        "blackbox": function blackbox() {
+                            return _this3.newBlackbox(_boxData.inputs, _boxData.outputs, _boxData.table, _boxData.name, 0, 0, false);
+                        },
+                        "other": function other() {
+                            if (!_boxData.name) throw 'This network contains a box without a name.';
+
+                            if (!otherMap[_boxData.name]) throw 'This network contains unknown box names. (' + _boxData.name + ')';
+
+                            return otherMap[_boxData.name]();
+                        }
+                    };
+
+                    var createBox = function createBox() {
+                        if (!_boxData.category) throw 'This network a box without a category.';
+
+                        if (!boxMap[_boxData.category]) throw 'This network contains unknown box categories. (' + _boxData.category + ')';
+
+                        return boxMap[_boxData.category]();
+                    };
+
+                    var box = void 0;
+
+                    try {
+                        box = createBox();
+                    } catch (e) {
+                        warnings.push(e);
+                    }
+
+                    if (box) {
+                        // proccess box transforms (translation and rotation)
+                        var transform = new editorElements.Transform();
+                        var rotationCount = 0;
+
+                        var transformItemMap = {
+                            "translate": function translate(args) {
+                                transform.setTranslate(args[0] - leftTopCorner.x // make it the relative distance from the leftmost element
+                                + x // apply the position
+
+
+                                , args[1] - leftTopCorner.y // make it the relative distance from the topmost element
+                                + y // apply the position
+                                );
+                            },
+                            "rotate": function rotate(args) {
+                                rotationCount = args[0] % 360 / 90;
+                            }
+                        };
+
+                        if (_boxData.transform && _boxData.transform.items) {
+                            var _iteratorNormalCompletion5 = true;
+                            var _didIteratorError5 = false;
+                            var _iteratorError5 = undefined;
+
+                            try {
+                                for (var _iterator5 = _boxData.transform.items[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                                    var transformItem = _step5.value;
+                                    var name = transformItem.name,
+                                        args = transformItem.args;
+
+
+                                    if (!name) {
+                                        warnings.push('This network contains unnamed transform properties.');
+                                        break;
+                                    }
+
+                                    if (!transformItemMap[name]) {
+                                        warnings.push('This network contains unknown transform properties. (' + transformItem.name + ')');
+                                        break;
+                                    }
+
+                                    transformItemMap[name](args);
+                                }
+                            } catch (err) {
+                                _didIteratorError5 = true;
+                                _iteratorError5 = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                                        _iterator5.return();
+                                    }
+                                } finally {
+                                    if (_didIteratorError5) {
+                                        throw _iteratorError5;
+                                    }
+                                }
+                            }
+                        }
+
+                        transform.toSVGPixels(_this3);
+                        box.setTransform(transform);
+
+                        for (var i = 0; i < rotationCount; ++i) {
+                            box.rotate(true);
+                        }
+
+                        // add all wires to the list of wires to be added
+                        if (_boxData.connections) {
+                            var _iteratorNormalCompletion6 = true;
+                            var _didIteratorError6 = false;
+                            var _iteratorError6 = undefined;
+
+                            try {
+                                for (var _iterator6 = _boxData.connections[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                                    var connection = _step6.value;
+
+                                    // get the artificial wire id
+                                    var wireId = connection.wireId;
+
+                                    // pass the values got from json into a variable that will be added into the map
+                                    var value = {
+                                        index: connection.index,
+                                        boxId: box.id
+                                    };
+
+                                    // add the value to the map
+                                    if (newWires.has(wireId)) {
+                                        // if there already is a wire with this id in the map,
+                                        // add the value to the end of the array of values
+                                        var mapValue = newWires.get(wireId);
+                                        mapValue.push(value);
+                                        newWires.set(wireId, mapValue);
+                                    } else {
+                                        // if there is no wire with this id in the map
+                                        // add the wire and set the value to be the first element in the array
+                                        newWires.set(wireId, [value]);
+                                    }
+                                }
+                            } catch (err) {
+                                _didIteratorError6 = true;
+                                _iteratorError6 = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                                        _iterator6.return();
+                                    }
+                                } finally {
+                                    if (_didIteratorError6) {
+                                        throw _iteratorError6;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
                 var _iteratorNormalCompletion2 = true;
                 var _didIteratorError2 = false;
                 var _iteratorError2 = undefined;
@@ -1434,150 +1587,7 @@ var Canvas = function () {
                     for (var _iterator2 = data.boxes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                         var _boxData = _step2.value;
 
-                        // add box
-                        var box = void 0;
-                        switch (_boxData.category) {
-                            case "gate":
-                                // add new gate (without reloading the SVG, we will reload it once after the import)
-                                box = _this3.newGate(_boxData.name, 0, 0, false);
-                                break;
-                            case "other":
-                                switch (_boxData.name) {
-                                    case "input":
-                                        // add new input (without reloading the SVG, we will reload it once after the import)
-                                        box = _this3.newInput(0, 0, _boxData.isOn, false);
-                                        break;
-                                    case "output":
-                                        // add new output (without reloading the SVG, we will reload it once after the import)
-                                        box = _this3.newOutput(0, 0, false);
-                                        break;
-                                    case undefined:
-                                        warnings.push('This network contains a box without a name.');
-                                        break;
-                                    default:
-                                        warnings.push('This network contains unknown box names. (' + _boxData.name + ')');
-                                }
-                                break;
-                            case "blackbox":
-                                box = _this3.newBlackbox(_boxData.inputs, _boxData.outputs, _boxData.table, _boxData.name, 0, 0, false);
-                                break;
-                            case undefined:
-                                warnings.push('This network a box without a category.');
-                                break;
-                            default:
-                                warnings.push('This network contains unknown box categories. (' + _boxData.category + ')');
-                        }
-
-                        if (box) {
-                            // proccess box transforms (translation and rotation)
-                            var transform = new editorElements.Transform();
-
-                            var rotationCount = 0;
-
-                            if (_boxData.transform && _boxData.transform.items) {
-                                var _iteratorNormalCompletion6 = true;
-                                var _didIteratorError6 = false;
-                                var _iteratorError6 = undefined;
-
-                                try {
-                                    for (var _iterator6 = _boxData.transform.items[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                                        var transformItem = _step6.value;
-
-                                        switch (transformItem.name) {
-                                            case "translate":
-                                                transform.setTranslate(transformItem.args[0] - leftTopCorner.x // make it the relative distance from the leftmost element
-                                                + x // apply the position
-
-
-                                                , transformItem.args[1] - leftTopCorner.y // make it the relative distance from the topmost element
-                                                + y // apply the position
-                                                );
-                                                break;
-                                            case "rotate":
-                                                // rotate cannot be solved only using setRotate
-                                                // because the blocked nodes for the box have to be rotated as well
-
-                                                rotationCount = transformItem.args[0] % 360 / 90;
-
-                                                break;
-                                            case undefined:
-                                                warnings.push('This network contains unnamed transform properties.');
-                                                break;
-                                            default:
-                                                warnings.push('This network contains unknown transform properties. (' + transformItem.name + ')');
-                                        }
-                                    }
-                                } catch (err) {
-                                    _didIteratorError6 = true;
-                                    _iteratorError6 = err;
-                                } finally {
-                                    try {
-                                        if (!_iteratorNormalCompletion6 && _iterator6.return) {
-                                            _iterator6.return();
-                                        }
-                                    } finally {
-                                        if (_didIteratorError6) {
-                                            throw _iteratorError6;
-                                        }
-                                    }
-                                }
-                            }
-
-                            transform.toSVGPixels(_this3);
-                            box.setTransform(transform);
-
-                            for (var i = 0; i < rotationCount; ++i) {
-                                box.rotate(true);
-                            }
-
-                            // add all wires to the list of wires to be added
-                            if (_boxData.connections) {
-                                var _iteratorNormalCompletion7 = true;
-                                var _didIteratorError7 = false;
-                                var _iteratorError7 = undefined;
-
-                                try {
-                                    for (var _iterator7 = _boxData.connections[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                                        var connection = _step7.value;
-
-                                        // get the artificial wire id
-                                        var wireId = connection.wireId;
-
-                                        // pass the values got from json into a variable that will be added into the map
-                                        var value = {
-                                            index: connection.index,
-                                            boxId: box.id
-                                        };
-
-                                        // add the value to the map
-                                        if (newWires.has(wireId)) {
-                                            // if there already is a wire with this id in the map,
-                                            // add the value to the end of the array of values
-                                            var mapValue = newWires.get(wireId);
-                                            mapValue.push(value);
-                                            newWires.set(wireId, mapValue);
-                                        } else {
-                                            // if there is no wire with this id in the map
-                                            // add the wire and set the value to be the first element in the array
-                                            newWires.set(wireId, [value]);
-                                        }
-                                    }
-                                } catch (err) {
-                                    _didIteratorError7 = true;
-                                    _iteratorError7 = err;
-                                } finally {
-                                    try {
-                                        if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                                            _iterator7.return();
-                                        }
-                                    } finally {
-                                        if (_didIteratorError7) {
-                                            throw _iteratorError7;
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        _loop(_boxData);
                     }
 
                     // refresh the SVG document (needed for wiring)
@@ -1615,13 +1625,13 @@ var Canvas = function () {
                         var connectorIds = [];
 
                         // create an array [connector1Id, connector2Id]
-                        var _iteratorNormalCompletion8 = true;
-                        var _didIteratorError8 = false;
-                        var _iteratorError8 = undefined;
+                        var _iteratorNormalCompletion7 = true;
+                        var _didIteratorError7 = false;
+                        var _iteratorError7 = undefined;
 
                         try {
-                            for (var _iterator8 = wireInfo[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                                var _ref = _step8.value;
+                            for (var _iterator7 = wireInfo[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                                var _ref = _step7.value;
                                 var boxId = _ref.boxId;
                                 var index = _ref.index;
 
@@ -1630,16 +1640,16 @@ var Canvas = function () {
 
                             // create and array [{x, y}, {x, y}] containing positions for connectors 1 and 2
                         } catch (err) {
-                            _didIteratorError8 = true;
-                            _iteratorError8 = err;
+                            _didIteratorError7 = true;
+                            _iteratorError7 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion8 && _iterator8.return) {
-                                    _iterator8.return();
+                                if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                                    _iterator7.return();
                                 }
                             } finally {
-                                if (_didIteratorError8) {
-                                    throw _iteratorError8;
+                                if (_didIteratorError7) {
+                                    throw _iteratorError7;
                                 }
                             }
                         }
@@ -1751,39 +1761,6 @@ var Canvas = function () {
                 _this3.refresh();
 
                 _this3.simulationEnabled = true;
-                var _iteratorNormalCompletion4 = true;
-                var _didIteratorError4 = false;
-                var _iteratorError4 = undefined;
-
-                try {
-                    for (var _iterator4 = _this3.boxes[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                        var box = _step4.value;
-
-                        if (box instanceof editorElements.InputBox) {
-                            // switch the input box state to the opposite and back:
-                            // for some reason calling box.refreshState()
-                            // results in weird unfinished simulation
-                            // this causes update of the output connector and thus a start of a new simulation
-
-                            // TODO find better solution instead of this workaround, if there is any
-                            // box.on = !box.on
-                            // box.on = !box.on
-                        }
-                    }
-                } catch (err) {
-                    _didIteratorError4 = true;
-                    _iteratorError4 = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                            _iterator4.return();
-                        }
-                    } finally {
-                        if (_didIteratorError4) {
-                            throw _iteratorError4;
-                        }
-                    }
-                }
 
                 resolve(warnings);
             });
@@ -1996,7 +1973,7 @@ var Canvas = function () {
             if (gateIndex > -1) {
                 // remove all wires connected to this gate
                 for (var _i = 0; _i < this.boxes[gateIndex].connectors.length; _i++) {
-                    this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[_i].svgObj.id);
+                    this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[_i].id);
                 }
 
                 // remove the gate
@@ -2027,27 +2004,27 @@ var Canvas = function () {
             });
 
             // remove all boxes by their ids
-            var _iteratorNormalCompletion9 = true;
-            var _didIteratorError9 = false;
-            var _iteratorError9 = undefined;
+            var _iteratorNormalCompletion8 = true;
+            var _didIteratorError8 = false;
+            var _iteratorError8 = undefined;
 
             try {
-                for (var _iterator9 = ids[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                    var id = _step9.value;
+                for (var _iterator8 = ids[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                    var id = _step8.value;
 
                     this.removeBox(id);
                 }
             } catch (err) {
-                _didIteratorError9 = true;
-                _iteratorError9 = err;
+                _didIteratorError8 = true;
+                _iteratorError8 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                        _iterator9.return();
+                    if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                        _iterator8.return();
                     }
                 } finally {
-                    if (_didIteratorError9) {
-                        throw _iteratorError9;
+                    if (_didIteratorError8) {
+                        throw _iteratorError8;
                     }
                 }
             }
@@ -2167,7 +2144,7 @@ var Canvas = function () {
                     inputStates[_key] = arguments[_key];
                 }
 
-                var _loop = function _loop(line) {
+                var _loop2 = function _loop2(line) {
                     var lineInputStates = line.slice(0, inputs);
 
                     // if every input state matches the corresponding input state in this line of the truth table
@@ -2181,30 +2158,30 @@ var Canvas = function () {
                     }
                 };
 
-                var _iteratorNormalCompletion10 = true;
-                var _didIteratorError10 = false;
-                var _iteratorError10 = undefined;
+                var _iteratorNormalCompletion9 = true;
+                var _didIteratorError9 = false;
+                var _iteratorError9 = undefined;
 
                 try {
-                    for (var _iterator10 = table[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-                        var line = _step10.value;
+                    for (var _iterator9 = table[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                        var line = _step9.value;
 
-                        var _ret = _loop(line);
+                        var _ret2 = _loop2(line);
 
-                        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+                        if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
                     }
                     // if nothing matches, set all outputs to undefined
                 } catch (err) {
-                    _didIteratorError10 = true;
-                    _iteratorError10 = err;
+                    _didIteratorError9 = true;
+                    _iteratorError9 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion10 && _iterator10.return) {
-                            _iterator10.return();
+                        if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                            _iterator9.return();
                         }
                     } finally {
-                        if (_didIteratorError10) {
-                            throw _iteratorError10;
+                        if (_didIteratorError9) {
+                            throw _iteratorError9;
                         }
                     }
                 }
@@ -2235,29 +2212,29 @@ var Canvas = function () {
     }, {
         key: 'getWireById',
         value: function getWireById(wireId) {
-            var _iteratorNormalCompletion11 = true;
-            var _didIteratorError11 = false;
-            var _iteratorError11 = undefined;
+            var _iteratorNormalCompletion10 = true;
+            var _didIteratorError10 = false;
+            var _iteratorError10 = undefined;
 
             try {
-                for (var _iterator11 = this.wires[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-                    var wire = _step11.value;
+                for (var _iterator10 = this.wires[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                    var wire = _step10.value;
 
                     if (wire.svgObj.id === wireId) {
                         return wire;
                     }
                 }
             } catch (err) {
-                _didIteratorError11 = true;
-                _iteratorError11 = err;
+                _didIteratorError10 = true;
+                _iteratorError10 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion11 && _iterator11.return) {
-                        _iterator11.return();
+                    if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                        _iterator10.return();
                     }
                 } finally {
-                    if (_didIteratorError11) {
-                        throw _iteratorError11;
+                    if (_didIteratorError10) {
+                        throw _iteratorError10;
                     }
                 }
             }
@@ -2289,14 +2266,14 @@ var Canvas = function () {
             for (var i = 0; i < this.wires.length; ++i) {
                 if (this.wires[i].svgObj.id === wireId) {
                     var connectors = this.wires[i].connectors;
-                    var _iteratorNormalCompletion12 = true;
-                    var _didIteratorError12 = false;
-                    var _iteratorError12 = undefined;
+                    var _iteratorNormalCompletion11 = true;
+                    var _didIteratorError11 = false;
+                    var _iteratorError11 = undefined;
 
                     try {
 
-                        for (var _iterator12 = connectors[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-                            var connector = _step12.value;
+                        for (var _iterator11 = connectors[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                            var connector = _step11.value;
 
                             connector.removeWireIdAndUpdate(wireId);
                         }
@@ -2304,16 +2281,16 @@ var Canvas = function () {
                         // start simulation from the input connector to
                         // refresh the network after this wire
                     } catch (err) {
-                        _didIteratorError12 = true;
-                        _iteratorError12 = err;
+                        _didIteratorError11 = true;
+                        _iteratorError11 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion12 && _iterator12.return) {
-                                _iterator12.return();
+                            if (!_iteratorNormalCompletion11 && _iterator11.return) {
+                                _iterator11.return();
                             }
                         } finally {
-                            if (_didIteratorError12) {
-                                throw _iteratorError12;
+                            if (_didIteratorError11) {
+                                throw _iteratorError11;
                             }
                         }
                     }
@@ -2350,7 +2327,7 @@ var Canvas = function () {
 
                 // get the other connector that is the wire connected to
 
-                var otherConnector = connectorId === from.id ? from.connector : to.connector;
+                var otherConnector = connectorId === from.id ? to.connector : from.connector;
 
                 // delete the wire record from the other connector
                 otherConnector.wireIds.delete(wireId);
@@ -2360,6 +2337,7 @@ var Canvas = function () {
 
                 // if otherConnector is an input connector, set its state to unknown
                 if (otherConnector.isInputConnector) {
+                    otherConnector.setState(_Logic2.default.state.unknown);
                     _this6.startNewSimulation(otherConnector, _Logic2.default.state.unknown);
                 }
             });
@@ -2369,6 +2347,7 @@ var Canvas = function () {
             // if connector is an input connector, set its state to unknown
             if (connector.isInputConnector) {
                 connector.setState(_Logic2.default.state.unknown);
+                this.startNewSimulation(connector, _Logic2.default.state.unknown);
             }
         }
 
@@ -2434,30 +2413,30 @@ var Canvas = function () {
                 if (to.id === connectorId) return to.connector;
             } else {
                 // we do not know the wire -- we have to check all gates
-                var _iteratorNormalCompletion13 = true;
-                var _didIteratorError13 = false;
-                var _iteratorError13 = undefined;
+                var _iteratorNormalCompletion12 = true;
+                var _didIteratorError12 = false;
+                var _iteratorError12 = undefined;
 
                 try {
-                    for (var _iterator13 = this.boxes[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-                        var box = _step13.value;
+                    for (var _iterator12 = this.boxes[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                        var _box = _step12.value;
 
-                        var connector = box.getConnectorById(connectorId);
+                        var connector = _box.getConnectorById(connectorId);
                         if (connector) {
                             return connector;
                         }
                     }
                 } catch (err) {
-                    _didIteratorError13 = true;
-                    _iteratorError13 = err;
+                    _didIteratorError12 = true;
+                    _iteratorError12 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion13 && _iterator13.return) {
-                            _iterator13.return();
+                        if (!_iteratorNormalCompletion12 && _iterator12.return) {
+                            _iterator12.return();
                         }
                     } finally {
-                        if (_didIteratorError13) {
-                            throw _iteratorError13;
+                        if (_didIteratorError12) {
+                            throw _iteratorError12;
                         }
                     }
                 }
@@ -2691,26 +2670,26 @@ var Canvas = function () {
         value: function getNonRoutableNodes() {
             var blockedNodes = new Set();
             // for each box
-            var _iteratorNormalCompletion14 = true;
-            var _didIteratorError14 = false;
-            var _iteratorError14 = undefined;
+            var _iteratorNormalCompletion13 = true;
+            var _didIteratorError13 = false;
+            var _iteratorError13 = undefined;
 
             try {
-                for (var _iterator14 = this.boxes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                    var box = _step14.value;
+                for (var _iterator13 = this.boxes[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                    var _box2 = _step13.value;
 
-                    var translate = box.getGridPixelTransform().getTranslate();
+                    var translate = _box2.getGridPixelTransform().getTranslate();
 
                     // for each item in blockedNodes (set of blocked nodes with coordinates relative
                     // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
                     // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-                    var _iteratorNormalCompletion15 = true;
-                    var _didIteratorError15 = false;
-                    var _iteratorError15 = undefined;
+                    var _iteratorNormalCompletion14 = true;
+                    var _didIteratorError14 = false;
+                    var _iteratorError14 = undefined;
 
                     try {
-                        for (var _iterator15 = box.blockedNodes[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-                            var node = _step15.value;
+                        for (var _iterator14 = _box2.blockedNodes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                            var node = _step14.value;
 
                             blockedNodes.add({
                                 x: translate.x + node.x,
@@ -2718,16 +2697,16 @@ var Canvas = function () {
                             });
                         }
                     } catch (err) {
-                        _didIteratorError15 = true;
-                        _iteratorError15 = err;
+                        _didIteratorError14 = true;
+                        _iteratorError14 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion15 && _iterator15.return) {
-                                _iterator15.return();
+                            if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                                _iterator14.return();
                             }
                         } finally {
-                            if (_didIteratorError15) {
-                                throw _iteratorError15;
+                            if (_didIteratorError14) {
+                                throw _iteratorError14;
                             }
                         }
                     }
@@ -2758,16 +2737,16 @@ var Canvas = function () {
 
                 // return the set
             } catch (err) {
-                _didIteratorError14 = true;
-                _iteratorError14 = err;
+                _didIteratorError13 = true;
+                _iteratorError13 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                        _iterator14.return();
+                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
+                        _iterator13.return();
                     }
                 } finally {
-                    if (_didIteratorError14) {
-                        throw _iteratorError14;
+                    if (_didIteratorError13) {
+                        throw _iteratorError13;
                     }
                 }
             }
@@ -2786,37 +2765,37 @@ var Canvas = function () {
             var inconvenientNodes = new Set();
             // for each wire
 
-            var _iteratorNormalCompletion16 = true;
-            var _didIteratorError16 = false;
-            var _iteratorError16 = undefined;
+            var _iteratorNormalCompletion15 = true;
+            var _didIteratorError15 = false;
+            var _iteratorError15 = undefined;
 
             try {
-                for (var _iterator16 = this.wires[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
-                    var wire = _step16.value;
+                for (var _iterator15 = this.wires[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                    var wire = _step15.value;
 
                     if (ignoreWireId === undefined || ignoreWireId !== wire.id) {
                         if (wire.inconvenientNodes) {
-                            var _iteratorNormalCompletion17 = true;
-                            var _didIteratorError17 = false;
-                            var _iteratorError17 = undefined;
+                            var _iteratorNormalCompletion16 = true;
+                            var _didIteratorError16 = false;
+                            var _iteratorError16 = undefined;
 
                             try {
-                                for (var _iterator17 = wire.inconvenientNodes[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
-                                    var node = _step17.value;
+                                for (var _iterator16 = wire.inconvenientNodes[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
+                                    var node = _step16.value;
 
                                     inconvenientNodes.add(node);
                                 }
                             } catch (err) {
-                                _didIteratorError17 = true;
-                                _iteratorError17 = err;
+                                _didIteratorError16 = true;
+                                _iteratorError16 = err;
                             } finally {
                                 try {
-                                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
-                                        _iterator17.return();
+                                    if (!_iteratorNormalCompletion16 && _iterator16.return) {
+                                        _iterator16.return();
                                     }
                                 } finally {
-                                    if (_didIteratorError17) {
-                                        throw _iteratorError17;
+                                    if (_didIteratorError16) {
+                                        throw _iteratorError16;
                                     }
                                 }
                             }
@@ -2847,16 +2826,16 @@ var Canvas = function () {
 
                 // return the set
             } catch (err) {
-                _didIteratorError16 = true;
-                _iteratorError16 = err;
+                _didIteratorError15 = true;
+                _iteratorError15 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion16 && _iterator16.return) {
-                        _iterator16.return();
+                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
+                        _iterator15.return();
                     }
                 } finally {
-                    if (_didIteratorError16) {
-                        throw _iteratorError16;
+                    if (_didIteratorError15) {
+                        throw _iteratorError15;
                     }
                 }
             }
@@ -2910,27 +2889,27 @@ var Canvas = function () {
                 boxes: []
             };
 
-            var _iteratorNormalCompletion18 = true;
-            var _didIteratorError18 = false;
-            var _iteratorError18 = undefined;
+            var _iteratorNormalCompletion17 = true;
+            var _didIteratorError17 = false;
+            var _iteratorError17 = undefined;
 
             try {
-                for (var _iterator18 = this.boxes[Symbol.iterator](), _step18; !(_iteratorNormalCompletion18 = (_step18 = _iterator18.next()).done); _iteratorNormalCompletion18 = true) {
-                    var box = _step18.value;
+                for (var _iterator17 = this.boxes[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
+                    var _box3 = _step17.value;
 
-                    data.boxes.push(box.exportData);
+                    data.boxes.push(_box3.exportData);
                 }
             } catch (err) {
-                _didIteratorError18 = true;
-                _iteratorError18 = err;
+                _didIteratorError17 = true;
+                _iteratorError17 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion18 && _iterator18.return) {
-                        _iterator18.return();
+                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
+                        _iterator17.return();
                     }
                 } finally {
-                    if (_didIteratorError18) {
-                        throw _iteratorError18;
+                    if (_didIteratorError17) {
+                        throw _iteratorError17;
                     }
                 }
             }
@@ -4680,6 +4659,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -4741,7 +4722,7 @@ var Connector = function (_NetworkElement) {
      * @type {Logic.state}
      */
     _this.elementState = _Logic2.default.state.unknown;
-    _this.svgObj.addClass(_stateClasses2.default.unknown);
+    _this.svgObj.addClass(_stateClasses2.default[_Logic2.default.state.unknown]);
 
     /**
      * set of ids of all wires connected to this connector
@@ -4799,22 +4780,10 @@ var Connector = function (_NetworkElement) {
   }, {
     key: 'setState',
     value: function setState(state) {
-      this.svgObj.removeClasses(_stateClasses2.default.on, _stateClasses2.default.off, _stateClasses2.default.unknown, _stateClasses2.default.oscillating);
+      var _svgObj;
 
-      switch (state) {
-        case _Logic2.default.state.unknown:
-          this.svgObj.addClass(_stateClasses2.default.unknown);
-          break;
-        case _Logic2.default.state.on:
-          this.svgObj.addClass(_stateClasses2.default.on);
-          break;
-        case _Logic2.default.state.off:
-          this.svgObj.addClass(_stateClasses2.default.off);
-          break;
-        case _Logic2.default.state.oscillating:
-          this.svgObj.addClass(_stateClasses2.default.oscillating);
-          break;
-      }
+      (_svgObj = this.svgObj).removeClasses.apply(_svgObj, _toConsumableArray(_stateClasses2.default));
+      this.svgObj.addClass(_stateClasses2.default[state]);
 
       this.elementState = state;
     }
@@ -5008,35 +4977,42 @@ var Gate = function (_Box) {
     }, {
         key: 'refreshState',
         value: function refreshState() {
-            // console.log("Refresh state on gate", this.id)
+            var _this2 = this;
+
+            // map gate names to their logic functions
+            var stateMap = {
+                "and": function and() {
+                    return _Logic2.default.and(_this2.connectors[1].state, _this2.connectors[2].state);
+                },
+                "nand": function nand() {
+                    return _Logic2.default.nand(_this2.connectors[1].state, _this2.connectors[2].state);
+                },
+                "nor": function nor() {
+                    return _Logic2.default.nor(_this2.connectors[1].state, _this2.connectors[2].state);
+                },
+                "not": function not() {
+                    return _Logic2.default.not(_this2.connectors[1].state);
+                },
+                "or": function or() {
+                    return _Logic2.default.or(_this2.connectors[1].state, _this2.connectors[2].state);
+                },
+                "xnor": function xnor() {
+                    return _Logic2.default.xnor(_this2.connectors[1].state, _this2.connectors[2].state);
+                },
+                "xor": function xor() {
+                    return _Logic2.default.xor(_this2.connectors[1].state, _this2.connectors[2].state);
+                },
+                "repeater": function repeater() {
+                    return _this2.connectors[1].state;
+                }
+            };
 
             var state = _Logic2.default.state.unknown;
-            switch (this.name) {
-                case "and":
-                    state = _Logic2.default.and(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "nand":
-                    state = _Logic2.default.nand(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "nor":
-                    state = _Logic2.default.nor(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "not":
-                    state = _Logic2.default.not(this.connectors[1].state);
-                    break;
-                case "or":
-                    state = _Logic2.default.or(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "xnor":
-                    state = _Logic2.default.xnor(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "xor":
-                    state = _Logic2.default.xor(this.connectors[1].state, this.connectors[2].state);
-                    break;
-                case "repeater":
-                    state = this.connectors[1].state;
-                    break;
+
+            if (stateMap[this.name]) {
+                state = stateMap[this.name]();
             }
+
             // notify the simulator about this change
             this.parentSVG.simulation.notifyChange(this.connectors[0].id, state);
         }
@@ -5523,25 +5499,19 @@ var OutputBox = function (_Box) {
     }, {
         key: 'setState',
         value: function setState(state) {
-            switch (state) {
-                case _Logic2.default.state.on:
-                    this.changeImage("on");
-
-                    // if tutorial exists, call tutorial callback
-                    if (this.parentSVG.tutorial) {
-                        this.parentSVG.tutorial.onOutputBoxTrue();
-                    }
-                    break;
-                case _Logic2.default.state.off:
-                    this.changeImage("off");
-                    break;
-                case _Logic2.default.state.unknown:
-                    this.changeImage();
-                    break;
-                case _Logic2.default.state.oscillating:
-                    this.changeImage("osc");
-                    break;
+            if (state === _Logic2.default.state.on) {
+                if (this.parentSVG.tutorial) {
+                    this.parentSVG.tutorial.onOutputBoxTrue();
+                }
             }
+
+            var stateMap = {};
+            stateMap[_Logic2.default.state.on] = "on";
+            stateMap[_Logic2.default.state.off] = "off";
+            stateMap[_Logic2.default.state.unknown] = "";
+            stateMap[_Logic2.default.state.oscillating] = "osc";
+
+            this.changeImage(stateMap[state]);
         }
     }, {
         key: 'generateBlockNodes',
@@ -6093,6 +6063,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -6184,22 +6156,10 @@ var Wire = function (_NetworkElement) {
          * @param {Logic.state} state [description]
          */
         value: function setState(state) {
-            this.svgObj.removeClasses(_stateClasses2.default.on, _stateClasses2.default.off, _stateClasses2.default.unknown, _stateClasses2.default.oscillating);
+            var _svgObj;
 
-            switch (state) {
-                case _Logic2.default.state.unknown:
-                    this.svgObj.addClass(_stateClasses2.default.unknown);
-                    break;
-                case _Logic2.default.state.on:
-                    this.svgObj.addClass(_stateClasses2.default.on);
-                    break;
-                case _Logic2.default.state.off:
-                    this.svgObj.addClass(_stateClasses2.default.off);
-                    break;
-                case _Logic2.default.state.oscillating:
-                    this.svgObj.addClass(_stateClasses2.default.oscillating);
-                    break;
-            }
+            (_svgObj = this.svgObj).removeClasses.apply(_svgObj, _toConsumableArray(_stateClasses2.default));
+            this.svgObj.addClass(_stateClasses2.default[state]);
 
             this.connection.to.connector.setState(state);
 
@@ -6521,20 +6481,30 @@ exports.default = Wire;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
+
+var _Logic = require("../Logic");
+
+var _Logic2 = _interopRequireDefault(_Logic);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
  * mapping of logical states to css classes
  * @type {Object}
  */
-exports.default = {
-    on: "stateOn",
-    off: "stateOff",
-    unknown: "stateUnknown",
-    oscillating: "stateOscillating"
-};
 
-},{}],28:[function(require,module,exports){
+var map = []; // array so we can use the ...spread operator
+
+map[_Logic2.default.state.on] = "stateOn";
+map[_Logic2.default.state.off] = "stateOff";
+map[_Logic2.default.state.unknown] = "stateUnknown";
+map[_Logic2.default.state.oscillating] = "stateOscillating";
+
+exports.default = map;
+
+},{"../Logic":12}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6739,33 +6709,29 @@ function setHasThisPoint(set, point) {
  *     - 3: left
  * @return {Object}           object containing numeric attributes `x` and `y`
  */
-function movePoint(point, direction) {
-    switch (direction) {
-        case 0:
-            // up
-            return {
-                x: point.x,
-                y: point.y - 1
-            };
-        case 1:
-            // right
-            return {
-                x: point.x + 1,
-                y: point.y
-            };
-        case 2:
-            // down
-            return {
-                x: point.x,
-                y: point.y + 1
-            };
-        case 3:
-            // left
-            return {
-                x: point.x - 1,
-                y: point.y
-            };
-    }
+function movePoint(_ref, direction) {
+    var x = _ref.x,
+        y = _ref.y;
+
+    // map direction do point coordinate modification
+    var dirMap = {
+        0: function _() {
+            y -= 1;
+        },
+        1: function _() {
+            x += 1;
+        },
+        2: function _() {
+            y += 1;
+        },
+        3: function _() {
+            x -= 1;
+        }
+    };
+
+    dirMap[direction]();
+
+    return { x: x, y: y };
 }
 
 /**

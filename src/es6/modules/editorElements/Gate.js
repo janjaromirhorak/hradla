@@ -88,35 +88,24 @@ export default class Gate extends Box {
      * to the logic corresponding to this gate's name
      */
     refreshState() {
-        // console.log("Refresh state on gate", this.id)
+        // map gate names to their logic functions
+        const stateMap = {
+            "and": () => Logic.and(this.connectors[1].state, this.connectors[2].state),
+            "nand": () => Logic.nand(this.connectors[1].state, this.connectors[2].state),
+            "nor": () => Logic.nor(this.connectors[1].state, this.connectors[2].state),
+            "not": () => Logic.not(this.connectors[1].state),
+            "or": () => Logic.or(this.connectors[1].state, this.connectors[2].state),
+            "xnor": () => Logic.xnor(this.connectors[1].state, this.connectors[2].state),
+            "xor": () => Logic.xor(this.connectors[1].state, this.connectors[2].state),
+            "repeater": () => this.connectors[1].state
+        }
 
         let state = Logic.state.unknown
-        switch (this.name) {
-            case "and":
-                state = Logic.and(this.connectors[1].state, this.connectors[2].state)
-                break;
-            case "nand":
-                state = Logic.nand(this.connectors[1].state, this.connectors[2].state)
-                break;
-            case "nor":
-                state = Logic.nor(this.connectors[1].state, this.connectors[2].state)
-                break;
-            case "not":
-                state = Logic.not(this.connectors[1].state)
-                break;
-            case "or":
-                state = Logic.or(this.connectors[1].state, this.connectors[2].state)
-                break;
-            case "xnor":
-                state = Logic.xnor(this.connectors[1].state, this.connectors[2].state)
-                break;
-            case "xor":
-                state = Logic.xor(this.connectors[1].state, this.connectors[2].state)
-                break;
-            case "repeater":
-                state = this.connectors[1].state
-                break;
+
+        if(stateMap[this.name]) {
+            state = stateMap[this.name]()
         }
+
         // notify the simulator about this change
         this.parentSVG.simulation.notifyChange(this.connectors[0].id, state)
     }
