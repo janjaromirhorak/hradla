@@ -1035,7 +1035,7 @@ export default class Canvas {
             let {from, to} = wire.connection;
 
             // get the other connector that is the wire connected to
-            let otherConnector = connectorId===from.id ? from.connector : to.connector;
+            let otherConnector = connectorId===from.id ? to.connector : from.connector;
 
             // delete the wire record from the other connector
             otherConnector.wireIds.delete(wireId);
