@@ -79,8 +79,8 @@ export default class InputConnector extends Connector {
     setState(state) {
         super.setState(state);
 
-        let gate = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
-        gate.refreshState();
+        let box = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
+        box.refreshState();
     }
 
     /**

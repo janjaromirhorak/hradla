@@ -23,18 +23,35 @@ export default class Wire extends NetworkElement {
 
         this.gridSize = parentSVG.gridSize;
 
-        this.fromId = fromId;
-        this.toId = toId;
+        this.connection = {
+            from: {
+                id: fromId,
+                box: this.parentSVG.getBoxByConnectorId(fromId),
+                connector: this.parentSVG.getConnectorById(fromId)
+            },
+            to: {
+                id: toId,
+                box: this.parentSVG.getBoxByConnectorId(toId),
+                connector: this.parentSVG.getConnectorById(toId)
+            }
+        }
 
-        this.startBox = this.parentSVG.getBoxByConnectorId(fromId);
-        this.endBox = this.parentSVG.getBoxByConnectorId(toId);
-
-        this.boxes = [this.startBox, this.endBox]
-
-        this.startConnector = this.parentSVG.getConnectorById(fromId);
-        this.endConnector = this.parentSVG.getConnectorById(toId);
-
-        this.connectors = [this.startConnector, this.endConnector]
+        if(this.connection.from.connector.isOutputConnector) {
+            if(this.connection.to.connector.isInputConnector) {
+                // desired state
+            } else {
+                // connecting two output connectors
+                throw "Can not place wire between two output connectors";
+            }
+        } else {
+            if(this.connection.to.connector.isInputConnector) {
+                // connecting two input connectors
+                throw "Can not place wire between two input connectors";
+            } else {
+                // swap them and we are ready to go
+                [ this.connection.from, this.connection.to ] = [ this.connection.to, this.connection.from ];
+            }
+        }
 
         if(route) {
             this.routeWire(true, refresh);
@@ -44,13 +61,17 @@ export default class Wire extends NetworkElement {
 
         this.elementState = Logic.state.unknown;
 
-        for (let connector of this.connectors) {
-            if(connector.isOutputConnector) {
-                this.setState(connector.state);
-            }
-        }
+        this.setState(this.connection.from.connector.state)
 
         this.svgObj.$el.addClass("wire");
+    }
+
+    get boxes() {
+        return [this.connection.from.box, this.connection.to.box];
+    }
+
+    get connectors() {
+        return [this.connection.from.connector, this.connection.to.connector];
     }
 
     /**
@@ -59,8 +80,8 @@ export default class Wire extends NetworkElement {
      */
     get exportData() {
         return {
-            fromId: this.fromId,
-            toId: this.toId
+            fromId: this.connection.from.id,
+            toId: this.connection.to.id
         };
     }
 
@@ -86,12 +107,7 @@ export default class Wire extends NetworkElement {
                 break;
         }
 
-        if (this.startConnector.isInputConnector) {
-            this.startConnector.setState(state);
-        }
-        if(this.endConnector.isInputConnector) {
-            this.endConnector.setState(state);
-        }
+        this.connection.to.connector.setState(state);
 
         this.elementState = state;
     }
@@ -108,6 +124,7 @@ export default class Wire extends NetworkElement {
      * update the state of this wire
      */
     updateWireState() {
+        // TODO investigate
         for (const box of this.boxes) {
             box.refreshState()
         }
@@ -136,8 +153,8 @@ export default class Wire extends NetworkElement {
      * route the wire using the temporary wire points
      */
     temporaryWire() {
-        this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, false);
-        this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, false);
+        this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, false);
+        this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, false);
 
         this.setWirePath(this.getTemporaryWirePoints());
     }
@@ -146,8 +163,8 @@ export default class Wire extends NetworkElement {
      * route the wire using the modified A* wire routing algorithm
      */
     routeWire(snapToGrid = true, refresh = true) {
-        this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, snapToGrid);
-        this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, snapToGrid);
+        this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, snapToGrid);
+        this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, snapToGrid);
 
         this.points = this.findRoute(
             {

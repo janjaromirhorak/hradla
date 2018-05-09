@@ -906,7 +906,13 @@ export default class Canvas {
                 this.removeWiresByConnectorId(conn.id)
         })
         let index = this.wires.length;
-        this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh, route);
+
+        try {
+            this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh, route);
+        } catch(e) {
+            this.messages.newErrorMessage(e);
+            return undefined;
+        }
 
         connectors.forEach(conn => {
             conn.addWireId(this.wires[index].svgObj.id);
@@ -1130,12 +1136,14 @@ export default class Canvas {
 
         if(wire!==undefined) {
             // we know the wire -- we can check only gates at the ends of this wire
-            let connector = wire.startBox.getConnectorById(connectorId)
-            if (!connector) {
-                connector = wire.endBox.getConnectorById(connectorId)
-            }
-            return connector
+            const {from, to} = wire.connection;
 
+            if(from.id === connectorId)
+                return from.connector;
+
+            if(to.id === connectorId)
+                return to.connector;
+                
         } else {
             // we do not know the wire -- we have to check all gates
             for (const box of this.boxes) {
@@ -1146,7 +1154,7 @@ export default class Canvas {
             }
         }
 
-        return false
+        return undefined
     }
 
     /**

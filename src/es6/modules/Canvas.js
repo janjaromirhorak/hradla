@@ -531,6 +531,8 @@ export default class Canvas {
                 if(connectorsPositions.length === 2) {
                     let wire = this.newWire(...connectorIds, false, false);
 
+                    console.log("wire:", wire, ...connectorIds);
+
                     // get the manhattan distance between these two connectors
                     const distance = manhattanDistance(...connectorsPositions);
 
@@ -549,8 +551,8 @@ export default class Canvas {
                 while(!wireQueue.isEmpty()) {
                     const wire = wireQueue.dequeue();
 
-                    let wireStart = this.getConnectorPosition(wire.startConnector, true);
-                    let wireEnd = this.getConnectorPosition(wire.endConnector, true);
+                    let wireStart = this.getConnectorPosition(wire.connection.from.connector, true);
+                    let wireEnd = this.getConnectorPosition(wire.connection.to.connector, true);
 
                     wirePoints.push([
                         {
@@ -844,7 +846,7 @@ export default class Canvas {
     newWire(fromId, toId, refresh = true, route = true) {
         // wire must connect two distinct connectors
         if (fromId===toId)
-            return false
+            return undefined
 
         let connectors = [this.getConnectorById(fromId), this.getConnectorById(toId)]
 
@@ -854,7 +856,13 @@ export default class Canvas {
                 this.removeWiresByConnectorId(conn.id)
         })
         let index = this.wires.length;
-        this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh, route);
+
+        try {
+            this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh, route);
+        } catch(e) {
+            this.messages.newErrorMessage(e);
+            return undefined;
+        }
 
         connectors.forEach(conn => {
             conn.addWireId(this.wires[index].svgObj.id);
@@ -987,11 +995,11 @@ export default class Canvas {
         for(let i = 0 ; i < this.wires.length ; ++i) {
             if (this.wires[i].svgObj.id === wireId) {
 
-                let connector1 = this.wires[i].startConnector;
-                let connector2 = this.wires[i].endConnector;
+                let {connectors} = this.wires[i];
 
-                connector1.removeWireIdAndUpdate(wireId);
-                connector2.removeWireIdAndUpdate(wireId);
+                for (let connector of connectors) {
+                    connector.removeWireIdAndUpdate(wireId);
+                }
 
                 this.wires[i].svgObj.$el.remove();
                 this.wires.splice(i, 1);
@@ -1011,11 +1019,10 @@ export default class Canvas {
         connector.wireIds.forEach(wireId => {
             let wire = this.getWireById(wireId);
 
+            let {from, to} = wire.connection;
+
             // get the other connector that is the wire connected to
-            let otherConnector = this.getConnectorById(wire.fromId, wire);
-            if(otherConnector.svgObj.id===connectorId) {
-                otherConnector = this.getConnectorById(wire.toId, wire);
-            }
+            let otherConnector = connectorId===from.id ? from.connector : to.connector;
 
             // delete the wire record from the other connector
             otherConnector.wireIds.delete(wireId);
@@ -1078,11 +1085,13 @@ export default class Canvas {
 
         if(wire!==undefined) {
             // we know the wire -- we can check only gates at the ends of this wire
-            let connector = wire.startBox.getConnectorById(connectorId)
-            if (!connector) {
-                connector = wire.endBox.getConnectorById(connectorId)
-            }
-            return connector
+            const {from, to} = wire.connection;
+
+            if(from.id === connectorId)
+                return from.connector;
+
+            if(to.id === connectorId)
+                return to.connector;
 
         } else {
             // we do not know the wire -- we have to check all gates
@@ -1094,7 +1103,7 @@ export default class Canvas {
             }
         }
 
-        return false
+        return undefined
     }
 
     /**
