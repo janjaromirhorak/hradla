@@ -168,8 +168,6 @@ export default class Connector extends NetworkElement {
      * @param {Logic.state} state new state of the connector
      */
     setState(state) {
-        console.log("SetState:", state)
-
         this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
 
         switch (state) {

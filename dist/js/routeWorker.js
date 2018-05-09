@@ -1032,8 +1032,8 @@ function findPath(start, end, nonRoutable, punishedButRoutable) {
                 // if newPoint is in the set of non routable points,
                 // don't add it and stop proceeding in this direction
                 if (setHasThisPoint(nonRoutable, newPoint)) {
-                    // if this not the end point, break
-                    if (newPoint.x !== end.x || newPoint.y !== end.y) {
+                    // if this not the end or start point, break
+                    if (!(newPoint.x === end.x && newPoint.y === end.y) && !(newPoint.x === start.x && newPoint.y === start.y)) {
                         break;
                     }
                 }
@@ -1303,11 +1303,11 @@ exports.default = function (defaultValue) {
 };
 
 },{}],13:[function(require,module,exports){
-'use strict';
+"use strict";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /** @module routeWorker */
 
-var _findPath = require('./modules/findPath');
+var _findPath = require("./modules/findPath");
 
 var _findPath2 = _interopRequireDefault(_findPath);
 
@@ -1358,6 +1358,13 @@ function findPaths(wires, nonRoutableNodes, inconvenientNodes) {
             var to = _ref2[1];
 
             var path = (0, _findPath2.default)(from, to, nonRoutableNodes, inconvenientNodes);
+
+            if (!path) {
+                console.log("path not found");
+                console.log(from, to);
+            } else {
+                console.log("path found");
+            }
 
             paths.push(path);
 

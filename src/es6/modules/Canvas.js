@@ -460,6 +460,12 @@ export default class Canvas {
                                 case "rotate":
                                     // expected 3 arguments
                                     transform.setRotate(...transformItem.args);
+
+                                    // update the blocked nodes
+                                    for(let i = 0 ; i < (transformItem.args[0] % 360) / 90 ; ++i) {
+                                        box.rotateBlockedNodesRight();
+                                    }
+
                                     break;
                                 case undefined:
                                     warnings.push(`This network contains unnamed transform properties.`);
@@ -530,8 +536,6 @@ export default class Canvas {
 
                 if(connectorsPositions.length === 2) {
                     let wire = this.newWire(...connectorIds, false, false);
-
-                    console.log("wire:", wire, ...connectorIds);
 
                     // get the manhattan distance between these two connectors
                     const distance = manhattanDistance(...connectorsPositions);
@@ -630,8 +634,8 @@ export default class Canvas {
                     // this causes update of the output connector and thus a start of a new simulation
 
                     // TODO find better solution instead of this workaround, if there is any
-                    box.on = !box.on
-                    box.on = !box.on
+                    // box.on = !box.on
+                    // box.on = !box.on
                 }
             }
 
@@ -1314,6 +1318,8 @@ export default class Canvas {
 
         this.nodeDisplay = [];
 
+        let first = true;
+
         for (const node of blockedNodes) {
             const x = this.gridToSVG(node.x);
             const y = this.gridToSVG(node.y);
@@ -1321,9 +1327,11 @@ export default class Canvas {
             const w = 4;
             const p = w / 2;
 
-            const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "red", "none")
+            const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, first ? "blue" : "red", "none")
             this.nodeDisplay.push(nodeRectangle.id);
             this.appendElement(nodeRectangle, false);
+
+            first = false;
         }
 
         this.refresh();

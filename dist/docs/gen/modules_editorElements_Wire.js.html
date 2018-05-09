@@ -73,8 +73,6 @@ export default class Wire extends NetworkElement {
     constructor(parentSVG, fromId, toId, refresh = true, route = true) {
         super(parentSVG);
 
-        console.log("WIRE")
-
         this.gridSize = parentSVG.gridSize;
 
         this.connection = {
@@ -116,6 +114,11 @@ export default class Wire extends NetworkElement {
         this.elementState = Logic.state.unknown;
 
         this.setState(this.connection.from.connector.state)
+
+        if(refresh) {
+            const {connector} = this.connection.to;
+            this.parentSVG.startNewSimulation(connector, connector.state);
+        }
 
         this.svgObj.$el.addClass("wire");
     }
@@ -207,8 +210,8 @@ export default class Wire extends NetworkElement {
      * route the wire using the temporary wire points
      */
     temporaryWire() {
-        this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, false);
-        this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, false);
+        this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, false);
+        this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, false);
 
         this.setWirePath(this.getTemporaryWirePoints());
     }

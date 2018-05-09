@@ -140,6 +140,8 @@ export default class Gate extends Box {
      * to the logic corresponding to this gate's name
      */
     refreshState() {
+        // console.log("Refresh state on gate", this.id)
+
         let state = Logic.state.unknown
         switch (this.name) {
             case "and":

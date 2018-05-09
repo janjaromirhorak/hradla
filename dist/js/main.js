@@ -1494,6 +1494,12 @@ var Canvas = function () {
                                             case "rotate":
                                                 // expected 3 arguments
                                                 transform.setRotate.apply(transform, _toConsumableArray(transformItem.args));
+
+                                                // update the blocked nodes
+                                                for (var i = 0; i < transformItem.args[0] % 360 / 90; ++i) {
+                                                    box.rotateBlockedNodesRight();
+                                                }
+
                                                 break;
                                             case undefined:
                                                 warnings.push('This network contains unnamed transform properties.');
@@ -1640,11 +1646,7 @@ var Canvas = function () {
                         });
 
                         if (connectorsPositions.length === 2) {
-                            var _console;
-
                             var _wire2 = _this3.newWire.apply(_this3, connectorIds.concat([false, false]));
-
-                            (_console = console).log.apply(_console, ["wire:", _wire2].concat(connectorIds));
 
                             // get the manhattan distance between these two connectors
                             var distance = _helperFunctions.manhattanDistance.apply(undefined, _toConsumableArray(connectorsPositions));
@@ -1761,8 +1763,8 @@ var Canvas = function () {
                             // this causes update of the output connector and thus a start of a new simulation
 
                             // TODO find better solution instead of this workaround, if there is any
-                            box.on = !box.on;
-                            box.on = !box.on;
+                            // box.on = !box.on
+                            // box.on = !box.on
                         }
                     }
                 } catch (err) {
@@ -2730,14 +2732,16 @@ var Canvas = function () {
                     }
                 }
                  this.nodeDisplay = [];
+                 let first = true;
                  for (const node of blockedNodes) {
                     const x = this.gridToSVG(node.x);
                     const y = this.gridToSVG(node.y);
                      const w = 4;
                     const p = w / 2;
-                     const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "red", "none")
+                     const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, first ? "blue" : "red", "none")
                     this.nodeDisplay.push(nodeRectangle.id);
                     this.appendElement(nodeRectangle, false);
+                     first = false;
                 }
                  this.refresh();
                  */
@@ -4083,7 +4087,7 @@ var Box = function (_NetworkElement) {
 
     }, {
         key: 'rotateBlockedNodes',
-        value: function rotateBlockedNodes(right) {
+        value: function rotateBlockedNodes(center, right) {
             if (this.rotationParity === undefined) {
                 this.rotationParity = false;
             }
@@ -4093,6 +4097,9 @@ var Box = function (_NetworkElement) {
             var newBlockedNodes = new Set();
 
             // rotate the node
+
+            console.log(this.rotationParity, right);
+            console.log(center);
 
             var _iteratorNormalCompletion2 = true;
             var _didIteratorError2 = false;
@@ -4104,29 +4111,22 @@ var Box = function (_NetworkElement) {
 
                     var newNode = void 0;
 
-                    if (this.rotationParity) {
-                        if (right) {
-                            newNode = {
-                                x: Math.abs(node.y - this.gridHeight),
-                                y: node.x
-                            };
-                        } else {
-                            newNode = {
-                                x: node.y,
-                                y: Math.abs(node.x - this.gridWidth)
-                            };
-                        }
+                    var parityFactor = this.rotationParity ? 1 : -1;
+
+                    if (right) {
+                        newNode = {
+                            x: -node.y + this.gridHeight + (center.x - center.y) * parityFactor,
+                            y: node.x + (center.y - center.x) * parityFactor
+                        };
                     } else {
-                        if (right) {
-                            newNode = {
-                                x: Math.abs(node.y - this.gridWidth),
-                                y: node.x
-                            };
+                        newNode = {
+                            x: node.y + (center.x - center.y) * parityFactor
+                        };
+
+                        if (this.rotationParity) {
+                            newNode.y = -node.x + this.gridWidth + (this.gridHeight - center.y - (this.gridWidth - center.x));
                         } else {
-                            newNode = {
-                                x: node.y,
-                                y: Math.abs(node.x - this.gridHeight)
-                            };
+                            newNode.y = -node.x + this.gridHeight + (center.y - center.x);
                         }
                     }
 
@@ -4158,8 +4158,8 @@ var Box = function (_NetworkElement) {
 
     }, {
         key: 'rotateBlockedNodesRight',
-        value: function rotateBlockedNodesRight() {
-            this.rotateBlockedNodes(true);
+        value: function rotateBlockedNodesRight(center) {
+            this.rotateBlockedNodes(center, true);
         }
 
         /**
@@ -4170,8 +4170,56 @@ var Box = function (_NetworkElement) {
 
     }, {
         key: 'rotateBlockedNodesLeft',
-        value: function rotateBlockedNodesLeft() {
-            this.rotateBlockedNodes(false);
+        value: function rotateBlockedNodesLeft(center) {
+            this.rotateBlockedNodes(center, false);
+        }
+    }, {
+        key: 'rotate',
+        value: function rotate(clockWise) {
+            // get the transform value for this box
+            var transform = this.getTransform();
+
+            // get the bounding rectangle for this box
+            var rect = this.svgObj.$el[0].getBoundingClientRect();
+
+            // use the bounding rectangle dimensions to figure out the geometrical center of the box
+            var center = {
+                x: Math.round(rect.width / 2),
+                y: Math.round(rect.height / 2)
+            };
+
+            center.x -= center.x % this.gridSize;
+            center.y -= center.y % this.gridSize;
+
+            // apply the rotation to the transform object
+            if (clockWise) {
+                transform.rotateRight(center.x, center.y);
+            } else {
+                transform.rotateLeft(center.x, center.y);
+            }
+
+            // apply the modified transform object ot the svgObj
+            this.svgObj.addAttr({ "transform": transform.get() });
+
+            var gridCenter = {
+                x: center.x / this.gridSize,
+                y: center.y / this.gridSize
+            };
+
+            // rotate also the blocked nodes
+            if (clockWise) {
+                this.rotateBlockedNodesRight(gridCenter);
+            } else {
+                this.rotateBlockedNodesLeft(gridCenter);
+            }
+
+            // update the wires
+            this.updateWires();
+
+            // if tutorial exists, call tutorial callback
+            if (this.parentSVG.tutorial) {
+                this.parentSVG.tutorial.onBoxRotated();
+            }
         }
 
         /**
@@ -4437,42 +4485,10 @@ var Box = function (_NetworkElement) {
     }, {
         key: 'onClickMiddle',
         value: function onClickMiddle(event) {
-            // get the transform value for this box
-            var transform = this.getTransform();
-
-            // get the bounding rectangle for this box
-            var rect = this.svgObj.$el[0].getBoundingClientRect();
-
-            // use the bounding rectangle dimensions to figure out the geometrical centre of the box
-            var centreX = Math.round(rect.width / 2);
-            var centreY = Math.round(rect.height / 2);
-
-            centreX -= centreX % this.gridSize;
-            centreY -= centreY % this.gridSize;
-
-            // apply the rotation to the transform object
             if (event.ctrlKey) {
-                transform.rotateLeft(centreX, centreY);
+                this.rotate(false);
             } else {
-                transform.rotateRight(centreX, centreY);
-            }
-
-            // apply the modified transform object ot the svgObj
-            this.svgObj.addAttr({ "transform": transform.get() });
-
-            // rotate also the blocked nodes
-            if (event.ctrlKey) {
-                this.rotateBlockedNodesLeft();
-            } else {
-                this.rotateBlockedNodesRight();
-            }
-
-            // update the wires
-            this.updateWires();
-
-            // if tutorial exists, call tutorial callback
-            if (this.parentSVG.tutorial) {
-                this.parentSVG.tutorial.onBoxRotated();
+                this.rotate(true);
             }
         }
 
@@ -4777,8 +4793,6 @@ var Connector = function (_NetworkElement) {
   }, {
     key: 'setState',
     value: function setState(state) {
-      console.log("SetState:", state);
-
       this.svgObj.removeClasses(_stateClasses2.default.on, _stateClasses2.default.off, _stateClasses2.default.unknown, _stateClasses2.default.oscillating);
 
       switch (state) {
@@ -4988,6 +5002,8 @@ var Gate = function (_Box) {
     }, {
         key: 'refreshState',
         value: function refreshState() {
+            // console.log("Refresh state on gate", this.id)
+
             var state = _Logic2.default.state.unknown;
             switch (this.name) {
                 case "and":
@@ -5317,6 +5333,7 @@ var InputConnector = function (_Connector) {
     key: 'setState',
     value: function setState(state) {
       _get(InputConnector.prototype.__proto__ || Object.getPrototypeOf(InputConnector.prototype), 'setState', this).call(this, state);
+      // console.log("SET STATE ON IC", this.id, ":", state)
 
       var box = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
       box.refreshState();
@@ -5871,8 +5888,8 @@ var Transform = function () {
 
             return {
                 deg: Number(args[0]),
-                centreX: Number(args[1]),
-                centreY: Number(args[2])
+                centerX: Number(args[1]),
+                centerY: Number(args[2])
             };
         }
 
@@ -5891,67 +5908,67 @@ var Transform = function () {
         /**
          * set rotate to the specified values
          * @param {number} deg     angle of the rotation in degrees
-         * @param {number} centreX horizontal position of the centre of the rotation
-         * @param {number} centreY vertical position of the centre of the rotation
+         * @param {number} centerX horizontal position of the center of the rotation
+         * @param {number} centerY vertical position of the center of the rotation
          */
 
     }, {
         key: "setRotate",
-        value: function setRotate(deg, centreX, centreY) {
-            this.setParameter("rotate", [deg, centreX, centreY]);
+        value: function setRotate(deg, centerX, centerY) {
+            this.setParameter("rotate", [deg, centerX, centerY]);
         }
 
         /**
          * rotate by 90 degrees to the right or left, depending on the parameter `right`
-         * @param {number} centreX horizontal position of the centre of the rotation
-         * @param {number} centreY vertical position of the centre of the rotation
+         * @param {number} centerX horizontal position of the center of the rotation
+         * @param {number} centerY vertical position of the center of the rotation
          * @param {boolean} right rotate to the right if `true`, to the left if `false`
          */
 
     }, {
         key: "rotateRightAngle",
-        value: function rotateRightAngle(centreX, centreY, right) {
+        value: function rotateRightAngle(centerX, centerY, right) {
             var amount = right ? 90 : 270;
 
             if (this.getIndex("rotate") === -1) {
-                this.setRotate(amount, centreX, centreY);
+                this.setRotate(amount, centerX, centerY);
             } else {
                 var newRotation = (parseInt(this.getRotate().deg) + amount) % 360;
 
                 if (newRotation === 180) {
-                    // swap centre coordinates
+                    // swap center coordinates
                     // because rotate(c, x, y) is defined like transform(-x, -y) rotate(c) transform(x, y)
-                    var a = centreX;
-                    centreX = centreY;
-                    centreY = a;
+                    var a = centerX;
+                    centerX = centerY;
+                    centerY = a;
                 }
 
-                this.setRotate(newRotation, centreX, centreY);
+                this.setRotate(newRotation, centerX, centerY);
             }
         }
 
         /**
          * rotate by 90 degrees to the right
-         * @param  {number} centreX horizontal position of the centre of the rotation
-         * @param  {number} centreY vertical position of the centre of the rotation
+         * @param  {number} centerX horizontal position of the center of the rotation
+         * @param  {number} centerY vertical position of the center of the rotation
          */
 
     }, {
         key: "rotateRight",
-        value: function rotateRight(centreX, centreY) {
-            this.rotateRightAngle(centreX, centreY, true);
+        value: function rotateRight(centerX, centerY) {
+            this.rotateRightAngle(centerX, centerY, true);
         }
 
         /**
          * rotate by 90 degrees to the left
-         * @param  {number} centreX horizontal position of the centre of the rotation
-         * @param  {number} centreY vertical position of the centre of the rotation
+         * @param  {number} centerX horizontal position of the center of the rotation
+         * @param  {number} centerY vertical position of the center of the rotation
          */
 
     }, {
         key: "rotateLeft",
-        value: function rotateLeft(centreX, centreY) {
-            this.rotateRightAngle(centreX, centreY, false);
+        value: function rotateLeft(centerX, centerY) {
+            this.rotateRightAngle(centerX, centerY, false);
         }
 
         /**
@@ -6141,6 +6158,12 @@ var Wire = function (_NetworkElement) {
         _this.elementState = _Logic2.default.state.unknown;
 
         _this.setState(_this.connection.from.connector.state);
+
+        if (refresh) {
+            var connector = _this.connection.to.connector;
+
+            _this.parentSVG.startNewSimulation(connector, connector.state);
+        }
 
         _this.svgObj.$el.addClass("wire");
         return _this;
@@ -6608,8 +6631,8 @@ function findPath(start, end, nonRoutable, punishedButRoutable) {
                 // if newPoint is in the set of non routable points,
                 // don't add it and stop proceeding in this direction
                 if (setHasThisPoint(nonRoutable, newPoint)) {
-                    // if this not the end point, break
-                    if (newPoint.x !== end.x || newPoint.y !== end.y) {
+                    // if this not the end or start point, break
+                    if (!(newPoint.x === end.x && newPoint.y === end.y) && !(newPoint.x === start.x && newPoint.y === start.y)) {
                         break;
                     }
                 }

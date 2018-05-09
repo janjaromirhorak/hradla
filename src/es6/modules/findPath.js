@@ -86,9 +86,10 @@ export default function findPath(start, end, nonRoutable, punishedButRoutable) {
                 // if newPoint is in the set of non routable points,
                 // don't add it and stop proceeding in this direction
                 if (setHasThisPoint(nonRoutable, newPoint)) {
-                    // if this not the end point, break
-                    if (newPoint.x !== end.x || newPoint.y !== end.y) {
-                        break;
+                    // if this not the end or start point, break
+                    if (!(newPoint.x === end.x && newPoint.y === end.y) &&
+                        !(newPoint.x === start.x && newPoint.y === start.y)) {
+                            break;
                     }
                 }
 

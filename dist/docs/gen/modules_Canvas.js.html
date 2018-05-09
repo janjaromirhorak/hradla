@@ -512,6 +512,12 @@ export default class Canvas {
                                 case "rotate":
                                     // expected 3 arguments
                                     transform.setRotate(...transformItem.args);
+
+                                    // update the blocked nodes
+                                    for(let i = 0 ; i &lt; (transformItem.args[0] % 360) / 90 ; ++i) {
+                                        box.rotateBlockedNodesRight();
+                                    }
+
                                     break;
                                 case undefined:
                                     warnings.push(`This network contains unnamed transform properties.`);
@@ -601,8 +607,8 @@ export default class Canvas {
                 while(!wireQueue.isEmpty()) {
                     const wire = wireQueue.dequeue();
 
-                    let wireStart = this.getConnectorPosition(wire.startConnector, true);
-                    let wireEnd = this.getConnectorPosition(wire.endConnector, true);
+                    let wireStart = this.getConnectorPosition(wire.connection.from.connector, true);
+                    let wireEnd = this.getConnectorPosition(wire.connection.to.connector, true);
 
                     wirePoints.push([
                         {
@@ -680,8 +686,8 @@ export default class Canvas {
                     // this causes update of the output connector and thus a start of a new simulation
 
                     // TODO find better solution instead of this workaround, if there is any
-                    box.on = !box.on
-                    box.on = !box.on
+                    // box.on = !box.on
+                    // box.on = !box.on
                 }
             }
 
@@ -896,7 +902,7 @@ export default class Canvas {
     newWire(fromId, toId, refresh = true, route = true) {
         // wire must connect two distinct connectors
         if (fromId===toId)
-            return false
+            return undefined
 
         let connectors = [this.getConnectorById(fromId), this.getConnectorById(toId)]
 
@@ -1045,11 +1051,11 @@ export default class Canvas {
         for(let i = 0 ; i &lt; this.wires.length ; ++i) {
             if (this.wires[i].svgObj.id === wireId) {
 
-                let connector1 = this.wires[i].startConnector;
-                let connector2 = this.wires[i].endConnector;
+                let {connectors} = this.wires[i];
 
-                connector1.removeWireIdAndUpdate(wireId);
-                connector2.removeWireIdAndUpdate(wireId);
+                for (let connector of connectors) {
+                    connector.removeWireIdAndUpdate(wireId);
+                }
 
                 this.wires[i].svgObj.$el.remove();
                 this.wires.splice(i, 1);
@@ -1069,11 +1075,10 @@ export default class Canvas {
         connector.wireIds.forEach(wireId => {
             let wire = this.getWireById(wireId);
 
+            let {from, to} = wire.connection;
+
             // get the other connector that is the wire connected to
-            let otherConnector = this.getConnectorById(wire.fromId, wire);
-            if(otherConnector.svgObj.id===connectorId) {
-                otherConnector = this.getConnectorById(wire.toId, wire);
-            }
+            let otherConnector = connectorId===from.id ? from.connector : to.connector;
 
             // delete the wire record from the other connector
             otherConnector.wireIds.delete(wireId);
@@ -1143,7 +1148,7 @@ export default class Canvas {
 
             if(to.id === connectorId)
                 return to.connector;
-                
+
         } else {
             // we do not know the wire -- we have to check all gates
             for (const box of this.boxes) {
@@ -1365,6 +1370,8 @@ export default class Canvas {
 
         this.nodeDisplay = [];
 
+        let first = true;
+
         for (const node of blockedNodes) {
             const x = this.gridToSVG(node.x);
             const y = this.gridToSVG(node.y);
@@ -1372,9 +1379,11 @@ export default class Canvas {
             const w = 4;
             const p = w / 2;
 
-            const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "red", "none")
+            const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, first ? "blue" : "red", "none")
             this.nodeDisplay.push(nodeRectangle.id);
             this.appendElement(nodeRectangle, false);
+
+            first = false;
         }
 
         this.refresh();

@@ -63,6 +63,11 @@ export default class Wire extends NetworkElement {
 
         this.setState(this.connection.from.connector.state)
 
+        if(refresh) {
+            const {connector} = this.connection.to;
+            this.parentSVG.startNewSimulation(connector, connector.state);
+        }
+
         this.svgObj.$el.addClass("wire");
     }
 
