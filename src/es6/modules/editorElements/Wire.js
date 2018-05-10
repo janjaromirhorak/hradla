@@ -6,6 +6,7 @@ import stateClasses from './stateClasses'
 import findPath from '../findPath'
 
 import NetworkElement from './NetworkElement'
+import WireAnchor from './WireAnchor'
 
 /**
  * Wire represents connection of two {@link Connector}s.
@@ -22,6 +23,9 @@ export default class Wire extends NetworkElement {
         super(parentSVG);
 
         this.gridSize = parentSVG.gridSize;
+
+        /** TODO document */
+        this.anchors = []
 
         this.connection = {
             from: {
@@ -101,6 +105,11 @@ export default class Wire extends NetworkElement {
         this.connection.to.connector.setState(state);
 
         this.elementState = state;
+
+        // update states of all anchors as well
+        for(let anchor of this.anchors) {
+            anchor.setState(state);
+        }
     }
 
     /**
@@ -136,6 +145,11 @@ export default class Wire extends NetworkElement {
     getTemporaryWirePoints() {
         let points = new PolyLinePoints();
         points.append(new PolyLinePoint(this.wireStart.x, this.wireStart.y));
+
+        for(const anchor of this.anchors) {
+            points.append(new PolyLinePoint(anchor.svgPosition.x, anchor.svgPosition.y))
+        }
+
         points.append(new PolyLinePoint(this.wireEnd.x, this.wireEnd.y));
         return points;
     }
@@ -155,9 +169,11 @@ export default class Wire extends NetworkElement {
      */
     routeWire(snapToGrid = true, refresh = true) {
         this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, snapToGrid);
+
         this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, snapToGrid);
 
-        this.points = this.findRoute(
+        // todo clean up
+        const points = this.findRoute(
             {
                 x: this.wireStart.x / this.gridSize,
                 y: this.wireStart.y / this.gridSize
@@ -167,7 +183,7 @@ export default class Wire extends NetworkElement {
                 y: this.wireEnd.y / this.gridSize
             });
 
-        this.setWirePath(this.points);
+        this.setWirePath(points);
 
         if (refresh)
             this.updateWireState();
@@ -199,6 +215,8 @@ export default class Wire extends NetworkElement {
             mainLine.addClass("main", "stateUnknown");
             this.svgObj.addChild(mainLine);
         }
+
+        this.points = points;
     }
 
     pathToPolyLine(path) {
@@ -225,7 +243,33 @@ export default class Wire extends NetworkElement {
             punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
         }
 
-        let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
+        let routePoints = [
+            start,
+            ...this.anchors.map(({x, y}) => ({x, y})), // strip all other data that x and y coordinates
+            end
+        ];
+
+        // add start here because of the slice(1) below
+        let path = [start];
+
+        let prev;
+        for (const routePoint of routePoints) {
+            if(prev) {
+                // find the best path from 'prev' to 'routePoints'
+                const foundPath = findPath(prev, routePoint, nonRoutable, punishedButRoutable, this.gridSize);
+
+                // to avoid repetition of the joints, ignore the first point
+                path.push(...foundPath.slice(1))
+            }
+            prev = routePoint;
+        }
+
+        // TODO obcas je pri renderovani z nejakeho duvodu vynechan
+        // v atributu jeden bod, i kdyz podle console.log by tam mel byt
+        // jedine reseni je zrejme pouzit nekolik polylines misto jedne
+        console.log(path);
+
+        // let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
         if(path) {
             return this.pathToPolyLine(path);
@@ -244,22 +288,21 @@ export default class Wire extends NetworkElement {
     }
 
     /**
-     * generate a set of nodes, that are inconvenient for wiring, but can be used, just are not preferred
-     * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
-     */
-    generateInconvenientNodes() {
-        this.inconvenientNodes = new Set();
-
+     * Generator that travels the path from the start to the end and each item
+     * is a point with `x` and `y` coordinates in grid pixels
+     * @return {Generator}
+    */
+    *pathTraveller() {
         let prevPoint;
 
-        this.points.forEach(point => {
+        for(const point of this.points) {
             const
                 x = this.parentSVG.SVGToGrid(point.x),
                 y = this.parentSVG.SVGToGrid(point.y);
 
             if (prevPoint === undefined) {
                 // if the prevPoint is undefined, add the first point
-                this.inconvenientNodes.add({x, y});
+                // yield ({x, y});
             } else {
                 // else add all the point between the prevPoint (excluded) and point (included)
 
@@ -269,7 +312,7 @@ export default class Wire extends NetworkElement {
                     let to = Math.max(prevPoint.y, y);
 
                     while(from <= to) {
-                        this.inconvenientNodes.add({x: x, y: from});
+                        yield ({x: x, y: from});
                         from++;
                     }
                 } else if(prevPoint.y === y) {
@@ -278,7 +321,7 @@ export default class Wire extends NetworkElement {
                     let to = Math.max(prevPoint.x, x);
 
                     while(from <= to) {
-                        this.inconvenientNodes.add({x: from, y: y});
+                        yield ({x: from, y: y});
                         from++;
                     }
                 } else {
@@ -289,6 +332,125 @@ export default class Wire extends NetworkElement {
 
             // set new prevPoint
             prevPoint = {x, y};
-        });
+        }
+    }
+
+    /**
+     * generate a set of nodes, that are inconvenient for wiring, but can be used, just are not preferred
+     * @return {Set} set of nodes (objects containing x and y coordinates) that are not preferred for wiring
+     */
+    generateInconvenientNodes() {
+        this.inconvenientNodes = new Set();
+
+        const pt = this.pathTraveller();
+        for (const point of pt) {
+            this.inconvenientNodes.add(point);
+        }
+    }
+
+    /**
+     * add a new anchor at the specified position
+     *
+     * if there is already an anchor at this position, do nothing
+     * @param {Object} anchor object with `x` and `y` in grid pixels
+     */
+    addAnchor({x, y}) {
+        // place the anchor to the right position in the array
+
+        let newAnchor = new WireAnchor(this, x, y);
+
+        // travel the path
+        const pt = this.pathTraveller();
+        let pointer = 0;
+        for (const point of pt) {
+            // get the current anchor that the pointer is pointing at
+            const currentAnchor = this.anchors[pointer];
+
+            // if the current anchor does not exist, that means that
+            // the pointer passed all current anchors, so the
+            // new anchor is the last anchor on this wire
+            if(!currentAnchor) {
+                this.anchors.push(newAnchor);
+                break;
+            }
+
+            // if the current anchor has the same coordinates as this point
+            // move the pointer to the next anchor
+            if(currentAnchor.x === point.x && currentAnchor.y === point.y) {
+                pointer++;
+
+                // this continue assures that there can be at most one
+                // anchor on one position. If the new anchor had the same
+                // coordinates as this one, it will be skipped
+                //
+                // but technically this should never happen because user
+                // should be not able to click on the wire at this
+                // position if there is already an anchor
+                continue;
+            }
+
+            // if the new anchor has the same coordinates as this point
+            // put it in the place of the pointer (the rest of the array is moved to the right)
+            if(newAnchor.x === point.x && newAnchor.y === point.y) {
+                this.anchors.splice(pointer, 0, newAnchor);
+                break;
+            }
+        }
+
+        // set the anchor class to the current wire state
+        newAnchor.setState(this.state);
+
+        this.parentSVG.appendElement(newAnchor);
+    }
+
+    /**
+     * remove an anchor specified by its position
+     * @param {Object} anchor object with `x` and `y` in grid pixels
+     */
+    removeAnchor(anchor) {
+        const {x, y} = anchor;
+        let $el = anchor.svgObj.$el;
+
+        // remove the anchor from the array
+        this.anchors = this.anchors.filter(anchor => {
+            return anchor.x !== x || anchor.y !== y
+        })
+
+        // remove the anchor from the SVG
+        $el.remove();
+
+        // reroute the wire
+        this.routeWire();
+    }
+
+    anchorMoved() {
+        this.temporaryWire();
+    }
+
+    anchorDropped() {
+        this.routeWire();
+    }
+
+    /** TODO document */
+    onMouseDown(event) {
+        // only left click counts
+        if(event.which===1) {
+            // convert pixels in the event from CSS pixels to SVG pixels relative to the SVG document
+            event = this.parentSVG.viewbox.transformEvent(event);
+
+            let click = {
+                x: event.pageX,
+                y: event.pageY
+            }
+
+            for(const key in click) {
+                if(click.hasOwnProperty(key)) {
+                    click[key] = this.parentSVG.snapToGrid(click[key]);
+                    click[key] = this.parentSVG.SVGToGrid(click[key]);
+                }
+            }
+
+            this.addAnchor(click);
+        }
     }
 }

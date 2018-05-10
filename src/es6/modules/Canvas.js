@@ -586,6 +586,7 @@ export default class Canvas {
                     wireReferences.forEach((wire, key) => {
                         wire.setWirePath(wire.pathToPolyLine(paths[key]))
                         wire.updateWireState();
+                        wire.generateInconvenientNodes();
                     })
 
                     loadingMessage.hide();
@@ -1103,6 +1104,16 @@ export default class Canvas {
         return undefined
     }
 
+    getWireAnchorById(anchorId) {
+        for (const wire of this.wires) {
+            for (const anchor of wire.anchors) {
+                if (anchor.id===anchorId) {
+                    return anchor;
+                }
+            }
+        }
+    }
+
     /**
      * Get the logical jQuery target based on the factual jQuery target.
      *
@@ -1139,6 +1150,8 @@ export default class Canvas {
         if ($target.hasClass("connector")) {
             // this is a connector, don't traverse groups
             return this.getConnectorById($target.attr('id'));
+        } else if($target.hasClass("wireAnchor")) {
+            return this.getWireAnchorById($target.attr('id'));
         } else if ($target.parents('g').length > 0) {
             // this element is in a group and it is not a connector
 

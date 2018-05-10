@@ -205,7 +205,8 @@ function reconstructPath(cameFrom, currentNode) {
 
     while (cameFrom.has(currentNode)) {
         currentNode = cameFrom.get(currentNode);
-        path.push({
+        // push the point on the beginning of the array instead of the end
+        path.splice(0, 0, {
             x: currentNode.x,
             y: currentNode.y
         })

@@ -1,5 +1,9 @@
 "use strict";
 
+// import the babel polyfill that allows usage of generators
+import "babel-polyfill";
+
+// import the main class
 import Canvas from './modules/Canvas';
 
 /**

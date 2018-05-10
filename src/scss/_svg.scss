@@ -6,7 +6,7 @@
         cursor: hand;
     }
 
-    .connector {
+    .connector, .wireAnchor {
         cursor: pointer;
         cursor: hand;
 
@@ -22,7 +22,9 @@
         &.stateOscillating {
             fill: $oscillatingColor;
         }
+    }
 
+    .connector {
         &:hover {
             fill: $hoverColor;
         }

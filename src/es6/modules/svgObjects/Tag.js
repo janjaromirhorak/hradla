@@ -34,6 +34,8 @@ export default class Tag {
      * @param {string} name class name to be added
      */
     addClass(name) {
+        this.checkIfElementExistsInDOM();
+
         this.$el.addClass(name);
     }
 
@@ -42,6 +44,8 @@ export default class Tag {
      * @param  {string} classes class names to be removed
      */
     removeClasses(...classes) {
+        this.checkIfElementExistsInDOM();
+
         for(let item of classes) {
             this.$el.removeClass(item);
         }

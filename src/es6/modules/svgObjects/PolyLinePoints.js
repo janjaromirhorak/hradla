@@ -105,6 +105,22 @@ class SmartArray {
         }
         this.arr.pop();
     }
+
+    /**
+     * make the array iterable
+     * @type {Number}
+     */
+    [Symbol.iterator]() {
+        let index = -1;
+        let data = this.arr;
+
+        return {
+            next: () => ({
+                value: data[++index],
+                done: !(index in data)
+            })
+        };
+    }
 }
 
 /**
