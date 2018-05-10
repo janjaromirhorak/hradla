@@ -1,9 +1,9 @@
-import PolylinePoint from './PolylinePoint'
+import PolyLinePoint from './PolyLinePoint'
 
-/** @module svgObjects.PolylinePoints */
+/** @module svgObjects.PolyLinePoints */
 
 /**
- * array-like structure used in {@link PolylinePoints}
+ * array-like structure used in {@link PolyLinePoints}
  */
 class SmartArray {
     /**
@@ -111,9 +111,9 @@ class SmartArray {
  * points of the {@link PolyLine}
  * @extends SmartArray
  */
-export default class PolylinePoints extends SmartArray {
+export default class PolyLinePoints extends SmartArray {
     /**
-     * @param {Array} [arr] array containing instances of {@link PolylinePoint}
+     * @param {Array} [arr] array containing instances of {@link PolyLinePoint}
      */
     constructor(arr) {
         super(arr);
@@ -121,15 +121,15 @@ export default class PolylinePoints extends SmartArray {
 
     /**
      * get a deep copy of this object
-     * @return {PolylinePoints}
+     * @return {PolyLinePoints}
      */
     copy() {
-        return new PolylinePoints($.extend(true, [], this.arr));
+        return new PolyLinePoints($.extend(true, [], this.arr));
     }
 
     /**
      * append a point
-     * @param  {PolylinePoint} point a new point
+     * @param  {PolyLinePoint} point a new point
      */
     append(point) {
         // call inherited function to handle the appending
@@ -153,24 +153,24 @@ export default class PolylinePoints extends SmartArray {
     }
 
     /**
-     * parse polyline from string
-     * @param  {string} string string in the polyline format (`x1,y1 x2,y2, x3,y3`)
-     * @return {PolylinePoints} a new instance of {@link PolylinePoints} created by parsing the string
+     * parse PolyLine from string
+     * @param  {string} string string in the PolyLine format (`x1,y1 x2,y2, x3,y3`)
+     * @return {PolyLinePoints} a new instance of {@link PolyLinePoints} created by parsing the string
      */
     static parseFromString(string) {
         let pointStrings = string.split(" ");
-        let points = new PolylinePoints();
+        let points = new PolyLinePoints();
 
         for(let i = 0 ; i < pointStrings.length ; ++i) {
-            points.append(PolylinePoint.parseFromString(pointStrings[i]));
+            points.append(PolyLinePoint.parseFromString(pointStrings[i]));
         }
 
         return points;
     }
 
     /**
-     * get a string representation of this polyline
-     * @return {string} string in the polyline format (`x1,y1 x2,y2, x3,y3`)
+     * get a string representation of this PolyLine
+     * @return {string} string in the PolyLine format (`x1,y1 x2,y2, x3,y3`)
      */
     get string() {
         let string = "";
@@ -184,7 +184,7 @@ export default class PolylinePoints extends SmartArray {
     }
 
     /**
-     * wrapper for foreach on the polyline points
+     * wrapper for foreach on the PolyLine points
      * @param  {Function} func function that will be called on each element
      */
     forEach(func) {

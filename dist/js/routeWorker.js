@@ -1187,10 +1187,6 @@ function reconstructPath(cameFrom, currentNode) {
 },{"./other/helperFunctions":11,"./other/mapWithDefaultValue":12,"libstl":9}],11:[function(require,module,exports){
 "use strict";
 
-/**
- * @module HelperFunctions
- */
-
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
@@ -1253,6 +1249,10 @@ function addMouseScrollEventListener(query, func) {
  * @param  {Boolean} [dataUri=false] return dataUri containing the JSON string instead of the pure JSON string
  * @return {string}
  */
+/**
+ * @module HelperFunctions
+ */
+
 function getJSONString(data) {
     var pretty = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     var dataUri = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -1260,12 +1260,9 @@ function getJSONString(data) {
     if (dataUri) {
         return 'data:application/json;charset=utf-8,' + encodeURIComponent(getJSONString(data, pretty));
     } else {
-        switch (pretty) {
-            case true:
-                return (0, _jsonStringifyPrettyCompact2.default)(data, { maxLength: 50 });
-            case false:
-                return JSON.stringify(data);
-        }
+        if (pretty) return (0, _jsonStringifyPrettyCompact2.default)(data, { maxLength: 50 });
+
+        return JSON.stringify(data);
     }
 }
 
@@ -1301,7 +1298,9 @@ exports.default = function (defaultValue) {
 },{}],13:[function(require,module,exports){
 "use strict";
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /** @module routeWorker */
+/** @module routeWorker */
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _findPath = require("./modules/findPath");
 

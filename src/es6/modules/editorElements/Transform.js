@@ -72,20 +72,7 @@ export default class Transform {
      * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
      */
     toGridPixels(parentSVG) {
-        for (let item of this.items) {
-            if(item.name === "translate") {
-                item.args = [
-                    parentSVG.SVGToGrid(item.args[0]),
-                    parentSVG.SVGToGrid(item.args[1]),
-                ]
-            } else if(item.name === "rotate") {
-                item.args = [
-                    item.args[0],
-                    parentSVG.SVGToGrid(item.args[1]),
-                    parentSVG.SVGToGrid(item.args[2]),
-                ]
-            }
-        }
+        this.pixelConversion((val) => parentSVG.SVGToGrid(val))
     }
 
     /**
@@ -93,20 +80,32 @@ export default class Transform {
      * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
      */
     toSVGPixels(parentSVG) {
-        for (let item of this.items) {
-            if(item.name === "translate") {
-                item.args = [
-                    parentSVG.gridToSVG(item.args[0]),
-                    parentSVG.gridToSVG(item.args[1]),
-                ]
-            } else if(item.name === "rotate") {
+        this.pixelConversion((val) => parentSVG.gridToSVG(val))
+    }
+
+    /**
+     * Convert distances using a specified convertor. Used by toGridPixels and toSVGPixels
+     * @param  {Function} convertor function that converts int to int
+     */
+    pixelConversion(convertor) {
+        const propertyMap = {
+            "translate": (item) => {
+                item.args = item.args.map(arg => convertor(arg))
+                return item;
+            },
+            "rotate": (item) => {
                 item.args = [
                     item.args[0],
-                    parentSVG.gridToSVG(item.args[1]),
-                    parentSVG.gridToSVG(item.args[2]),
+                    convertor(item.args[1]),
+                    convertor(item.args[2])
                 ]
+                return item;
             }
         }
+
+        this.items = this.items.map((item) => {
+            return propertyMap[item.name] ? propertyMap[item.name](item) : item
+        })
     }
 
     /**

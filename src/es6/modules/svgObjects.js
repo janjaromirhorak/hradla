@@ -1,8 +1,8 @@
 /** @module svgObjects */
 
 // non-svg classes used as helpers
-export { default as PolylinePoint } from './svgObjects/PolylinePoint'
-export { default as PolylinePoints } from './svgObjects/PolylinePoints'
+export { default as PolyLinePoint } from './svgObjects/PolyLinePoint'
+export { default as PolyLinePoints } from './svgObjects/PolyLinePoints'
 
 // virtual svg elements
 export { default as Pattern } from './svgObjects/Pattern'

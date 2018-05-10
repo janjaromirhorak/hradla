@@ -1,3 +1,5 @@
+"use strict";
+
 /** @module routeWorker */
 
 import findPath from './modules/findPath'

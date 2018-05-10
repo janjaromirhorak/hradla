@@ -1,6 +1,6 @@
 /** @module editorElements.Wire */
 
-import * as svgObj from '../svgObjects'
+import {PolyLine, PolyLinePoints, PolyLinePoint, Group} from '../svgObjects'
 import Logic from '../Logic'
 import stateClasses from './stateClasses'
 import findPath from '../findPath'
@@ -130,13 +130,13 @@ export default class Wire extends NetworkElement {
     }
 
     /**
-     * get the polyline points for a temporary wire placement connecting the two connectors
-     * @return {PolylinePoints} new instance of {@link PolylinePoints}
+     * get the PolyLine points for a temporary wire placement connecting the two connectors
+     * @return {PolyLinePoints} new instance of {@link PolyLinePoints}
      */
     getTemporaryWirePoints() {
-        let points = new svgObj.PolylinePoints();
-        points.append(new svgObj.PolylinePoint(this.wireStart.x, this.wireStart.y));
-        points.append(new svgObj.PolylinePoint(this.wireEnd.x, this.wireEnd.y));
+        let points = new PolyLinePoints();
+        points.append(new PolyLinePoint(this.wireStart.x, this.wireStart.y));
+        points.append(new PolyLinePoint(this.wireEnd.x, this.wireEnd.y));
         return points;
     }
 
@@ -178,7 +178,7 @@ export default class Wire extends NetworkElement {
 
     /**
      * set the wire to follow the specified points
-     * @param {PolylinePoints} points instance of {@link PolylinePoints}
+     * @param {PolyLinePoints} points instance of {@link PolyLinePoints}
      */
     setWirePath(points) {
         // set the line
@@ -188,23 +188,23 @@ export default class Wire extends NetworkElement {
                 child.updatePoints(points);
             }
         } else {
-            this.svgObj = new svgObj.Group();
+            this.svgObj = new Group();
 
-            let hitbox = new svgObj.PolyLine(points, 10, 'white');
+            let hitbox = new PolyLine(points, 10, 'white');
             hitbox.addClass("hitbox");
             hitbox.addAttr({opacity: 0});
             this.svgObj.addChild(hitbox);
 
-            let mainLine = new svgObj.PolyLine(points, 2);
+            let mainLine = new PolyLine(points, 2);
             mainLine.addClass("main", "stateUnknown");
             this.svgObj.addChild(mainLine);
         }
     }
 
-    pathToPolyline(path) {
-        let totalPath = new svgObj.PolylinePoints();
+    pathToPolyLine(path) {
+        let totalPath = new PolyLinePoints();
         for (const point of path) {
-            totalPath.append(new svgObj.PolylinePoint(point.x * this.gridSize, point.y * this.gridSize));
+            totalPath.append(new PolyLinePoint(point.x * this.gridSize, point.y * this.gridSize));
         }
         return totalPath;
     }
@@ -213,7 +213,7 @@ export default class Wire extends NetworkElement {
      * find a nice route for the wire
      * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
      * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
-     * @return {PolylinePoints}       [description]
+     * @return {PolyLinePoints}       [description]
      */
     findRoute(start, end) {
         let nonRoutable = this.parentSVG.getNonRoutableNodes();
@@ -228,7 +228,7 @@ export default class Wire extends NetworkElement {
         let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
         if(path) {
-            return this.pathToPolyline(path);
+            return this.pathToPolyLine(path);
         }
 
 
@@ -236,7 +236,7 @@ export default class Wire extends NetworkElement {
         path = findPath(start, end, new Set(), new Set(), this.gridSize);
 
         if(path) {
-            return this.pathToPolyline(path);
+            return this.pathToPolyLine(path);
         }
 
         // if the path was still not found, give up and return temporary points

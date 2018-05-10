@@ -7,11 +7,11 @@ import Id from '../other/id'
  */
 export default class Tag {
     /**
-     * @param {string} tagName SVG tag identifier (`rect`, `image`, `polyline`)
+     * @param {string} tagName SVG tag identifier (`rect`, `image`, `PolyLine`)
      */
     constructor(tagName) {
         /**
-         * SVG tag identifier (`rect`, `image`, `polyline`)
+         * SVG tag identifier (`rect`, `image`, `PolyLine`)
          * @type {string}
          */
         this.tagName = tagName;

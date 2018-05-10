@@ -1,10 +1,8 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: modules/editorElements/HelperWire.js | Hradla</title>
+    <title>Class: module:PolyLinePoint | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -47,54 +45,785 @@
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import {PolyLine, PolyLinePoints, PolyLinePoint} from '../svgObjects'
+        <h2><span class="attribs"><span class="type-signature"></span></span>module:PolyLinePoint<span class="signature">(x, y)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>one point of PolyLinePoints, used in the PolyLine object</p></div>
+        
+    
+</header>
 
-import NetworkElement from './NetworkElement'
+<article>
+    
+        <div class="container-overview">
+        
+            
 
-/** @module editorElements.HelperWire */
+<dt>
+    
+        <h4 class="name" id="module:PolyLinePoint">
+            
+                new <span class="type-signature"></span>module:PolyLinePoint<span class="signature">(x, y)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="modules_svgObjects_PolyLinePoint.js.html">modules/svgObjects/PolyLinePoint.js</a></code>,
+                <code><a href="modules_svgObjects_PolyLinePoint.js.html#line6">line 6</a></code>
+            </div>
+            
+        </h4>
 
-/**
- * A temporary wire that is connecting a {@link Connector} with a mouse pointer when user creates a wire.
- * @extends NetworkElement
- */
-export default class HelperWire extends NetworkElement {
-    constructor(parentSVG, fromId, mousePosition) {
-        super(parentSVG);
+        
+    
+</dt>
+<dd>
 
-        const connector = this.parentSVG.getConnectorById(fromId);
-        this.connectorPosition = this.parentSVG.getConnectorPosition(connector, true);
+    
 
-        const from = new PolyLinePoint(this.connectorPosition.x, this.connectorPosition.y);
-        const to = new PolyLinePoint(mousePosition.x, mousePosition.y);
+    
 
-        const points = new PolyLinePoints([from, to]);
+    
 
-        this.svgObj = new PolyLine(points, 2, "#8b8b8b");
-    }
+    
 
-    updateMousePosition(mousePosition) {
-        const from = new PolyLinePoint(this.connectorPosition.x, this.connectorPosition.y);
-        const to = new PolyLinePoint(mousePosition.x, mousePosition.y);
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-        const points = new PolyLinePoints([from, to]);
+        <th>Type</th>
 
-        this.svgObj.updatePoints(points);
-    }
+        
 
-    /**
-     * get the jQuery element for this helper wire
-     * @return {jQuery.element}
-     */
-    get() {
-        return this.svgObj.get();
-    }
-}
-</code></pre>
-        </article>
-    </section>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>horizontal coordinate of the PolyLine point</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>vertical coordinate of the PolyLine point</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+        
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+
+<dt>
+<h4 class="name" id="string">
+    <span class="type-signature"></span>string<span class="type-signature"></span>
+    
+    <div class="container-source members">
+        <code><a href="modules_svgObjects_PolyLinePoint.js.html">modules/svgObjects/PolyLinePoint.js</a></code>,
+        <code><a href="modules_svgObjects_PolyLinePoint.js.html#line44">line 44</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>return a string representation of this PolyLine point</p>
+    </div>
+    
+
+    <!--
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+                
+
+<dt>
+    
+        <h4 class="name" id=".equals">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>equals<span class="signature">(a, b)</span><span class="type-signature"> &rarr; {boolean}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="modules_svgObjects_PolyLinePoint.js.html">modules/svgObjects/PolyLinePoint.js</a></code>,
+                <code><a href="modules_svgObjects_PolyLinePoint.js.html#line54">line 54</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>compare PolyLine points, return <code>true</code> if they are equal, else return <code>false</code></p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>a</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">PolyLinePoint</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>b</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">PolyLinePoint</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">boolean</span>
+
+
+
+
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".parseFromString">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>parseFromString<span class="signature">(string)</span><span class="type-signature"> &rarr; {PolyLinePoint}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="modules_svgObjects_PolyLinePoint.js.html">modules/svgObjects/PolyLinePoint.js</a></code>,
+                <code><a href="modules_svgObjects_PolyLinePoint.js.html#line35">line 35</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>create PolyLine from a comma separated string (e.g. from a string formatted like this: &quot;x,y&quot;, for example &quot;15,8&quot;)</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>string</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>string in the format &quot;x,y&quot; representing a point in the SVG PolyLine</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">PolyLinePoint</span>
+
+
+
+
+
+- <p>newly created instance of PolyLinePoint</p>
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="set">
+            
+                <span class="type-signature"></span>set<span class="signature">(x, y)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="modules_svgObjects_PolyLinePoint.js.html">modules/svgObjects/PolyLinePoint.js</a></code>,
+                <code><a href="modules_svgObjects_PolyLinePoint.js.html#line25">line 25</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>change the coordinates of this point</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>horizontal coordinate of the PolyLine point</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>vertical coordinate of the PolyLine point</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -111,7 +840,7 @@ export default class HelperWire extends NetworkElement {
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = '_sub'.replace(/"/g, '_');
+        var id = 'svgObjects.module:PolyLinePoint_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

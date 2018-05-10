@@ -946,7 +946,7 @@ $(function () {
 });
 
 },{"./modules/Canvas":11}],11:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -954,19 +954,38 @@ Object.defineProperty(exports, "__esModule", {
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // editor elements (gates, wires...)
 
-var _svgObjects = require('./svgObjects');
 
-var svgObj = _interopRequireWildcard(_svgObjects);
+// svg elements
+
+
+// network logic and simulation
+
+
+// ui stuff
+
+
+// mouse scroll event listerer for ui, manhattan distance for importData
+
+
+// used in importData
+// note: imported from a node module
+
 
 var _editorElements = require('./editorElements');
 
 var editorElements = _interopRequireWildcard(_editorElements);
 
+var _svgObjects = require('./svgObjects');
+
 var _Logic = require('./Logic');
 
 var _Logic2 = _interopRequireDefault(_Logic);
+
+var _Simulation = require('./Simulation');
+
+var _Simulation2 = _interopRequireDefault(_Simulation);
 
 var _ContextMenu = require('./ui/ContextMenu');
 
@@ -976,23 +995,19 @@ var _FloatingMenu = require('./ui/FloatingMenu');
 
 var _FloatingMenu2 = _interopRequireDefault(_FloatingMenu);
 
-var _Simulation = require('./Simulation');
-
-var _Simulation2 = _interopRequireDefault(_Simulation);
-
-var _helperFunctions = require('./other/helperFunctions');
-
 var _Tutorial = require('./ui/Tutorial');
 
 var _Tutorial2 = _interopRequireDefault(_Tutorial);
+
+var _Messages = require('./ui/Messages');
+
+var _Messages2 = _interopRequireDefault(_Messages);
 
 var _ViewBox = require('./ui/ViewBox');
 
 var _ViewBox2 = _interopRequireDefault(_ViewBox);
 
-var _Messages = require('./ui/Messages');
-
-var _Messages2 = _interopRequireDefault(_Messages);
+var _helperFunctions = require('./other/helperFunctions');
 
 var _libstl = require('libstl');
 
@@ -1003,8 +1018,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-// note: imported from a node module
 
 var ctrlKey = 17,
     cmdKey = 91;
@@ -1067,14 +1080,14 @@ var Canvas = function () {
         this.$svg.prepend(this.$defs);
 
         // BACKGROUND PATTERN
-        var pattern = new svgObj.Pattern("grid", this.gridSize, this.gridSize);
+        var pattern = new _svgObjects.Pattern("grid", this.gridSize, this.gridSize);
 
-        var patternPoints = new svgObj.PolylinePoints().append(new svgObj.PolylinePoint(0, 0)).append(new svgObj.PolylinePoint(this.gridSize, 0)).append(new svgObj.PolylinePoint(this.gridSize, this.gridSize));
+        var patternPoints = new _svgObjects.PolyLinePoints().append(new _svgObjects.PolyLinePoint(0, 0)).append(new _svgObjects.PolyLinePoint(this.gridSize, 0)).append(new _svgObjects.PolyLinePoint(this.gridSize, this.gridSize));
 
-        pattern.addChild(new svgObj.PolyLine(patternPoints, 2, "#c2c3e4"));
+        pattern.addChild(new _svgObjects.PolyLine(patternPoints, 2, "#c2c3e4"));
         this.addPattern(pattern.get());
 
-        this.background = new svgObj.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
+        this.background = new _svgObjects.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
         this.appendJQueryObject(this.background.get());
         this.refresh();
 
@@ -1282,12 +1295,7 @@ var Canvas = function () {
         key: 'applyViewbox',
         value: function applyViewbox() {
             // adjust background
-            this.background.addAttr({
-                x: this.viewbox.left,
-                y: this.viewbox.top,
-                width: this.viewbox.width,
-                height: this.viewbox.height
-            });
+            this.background.addAttr({ x: this.viewbox.left, y: this.viewbox.top, width: this.viewbox.width, height: this.viewbox.height });
 
             // set the viewBox attribute
             this.$svg.attr('viewBox', this.viewbox.str);
@@ -1355,7 +1363,10 @@ var Canvas = function () {
                 var newWires = new Map();
 
                 // find the leftmost and topmost coordinate of any box, save them to leftTopCorner
-                var leftTopCorner = { x: 0, y: 0 };
+                var leftTopCorner = {
+                    x: 0,
+                    y: 0
+                };
 
                 var _iteratorNormalCompletion = true;
                 var _didIteratorError = false;
@@ -1471,7 +1482,6 @@ var Canvas = function () {
                             "translate": function translate(args) {
                                 transform.setTranslate(args[0] - leftTopCorner.x // make it the relative distance from the leftmost element
                                 + x // apply the position
-
 
                                 , args[1] - leftTopCorner.y // make it the relative distance from the topmost element
                                 + y // apply the position
@@ -1717,7 +1727,7 @@ var Canvas = function () {
                         // iterate wireReferences and paths synchronously
 
                         wireReferences.forEach(function (wire, key) {
-                            wire.setWirePath(wire.pathToPolyline(paths[key]));
+                            wire.setWirePath(wire.pathToPolyLine(paths[key]));
                             wire.updateWireState();
                         });
 
@@ -2108,10 +2118,7 @@ var Canvas = function () {
                 y = this.snapToGrid(y);
             }
 
-            return {
-                x: x,
-                y: y
-            };
+            return { x: x, y: y };
         }
 
         /**
@@ -2726,7 +2733,7 @@ var Canvas = function () {
                     const y = this.gridToSVG(node.y);
                      const w = 4;
                     const p = w / 2;
-                     const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, first ? "blue" : "red", "none")
+                     const nodeRectangle = new Rectangle(x - p, y - p, w, w, first ? "blue" : "red", "none")
                     this.nodeDisplay.push(nodeRectangle.id);
                     this.appendElement(nodeRectangle, false);
                      first = false;
@@ -2816,7 +2823,7 @@ var Canvas = function () {
                     const y = this.gridToSVG(node.y);
                      const w = 4;
                     const p = w / 2;
-                     const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "orange", "none")
+                     const nodeRectangle = new Rectangle(x - p, y - p, w, w, "orange", "none")
                     this.inconvenientNodeDisplay.push(nodeRectangle.id);
                     this.appendElement(nodeRectangle, false);
                 }
@@ -2931,11 +2938,6 @@ exports.default = Canvas;
 },{"./Logic":12,"./Simulation":13,"./editorElements":14,"./other/helperFunctions":29,"./svgObjects":32,"./ui/ContextMenu":44,"./ui/FloatingMenu":45,"./ui/Messages":46,"./ui/Tutorial":47,"./ui/ViewBox":48,"libstl":9}],12:[function(require,module,exports){
 "use strict";
 
-/** @module Logic */
-/**
- * definitions of logic states and basic logic functions used in the simulation
- */
-
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
@@ -2944,6 +2946,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/** @module Logic */
+/**
+ * definitions of logic states and basic logic functions used in the simulation
+ */
 var Logic = function () {
     function Logic() {
         _classCallCheck(this, Logic);
@@ -3521,8 +3527,6 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 
 var _svgObjects = require('../svgObjects');
 
-var svgObj = _interopRequireWildcard(_svgObjects);
-
 var _Logic = require('../Logic');
 
 var _Logic2 = _interopRequireDefault(_Logic);
@@ -3532,8 +3536,6 @@ var _Box2 = require('./Box');
 var _Box3 = _interopRequireDefault(_Box2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -3573,10 +3575,10 @@ var Blackbox = function (_Box) {
         var connectorPinLenght = 2.5 * _this.gridSize;
 
         // override default svgObj structure
-        _this.svgObj = new svgObj.Group();
+        _this.svgObj = new _svgObjects.Group();
 
         // transparent background rectangle
-        var hitbox = new svgObj.Rectangle(0, 0, _this.width, _this.height, "none", "none");
+        var hitbox = new _svgObjects.Rectangle(0, 0, _this.width, _this.height, "none", "none");
         hitbox.$el.addClass('rect');
 
         _this.svgObj.addChild(hitbox);
@@ -3584,7 +3586,7 @@ var Blackbox = function (_Box) {
         // main rectangle
         var bodyWidth = _this.width - 2 * connectorPinLenght;
 
-        var rectangle = new svgObj.Rectangle(connectorPinLenght, 0, bodyWidth, _this.height, "white", "black");
+        var rectangle = new _svgObjects.Rectangle(connectorPinLenght, 0, bodyWidth, _this.height, "white", "black");
         rectangle.addAttr({ 'stroke-width': '2.5' });
         rectangle.$el.addClass('rect');
 
@@ -3593,7 +3595,7 @@ var Blackbox = function (_Box) {
         // text description of the box
         var textWidth = bodyWidth - _this.gridSize;
         var textHeight = _this.height - _this.gridSize;
-        var text = new svgObj.MultiLineText((_this.width - textWidth) / 2, // horizontal centering
+        var text = new _svgObjects.MultiLineText((_this.width - textWidth) / 2, // horizontal centering
         (_this.height - textHeight) / 2, // vertical centering
         textWidth, textHeight, name.toUpperCase(), _this.gridSize * 1.2);
         _this.svgObj.addChild(text);
@@ -3603,7 +3605,7 @@ var Blackbox = function (_Box) {
             var gridPosition = i * 2 + 1;
             var pixelPosition = gridPosition * _this.gridSize;
 
-            var pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(0, pixelPosition), new svgObj.PolylinePoint(connectorPinLenght, pixelPosition)]), 1, "black");
+            var pin = new _svgObjects.PolyLine(new _svgObjects.PolyLinePoints([new _svgObjects.PolyLinePoint(0, pixelPosition), new _svgObjects.PolyLinePoint(connectorPinLenght, pixelPosition)]), 1, "black");
 
             _this.svgObj.addChild(pin);
 
@@ -3616,7 +3618,7 @@ var Blackbox = function (_Box) {
             var _gridPosition = _i * 2 + 1;
             var _pixelPosition = _gridPosition * _this.gridSize;
 
-            var _pin = new svgObj.PolyLine(new svgObj.PolylinePoints([new svgObj.PolylinePoint(_this.width - connectorPinLenght, _pixelPosition), new svgObj.PolylinePoint(_this.width, _pixelPosition)]), 1, "black");
+            var _pin = new _svgObjects.PolyLine(new _svgObjects.PolyLinePoints([new _svgObjects.PolyLinePoint(_this.width - connectorPinLenght, _pixelPosition), new _svgObjects.PolyLinePoint(_this.width, _pixelPosition)]), 1, "black");
 
             _this.svgObj.addChild(_pin);
 
@@ -3839,8 +3841,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _svgObjects = require('../svgObjects');
 
-var svgObj = _interopRequireWildcard(_svgObjects);
-
 var _NetworkElement2 = require('./NetworkElement');
 
 var _NetworkElement3 = _interopRequireDefault(_NetworkElement2);
@@ -3858,8 +3858,6 @@ var _Transform = require('./Transform');
 var _Transform2 = _interopRequireDefault(_Transform);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3917,7 +3915,7 @@ var Box = function (_NetworkElement) {
          * svgObj containing all SVG data used to display this box
          * @type {svgObj}
          */
-        _this.svgObj = new svgObj.Group();
+        _this.svgObj = new _svgObjects.Group();
 
         /**
          * width of this element in SVG pixels
@@ -3942,13 +3940,13 @@ var Box = function (_NetworkElement) {
         _this.gridHeight = gridHeight;
 
         // transparent background rectangle
-        var rectangle = new svgObj.Rectangle(0, 0, _this.width, _this.height, "none", "none");
+        var rectangle = new _svgObjects.Rectangle(0, 0, _this.width, _this.height, "none", "none");
         rectangle.$el.addClass('rect');
 
         _this.svgObj.addChild(rectangle);
 
         // image of the element
-        _this.image = new svgObj.SvgImage(0, 0, _this.width, _this.height, _this.url);
+        _this.image = new _svgObjects.SvgImage(0, 0, _this.width, _this.height, _this.url);
         _this.svgObj.addChild(_this.image);
 
         // add type="gate", used in special callbacks in contextmenu
@@ -4645,8 +4643,6 @@ var _NetworkElement3 = _interopRequireDefault(_NetworkElement2);
 
 var _svgObjects = require('../svgObjects');
 
-var svgObj = _interopRequireWildcard(_svgObjects);
-
 var _Logic = require('../Logic');
 
 var _Logic2 = _interopRequireDefault(_Logic);
@@ -4654,8 +4650,6 @@ var _Logic2 = _interopRequireDefault(_Logic);
 var _stateClasses = require('./stateClasses');
 
 var _stateClasses2 = _interopRequireDefault(_stateClasses);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4707,7 +4701,7 @@ var Connector = function (_NetworkElement) {
      * instance of {@link svgObjects.svgObj} that holds all SVG information about this connector
      * @type {svgObj}
      */
-    _this.svgObj = new svgObj.Rectangle(left * _this.gridSize - _this.connectorOffset, top * _this.gridSize - _this.connectorOffset, _this.connectorSize, _this.connectorSize, "none", "black");
+    _this.svgObj = new _svgObjects.Rectangle(left * _this.gridSize - _this.connectorOffset, top * _this.gridSize - _this.connectorOffset, _this.connectorSize, _this.connectorSize, "none", "black");
 
     _this.svgObj.$el.addClass("connector");
 
@@ -5039,15 +5033,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _svgObjects = require('../svgObjects');
 
-var svgObj = _interopRequireWildcard(_svgObjects);
-
 var _NetworkElement2 = require('./NetworkElement');
 
 var _NetworkElement3 = _interopRequireDefault(_NetworkElement2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -5072,22 +5062,22 @@ var HelperWire = function (_NetworkElement) {
         var connector = _this.parentSVG.getConnectorById(fromId);
         _this.connectorPosition = _this.parentSVG.getConnectorPosition(connector, true);
 
-        var from = new svgObj.PolylinePoint(_this.connectorPosition.x, _this.connectorPosition.y);
-        var to = new svgObj.PolylinePoint(mousePosition.x, mousePosition.y);
+        var from = new _svgObjects.PolyLinePoint(_this.connectorPosition.x, _this.connectorPosition.y);
+        var to = new _svgObjects.PolyLinePoint(mousePosition.x, mousePosition.y);
 
-        var points = new svgObj.PolylinePoints([from, to]);
+        var points = new _svgObjects.PolyLinePoints([from, to]);
 
-        _this.svgObj = new svgObj.PolyLine(points, 2, "#8b8b8b");
+        _this.svgObj = new _svgObjects.PolyLine(points, 2, "#8b8b8b");
         return _this;
     }
 
     _createClass(HelperWire, [{
         key: 'updateMousePosition',
         value: function updateMousePosition(mousePosition) {
-            var from = new svgObj.PolylinePoint(this.connectorPosition.x, this.connectorPosition.y);
-            var to = new svgObj.PolylinePoint(mousePosition.x, mousePosition.y);
+            var from = new _svgObjects.PolyLinePoint(this.connectorPosition.x, this.connectorPosition.y);
+            var to = new _svgObjects.PolyLinePoint(mousePosition.x, mousePosition.y);
 
-            var points = new svgObj.PolylinePoints([from, to]);
+            var points = new _svgObjects.PolyLinePoints([from, to]);
 
             this.svgObj.updatePoints(points);
         }
@@ -5750,34 +5740,9 @@ var Transform = function () {
     _createClass(Transform, [{
         key: "toGridPixels",
         value: function toGridPixels(parentSVG) {
-            var _iteratorNormalCompletion2 = true;
-            var _didIteratorError2 = false;
-            var _iteratorError2 = undefined;
-
-            try {
-                for (var _iterator2 = this.items[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                    var item = _step2.value;
-
-                    if (item.name === "translate") {
-                        item.args = [parentSVG.SVGToGrid(item.args[0]), parentSVG.SVGToGrid(item.args[1])];
-                    } else if (item.name === "rotate") {
-                        item.args = [item.args[0], parentSVG.SVGToGrid(item.args[1]), parentSVG.SVGToGrid(item.args[2])];
-                    }
-                }
-            } catch (err) {
-                _didIteratorError2 = true;
-                _iteratorError2 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                        _iterator2.return();
-                    }
-                } finally {
-                    if (_didIteratorError2) {
-                        throw _iteratorError2;
-                    }
-                }
-            }
+            this.pixelConversion(function (val) {
+                return parentSVG.SVGToGrid(val);
+            });
         }
 
         /**
@@ -5788,34 +5753,35 @@ var Transform = function () {
     }, {
         key: "toSVGPixels",
         value: function toSVGPixels(parentSVG) {
-            var _iteratorNormalCompletion3 = true;
-            var _didIteratorError3 = false;
-            var _iteratorError3 = undefined;
+            this.pixelConversion(function (val) {
+                return parentSVG.gridToSVG(val);
+            });
+        }
 
-            try {
-                for (var _iterator3 = this.items[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                    var item = _step3.value;
+        /**
+         * Convert distances using a specified convertor. Used by toGridPixels and toSVGPixels
+         * @param  {Function} convertor function that converts int to int
+         */
 
-                    if (item.name === "translate") {
-                        item.args = [parentSVG.gridToSVG(item.args[0]), parentSVG.gridToSVG(item.args[1])];
-                    } else if (item.name === "rotate") {
-                        item.args = [item.args[0], parentSVG.gridToSVG(item.args[1]), parentSVG.gridToSVG(item.args[2])];
-                    }
+    }, {
+        key: "pixelConversion",
+        value: function pixelConversion(convertor) {
+            var propertyMap = {
+                "translate": function translate(item) {
+                    item.args = item.args.map(function (arg) {
+                        return convertor(arg);
+                    });
+                    return item;
+                },
+                "rotate": function rotate(item) {
+                    item.args = [item.args[0], convertor(item.args[1]), convertor(item.args[2])];
+                    return item;
                 }
-            } catch (err) {
-                _didIteratorError3 = true;
-                _iteratorError3 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                        _iterator3.return();
-                    }
-                } finally {
-                    if (_didIteratorError3) {
-                        throw _iteratorError3;
-                    }
-                }
-            }
+            };
+
+            this.items = this.items.map(function (item) {
+                return propertyMap[item.name] ? propertyMap[item.name](item) : item;
+            });
         }
 
         /**
@@ -5956,13 +5922,13 @@ var Transform = function () {
         key: "get",
         value: function get() {
             var retVal = void 0;
-            var _iteratorNormalCompletion4 = true;
-            var _didIteratorError4 = false;
-            var _iteratorError4 = undefined;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
 
             try {
-                for (var _iterator4 = this.items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                    var item = _step4.value;
+                for (var _iterator2 = this.items[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var item = _step2.value;
 
                     if (retVal) {
                         retVal += " " + item.get();
@@ -5971,16 +5937,16 @@ var Transform = function () {
                     }
                 }
             } catch (err) {
-                _didIteratorError4 = true;
-                _iteratorError4 = err;
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                        _iterator4.return();
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
                     }
                 } finally {
-                    if (_didIteratorError4) {
-                        throw _iteratorError4;
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
                     }
                 }
             }
@@ -6041,8 +6007,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _svgObjects = require('../svgObjects');
 
-var svgObj = _interopRequireWildcard(_svgObjects);
-
 var _Logic = require('../Logic');
 
 var _Logic2 = _interopRequireDefault(_Logic);
@@ -6060,8 +6024,6 @@ var _NetworkElement2 = require('./NetworkElement');
 var _NetworkElement3 = _interopRequireDefault(_NetworkElement2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -6218,16 +6180,16 @@ var Wire = function (_NetworkElement) {
         }
 
         /**
-         * get the polyline points for a temporary wire placement connecting the two connectors
-         * @return {PolylinePoints} new instance of {@link PolylinePoints}
+         * get the PolyLine points for a temporary wire placement connecting the two connectors
+         * @return {PolyLinePoints} new instance of {@link PolyLinePoints}
          */
 
     }, {
         key: 'getTemporaryWirePoints',
         value: function getTemporaryWirePoints() {
-            var points = new svgObj.PolylinePoints();
-            points.append(new svgObj.PolylinePoint(this.wireStart.x, this.wireStart.y));
-            points.append(new svgObj.PolylinePoint(this.wireEnd.x, this.wireEnd.y));
+            var points = new _svgObjects.PolyLinePoints();
+            points.append(new _svgObjects.PolyLinePoint(this.wireStart.x, this.wireStart.y));
+            points.append(new _svgObjects.PolyLinePoint(this.wireEnd.x, this.wireEnd.y));
             return points;
         }
 
@@ -6275,7 +6237,7 @@ var Wire = function (_NetworkElement) {
 
         /**
          * set the wire to follow the specified points
-         * @param {PolylinePoints} points instance of {@link PolylinePoints}
+         * @param {PolyLinePoints} points instance of {@link PolyLinePoints}
          */
 
     }, {
@@ -6309,22 +6271,22 @@ var Wire = function (_NetworkElement) {
                     }
                 }
             } else {
-                this.svgObj = new svgObj.Group();
+                this.svgObj = new _svgObjects.Group();
 
-                var hitbox = new svgObj.PolyLine(points, 10, 'white');
+                var hitbox = new _svgObjects.PolyLine(points, 10, 'white');
                 hitbox.addClass("hitbox");
                 hitbox.addAttr({ opacity: 0 });
                 this.svgObj.addChild(hitbox);
 
-                var mainLine = new svgObj.PolyLine(points, 2);
+                var mainLine = new _svgObjects.PolyLine(points, 2);
                 mainLine.addClass("main", "stateUnknown");
                 this.svgObj.addChild(mainLine);
             }
         }
     }, {
-        key: 'pathToPolyline',
-        value: function pathToPolyline(path) {
-            var totalPath = new svgObj.PolylinePoints();
+        key: 'pathToPolyLine',
+        value: function pathToPolyLine(path) {
+            var totalPath = new _svgObjects.PolyLinePoints();
             var _iteratorNormalCompletion3 = true;
             var _didIteratorError3 = false;
             var _iteratorError3 = undefined;
@@ -6333,7 +6295,7 @@ var Wire = function (_NetworkElement) {
                 for (var _iterator3 = path[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
                     var point = _step3.value;
 
-                    totalPath.append(new svgObj.PolylinePoint(point.x * this.gridSize, point.y * this.gridSize));
+                    totalPath.append(new _svgObjects.PolyLinePoint(point.x * this.gridSize, point.y * this.gridSize));
                 }
             } catch (err) {
                 _didIteratorError3 = true;
@@ -6357,7 +6319,7 @@ var Wire = function (_NetworkElement) {
          * find a nice route for the wire
          * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
          * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
-         * @return {PolylinePoints}       [description]
+         * @return {PolyLinePoints}       [description]
          */
 
     }, {
@@ -6375,14 +6337,14 @@ var Wire = function (_NetworkElement) {
             var path = (0, _findPath2.default)(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
             if (path) {
-                return this.pathToPolyline(path);
+                return this.pathToPolyLine(path);
             }
 
             // if a path was not found, try again but don't take into account the punished and non routable node
             path = (0, _findPath2.default)(start, end, new Set(), new Set(), this.gridSize);
 
             if (path) {
-                return this.pathToPolyline(path);
+                return this.pathToPolyLine(path);
             }
 
             // if the path was still not found, give up and return temporary points
@@ -6762,10 +6724,6 @@ function reconstructPath(cameFrom, currentNode) {
 },{"./other/helperFunctions":29,"./other/mapWithDefaultValue":31,"libstl":9}],29:[function(require,module,exports){
 "use strict";
 
-/**
- * @module HelperFunctions
- */
-
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
@@ -6828,6 +6786,10 @@ function addMouseScrollEventListener(query, func) {
  * @param  {Boolean} [dataUri=false] return dataUri containing the JSON string instead of the pure JSON string
  * @return {string}
  */
+/**
+ * @module HelperFunctions
+ */
+
 function getJSONString(data) {
     var pretty = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     var dataUri = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -6835,12 +6797,9 @@ function getJSONString(data) {
     if (dataUri) {
         return 'data:application/json;charset=utf-8,' + encodeURIComponent(getJSONString(data, pretty));
     } else {
-        switch (pretty) {
-            case true:
-                return (0, _jsonStringifyPrettyCompact2.default)(data, { maxLength: 50 });
-            case false:
-                return JSON.stringify(data);
-        }
+        if (pretty) return (0, _jsonStringifyPrettyCompact2.default)(data, { maxLength: 50 });
+
+        return JSON.stringify(data);
     }
 }
 
@@ -6957,21 +6916,21 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _PolylinePoint = require('./svgObjects/PolylinePoint');
+var _PolyLinePoint = require('./svgObjects/PolyLinePoint');
 
-Object.defineProperty(exports, 'PolylinePoint', {
+Object.defineProperty(exports, 'PolyLinePoint', {
   enumerable: true,
   get: function get() {
-    return _interopRequireDefault(_PolylinePoint).default;
+    return _interopRequireDefault(_PolyLinePoint).default;
   }
 });
 
-var _PolylinePoints = require('./svgObjects/PolylinePoints');
+var _PolyLinePoints = require('./svgObjects/PolyLinePoints');
 
-Object.defineProperty(exports, 'PolylinePoints', {
+Object.defineProperty(exports, 'PolyLinePoints', {
   enumerable: true,
   get: function get() {
-    return _interopRequireDefault(_PolylinePoints).default;
+    return _interopRequireDefault(_PolyLinePoints).default;
   }
 });
 
@@ -7040,7 +6999,7 @@ Object.defineProperty(exports, 'MultiLineText', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./svgObjects/Group":33,"./svgObjects/MultiLineText":34,"./svgObjects/Pattern":35,"./svgObjects/PolyLine":36,"./svgObjects/PolylinePoint":37,"./svgObjects/PolylinePoints":38,"./svgObjects/Rectangle":39,"./svgObjects/SvgImage":41,"./svgObjects/Text":43}],33:[function(require,module,exports){
+},{"./svgObjects/Group":33,"./svgObjects/MultiLineText":34,"./svgObjects/Pattern":35,"./svgObjects/PolyLine":36,"./svgObjects/PolyLinePoint":37,"./svgObjects/PolyLinePoints":38,"./svgObjects/Rectangle":39,"./svgObjects/SvgImage":41,"./svgObjects/Text":43}],33:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7285,21 +7244,21 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /** @module svgObjects.PolyLine */
 
 /**
- * SVG polyline (a path defined by sequence of points on plane)
+ * SVG PolyLine (a path defined by sequence of points on plane)
  * @extends Tag
  */
 var PolyLine = function (_Tag) {
     _inherits(PolyLine, _Tag);
 
     /**
-     * @param {PolylinePoints} points points describing this polyline
-     * @param {number} [strokeWidth] width of the stroke for this polyline in SVG pixels
-     * @param {string} [color] CSS color of this polyline
+     * @param {PolyLinePoints} points points describing this PolyLine
+     * @param {number} [strokeWidth] width of the stroke for this PolyLine in SVG pixels
+     * @param {string} [color] CSS color of this PolyLine
      */
     function PolyLine(points, strokeWidth, color) {
         _classCallCheck(this, PolyLine);
 
-        var _this = _possibleConstructorReturn(this, (PolyLine.__proto__ || Object.getPrototypeOf(PolyLine)).call(this, "polyline"));
+        var _this = _possibleConstructorReturn(this, (PolyLine.__proto__ || Object.getPrototypeOf(PolyLine)).call(this, "PolyLine"));
 
         var attributes = {
             points: points.string,
@@ -7316,8 +7275,8 @@ var PolyLine = function (_Tag) {
     }
 
     /**
-     * update points of this polyline
-     * @param {PolylinePoints} points new set of points describing this polyline
+     * update points of this PolyLine
+     * @param {PolyLinePoints} points new set of points describing this PolyLine
      */
 
 
@@ -7346,18 +7305,18 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/** @module svgObjects.PolylinePoint */
+/** @module svgObjects.PolyLinePoint */
 
 /**
- * one point of {@link PolylinePoints}, used in the {@link PolyLine} object
+ * one point of {@link PolyLinePoints}, used in the {@link PolyLine} object
  */
-var PolylinePoint = function () {
+var PolyLinePoint = function () {
     /**
-     * @param {number} x horizontal coordinate of the polyline point
-     * @param {number} y vertical coordinate of the polyline point
+     * @param {number} x horizontal coordinate of the PolyLine point
+     * @param {number} y vertical coordinate of the PolyLine point
      */
-    function PolylinePoint(x, y) {
-        _classCallCheck(this, PolylinePoint);
+    function PolyLinePoint(x, y) {
+        _classCallCheck(this, PolyLinePoint);
 
         this.x = 0;
         this.y = 0;
@@ -7369,12 +7328,12 @@ var PolylinePoint = function () {
 
     /**
      * change the coordinates of this point
-     * @param {number} x horizontal coordinate of the polyline point
-     * @param {number} y vertical coordinate of the polyline point
+     * @param {number} x horizontal coordinate of the PolyLine point
+     * @param {number} y vertical coordinate of the PolyLine point
      */
 
 
-    _createClass(PolylinePoint, [{
+    _createClass(PolyLinePoint, [{
         key: "set",
         value: function set(x, y) {
             this.x = x;
@@ -7382,9 +7341,9 @@ var PolylinePoint = function () {
         }
 
         /**
-         * create polyline from a comma separated string (e.g. from a string formatted like this: "x,y", for example "15,8")
-         * @param  {string} string string in the format "x,y" representing a point in the SVG polyline
-         * @return {PolylinePoint} newly created instance of {@link PolylinePoint}
+         * create PolyLine from a comma separated string (e.g. from a string formatted like this: "x,y", for example "15,8")
+         * @param  {string} string string in the format "x,y" representing a point in the SVG PolyLine
+         * @return {PolyLinePoint} newly created instance of {@link PolyLinePoint}
          */
 
     }, {
@@ -7392,7 +7351,7 @@ var PolylinePoint = function () {
 
 
         /**
-         * return a string representation of this polyline point
+         * return a string representation of this PolyLine point
          * @return {string} string in the format "x,y"
          */
         get: function get() {
@@ -7400,9 +7359,9 @@ var PolylinePoint = function () {
         }
 
         /**
-         * compare polyline points, return `true` if they are equal, else return `false`
-         * @param  {PolylinePoint} a
-         * @param  {PolylinePoint} b
+         * compare PolyLine points, return `true` if they are equal, else return `false`
+         * @param  {PolyLinePoint} a
+         * @param  {PolyLinePoint} b
          * @return {boolean}
          */
 
@@ -7410,7 +7369,7 @@ var PolylinePoint = function () {
         key: "parseFromString",
         value: function parseFromString(string) {
             var arr = string.split(",");
-            return new PolylinePoint(arr[0], arr[1]);
+            return new PolyLinePoint(arr[0], arr[1]);
         }
     }, {
         key: "equals",
@@ -7419,10 +7378,10 @@ var PolylinePoint = function () {
         }
     }]);
 
-    return PolylinePoint;
+    return PolyLinePoint;
 }();
 
-exports.default = PolylinePoint;
+exports.default = PolyLinePoint;
 
 },{}],38:[function(require,module,exports){
 "use strict";
@@ -7435,9 +7394,9 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _PolylinePoint = require("./PolylinePoint");
+var _PolyLinePoint = require("./PolyLinePoint");
 
-var _PolylinePoint2 = _interopRequireDefault(_PolylinePoint);
+var _PolyLinePoint2 = _interopRequireDefault(_PolyLinePoint);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7447,10 +7406,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/** @module svgObjects.PolylinePoints */
+/** @module svgObjects.PolyLinePoints */
 
 /**
- * array-like structure used in {@link PolylinePoints}
+ * array-like structure used in {@link PolyLinePoints}
  */
 var SmartArray = function () {
     /**
@@ -7593,40 +7552,40 @@ var SmartArray = function () {
  */
 
 
-var PolylinePoints = function (_SmartArray) {
-    _inherits(PolylinePoints, _SmartArray);
+var PolyLinePoints = function (_SmartArray) {
+    _inherits(PolyLinePoints, _SmartArray);
 
     /**
-     * @param {Array} [arr] array containing instances of {@link PolylinePoint}
+     * @param {Array} [arr] array containing instances of {@link PolyLinePoint}
      */
-    function PolylinePoints(arr) {
-        _classCallCheck(this, PolylinePoints);
+    function PolyLinePoints(arr) {
+        _classCallCheck(this, PolyLinePoints);
 
-        return _possibleConstructorReturn(this, (PolylinePoints.__proto__ || Object.getPrototypeOf(PolylinePoints)).call(this, arr));
+        return _possibleConstructorReturn(this, (PolyLinePoints.__proto__ || Object.getPrototypeOf(PolyLinePoints)).call(this, arr));
     }
 
     /**
      * get a deep copy of this object
-     * @return {PolylinePoints}
+     * @return {PolyLinePoints}
      */
 
 
-    _createClass(PolylinePoints, [{
+    _createClass(PolyLinePoints, [{
         key: "copy",
         value: function copy() {
-            return new PolylinePoints($.extend(true, [], this.arr));
+            return new PolyLinePoints($.extend(true, [], this.arr));
         }
 
         /**
          * append a point
-         * @param  {PolylinePoint} point a new point
+         * @param  {PolyLinePoint} point a new point
          */
 
     }, {
         key: "append",
         value: function append(point) {
             // call inherited function to handle the appending
-            _get(PolylinePoints.prototype.__proto__ || Object.getPrototypeOf(PolylinePoints.prototype), "append", this).call(this, point);
+            _get(PolyLinePoints.prototype.__proto__ || Object.getPrototypeOf(PolyLinePoints.prototype), "append", this).call(this, point);
 
             // if the second to last point is unnecessary, remove it
             var length = this.length;
@@ -7639,9 +7598,9 @@ var PolylinePoints = function (_SmartArray) {
         }
 
         /**
-         * parse polyline from string
-         * @param  {string} string string in the polyline format (`x1,y1 x2,y2, x3,y3`)
-         * @return {PolylinePoints} a new instance of {@link PolylinePoints} created by parsing the string
+         * parse PolyLine from string
+         * @param  {string} string string in the PolyLine format (`x1,y1 x2,y2, x3,y3`)
+         * @return {PolyLinePoints} a new instance of {@link PolyLinePoints} created by parsing the string
          */
 
     }, {
@@ -7649,7 +7608,7 @@ var PolylinePoints = function (_SmartArray) {
 
 
         /**
-         * wrapper for foreach on the polyline points
+         * wrapper for foreach on the PolyLine points
          * @param  {Function} func function that will be called on each element
          */
         value: function forEach(func) {
@@ -7662,8 +7621,8 @@ var PolylinePoints = function (_SmartArray) {
 
 
         /**
-         * get a string representation of this polyline
-         * @return {string} string in the polyline format (`x1,y1 x2,y2, x3,y3`)
+         * get a string representation of this PolyLine
+         * @return {string} string in the PolyLine format (`x1,y1 x2,y2, x3,y3`)
          */
         get: function get() {
             var string = "";
@@ -7679,22 +7638,22 @@ var PolylinePoints = function (_SmartArray) {
         key: "parseFromString",
         value: function parseFromString(string) {
             var pointStrings = string.split(" ");
-            var points = new PolylinePoints();
+            var points = new PolyLinePoints();
 
             for (var i = 0; i < pointStrings.length; ++i) {
-                points.append(_PolylinePoint2.default.parseFromString(pointStrings[i]));
+                points.append(_PolyLinePoint2.default.parseFromString(pointStrings[i]));
             }
 
             return points;
         }
     }]);
 
-    return PolylinePoints;
+    return PolyLinePoints;
 }(SmartArray);
 
-exports.default = PolylinePoints;
+exports.default = PolyLinePoints;
 
-},{"./PolylinePoint":37}],39:[function(require,module,exports){
+},{"./PolyLinePoint":37}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7888,13 +7847,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 var Tag = function () {
   /**
-   * @param {string} tagName SVG tag identifier (`rect`, `image`, `polyline`)
+   * @param {string} tagName SVG tag identifier (`rect`, `image`, `PolyLine`)
    */
   function Tag(tagName) {
     _classCallCheck(this, Tag);
 
     /**
-     * SVG tag identifier (`rect`, `image`, `polyline`)
+     * SVG tag identifier (`rect`, `image`, `PolyLine`)
      * @type {string}
      */
     this.tagName = tagName;
@@ -8123,7 +8082,7 @@ var Text = function (_Tag) {
 exports.default = Text;
 
 },{"./Tag":42}],44:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true

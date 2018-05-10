@@ -1,4 +1,4 @@
-import * as svgObj from '../svgObjects'
+import {Group, Rectangle, SvgImage} from '../svgObjects'
 
 import NetworkElement from './NetworkElement'
 import InputConnector from './InputConnector'
@@ -51,7 +51,7 @@ export default class Box extends NetworkElement {
          * svgObj containing all SVG data used to display this box
          * @type {svgObj}
          */
-        this.svgObj = new svgObj.Group();
+        this.svgObj = new Group();
 
         /**
          * width of this element in SVG pixels
@@ -76,13 +76,13 @@ export default class Box extends NetworkElement {
         this.gridHeight = gridHeight;
 
         // transparent background rectangle
-        let rectangle = new svgObj.Rectangle(0, 0, this.width, this.height, "none", "none");
+        let rectangle = new Rectangle(0, 0, this.width, this.height, "none", "none");
         rectangle.$el.addClass('rect');
 
         this.svgObj.addChild(rectangle);
 
         // image of the element
-        this.image = new svgObj.SvgImage(0, 0, this.width, this.height, this.url);
+        this.image = new SvgImage(0, 0, this.width, this.height, this.url);
         this.svgObj.addChild(this.image);
 
         // add type="gate", used in special callbacks in contextmenu

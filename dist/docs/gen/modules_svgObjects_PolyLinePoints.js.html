@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: modules/editorElements/HelperWire.js | Hradla</title>
+    <title>Source: modules/svgObjects/PolyLinePoints.js | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,46 +50,199 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {PolyLine, PolyLinePoints, PolyLinePoint} from '../svgObjects'
+            <pre class="prettyprint source linenums"><code>import PolyLinePoint from './PolyLinePoint'
 
-import NetworkElement from './NetworkElement'
-
-/** @module editorElements.HelperWire */
+/** @module svgObjects.PolyLinePoints */
 
 /**
- * A temporary wire that is connecting a {@link Connector} with a mouse pointer when user creates a wire.
- * @extends NetworkElement
+ * array-like structure used in {@link PolyLinePoints}
  */
-export default class HelperWire extends NetworkElement {
-    constructor(parentSVG, fromId, mousePosition) {
-        super(parentSVG);
-
-        const connector = this.parentSVG.getConnectorById(fromId);
-        this.connectorPosition = this.parentSVG.getConnectorPosition(connector, true);
-
-        const from = new PolyLinePoint(this.connectorPosition.x, this.connectorPosition.y);
-        const to = new PolyLinePoint(mousePosition.x, mousePosition.y);
-
-        const points = new PolyLinePoints([from, to]);
-
-        this.svgObj = new PolyLine(points, 2, "#8b8b8b");
-    }
-
-    updateMousePosition(mousePosition) {
-        const from = new PolyLinePoint(this.connectorPosition.x, this.connectorPosition.y);
-        const to = new PolyLinePoint(mousePosition.x, mousePosition.y);
-
-        const points = new PolyLinePoints([from, to]);
-
-        this.svgObj.updatePoints(points);
+class SmartArray {
+    /**
+     * @param {Array} [arr] if set, initialized SmartArray will contain these values
+     */
+    constructor(arr) {
+        if(arr !== undefined) {
+            this.arr = arr;
+        } else {
+            this.arr = [];
+        }
     }
 
     /**
-     * get the jQuery element for this helper wire
-     * @return {jQuery.element}
+     * get a deep copy of this array
+     * @return {SmartArray}
      */
-    get() {
-        return this.svgObj.get();
+    copy() {
+        return SmartArray($.extend(true, [], this.arr));
+    }
+
+    /**
+     * append an item to the array
+     * @param item new item that will be appended to the array
+     */
+    append(item) {
+        return this.addWithIndex(item, this.arr.length);
+    }
+
+    /**
+     * prepend an item to the array
+     * @param item new item that will be prepended to the array
+     */
+    prepend(item) {
+        return this.addWithIndex(item, 0);
+    }
+
+    /**
+     * add a new item at the specified index, move all following items
+     * @param item new item that will be added at the specified index
+     * @param {number} index index of this item
+     */
+    addWithIndex(item, index) {
+        for(let i = this.arr.length ; i > index ; --i) {
+            this.arr[i] = this.arr[i-1];
+        }
+        this.arr[index] = item;
+        return this; // to enable chaining of append / preppend / addWithIndex commands
+    }
+
+    /**
+     * get length of the array
+     * @return {number}
+     */
+    get length() {
+        return this.arr.length;
+    }
+
+    /**
+     * get item by index
+     * @param  {number} index index of the item
+     * @return contents of the array on the specified index
+     */
+    getItem(index) {
+        return this.arr[index];
+    }
+
+    /**
+     * @return last element of the array
+     */
+    get last() {
+        if(this.length!==0) {
+            return this.arr[this.length - 1];
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @return first element of the array
+     */
+    get first() {
+        if(this.length!==0) {
+            return this.arr[0];
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * remove an item from the array by index
+     * @param  {number} index index of the item that will be removed
+     */
+    remove(index) {
+        let length = this.length;
+
+        for(let i = index ; i &lt; length ; ++i) {
+            this.arr[i] = this.arr[i + 1];
+        }
+        this.arr.pop();
+    }
+}
+
+/**
+ * points of the {@link PolyLine}
+ * @extends SmartArray
+ */
+export default class PolyLinePoints extends SmartArray {
+    /**
+     * @param {Array} [arr] array containing instances of {@link PolyLinePoint}
+     */
+    constructor(arr) {
+        super(arr);
+    }
+
+    /**
+     * get a deep copy of this object
+     * @return {PolyLinePoints}
+     */
+    copy() {
+        return new PolyLinePoints($.extend(true, [], this.arr));
+    }
+
+    /**
+     * append a point
+     * @param  {PolyLinePoint} point a new point
+     */
+    append(point) {
+        // call inherited function to handle the appending
+        super.append(point);
+
+        // if the second to last point is unnecessary, remove it
+        let length = this.length;
+        if ( length >= 3
+                &amp;&amp; (    ( this.getItem(length - 3).x === this.getItem(length - 2).x &amp;&amp;
+                          this.getItem(length - 2).x === this.getItem(length - 1).x )
+                     || ( this.getItem(length - 3).y === this.getItem(length - 2).y &amp;&amp;
+                          this.getItem(length - 2).y === this.getItem(length - 1).y )
+                   )
+           )
+        {
+            this.remove(length - 2);
+        }
+
+        // return this element (to allow chaining)
+        return this;
+    }
+
+    /**
+     * parse PolyLine from string
+     * @param  {string} string string in the PolyLine format (`x1,y1 x2,y2, x3,y3`)
+     * @return {PolyLinePoints} a new instance of {@link PolyLinePoints} created by parsing the string
+     */
+    static parseFromString(string) {
+        let pointStrings = string.split(" ");
+        let points = new PolyLinePoints();
+
+        for(let i = 0 ; i &lt; pointStrings.length ; ++i) {
+            points.append(PolyLinePoint.parseFromString(pointStrings[i]));
+        }
+
+        return points;
+    }
+
+    /**
+     * get a string representation of this PolyLine
+     * @return {string} string in the PolyLine format (`x1,y1 x2,y2, x3,y3`)
+     */
+    get string() {
+        let string = "";
+        for(let i = 0 ; i &lt; this.length ; ++i) {
+            if(i !== 0) {
+                string += " ";
+            }
+            string += this.arr[i].string;
+        }
+        return string;
+    }
+
+    /**
+     * wrapper for foreach on the PolyLine points
+     * @param  {Function} func function that will be called on each element
+     */
+    forEach(func) {
+        for(let i = 0 ; i &lt; this.arr.length ; ++i) {
+            func(this.arr[i]);
+        }
     }
 }
 </code></pre>

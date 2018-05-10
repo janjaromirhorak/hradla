@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * @module HelperFunctions
  */
@@ -58,12 +56,10 @@ export function getJSONString(data, pretty = false, dataUri = false) {
         return 'data:application/json;charset=utf-8,'
             + encodeURIComponent(getJSONString(data, pretty));
     } else {
-        switch (pretty) {
-            case true:
-                return stringify(data, {maxLength: 50});
-            case false:
-                return JSON.stringify(data);
-        }
+        if (pretty)
+            return stringify(data, {maxLength: 50});
+
+        return JSON.stringify(data);
     }
 }
 

@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: modules/editorElements/HelperWire.js | Hradla</title>
+    <title>Source: modules/svgObjects/PolyLinePoint.js | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,46 +50,61 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {PolyLine, PolyLinePoints, PolyLinePoint} from '../svgObjects'
-
-import NetworkElement from './NetworkElement'
-
-/** @module editorElements.HelperWire */
+            <pre class="prettyprint source linenums"><code>/** @module svgObjects.PolyLinePoint */
 
 /**
- * A temporary wire that is connecting a {@link Connector} with a mouse pointer when user creates a wire.
- * @extends NetworkElement
+ * one point of {@link PolyLinePoints}, used in the {@link PolyLine} object
  */
-export default class HelperWire extends NetworkElement {
-    constructor(parentSVG, fromId, mousePosition) {
-        super(parentSVG);
-
-        const connector = this.parentSVG.getConnectorById(fromId);
-        this.connectorPosition = this.parentSVG.getConnectorPosition(connector, true);
-
-        const from = new PolyLinePoint(this.connectorPosition.x, this.connectorPosition.y);
-        const to = new PolyLinePoint(mousePosition.x, mousePosition.y);
-
-        const points = new PolyLinePoints([from, to]);
-
-        this.svgObj = new PolyLine(points, 2, "#8b8b8b");
-    }
-
-    updateMousePosition(mousePosition) {
-        const from = new PolyLinePoint(this.connectorPosition.x, this.connectorPosition.y);
-        const to = new PolyLinePoint(mousePosition.x, mousePosition.y);
-
-        const points = new PolyLinePoints([from, to]);
-
-        this.svgObj.updatePoints(points);
+export default class PolyLinePoint {
+    /**
+     * @param {number} x horizontal coordinate of the PolyLine point
+     * @param {number} y vertical coordinate of the PolyLine point
+     */
+    constructor(x, y) {
+        this.x = 0;
+        this.y = 0;
+        if(x !== undefined &amp;&amp; y !== undefined) {
+            this.x = x;
+            this.y = y;
+        }
     }
 
     /**
-     * get the jQuery element for this helper wire
-     * @return {jQuery.element}
+     * change the coordinates of this point
+     * @param {number} x horizontal coordinate of the PolyLine point
+     * @param {number} y vertical coordinate of the PolyLine point
      */
-    get() {
-        return this.svgObj.get();
+    set(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * create PolyLine from a comma separated string (e.g. from a string formatted like this: "x,y", for example "15,8")
+     * @param  {string} string string in the format "x,y" representing a point in the SVG PolyLine
+     * @return {PolyLinePoint} newly created instance of {@link PolyLinePoint}
+     */
+    static parseFromString(string) {
+        let arr = string.split(",");
+        return new PolyLinePoint(arr[0], arr[1]);
+    }
+
+    /**
+     * return a string representation of this PolyLine point
+     * @return {string} string in the format "x,y"
+     */
+    get string() {
+        return this.x + "," + this.y;
+    }
+
+    /**
+     * compare PolyLine points, return `true` if they are equal, else return `false`
+     * @param  {PolyLinePoint} a
+     * @param  {PolyLinePoint} b
+     * @return {boolean}
+     */
+    static equals(a, b) {
+        return a.x === b.x &amp;&amp; a.y === b.y;
     }
 }
 </code></pre>

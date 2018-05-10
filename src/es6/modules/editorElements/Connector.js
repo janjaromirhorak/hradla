@@ -1,5 +1,5 @@
 import NetworkElement from './NetworkElement';
-import * as svgObj from '../svgObjects'
+import {Rectangle} from '../svgObjects'
 import Logic from '../Logic'
 
 import stateClasses from './stateClasses'
@@ -40,7 +40,7 @@ export default class Connector extends NetworkElement {
          * instance of {@link svgObjects.svgObj} that holds all SVG information about this connector
          * @type {svgObj}
          */
-        this.svgObj = new svgObj.Rectangle(
+        this.svgObj = new Rectangle(
             left * this.gridSize - this.connectorOffset,
             top * this.gridSize - this.connectorOffset,
             this.connectorSize,

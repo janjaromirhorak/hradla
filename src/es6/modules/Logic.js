@@ -1,5 +1,3 @@
-"use strict";
-
 /** @module Logic */
 /**
  * definitions of logic states and basic logic functions used in the simulation

@@ -1,4 +1,4 @@
-import * as svgObj from '../svgObjects'
+import {Group, Rectangle, MultiLineText, PolyLine, PolyLinePoints, PolyLinePoint} from '../svgObjects'
 import Logic from '../Logic'
 
 import Box from './Box'
@@ -27,10 +27,10 @@ export default class Blackbox extends Box {
         const connectorPinLenght = 2.5 * this.gridSize;
 
         // override default svgObj structure
-        this.svgObj = new svgObj.Group();
+        this.svgObj = new Group();
 
         // transparent background rectangle
-        let hitbox = new svgObj.Rectangle(0, 0, this.width, this.height, "none", "none");
+        let hitbox = new Rectangle(0, 0, this.width, this.height, "none", "none");
         hitbox.$el.addClass('rect');
 
         this.svgObj.addChild(hitbox);
@@ -38,7 +38,7 @@ export default class Blackbox extends Box {
         // main rectangle
         const bodyWidth = this.width - 2 * connectorPinLenght;
 
-        let rectangle = new svgObj.Rectangle(connectorPinLenght, 0, bodyWidth, this.height, "white", "black");
+        let rectangle = new Rectangle(connectorPinLenght, 0, bodyWidth, this.height, "white", "black");
         rectangle.addAttr({'stroke-width': '2.5'});
         rectangle.$el.addClass('rect');
 
@@ -47,7 +47,7 @@ export default class Blackbox extends Box {
         // text description of the box
         const textWidth = bodyWidth - this.gridSize;
         const textHeight = this.height - this.gridSize;
-        let text = new svgObj.MultiLineText(
+        let text = new MultiLineText(
             (this.width - textWidth) / 2, // horizontal centering
             (this.height - textHeight) / 2, // vertical centering
             textWidth,
@@ -62,10 +62,10 @@ export default class Blackbox extends Box {
             const gridPosition = (i * 2) + 1;
             const pixelPosition = gridPosition * this.gridSize;
 
-            let pin = new svgObj.PolyLine(
-                new svgObj.PolylinePoints([
-                    new svgObj.PolylinePoint(0, pixelPosition),
-                    new svgObj.PolylinePoint(connectorPinLenght, pixelPosition),
+            let pin = new PolyLine(
+                new PolyLinePoints([
+                    new PolyLinePoint(0, pixelPosition),
+                    new PolyLinePoint(connectorPinLenght, pixelPosition),
                 ]),
                 1,
                 "black"
@@ -82,10 +82,10 @@ export default class Blackbox extends Box {
             const gridPosition = (i * 2) + 1;
             const pixelPosition = gridPosition * this.gridSize;
 
-            let pin = new svgObj.PolyLine(
-                new svgObj.PolylinePoints([
-                    new svgObj.PolylinePoint(this.width - connectorPinLenght, pixelPosition),
-                    new svgObj.PolylinePoint(this.width, pixelPosition),
+            let pin = new PolyLine(
+                new PolyLinePoints([
+                    new PolyLinePoint(this.width - connectorPinLenght, pixelPosition),
+                    new PolyLinePoint(this.width, pixelPosition),
                 ]),
                 1,
                 "black"
