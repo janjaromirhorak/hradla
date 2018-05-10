@@ -3,17 +3,17 @@ import Tag from './Tag'
 /** @module svgObjects.PolyLine */
 
 /**
- * SVG polyline (a path defined by sequence of points on plane)
+ * SVG PolyLine (a path defined by sequence of points on plane)
  * @extends Tag
  */
 export default class PolyLine extends Tag {
     /**
-     * @param {PolylinePoints} points points describing this polyline
-     * @param {number} [strokeWidth] width of the stroke for this polyline in SVG pixels
-     * @param {string} [color] CSS color of this polyline
+     * @param {PolyLinePoints} points points describing this PolyLine
+     * @param {number} [strokeWidth] width of the stroke for this PolyLine in SVG pixels
+     * @param {string} [color] CSS color of this PolyLine
      */
     constructor(points, strokeWidth, color) {
-        super("polyline");
+        super("PolyLine");
 
         let attributes = {
             points: points.string,
@@ -29,8 +29,8 @@ export default class PolyLine extends Tag {
     }
 
     /**
-     * update points of this polyline
-     * @param {PolylinePoints} points new set of points describing this polyline
+     * update points of this PolyLine
+     * @param {PolyLinePoints} points new set of points describing this PolyLine
      */
     updatePoints(points) {
         this.addAttr({

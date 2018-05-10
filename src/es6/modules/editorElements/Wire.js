@@ -1,6 +1,6 @@
 /** @module editorElements.Wire */
 
-import * as svgObj from '../svgObjects'
+import {PolyLine, PolyLinePoints, PolyLinePoint, Group} from '../svgObjects'
 import Logic from '../Logic'
 import stateClasses from './stateClasses'
 import findPath from '../findPath'
@@ -23,18 +23,35 @@ export default class Wire extends NetworkElement {
 
         this.gridSize = parentSVG.gridSize;
 
-        this.fromId = fromId;
-        this.toId = toId;
+        this.connection = {
+            from: {
+                id: fromId,
+                box: this.parentSVG.getBoxByConnectorId(fromId),
+                connector: this.parentSVG.getConnectorById(fromId)
+            },
+            to: {
+                id: toId,
+                box: this.parentSVG.getBoxByConnectorId(toId),
+                connector: this.parentSVG.getConnectorById(toId)
+            }
+        }
 
-        this.startBox = this.parentSVG.getBoxByConnectorId(fromId);
-        this.endBox = this.parentSVG.getBoxByConnectorId(toId);
-
-        this.boxes = [this.startBox, this.endBox]
-
-        this.startConnector = this.parentSVG.getConnectorById(fromId);
-        this.endConnector = this.parentSVG.getConnectorById(toId);
-
-        this.connectors = [this.startConnector, this.endConnector]
+        if(this.connection.from.connector.isOutputConnector) {
+            if(this.connection.to.connector.isInputConnector) {
+                // desired state
+            } else {
+                // connecting two output connectors
+                throw "Can not place wire between two output connectors";
+            }
+        } else {
+            if(this.connection.to.connector.isInputConnector) {
+                // connecting two input connectors
+                throw "Can not place wire between two input connectors";
+            } else {
+                // swap them and we are ready to go
+                [ this.connection.from, this.connection.to ] = [ this.connection.to, this.connection.from ];
+            }
+        }
 
         if(route) {
             this.routeWire(true, refresh);
@@ -44,13 +61,22 @@ export default class Wire extends NetworkElement {
 
         this.elementState = Logic.state.unknown;
 
-        for (let connector of this.connectors) {
-            if(connector.isOutputConnector) {
-                this.setState(connector.state);
-            }
+        this.setState(this.connection.from.connector.state)
+
+        if(refresh) {
+            const {connector} = this.connection.to;
+            this.parentSVG.startNewSimulation(connector, connector.state);
         }
 
         this.svgObj.$el.addClass("wire");
+    }
+
+    get boxes() {
+        return [this.connection.from.box, this.connection.to.box];
+    }
+
+    get connectors() {
+        return [this.connection.from.connector, this.connection.to.connector];
     }
 
     /**
@@ -59,8 +85,8 @@ export default class Wire extends NetworkElement {
      */
     get exportData() {
         return {
-            fromId: this.fromId,
-            toId: this.toId
+            fromId: this.connection.from.id,
+            toId: this.connection.to.id
         };
     }
 
@@ -69,29 +95,10 @@ export default class Wire extends NetworkElement {
      * @param {Logic.state} state [description]
      */
     setState(state) {
-        this.svgObj.removeClasses(stateClasses.on, stateClasses.off, stateClasses.unknown, stateClasses.oscillating);
+        this.svgObj.removeClasses(...stateClasses);
+        this.svgObj.addClass(stateClasses[state]);
 
-        switch (state) {
-            case Logic.state.unknown:
-                this.svgObj.addClass(stateClasses.unknown);
-                break;
-            case Logic.state.on:
-                this.svgObj.addClass(stateClasses.on);
-                break;
-            case Logic.state.off:
-                this.svgObj.addClass(stateClasses.off);
-                break;
-            case Logic.state.oscillating:
-                this.svgObj.addClass(stateClasses.oscillating);
-                break;
-        }
-
-        if (this.startConnector.isInputConnector) {
-            this.startConnector.setState(state);
-        }
-        if(this.endConnector.isInputConnector) {
-            this.endConnector.setState(state);
-        }
+        this.connection.to.connector.setState(state);
 
         this.elementState = state;
     }
@@ -108,6 +115,7 @@ export default class Wire extends NetworkElement {
      * update the state of this wire
      */
     updateWireState() {
+        // TODO investigate
         for (const box of this.boxes) {
             box.refreshState()
         }
@@ -122,13 +130,13 @@ export default class Wire extends NetworkElement {
     }
 
     /**
-     * get the polyline points for a temporary wire placement connecting the two connectors
-     * @return {PolylinePoints} new instance of {@link PolylinePoints}
+     * get the PolyLine points for a temporary wire placement connecting the two connectors
+     * @return {PolyLinePoints} new instance of {@link PolyLinePoints}
      */
     getTemporaryWirePoints() {
-        let points = new svgObj.PolylinePoints();
-        points.append(new svgObj.PolylinePoint(this.wireStart.x, this.wireStart.y));
-        points.append(new svgObj.PolylinePoint(this.wireEnd.x, this.wireEnd.y));
+        let points = new PolyLinePoints();
+        points.append(new PolyLinePoint(this.wireStart.x, this.wireStart.y));
+        points.append(new PolyLinePoint(this.wireEnd.x, this.wireEnd.y));
         return points;
     }
 
@@ -136,8 +144,8 @@ export default class Wire extends NetworkElement {
      * route the wire using the temporary wire points
      */
     temporaryWire() {
-        this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, false);
-        this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, false);
+        this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, false);
+        this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, false);
 
         this.setWirePath(this.getTemporaryWirePoints());
     }
@@ -146,8 +154,8 @@ export default class Wire extends NetworkElement {
      * route the wire using the modified A* wire routing algorithm
      */
     routeWire(snapToGrid = true, refresh = true) {
-        this.wireStart = this.parentSVG.getConnectorPosition(this.startConnector, snapToGrid);
-        this.wireEnd = this.parentSVG.getConnectorPosition(this.endConnector, snapToGrid);
+        this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, snapToGrid);
+        this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, snapToGrid);
 
         this.points = this.findRoute(
             {
@@ -170,7 +178,7 @@ export default class Wire extends NetworkElement {
 
     /**
      * set the wire to follow the specified points
-     * @param {PolylinePoints} points instance of {@link PolylinePoints}
+     * @param {PolyLinePoints} points instance of {@link PolyLinePoints}
      */
     setWirePath(points) {
         // set the line
@@ -180,23 +188,23 @@ export default class Wire extends NetworkElement {
                 child.updatePoints(points);
             }
         } else {
-            this.svgObj = new svgObj.Group();
+            this.svgObj = new Group();
 
-            let hitbox = new svgObj.PolyLine(points, 10, 'white');
+            let hitbox = new PolyLine(points, 10, 'white');
             hitbox.addClass("hitbox");
             hitbox.addAttr({opacity: 0});
             this.svgObj.addChild(hitbox);
 
-            let mainLine = new svgObj.PolyLine(points, 2);
+            let mainLine = new PolyLine(points, 2);
             mainLine.addClass("main", "stateUnknown");
             this.svgObj.addChild(mainLine);
         }
     }
 
-    pathToPolyline(path) {
-        let totalPath = new svgObj.PolylinePoints();
+    pathToPolyLine(path) {
+        let totalPath = new PolyLinePoints();
         for (const point of path) {
-            totalPath.append(new svgObj.PolylinePoint(point.x * this.gridSize, point.y * this.gridSize));
+            totalPath.append(new PolyLinePoint(point.x * this.gridSize, point.y * this.gridSize));
         }
         return totalPath;
     }
@@ -205,7 +213,7 @@ export default class Wire extends NetworkElement {
      * find a nice route for the wire
      * @param  {Object} start object containing numeric attributes `x` and `y` that represent the first endpoint of the wire in grid pixel
      * @param  {Object} end   object containing numeric attributes `x` and `y` that represent the second endpoint of the wire in grid pixels
-     * @return {PolylinePoints}       [description]
+     * @return {PolyLinePoints}       [description]
      */
     findRoute(start, end) {
         let nonRoutable = this.parentSVG.getNonRoutableNodes();
@@ -220,7 +228,7 @@ export default class Wire extends NetworkElement {
         let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
         if(path) {
-            return this.pathToPolyline(path);
+            return this.pathToPolyLine(path);
         }
 
 
@@ -228,7 +236,7 @@ export default class Wire extends NetworkElement {
         path = findPath(start, end, new Set(), new Set(), this.gridSize);
 
         if(path) {
-            return this.pathToPolyline(path);
+            return this.pathToPolyLine(path);
         }
 
         // if the path was still not found, give up and return temporary points

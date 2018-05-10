@@ -1,3 +1,5 @@
+"use strict";
+
 /** @module routeWorker */
 
 import findPath from './modules/findPath'
@@ -31,6 +33,13 @@ function findPaths(wires, nonRoutableNodes, inconvenientNodes) {
 
     for (const [from, to] of wires) {
         const path = findPath(from, to, nonRoutableNodes, inconvenientNodes)
+
+        if(!path) {
+            console.log("path not found")
+            console.log(from, to);
+        } else {
+            console.log("path found")
+        }
 
         paths.push(path);
 

@@ -86,9 +86,10 @@ export default function findPath(start, end, nonRoutable, punishedButRoutable) {
                 // if newPoint is in the set of non routable points,
                 // don't add it and stop proceeding in this direction
                 if (setHasThisPoint(nonRoutable, newPoint)) {
-                    // if this not the end point, break
-                    if (newPoint.x !== end.x || newPoint.y !== end.y) {
-                        break;
+                    // if this not the end or start point, break
+                    if (!(newPoint.x === end.x && newPoint.y === end.y) &&
+                        !(newPoint.x === start.x && newPoint.y === start.y)) {
+                            break;
                     }
                 }
 
@@ -166,29 +167,26 @@ function setHasThisPoint(set, point) {
  *     - 3: left
  * @return {Object}           object containing numeric attributes `x` and `y`
  */
-function movePoint(point, direction) {
-    switch (direction) {
-        case 0: // up
-            return {
-                x: point.x,
-                y: point.y - 1
-            };
-        case 1: // right
-            return {
-                x: point.x + 1,
-                y: point.y
-            };
-        case 2: // down
-            return {
-                x: point.x,
-                y: point.y + 1
-            };
-        case 3: // left
-            return {
-                x: point.x - 1,
-                y: point.y
-            };
+function movePoint({x, y}, direction) {
+    // map direction do point coordinate modification
+    const dirMap = {
+        0: () => {
+            y -= 1
+        },
+        1: () => {
+            x += 1
+        },
+        2: () => {
+            y += 1
+        },
+        3: () => {
+            x -= 1
+        }
     }
+
+    dirMap[direction]();
+
+    return {x, y}
 }
 
 /**

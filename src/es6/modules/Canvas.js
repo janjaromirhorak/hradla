@@ -1,20 +1,28 @@
-"use strict";
-
-import * as svgObj from './svgObjects'
+// editor elements (gates, wires...)
 import * as editorElements from './editorElements'
+
+// svg elements
+import {Pattern, Rectangle, PolyLinePoint, PolyLinePoints, PolyLine} from './svgObjects'
+
+// network logic and simulation
 import Logic from './Logic'
+import Simulation from './Simulation'
+
+// ui stuff
 import ContextMenu from './ui/ContextMenu'
 import FloatingMenu from './ui/FloatingMenu'
-import Simulation from './Simulation'
-import { addMouseScrollEventListener, manhattanDistance } from './other/helperFunctions'
 import Tutorial from './ui/Tutorial'
-import ViewBox from './ui/ViewBox'
 import Messages from './ui/Messages'
+import ViewBox from './ui/ViewBox'
 
-import { PriorityQueue } from 'libstl' // note: imported from a node module
+// mouse scroll event listerer for ui, manhattan distance for importData
+import {addMouseScrollEventListener, manhattanDistance} from './other/helperFunctions'
 
-const
-    ctrlKey = 17,
+// used in importData
+// note: imported from a node module
+import {PriorityQueue} from 'libstl'
+
+const ctrlKey = 17,
     cmdKey = 91;
 
 /** @module Canvas */
@@ -70,17 +78,14 @@ export default class Canvas {
         this.$svg.prepend(this.$defs);
 
         // BACKGROUND PATTERN
-        let pattern = new svgObj.Pattern("grid", this.gridSize, this.gridSize);
+        let pattern = new Pattern("grid", this.gridSize, this.gridSize);
 
-        let patternPoints = new svgObj.PolylinePoints()
-            .append(new svgObj.PolylinePoint(0, 0))
-            .append(new svgObj.PolylinePoint(this.gridSize, 0))
-            .append(new svgObj.PolylinePoint(this.gridSize, this.gridSize));
+        let patternPoints = new PolyLinePoints().append(new PolyLinePoint(0, 0)).append(new PolyLinePoint(this.gridSize, 0)).append(new PolyLinePoint(this.gridSize, this.gridSize));
 
-        pattern.addChild(new svgObj.PolyLine(patternPoints, 2, "#c2c3e4"));
+        pattern.addChild(new PolyLine(patternPoints, 2, "#c2c3e4"));
         this.addPattern(pattern.get());
 
-        this.background = new svgObj.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
+        this.background = new Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
         this.appendJQueryObject(this.background.get());
         this.refresh();
 
@@ -101,7 +106,7 @@ export default class Canvas {
         this.$svg.on('mousedown', event => {
             target = this.getRealTarget(event.target);
 
-            if(target!==undefined) {
+            if (target !== undefined) {
                 // propagate mousedown to the real target
                 target.onMouseDown(event);
             } else {
@@ -112,7 +117,7 @@ export default class Canvas {
             this.hideContextMenu();
             event.preventDefault();
         }).on('mousemove', event => {
-            if(target!==undefined) {
+            if (target !== undefined) {
                 target.onMouseMove(event);
             } else {
                 // mousemove happened directly on the svg
@@ -121,7 +126,7 @@ export default class Canvas {
 
             event.preventDefault();
         }).on('mouseup', event => {
-            if(target!==undefined) {
+            if (target !== undefined) {
                 target.onMouseUp(event);
             } else {
                 // mouseup happened directly on the svg
@@ -150,32 +155,23 @@ export default class Canvas {
 
         addMouseScrollEventListener(canvas, event => {
             // zoom only if the ctrl key is not pressed
-            if(!event.ctrlKey) {
-                switch (event.delta) {
-                    case 1:
-                        this.zoom += 0.1
-                        break
-                    case -1:
-                        this.zoom -= 0.1
-                        break
-                }
+            if (!event.ctrlKey) {
+                this.zoom += event.delta * 0.1;
 
                 event.preventDefault()
             }
         })
 
         $(window).on('keydown', (event) => {
-            switch (event.key) {
-                case '+':
-                    this.zoom += 0.1
-                    break
-                case '-':
-                    this.zoom -= 0.1
-                    break
+            const actions = {
+                '+': 0.1,
+                '-': -0.1
+            }
+
+            if (actions[event.key]) {
+                this.zoom += actions[event.key];
             }
         })
-
-
 
         /**
          * property containing an instance of [Tutorial](./module-Tutorial.html), if there is any
@@ -185,7 +181,7 @@ export default class Canvas {
 
         // check if the user visits for the first time, if so, start the tutorial
         try {
-            if(!localStorage.userHasVisited) {
+            if (!localStorage.userHasVisited) {
                 this.startTutorial();
             }
         } catch (e) {
@@ -214,7 +210,7 @@ export default class Canvas {
      * @param  {jquery.KeyboardEvent} event KeyboardEvent generated by a listener
      */
     onKeyDown(event) {
-        if(event.keyCode === ctrlKey || event.keyCode === cmdKey) {
+        if (event.keyCode === ctrlKey || event.keyCode === cmdKey) {
             this.$svg.addClass('grabbable');
         }
     }
@@ -224,7 +220,7 @@ export default class Canvas {
      * @param  {jquery.KeyboardEvent} event KeyboardEvent generated by a listener
      */
     onKeyUp(event) {
-        if(event.keyCode === ctrlKey || event.keyCode === cmdKey) {
+        if (event.keyCode === ctrlKey || event.keyCode === cmdKey) {
             this.$svg.removeClass('grabbable');
         }
     }
@@ -238,7 +234,7 @@ export default class Canvas {
         this.cancelWireCreation();
 
         // middle mouse or left mouse + ctrl moves the canvas
-        if(event.which === 2 || (event.which === 1 && event.ctrlKey)) {
+        if (event.which === 2 || (event.which === 1 && event.ctrlKey)) {
             this.$svg.addClass('grabbed');
             this.moveCanvas = {
                 left: event.pageX,
@@ -252,7 +248,7 @@ export default class Canvas {
      * @param  {jquery.MouseEvent} event MouseEvent generated by a listener
      */
     onMouseMove(event) {
-        if(this.moveCanvas) {
+        if (this.moveCanvas) {
             let left = event.pageX - this.moveCanvas.left
             let top = event.pageY - this.moveCanvas.top
 
@@ -271,12 +267,12 @@ export default class Canvas {
      * Process all mouseup events that are happening directly on the Canvas
      */
     onMouseUp() {
-        if(this.moveCanvas) {
+        if (this.moveCanvas) {
             this.$svg.removeClass('grabbed');
             this.moveCanvas = undefined
 
             // if tutorial exists, call tutorial callback
-            if(this.tutorial) {
+            if (this.tutorial) {
                 this.tutorial.onCanvasMoved();
             }
         }
@@ -288,12 +284,7 @@ export default class Canvas {
      */
     applyViewbox() {
         // adjust background
-        this.background.addAttr({
-            x: this.viewbox.left,
-            y: this.viewbox.top,
-            width: this.viewbox.width,
-            height: this.viewbox.height
-        })
+        this.background.addAttr({x: this.viewbox.left, y: this.viewbox.top, width: this.viewbox.width, height: this.viewbox.height})
 
         // set the viewBox attribute
         this.$svg.attr('viewBox', this.viewbox.str)
@@ -317,7 +308,7 @@ export default class Canvas {
         this.applyViewbox()
 
         // if tutorial exists, call tutorial callback
-        if(this.tutorial) {
+        if (this.tutorial) {
             this.tutorial.onCanvasZoomed();
         }
     }
@@ -372,8 +363,12 @@ export default class Canvas {
 
             // if the x or y is undefined, set it to leftTopPadding instead
             // (cannot use x || leftTopPadding because of 0)
-            x = x!==undefined ? x : this.leftTopPadding
-            y = y!==undefined ? y : this.leftTopPadding
+            x = x !== undefined
+                ? x
+                : this.leftTopPadding
+            y = y !== undefined
+                ? y
+                : this.leftTopPadding
 
             this.simulationEnabled = false
 
@@ -381,13 +376,16 @@ export default class Canvas {
             let newWires = new Map();
 
             // find the leftmost and topmost coordinate of any box, save them to leftTopCorner
-            let leftTopCorner = {x: 0, y: 0};
+            let leftTopCorner = {
+                x: 0,
+                y: 0
+            };
 
             for (const boxData of data.boxes) {
-                if(boxData.transform && boxData.transform.items) {
-                    for(const transformInfo of boxData.transform.items) {
-                        if(transformInfo.name === "translate") {
-                            if(leftTopCorner) {
+                if (boxData.transform && boxData.transform.items) {
+                    for (const transformInfo of boxData.transform.items) {
+                        if (transformInfo.name === "translate") {
+                            if (leftTopCorner) {
                                 leftTopCorner = {
                                     x: Math.min(leftTopCorner.x, transformInfo.args[0]),
                                     y: Math.min(leftTopCorner.y, transformInfo.args[1])
@@ -403,79 +401,96 @@ export default class Canvas {
                 }
             }
 
-            for(let boxData of data.boxes) {
-                // add box
+            for (let boxData of data.boxes) {
+                // mapping of dataBox.name of the objects that have category "other"
+                const otherMap = {
+                    "input": () => this.newInput(0, 0, boxData.isOn, false),
+                    "output": () => this.newOutput(0, 0, false)
+                }
+
+                // mapping of dataBox.category
+                const boxMap = {
+                    "gate": () => this.newGate(boxData.name, 0, 0, false),
+                    "blackbox": () => this.newBlackbox(boxData.inputs, boxData.outputs, boxData.table, boxData.name, 0, 0, false),
+                    "other": () => {
+                        if (!boxData.name)
+                            throw `This network contains a box without a name.`
+
+                        if (!otherMap[boxData.name])
+                            throw `This network contains unknown box names. (${boxData.name})`
+
+                        return otherMap[boxData.name]()
+                    }
+                }
+
+                const createBox = () => {
+                    if (!boxData.category)
+                        throw `This network a box without a category.`;
+
+                    if (!boxMap[boxData.category])
+                        throw `This network contains unknown box categories. (${boxData.category})`;
+
+                    return boxMap[boxData.category]()
+                }
+
                 let box;
-                switch (boxData.category) {
-                    case "gate":
-                        // add new gate (without reloading the SVG, we will reload it once after the import)
-                        box = this.newGate(boxData.name, 0, 0, false);
-                        break;
-                    case "other":
-                        switch (boxData.name) {
-                            case "input":
-                                // add new input (without reloading the SVG, we will reload it once after the import)
-                                box = this.newInput(0, 0, boxData.isOn, false);
-                                break;
-                            case "output":
-                                // add new output (without reloading the SVG, we will reload it once after the import)
-                                box = this.newOutput(0, 0, false);
-                                break;
-                            case undefined:
-                                warnings.push(`This network contains a box without a name.`);
-                                break;
-                            default:
-                                warnings.push(`This network contains unknown box names. (${boxData.name})`);
-                        }
-                        break;
-                    case "blackbox":
-                        box = this.newBlackbox(boxData.inputs, boxData.outputs, boxData.table, boxData.name, 0, 0, false)
-                        break;
-                    case undefined:
-                        warnings.push(`This network a box without a category.`);
-                        break;
-                    default:
-                        warnings.push(`This network contains unknown box categories. (${boxData.category})`);
+
+                try {
+                    box = createBox();
+                } catch (e) {
+                    warnings.push(e);
                 }
 
                 if (box) {
                     // proccess box transforms (translation and rotation)
                     let transform = new editorElements.Transform();
+                    let rotationCount = 0;
 
-                    if(boxData.transform && boxData.transform.items) {
-                        for(const transformItem of boxData.transform.items) {
-                            switch (transformItem.name) {
-                                case "translate":
-                                    transform.setTranslate(
-                                        transformItem.args[0]
-                                            - leftTopCorner.x // make it the relative distance from the leftmost element
-                                            + x // apply the position
-                                            ,
+                    const transformItemMap = {
+                        "translate": (args) => {
+                            transform.setTranslate(
+                                args[0]
+                                    - leftTopCorner.x // make it the relative distance from the leftmost element
+                                    + x // apply the position
+                                    ,
+                                args[1]
+                                    - leftTopCorner.y // make it the relative distance from the topmost element
+                                    + y // apply the position
+                          );
+                        },
+                        "rotate": (args) => {
+                            rotationCount = args[0] % 360 / 90;
+                        }
+                    }
 
-                                        transformItem.args[1]
-                                            - leftTopCorner.y // make it the relative distance from the topmost element
-                                            + y // apply the position
-                                    );
-                                    break;
-                                case "rotate":
-                                    // expected 3 arguments
-                                    transform.setRotate(...transformItem.args);
-                                    break;
-                                case undefined:
-                                    warnings.push(`This network contains unnamed transform properties.`);
-                                    break;
-                                default:
-                                    warnings.push(`This network contains unknown transform properties. (${transformItem.name})`);
+                    if (boxData.transform && boxData.transform.items) {
+                        for (const transformItem of boxData.transform.items) {
+                            const {name, args} = transformItem;
+
+                            if (!name) {
+                                warnings.push(`This network contains unnamed transform properties.`);
+                                break;
                             }
+
+                            if (!transformItemMap[name]) {
+                                warnings.push(`This network contains unknown transform properties. (${transformItem.name})`);
+                                break;
+                            }
+
+                            transformItemMap[name](args)
                         }
                     }
 
                     transform.toSVGPixels(this);
                     box.setTransform(transform);
 
+                    for (let i = 0; i < rotationCount; ++i) {
+                        box.rotate(true);
+                    }
+
                     // add all wires to the list of wires to be added
-                    if(boxData.connections) {
-                        for(const connection of boxData.connections) {
+                    if (boxData.connections) {
+                        for (const connection of boxData.connections) {
                             // get the artificial wire id
                             let wireId = connection.wireId;
 
@@ -486,7 +501,7 @@ export default class Canvas {
                             };
 
                             // add the value to the map
-                            if(newWires.has(wireId)) {
+                            if (newWires.has(wireId)) {
                                 // if there already is a wire with this id in the map,
                                 // add the value to the end of the array of values
                                 let mapValue = newWires.get(wireId);
@@ -515,20 +530,15 @@ export default class Canvas {
                 let connectorIds = [];
 
                 // create an array [connector1Id, connector2Id]
-                for (const {boxId, index} of wireInfo) {
-                    connectorIds.push(
-                        this.getBoxById(boxId).connectors[index].id
-                    )
+                for (const {boxId, index}
+                of wireInfo) {
+                    connectorIds.push(this.getBoxById(boxId).connectors[index].id)
                 }
 
                 // create and array [{x, y}, {x, y}] containing positions for connectors 1 and 2
-                const connectorsPositions = connectorIds.map(
-                    connectorId => this.getConnectorPosition(
-                        this.getConnectorById(connectorId),
-                        true)
-                    )
+                const connectorsPositions = connectorIds.map(connectorId => this.getConnectorPosition(this.getConnectorById(connectorId), true))
 
-                if(connectorsPositions.length === 2) {
+                if (connectorsPositions.length === 2) {
                     let wire = this.newWire(...connectorIds, false, false);
 
                     // get the manhattan distance between these two connectors
@@ -546,18 +556,17 @@ export default class Canvas {
                 let wireReferences = [];
 
                 // convert the queue to an array (this is needed by the web worker)
-                while(!wireQueue.isEmpty()) {
+                while (!wireQueue.isEmpty()) {
                     const wire = wireQueue.dequeue();
 
-                    let wireStart = this.getConnectorPosition(wire.startConnector, true);
-                    let wireEnd = this.getConnectorPosition(wire.endConnector, true);
+                    let wireStart = this.getConnectorPosition(wire.connection.from.connector, true);
+                    let wireEnd = this.getConnectorPosition(wire.connection.to.connector, true);
 
                     wirePoints.push([
                         {
                             x: wireStart.x / this.gridSize,
                             y: wireStart.y / this.gridSize
-                        },
-                        {
+                        }, {
                             x: wireEnd.x / this.gridSize,
                             y: wireEnd.y / this.gridSize
                         }
@@ -575,7 +584,7 @@ export default class Canvas {
                     const {paths} = event.data
                     // iterate wireReferences and paths synchronously
                     wireReferences.forEach((wire, key) => {
-                        wire.setWirePath(wire.pathToPolyline(paths[key]))
+                        wire.setWirePath(wire.pathToPolyLine(paths[key]))
                         wire.updateWireState();
                     })
 
@@ -599,9 +608,9 @@ export default class Canvas {
 
                 // add wires in the order from short to long
                 let wirePlacingInterval = window.setInterval(() => {
-                    if(!wireQueue.isEmpty()) {
-                        for(let i = 0; i < wiresToBeRoutedAtOnce; ++i) {
-                            if(wireQueue.isEmpty()) {
+                    if (!wireQueue.isEmpty()) {
+                        for (let i = 0; i < wiresToBeRoutedAtOnce; ++i) {
+                            if (wireQueue.isEmpty()) {
                                 break;
                             }
 
@@ -620,18 +629,6 @@ export default class Canvas {
             this.refresh();
 
             this.simulationEnabled = true;
-            for (let box of this.boxes) {
-                if (box instanceof editorElements.InputBox) {
-                    // switch the input box state to the opposite and back:
-                    // for some reason calling box.refreshState()
-                    // results in weird unfinished simulation
-                    // this causes update of the output connector and thus a start of a new simulation
-
-                    // TODO find better solution instead of this workaround, if there is any
-                    box.on = !box.on
-                    box.on = !box.on
-                }
-            }
 
             resolve(warnings)
         })
@@ -644,14 +641,14 @@ export default class Canvas {
      * @param  {string} connectorId id of the connector that the user clicked on
      */
     wireCreationHelper(connectorId, mousePosition) {
-        if(!this.wireCreation) {
+        if (!this.wireCreation) {
             this.wireCreation = {
                 fromId: connectorId
             }
 
             this.displayCreatedWire(mousePosition);
         } else {
-            if(this.wireCreation.fromId!==connectorId) {
+            if (this.wireCreation.fromId !== connectorId) {
                 this.hideCreatedWire();
 
                 this.newWire(this.wireCreation.fromId, connectorId);
@@ -697,7 +694,7 @@ export default class Canvas {
      * helper for wireCreationHelper that cancels the wire creation process
      */
     cancelWireCreation() {
-        if(this.wireCreation) {
+        if (this.wireCreation) {
             this.hideCreatedWire();
             this.wireCreation = undefined;
         }
@@ -711,7 +708,7 @@ export default class Canvas {
      * @param  {Logic.state} state new state of the startingConnector
      */
     startNewSimulation(startingConnector, state) {
-        if(this.simulationEnabled) {
+        if (this.simulationEnabled) {
             this.simulation = new Simulation(this)
             this.simulation.notifyChange(startingConnector.id, state)
             this.simulation.run()
@@ -767,7 +764,7 @@ export default class Canvas {
         this.boxes[index] = object;
 
         // translate the gate if x and y has been specified
-        if(x && y) {
+        if (x && y) {
             let tr = new editorElements.Transform();
             tr.setTranslate(x, y);
 
@@ -777,7 +774,7 @@ export default class Canvas {
         this.appendElement(this.boxes[index], refresh);
 
         // if tutorial exists, call tutorial callback
-        if(this.tutorial) {
+        if (this.tutorial) {
             this.tutorial.onElementAdded(this.boxes[index].name);
         }
 
@@ -789,21 +786,21 @@ export default class Canvas {
      * @param {string} boxId id of the box that should be removed
      */
     removeBox(boxId) {
-        let $gate = $("#"+boxId);
+        let $gate = $("#" + boxId);
 
         // find the gate in svg's list of gates
         let gateIndex = -1;
-        for(let i = 0 ; i < this.boxes.length ; i++) {
-            if(this.boxes[i].svgObj.id===boxId) {
+        for (let i = 0; i < this.boxes.length; i++) {
+            if (this.boxes[i].svgObj.id === boxId) {
                 gateIndex = i;
                 break;
             }
         }
 
-        if(gateIndex > -1) {
+        if (gateIndex > -1) {
             // remove all wires connected to this gate
-            for(let i = 0; i < this.boxes[gateIndex].connectors.length; i++) {
-                this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[i].svgObj.id);
+            for (let i = 0; i < this.boxes[gateIndex].connectors.length; i++) {
+                this.removeWiresByConnectorId(this.boxes[gateIndex].connectors[i].id);
             }
 
             // remove the gate
@@ -811,7 +808,7 @@ export default class Canvas {
             $gate.remove();
 
             // if tutorial exists, call tutorial callback
-            if(this.tutorial) {
+            if (this.tutorial) {
                 this.tutorial.onElementRemoved();
             }
         } else {
@@ -843,18 +840,24 @@ export default class Canvas {
      */
     newWire(fromId, toId, refresh = true, route = true) {
         // wire must connect two distinct connectors
-        if (fromId===toId)
-            return false
+        if (fromId === toId)
+            return undefined
 
         let connectors = [this.getConnectorById(fromId), this.getConnectorById(toId)]
 
         // input connectors can be connected to one wire max
         connectors.forEach(conn => {
-            if(conn.isInputConnector)
+            if (conn.isInputConnector)
                 this.removeWiresByConnectorId(conn.id)
         })
         let index = this.wires.length;
-        this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh, route);
+
+        try {
+            this.wires[index] = new editorElements.Wire(this, fromId, toId, refresh, route);
+        } catch (e) {
+            this.messages.newErrorMessage(e);
+            return undefined;
+        }
 
         connectors.forEach(conn => {
             conn.addWireId(this.wires[index].svgObj.id);
@@ -863,7 +866,7 @@ export default class Canvas {
         this.appendElement(this.wires[index], refresh);
         this.moveToBackById(this.wires[index].svgObj.id);
 
-        if(refresh)
+        if (refresh)
             this.wires[index].updateWireState()
 
         return this.wires[index];
@@ -891,15 +894,12 @@ export default class Canvas {
 
         let x = position.left + width / 2;
         let y = position.top + height / 2;
-        if(snapToGrid) {
+        if (snapToGrid) {
             x = this.snapToGrid(x);
             y = this.snapToGrid(y);
         }
 
-        return {
-            x: x,
-            y: y
-        };
+        return {x: x, y: y};
     }
 
     /**
@@ -919,30 +919,24 @@ export default class Canvas {
      *
      * @return {editorElements.Blackbox} instance of {@link Blackbox} that has been added to the [Canvas](./module-Canvas.html)
      */
-    newBlackbox(inputs, outputs, table, name, x, y, refresh=true) {
+    newBlackbox(inputs, outputs, table, name, x, y, refresh = true) {
         const index = this.boxes.length;
 
-        this.boxes[index] = new editorElements.Blackbox(
-            this,
-            inputs,
-            outputs,
-            (...inputStates) => {
-                for (const line of table) {
-                    const lineInputStates = line.slice(0, inputs);
+        this.boxes[index] = new editorElements.Blackbox(this, inputs, outputs, (...inputStates) => {
+            for (const line of table) {
+                const lineInputStates = line.slice(0, inputs);
 
-                    // if every input state matches the corresponding input state in this line of the truth table
-                    if(inputStates.every((value, index) => value === lineInputStates[index])) {
-                        // return the rest of the line as output
-                        return line.slice(inputs);
-                    }
+                // if every input state matches the corresponding input state in this line of the truth table
+                if (inputStates.every((value, index) => value === lineInputStates[index])) {
+                    // return the rest of the line as output
+                    return line.slice(inputs);
                 }
-                // if nothing matches, set all outputs to undefined
-                return Array.from(new Array(outputs), () => Logic.state.unknown)
-            },
-            name
-        );
+            }
+            // if nothing matches, set all outputs to undefined
+            return Array.from(new Array(outputs), () => Logic.state.unknown)
+        }, name);
 
-        if(x && y) {
+        if (x && y) {
             let tr = new editorElements.Transform();
             tr.setTranslate(x, y);
 
@@ -961,7 +955,7 @@ export default class Canvas {
      */
     getWireById(wireId) {
         for (const wire of this.wires) {
-            if(wire.svgObj.id === wireId) {
+            if (wire.svgObj.id === wireId) {
                 return wire
             }
         }
@@ -984,14 +978,20 @@ export default class Canvas {
      * @param  {string} wireId ID of the wire that should be removed
      */
     removeWireById(wireId) {
-        for(let i = 0 ; i < this.wires.length ; ++i) {
+        for (let i = 0; i < this.wires.length; ++i) {
             if (this.wires[i].svgObj.id === wireId) {
 
-                let connector1 = this.wires[i].startConnector;
-                let connector2 = this.wires[i].endConnector;
+                let {connectors} = this.wires[i];
 
-                connector1.removeWireIdAndUpdate(wireId);
-                connector2.removeWireIdAndUpdate(wireId);
+                for (let connector of connectors) {
+                    connector.removeWireIdAndUpdate(wireId);
+                }
+
+                // start simulation from the input connector to
+                // refresh the network after this wire
+
+                let inputConnector = this.wires[i].connection.to.connector;
+                this.startNewSimulation(inputConnector, inputConnector.state);
 
                 this.wires[i].svgObj.$el.remove();
                 this.wires.splice(i, 1);
@@ -1011,11 +1011,12 @@ export default class Canvas {
         connector.wireIds.forEach(wireId => {
             let wire = this.getWireById(wireId);
 
+            let {from, to} = wire.connection;
+
             // get the other connector that is the wire connected to
-            let otherConnector = this.getConnectorById(wire.fromId, wire);
-            if(otherConnector.svgObj.id===connectorId) {
-                otherConnector = this.getConnectorById(wire.toId, wire);
-            }
+            let otherConnector = connectorId === from.id
+                ? to.connector
+                : from.connector;
 
             // delete the wire record from the other connector
             otherConnector.wireIds.delete(wireId);
@@ -1024,7 +1025,8 @@ export default class Canvas {
             $("#" + wireId).remove();
 
             // if otherConnector is an input connector, set its state to unknown
-            if(otherConnector.isInputConnector) {
+            if (otherConnector.isInputConnector) {
+                otherConnector.setState(Logic.state.unknown)
                 this.startNewSimulation(otherConnector, Logic.state.unknown)
             }
         });
@@ -1032,8 +1034,9 @@ export default class Canvas {
         // clear the list of wire Ids
         connector.wireIds.clear();
         // if connector is an input connector, set its state to unknown
-        if(connector.isInputConnector) {
-            connector.setState(Logic.state.unknown);
+        if (connector.isInputConnector) {
+            connector.setState(Logic.state.unknown)
+            this.startNewSimulation(connector, Logic.state.unknown)
         }
     }
 
@@ -1043,8 +1046,8 @@ export default class Canvas {
      * @return {editorElements.Box} instance of the box
      */
     getBoxById(boxId) {
-        for(let i = 0 ; i < this.boxes.length ; i++) {
-            if(this.boxes[i].svgObj.id===boxId) {
+        for (let i = 0; i < this.boxes.length; i++) {
+            if (this.boxes[i].svgObj.id === boxId) {
                 return this.boxes[i];
             }
         }
@@ -1057,7 +1060,7 @@ export default class Canvas {
      * @return {editorElements.Box} instance of the box
      */
     getBoxByConnectorId(connectorId) {
-        for(let i = 0 ; i < this.boxes.length ; i++) {
+        for (let i = 0; i < this.boxes.length; i++) {
             if (this.boxes[i].getConnectorById(connectorId) !== undefined) {
                 return this.boxes[i];
             }
@@ -1074,27 +1077,30 @@ export default class Canvas {
      * @param  {editorElements.Wire} [wire]      instance of the Wire that is connected to this connector
      * @return {editorElements.Connector}        instance of the connector
      */
-    getConnectorById(connectorId, wire=undefined) {
+    getConnectorById(connectorId, wire = undefined) {
 
-        if(wire!==undefined) {
+        if (wire !== undefined) {
             // we know the wire -- we can check only gates at the ends of this wire
-            let connector = wire.startBox.getConnectorById(connectorId)
-            if (!connector) {
-                connector = wire.endBox.getConnectorById(connectorId)
-            }
-            return connector
+            const {from, to} = wire.connection;
 
-        } else {
+            if (from.id === connectorId)
+                return from.connector;
+
+            if (to.id === connectorId)
+                return to.connector;
+
+            }
+        else {
             // we do not know the wire -- we have to check all gates
             for (const box of this.boxes) {
                 const connector = box.getConnectorById(connectorId)
-                if(connector) {
+                if (connector) {
                     return connector
                 }
             }
         }
 
-        return false
+        return undefined
     }
 
     /**
@@ -1107,7 +1113,7 @@ export default class Canvas {
      */
     getRealJQueryTarget(target) {
         let $target = $(target);
-        if(!$target.hasClass("connector") && $target.parents('g').length > 0) {
+        if (!$target.hasClass("connector") && $target.parents('g').length > 0) {
             $target = $target.parent();
             while ($target.prop("tagName") !== "G" && $target.prop("tagName") !== "g") {
                 $target = $target.parent();
@@ -1123,17 +1129,17 @@ export default class Canvas {
      * @return {editorElements.NetworkElement} instance of an object derived from editorElements.NetworkElement that the user interacted with
      */
     getRealTarget(target) {
-        if (target===undefined) {
+        if (target === undefined) {
             return undefined;
         }
 
         // eventy se museji zpracovat tady, protoze v SVG se eventy nepropaguji
         let $target = $(target);
 
-        if($target.hasClass("connector")) {
+        if ($target.hasClass("connector")) {
             // this is a connector, don't traverse groups
             return this.getConnectorById($target.attr('id'));
-        } else if($target.parents('g').length > 0) {
+        } else if ($target.parents('g').length > 0) {
             // this element is in a group and it is not a connector
 
             // traversing up the DOM tree until we find the closest group
@@ -1144,10 +1150,10 @@ export default class Canvas {
 
             // try to match the jQuery element to the logical element using DOM classes
 
-            if($parentGroup.hasClass("box")) {
+            if ($parentGroup.hasClass("box")) {
                 // return the corresponding box
                 return this.getBoxById($parentGroup.attr('id'));
-            } else if($parentGroup.hasClass("wire")) {
+            } else if ($parentGroup.hasClass("wire")) {
                 // return the corresponding wire
                 return this.getWireById($parentGroup.attr('id'));
             } else {
@@ -1176,9 +1182,9 @@ export default class Canvas {
      */
     appendJQueryObject(object, refresh = true) {
         this.$svg.append(object);
-        if(refresh)
+        if (refresh)
             this.refresh();
-    }
+        }
 
     /**
      * Add a new pattern to the definitions element in the SVG document
@@ -1207,7 +1213,7 @@ export default class Canvas {
         this.contextMenu.display(x, y, $target);
 
         // if tutorial exists, call tutorial callback
-        if(this.tutorial) {
+        if (this.tutorial) {
             this.tutorial.onContextMenuOpened();
         }
     }
@@ -1269,8 +1275,7 @@ export default class Canvas {
      * @param  {string} objId id of the element
      */
     moveToBackById(objId) {
-        $("#" + this.background.id)
-            .after($("#" + objId));
+        $("#" + this.background.id).after($("#" + objId));
     }
 
     /**
@@ -1280,13 +1285,13 @@ export default class Canvas {
     getNonRoutableNodes() {
         let blockedNodes = new Set();
         // for each box
-        for(const box of this.boxes) {
+        for (const box of this.boxes) {
             const translate = box.getGridPixelTransform().getTranslate();
 
             // for each item in blockedNodes (set of blocked nodes with coordinates relative
             // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
             // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-            for(const node of box.blockedNodes) {
+            for (const node of box.blockedNodes) {
                 blockedNodes.add({
                     x: translate.x + node.x,
                     y: translate.y + node.y
@@ -1305,6 +1310,8 @@ export default class Canvas {
 
         this.nodeDisplay = [];
 
+        let first = true;
+
         for (const node of blockedNodes) {
             const x = this.gridToSVG(node.x);
             const y = this.gridToSVG(node.y);
@@ -1312,9 +1319,11 @@ export default class Canvas {
             const w = 4;
             const p = w / 2;
 
-            const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "red", "none")
+            const nodeRectangle = new Rectangle(x - p, y - p, w, w, first ? "blue" : "red", "none")
             this.nodeDisplay.push(nodeRectangle.id);
             this.appendElement(nodeRectangle, false);
+
+            first = false;
         }
 
         this.refresh();
@@ -1334,9 +1343,9 @@ export default class Canvas {
         let inconvenientNodes = new Set();
         // for each wire
 
-        for(const wire of this.wires) {
-            if(ignoreWireId===undefined || ignoreWireId!==wire.id) {
-                if(wire.inconvenientNodes) {
+        for (const wire of this.wires) {
+            if (ignoreWireId === undefined || ignoreWireId !== wire.id) {
+                if (wire.inconvenientNodes) {
                     for (const node of wire.inconvenientNodes) {
                         inconvenientNodes.add(node);
                     }
@@ -1362,7 +1371,7 @@ export default class Canvas {
             const w = 4;
             const p = w / 2;
 
-            const nodeRectangle = new svgObj.Rectangle(x - p, y - p, w, w, "orange", "none")
+            const nodeRectangle = new Rectangle(x - p, y - p, w, w, "orange", "none")
             this.inconvenientNodeDisplay.push(nodeRectangle.id);
             this.appendElement(nodeRectangle, false);
         }

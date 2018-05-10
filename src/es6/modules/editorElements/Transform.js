@@ -72,20 +72,7 @@ export default class Transform {
      * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
      */
     toGridPixels(parentSVG) {
-        for (let item of this.items) {
-            if(item.name === "translate") {
-                item.args = [
-                    parentSVG.SVGToGrid(item.args[0]),
-                    parentSVG.SVGToGrid(item.args[1]),
-                ]
-            } else if(item.name === "rotate") {
-                item.args = [
-                    item.args[0],
-                    parentSVG.SVGToGrid(item.args[1]),
-                    parentSVG.SVGToGrid(item.args[2]),
-                ]
-            }
-        }
+        this.pixelConversion((val) => parentSVG.SVGToGrid(val))
     }
 
     /**
@@ -93,20 +80,32 @@ export default class Transform {
      * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
      */
     toSVGPixels(parentSVG) {
-        for (let item of this.items) {
-            if(item.name === "translate") {
-                item.args = [
-                    parentSVG.gridToSVG(item.args[0]),
-                    parentSVG.gridToSVG(item.args[1]),
-                ]
-            } else if(item.name === "rotate") {
+        this.pixelConversion((val) => parentSVG.gridToSVG(val))
+    }
+
+    /**
+     * Convert distances using a specified convertor. Used by toGridPixels and toSVGPixels
+     * @param  {Function} convertor function that converts int to int
+     */
+    pixelConversion(convertor) {
+        const propertyMap = {
+            "translate": (item) => {
+                item.args = item.args.map(arg => convertor(arg))
+                return item;
+            },
+            "rotate": (item) => {
                 item.args = [
                     item.args[0],
-                    parentSVG.gridToSVG(item.args[1]),
-                    parentSVG.gridToSVG(item.args[2]),
+                    convertor(item.args[1]),
+                    convertor(item.args[2])
                 ]
+                return item;
             }
         }
+
+        this.items = this.items.map((item) => {
+            return propertyMap[item.name] ? propertyMap[item.name](item) : item
+        })
     }
 
     /**
@@ -146,8 +145,8 @@ export default class Transform {
 
         return {
             deg: Number(args[0]),
-            centreX: Number(args[1]),
-            centreY: Number(args[2])
+            centerX: Number(args[1]),
+            centerY: Number(args[2])
         }
     }
 
@@ -163,59 +162,59 @@ export default class Transform {
     /**
      * set rotate to the specified values
      * @param {number} deg     angle of the rotation in degrees
-     * @param {number} centreX horizontal position of the centre of the rotation
-     * @param {number} centreY vertical position of the centre of the rotation
+     * @param {number} centerX horizontal position of the center of the rotation
+     * @param {number} centerY vertical position of the center of the rotation
      */
-    setRotate(deg, centreX, centreY) {
-        this.setParameter("rotate", [deg, centreX, centreY]);
+    setRotate(deg, centerX, centerY) {
+        this.setParameter("rotate", [deg, centerX, centerY]);
     }
 
     /**
      * rotate by 90 degrees to the right or left, depending on the parameter `right`
-     * @param {number} centreX horizontal position of the centre of the rotation
-     * @param {number} centreY vertical position of the centre of the rotation
+     * @param {number} centerX horizontal position of the center of the rotation
+     * @param {number} centerY vertical position of the center of the rotation
      * @param {boolean} right rotate to the right if `true`, to the left if `false`
      */
-    rotateRightAngle(centreX, centreY, right) {
+    rotateRightAngle(centerX, centerY, right) {
         const amount = right ? 90 : 270;
 
         if(this.getIndex("rotate")===-1) {
-            this.setRotate(amount, centreX, centreY);
+            this.setRotate(amount, centerX, centerY);
         } else {
             let newRotation = (parseInt(this.getRotate().deg) + amount) % 360;
 
             if(newRotation===180) {
-                // swap centre coordinates
+                // swap center coordinates
                 // because rotate(c, x, y) is defined like transform(-x, -y) rotate(c) transform(x, y)
-                let a = centreX;
-                centreX = centreY;
-                centreY = a;
+                let a = centerX;
+                centerX = centerY;
+                centerY = a;
             }
 
             this.setRotate(
                 newRotation,
-                centreX,
-                centreY
+                centerX,
+                centerY
             );
         }
     }
 
     /**
      * rotate by 90 degrees to the right
-     * @param  {number} centreX horizontal position of the centre of the rotation
-     * @param  {number} centreY vertical position of the centre of the rotation
+     * @param  {number} centerX horizontal position of the center of the rotation
+     * @param  {number} centerY vertical position of the center of the rotation
      */
-    rotateRight(centreX, centreY) {
-        this.rotateRightAngle(centreX, centreY, true);
+    rotateRight(centerX, centerY) {
+        this.rotateRightAngle(centerX, centerY, true);
     }
 
     /**
      * rotate by 90 degrees to the left
-     * @param  {number} centreX horizontal position of the centre of the rotation
-     * @param  {number} centreY vertical position of the centre of the rotation
+     * @param  {number} centerX horizontal position of the center of the rotation
+     * @param  {number} centerY vertical position of the center of the rotation
      */
-    rotateLeft(centreX, centreY) {
-        this.rotateRightAngle(centreX, centreY, false);
+    rotateLeft(centerX, centerY) {
+        this.rotateRightAngle(centerX, centerY, false);
     }
 
     /**

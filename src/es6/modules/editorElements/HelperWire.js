@@ -1,4 +1,4 @@
-import * as svgObj from '../svgObjects'
+import {PolyLine, PolyLinePoints, PolyLinePoint} from '../svgObjects'
 
 import NetworkElement from './NetworkElement'
 
@@ -15,19 +15,19 @@ export default class HelperWire extends NetworkElement {
         const connector = this.parentSVG.getConnectorById(fromId);
         this.connectorPosition = this.parentSVG.getConnectorPosition(connector, true);
 
-        const from = new svgObj.PolylinePoint(this.connectorPosition.x, this.connectorPosition.y);
-        const to = new svgObj.PolylinePoint(mousePosition.x, mousePosition.y);
+        const from = new PolyLinePoint(this.connectorPosition.x, this.connectorPosition.y);
+        const to = new PolyLinePoint(mousePosition.x, mousePosition.y);
 
-        const points = new svgObj.PolylinePoints([from, to]);
+        const points = new PolyLinePoints([from, to]);
 
-        this.svgObj = new svgObj.PolyLine(points, 2, "#8b8b8b");
+        this.svgObj = new PolyLine(points, 2, "#8b8b8b");
     }
 
     updateMousePosition(mousePosition) {
-        const from = new svgObj.PolylinePoint(this.connectorPosition.x, this.connectorPosition.y);
-        const to = new svgObj.PolylinePoint(mousePosition.x, mousePosition.y);
+        const from = new PolyLinePoint(this.connectorPosition.x, this.connectorPosition.y);
+        const to = new PolyLinePoint(mousePosition.x, mousePosition.y);
 
-        const points = new svgObj.PolylinePoints([from, to]);
+        const points = new PolyLinePoints([from, to]);
 
         this.svgObj.updatePoints(points);
     }

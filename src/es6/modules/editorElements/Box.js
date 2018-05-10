@@ -1,4 +1,4 @@
-import * as svgObj from '../svgObjects'
+import {Group, Rectangle, SvgImage} from '../svgObjects'
 
 import NetworkElement from './NetworkElement'
 import InputConnector from './InputConnector'
@@ -51,7 +51,7 @@ export default class Box extends NetworkElement {
          * svgObj containing all SVG data used to display this box
          * @type {svgObj}
          */
-        this.svgObj = new svgObj.Group();
+        this.svgObj = new Group();
 
         /**
          * width of this element in SVG pixels
@@ -76,13 +76,13 @@ export default class Box extends NetworkElement {
         this.gridHeight = gridHeight;
 
         // transparent background rectangle
-        let rectangle = new svgObj.Rectangle(0, 0, this.width, this.height, "none", "none");
+        let rectangle = new Rectangle(0, 0, this.width, this.height, "none", "none");
         rectangle.$el.addClass('rect');
 
         this.svgObj.addChild(rectangle);
 
         // image of the element
-        this.image = new svgObj.SvgImage(0, 0, this.width, this.height, this.url);
+        this.image = new SvgImage(0, 0, this.width, this.height, this.url);
         this.svgObj.addChild(this.image);
 
         // add type="gate", used in special callbacks in contextmenu
@@ -227,7 +227,7 @@ export default class Box extends NetworkElement {
      * used to rotate the nodes when the object itself is rotated
      * @param  {boolean} right rotate clockwise if true, counterclockwise if false
      */
-    rotateBlockedNodes(right) {
+    rotateBlockedNodes(center, right) {
         if(this.rotationParity===undefined) {
             this.rotationParity = false;
         }
@@ -241,29 +241,22 @@ export default class Box extends NetworkElement {
         for (const node of this.blockedNodes) {
             let newNode;
 
-            if(this.rotationParity) {
-                if(right) {
-                    newNode = {
-                        x: Math.abs(node.y - this.gridHeight),
-                        y: node.x
-                    };
-                } else {
-                    newNode = {
-                        x: node.y,
-                        y: Math.abs(node.x - this.gridWidth)
-                    };
-                }
+            const parityFactor =  (this.rotationParity ? 1 : -1);
+
+            if(right) {
+                newNode = {
+                    x: - node.y + this.gridHeight + (center.x - center.y) * parityFactor,
+                    y: node.x + (center.y - center.x) * parityFactor
+                };
             } else {
-                if(right) {
-                    newNode = {
-                        x: Math.abs(node.y - this.gridWidth),
-                        y: node.x
-                    };
+                newNode = {
+                    x: node.y + (center.x - center.y) * parityFactor
+                }
+
+                if(this.rotationParity) {
+                    newNode.y = - node.x + this.gridWidth + ((this.gridHeight - center.y) - (this.gridWidth - center.x))
                 } else {
-                    newNode = {
-                        x: node.y,
-                        y: Math.abs(node.x - this.gridHeight)
-                    };
+                    newNode.y = - node.x + this.gridHeight + (center.y - center.x)
                 }
             }
 
@@ -278,8 +271,8 @@ export default class Box extends NetworkElement {
      *
      * used to rotate the nodes when the object itself is rotated
      */
-    rotateBlockedNodesRight() {
-        this.rotateBlockedNodes(true);
+    rotateBlockedNodesRight(center) {
+        this.rotateBlockedNodes(center, true);
     }
 
     /**
@@ -287,8 +280,56 @@ export default class Box extends NetworkElement {
      *
      * used to rotate the nodes when the object itself is rotated
      */
-    rotateBlockedNodesLeft() {
-        this.rotateBlockedNodes(false);
+    rotateBlockedNodesLeft(center) {
+        this.rotateBlockedNodes(center, false);
+    }
+
+    rotate(clockWise) {
+        // get the transform value for this box
+        let transform = this.getTransform();
+
+        // get the bounding rectangle for this box
+        let rect = this.svgObj.$el[0].getBoundingClientRect();
+
+        // use the bounding rectangle dimensions to figure out the geometrical center of the box
+        const center = {
+            x: Math.round(rect.width / 2),
+            y: Math.round(rect.height / 2)
+        }
+
+        center.x -= center.x % this.gridSize;
+        center.y -= center.y % this.gridSize;
+
+        // apply the rotation to the transform object
+        if(clockWise) {
+            transform.rotateRight(center.x, center.y);
+        } else {
+            transform.rotateLeft(center.x, center.y);
+        }
+
+
+        // apply the modified transform object ot the svgObj
+        this.svgObj.addAttr({"transform": transform.get()});
+
+        const gridCenter = {
+            x: center.x / this.gridSize,
+            y: center.y / this.gridSize
+        };
+
+        // rotate also the blocked nodes
+        if(clockWise) {
+            this.rotateBlockedNodesRight(gridCenter);
+        } else {
+            this.rotateBlockedNodesLeft(gridCenter);
+        }
+
+        // update the wires
+        this.updateWires();
+
+        // if tutorial exists, call tutorial callback
+        if(this.parentSVG.tutorial) {
+            this.parentSVG.tutorial.onBoxRotated();
+        }
     }
 
     /**
@@ -502,43 +543,10 @@ export default class Box extends NetworkElement {
      * custom callback function for middle click that rotates the box by 90 degrees to the right
      */
     onClickMiddle(event) {
-        // get the transform value for this box
-        let transform = this.getTransform();
-
-        // get the bounding rectangle for this box
-        let rect = this.svgObj.$el[0].getBoundingClientRect();
-
-        // use the bounding rectangle dimensions to figure out the geometrical centre of the box
-        let centreX = Math.round(rect.width / 2);
-        let centreY = Math.round(rect.height / 2);
-
-        centreX -= centreX % this.gridSize;
-        centreY -= centreY % this.gridSize;
-
-        // apply the rotation to the transform object
         if(event.ctrlKey) {
-            transform.rotateLeft(centreX, centreY);
+            this.rotate(false);
         } else {
-            transform.rotateRight(centreX, centreY);
-        }
-
-
-        // apply the modified transform object ot the svgObj
-        this.svgObj.addAttr({"transform": transform.get()});
-
-        // rotate also the blocked nodes
-        if(event.ctrlKey) {
-            this.rotateBlockedNodesLeft();
-        } else {
-            this.rotateBlockedNodesRight();
-        }
-
-        // update the wires
-        this.updateWires();
-
-        // if tutorial exists, call tutorial callback
-        if(this.parentSVG.tutorial) {
-            this.parentSVG.tutorial.onBoxRotated();
+            this.rotate(true);
         }
     }
 
