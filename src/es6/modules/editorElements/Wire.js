@@ -407,6 +407,17 @@ export default class Wire extends NetworkElement {
         this.routeWire();
     }
 
+    /**
+     * remove all anchors from this wire
+     */
+    removeAnchors() {
+        for(let anchor of this.anchors) {
+            anchor.svgObj.$el.remove();
+        }
+        
+        this.anchors = [];
+    }
+
     anchorMoved() {
         this.temporaryWire();
     }

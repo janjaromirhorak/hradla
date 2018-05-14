@@ -994,6 +994,8 @@ export default class Canvas {
                 let inputConnector = this.wires[i].connection.to.connector;
                 this.startNewSimulation(inputConnector, inputConnector.state);
 
+                this.wires[i].removeAnchors();
+
                 this.wires[i].svgObj.$el.remove();
                 this.wires.splice(i, 1);
 
@@ -1022,8 +1024,11 @@ export default class Canvas {
             // delete the wire record from the other connector
             otherConnector.wireIds.delete(wireId);
 
+            // remove all anchors from this wire
+            wire.removeAnchors();
+
             // remove the wire representation using jQuery
-            $("#" + wireId).remove();
+            wire.svgObj.$el.remove();
 
             // if otherConnector is an input connector, set its state to unknown
             if (otherConnector.isInputConnector) {
