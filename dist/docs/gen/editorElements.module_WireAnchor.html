@@ -1,10 +1,8 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: modules/other/helperFunctions.js | Hradla</title>
+    <title>Class: module:WireAnchor | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -47,86 +45,262 @@
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * @module HelperFunctions
- */
+        <h2><span class="attribs"><span class="type-signature"></span></span>module:WireAnchor<span class="signature">(parentSVG, gridSize, x, y)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>parent class for input and output connectors</p></div>
+        
+    
+</header>
 
-import stringify from "json-stringify-pretty-compact"; // note: imported from a module
+<article>
+    
+        <div class="container-overview">
+        
+            
 
-/**
- * add a cross browser event listener on a mouse scroll
- * @param {string} query DOM query of the element that the listener will be added to
- * @param {Function} func  Function that will be called when the event occurs. The function takes as a parameter an event object.
- */
-export function addMouseScrollEventListener(query, func) {
-    let MouseWheelHandler = event => {
-        // redeclare for old IE support
-        var event = window.event || event; // eslint-disable-line no-redeclare
+<dt>
+    
+        <h4 class="name" id="module:WireAnchor">
+            
+                new <span class="type-signature"></span>module:WireAnchor<span class="signature">(parentSVG, gridSize, x, y)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="modules_editorElements_WireAnchor.js.html">modules/editorElements/WireAnchor.js</a></code>,
+                <code><a href="modules_editorElements_WireAnchor.js.html#line16">line 16</a></code>
+            </div>
+            
+        </h4>
 
-        event.delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+        
+    
+</dt>
+<dd>
 
-        func(event)
+    
 
-        return false;
-    }
+    
 
-    let svgelement;
+    
 
-    // if the query is a simple DOM id selector, we can use getElementById which has better backwards compatibility
-    if(query.match(/^#\w+$/)) {
-        svgelement = document.getElementById(query.substr(1))
-    } else {
-        svgelement = document.querySelector(query)
-    }
+    
 
-    if (svgelement.addEventListener) {
-        // IE9, Chrome, Safari, Opera
-        svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
-        // Firefox
-        svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
-    } else  {
-        // IE 6/7/8
-        svgelement.attachEvent("onmousewheel", MouseWheelHandler);
-    }
-    svgelement.addEventListener('mousewheel', function(e) {
-        console.log('event', e)
-    }, false)
-}
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-/**
- * convert a data object to JSON string or to a data URI containing a JSON string
- * @param  {Object}  data            object that will be serialized into a JSON string
- * @param  {Boolean} [pretty=false]  if `true`, the code will be proprerly indented, else a more compact syntax will be used
- * @param  {Boolean} [dataUri=false] return dataUri containing the JSON string instead of the pure JSON string
- * @return {string}
- */
-export function getJSONString(data, pretty = false, dataUri = false) {
-    if(dataUri) {
-        return 'data:application/json;charset=utf-8,'
-            + encodeURIComponent(getJSONString(data, pretty));
-    } else {
-        if (pretty)
-            return stringify(data, {maxLength: 50});
+        <th>Type</th>
 
-        return JSON.stringify(data);
-    }
-}
+        
 
-/**
- * returns the Manhattan distance between the points _a_ and _b_
- * @param  {Object} a object containing numeric attributes `x` and `y`
- * @param  {Object} b object containing numeric attributes `x` and `y`
- * @return {number}
- */
-export function manhattanDistance(a, b) {
-    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-}
-</code></pre>
-        </article>
-    </section>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>parentSVG</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Canvas</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>link to the Canvas instance that this connector will belong to</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>gridSize</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>size of the grid in SVG pixels</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>horizontal position defined in grid pixels</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>vertical position defined in grid pixels</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+        
+        </div>
+    
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li>NetworkElement</li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -143,7 +317,7 @@ export function manhattanDistance(a, b) {
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = '_sub'.replace(/"/g, '_');
+        var id = 'editorElements.module:WireAnchor_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

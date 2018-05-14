@@ -10526,7 +10526,7 @@ var Canvas = function () {
 
 exports.default = Canvas;
 
-},{"./Logic":338,"./Simulation":339,"./editorElements":340,"./other/helperFunctions":356,"./svgObjects":359,"./ui/ContextMenu":371,"./ui/FloatingMenu":372,"./ui/Messages":373,"./ui/Tutorial":374,"./ui/ViewBox":375,"libstl":335}],338:[function(require,module,exports){
+},{"./Logic":338,"./Simulation":339,"./editorElements":340,"./other/helperFunctions":357,"./svgObjects":360,"./ui/ContextMenu":372,"./ui/FloatingMenu":373,"./ui/Messages":374,"./ui/Tutorial":375,"./ui/ViewBox":376,"libstl":335}],338:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11421,7 +11421,7 @@ var Blackbox = function (_Box) {
 
 exports.default = Blackbox;
 
-},{"../Logic":338,"../svgObjects":359,"./Box":342}],342:[function(require,module,exports){
+},{"../Logic":338,"../svgObjects":360,"./Box":342}],342:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -12219,7 +12219,7 @@ var Box = function (_NetworkElement) {
 
 exports.default = Box;
 
-},{"../svgObjects":359,"./InputConnector":347,"./NetworkElement":348,"./OutputConnector":350,"./Transform":351}],343:[function(require,module,exports){
+},{"../svgObjects":360,"./InputConnector":347,"./NetworkElement":348,"./OutputConnector":350,"./Transform":351}],343:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -12435,7 +12435,7 @@ var Connector = function (_NetworkElement) {
 
 exports.default = Connector;
 
-},{"../Logic":338,"../svgObjects":359,"./NetworkElement":348,"./stateClasses":354}],344:[function(require,module,exports){
+},{"../Logic":338,"../svgObjects":360,"./NetworkElement":348,"./stateClasses":355}],344:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -12690,7 +12690,7 @@ var HelperWire = function (_NetworkElement) {
 
 exports.default = HelperWire;
 
-},{"../svgObjects":359,"./NetworkElement":348}],346:[function(require,module,exports){
+},{"../svgObjects":360,"./NetworkElement":348}],346:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -13594,6 +13594,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _svgObjects = require('../svgObjects');
@@ -13609,6 +13611,10 @@ var _stateClasses2 = _interopRequireDefault(_stateClasses);
 var _findPath = require('../findPath');
 
 var _findPath2 = _interopRequireDefault(_findPath);
+
+var _pointTraveller = require('./pointTraveller');
+
+var _pointTraveller2 = _interopRequireDefault(_pointTraveller);
 
 var _NetworkElement2 = require('./NetworkElement');
 
@@ -13651,9 +13657,20 @@ var Wire = function (_NetworkElement) {
 
         _this.gridSize = parentSVG.gridSize;
 
-        /** TODO document */
+        /**
+         * array of anchors defined for this array,
+         * each anchor is an instance of the {@link WireAnchor} class
+         * @type {Array}
+         */
         _this.anchors = [];
 
+        /**
+         * All information about the wire endpoints, contains two members: `from` and `to`.
+         *
+         * Both members are objects with members `id`, `box` and `connector` containing
+         * the connector id, box object reference and connector object reference for the endpoint.
+         * @type {Object}
+         */
         _this.connection = {
             from: {
                 id: fromId,
@@ -13693,6 +13710,10 @@ var Wire = function (_NetworkElement) {
             _this.temporaryWire();
         }
 
+        /**
+         * current state of the element
+         * @type {Logic.state}
+         */
         _this.elementState = _Logic2.default.state.unknown;
 
         _this.setState(_this.connection.from.connector.state);
@@ -13703,9 +13724,15 @@ var Wire = function (_NetworkElement) {
             _this.parentSVG.startNewSimulation(connector, connector.state);
         }
 
-        _this.svgObj.$el.addClass("wire");
+        _this.svgObj.addClass("wire");
         return _this;
     }
+
+    /**
+     * get the box objects that this wire is connecting
+     * @return {Array} array containing two instances of the {@link Box} class
+     */
+
 
     _createClass(Wire, [{
         key: 'setState',
@@ -13765,7 +13792,6 @@ var Wire = function (_NetworkElement) {
          * update the state of this wire
          */
         value: function updateWireState() {
-            // TODO investigate
             var _iteratorNormalCompletion2 = true;
             var _didIteratorError2 = false;
             var _iteratorError2 = undefined;
@@ -13804,15 +13830,23 @@ var Wire = function (_NetworkElement) {
         }
 
         /**
-         * get the PolyLine points for a temporary wire placement connecting the two connectors
-         * @return {PolyLinePoints} new instance of {@link PolyLinePoints}
+         * route the wire using the temporary wire points
          */
 
     }, {
-        key: 'getTemporaryWirePoints',
-        value: function getTemporaryWirePoints() {
+        key: 'temporaryWire',
+        value: function temporaryWire() {
+            var _this2 = this;
+
+            var _connectors$map = this.connectors.map(function (connector) {
+                return _this2.parentSVG.getConnectorPosition(connector, false);
+            }),
+                _connectors$map2 = _slicedToArray(_connectors$map, 2),
+                from = _connectors$map2[0],
+                to = _connectors$map2[1];
+
             var points = new _svgObjects.PolyLinePoints();
-            points.append(new _svgObjects.PolyLinePoint(this.wireStart.x, this.wireStart.y));
+            points.append(new _svgObjects.PolyLinePoint(from.x, from.y));
 
             var _iteratorNormalCompletion3 = true;
             var _didIteratorError3 = false;
@@ -13839,21 +13873,9 @@ var Wire = function (_NetworkElement) {
                 }
             }
 
-            points.append(new _svgObjects.PolyLinePoint(this.wireEnd.x, this.wireEnd.y));
-            return points;
-        }
+            points.append(new _svgObjects.PolyLinePoint(to.x, to.y));
 
-        /**
-         * route the wire using the temporary wire points
-         */
-
-    }, {
-        key: 'temporaryWire',
-        value: function temporaryWire() {
-            this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, false);
-            this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, false);
-
-            this.setWirePath(this.getTemporaryWirePoints());
+            this.setWirePath(points);
         }
 
         /**
@@ -13863,22 +13885,26 @@ var Wire = function (_NetworkElement) {
     }, {
         key: 'routeWire',
         value: function routeWire() {
+            var _this3 = this;
+
             var snapToGrid = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
             var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
-            this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, snapToGrid);
+            var endpoints = this.connectors.map(function (connector) {
+                var _parentSVG$getConnect = _this3.parentSVG.getConnectorPosition(connector, snapToGrid),
+                    x = _parentSVG$getConnect.x,
+                    y = _parentSVG$getConnect.y;
 
-            this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, snapToGrid);
-
-            // todo clean up
-            var points = this.findRoute({
-                x: this.wireStart.x / this.gridSize,
-                y: this.wireStart.y / this.gridSize
-            }, {
-                x: this.wireEnd.x / this.gridSize,
-                y: this.wireEnd.y / this.gridSize
+                return {
+                    x: _this3.parentSVG.SVGToGrid(x),
+                    y: _this3.parentSVG.SVGToGrid(y)
+                };
             });
 
+            // get route between the endpoints
+            var points = this.findRoute.apply(this, _toConsumableArray(endpoints));
+
+            // set the wire path to the generated points
             this.setWirePath(points);
 
             if (refresh) this.updateWireState();
@@ -13940,31 +13966,16 @@ var Wire = function (_NetworkElement) {
     }, {
         key: 'pathToPolyLine',
         value: function pathToPolyLine(path) {
-            var totalPath = new _svgObjects.PolyLinePoints();
-            var _iteratorNormalCompletion5 = true;
-            var _didIteratorError5 = false;
-            var _iteratorError5 = undefined;
+            var _this4 = this;
 
-            try {
-                for (var _iterator5 = path[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                    var point = _step5.value;
+            // create array of polyline points from the coordinates from `path` transformed from grid pixels to SVG pixels
+            var points = path.map(function (_ref2) {
+                var x = _ref2.x,
+                    y = _ref2.y;
+                return new _svgObjects.PolyLinePoint(_this4.parentSVG.gridToSVG(x), _this4.parentSVG.gridToSVG(y));
+            });
 
-                    totalPath.append(new _svgObjects.PolyLinePoint(point.x * this.gridSize, point.y * this.gridSize));
-                }
-            } catch (err) {
-                _didIteratorError5 = true;
-                _iteratorError5 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                        _iterator5.return();
-                    }
-                } finally {
-                    if (_didIteratorError5) {
-                        throw _iteratorError5;
-                    }
-                }
-            }
+            var totalPath = new _svgObjects.PolyLinePoints(points);
 
             return totalPath;
         }
@@ -13988,9 +13999,9 @@ var Wire = function (_NetworkElement) {
                 punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
             }
 
-            var routePoints = [start].concat(_toConsumableArray(this.anchors.map(function (_ref2) {
-                var x = _ref2.x,
-                    y = _ref2.y;
+            var routePoints = [start].concat(_toConsumableArray(this.anchors.map(function (_ref3) {
+                var x = _ref3.x,
+                    y = _ref3.y;
                 return { x: x, y: y };
             })), [// strip all other data that x and y coordinates
             end]);
@@ -13999,43 +14010,68 @@ var Wire = function (_NetworkElement) {
             var path = [start];
 
             var prev = void 0;
-            var _iteratorNormalCompletion6 = true;
-            var _didIteratorError6 = false;
-            var _iteratorError6 = undefined;
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
 
             try {
-                for (var _iterator6 = routePoints[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                    var routePoint = _step6.value;
+                for (var _iterator5 = routePoints[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var routePoint = _step5.value;
 
                     if (prev) {
                         var _path;
 
                         // find the best path from 'prev' to 'routePoints'
-                        var foundPath = (0, _findPath2.default)(prev, routePoint, nonRoutable, punishedButRoutable, this.gridSize);
+                        var foundPath = (0, _findPath2.default)(prev, routePoint, nonRoutable, punishedButRoutable);
 
                         // to avoid repetition of the joints, ignore the first point
                         (_path = path).push.apply(_path, _toConsumableArray(foundPath.slice(1)));
+
+                        // add the new points to the punishedButRoutable set
+                        var pt = (0, _pointTraveller2.default)(foundPath);
+                        var _iteratorNormalCompletion6 = true;
+                        var _didIteratorError6 = false;
+                        var _iteratorError6 = undefined;
+
+                        try {
+                            for (var _iterator6 = pt[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                                var point = _step6.value;
+
+                                punishedButRoutable.add(point);
+                            }
+                        } catch (err) {
+                            _didIteratorError6 = true;
+                            _iteratorError6 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                                    _iterator6.return();
+                                }
+                            } finally {
+                                if (_didIteratorError6) {
+                                    throw _iteratorError6;
+                                }
+                            }
+                        }
                     }
                     prev = routePoint;
                 }
+
+                // let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
             } catch (err) {
-                _didIteratorError6 = true;
-                _iteratorError6 = err;
+                _didIteratorError5 = true;
+                _iteratorError5 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion6 && _iterator6.return) {
-                        _iterator6.return();
+                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                        _iterator5.return();
                     }
                 } finally {
-                    if (_didIteratorError6) {
-                        throw _iteratorError6;
+                    if (_didIteratorError5) {
+                        throw _iteratorError5;
                     }
                 }
             }
-
-            console.log(path);
-
-            // let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
             if (path) {
                 return this.pathToPolyLine(path);
@@ -14061,142 +14097,83 @@ var Wire = function (_NetworkElement) {
     }, {
         key: 'pathTraveller',
         value: /*#__PURE__*/regeneratorRuntime.mark(function pathTraveller() {
-            var prevPoint, _iteratorNormalCompletion7, _didIteratorError7, _iteratorError7, _iterator7, _step7, point, x, y, from, to, _from, _to;
+            var _this5 = this;
+
+            var traveller, _iteratorNormalCompletion7, _didIteratorError7, _iteratorError7, _iterator7, _step7, point;
 
             return regeneratorRuntime.wrap(function pathTraveller$(_context) {
                 while (1) {
                     switch (_context.prev = _context.next) {
                         case 0:
-                            prevPoint = void 0;
+                            traveller = (0, _pointTraveller2.default)(this.points.map(function (_ref4) {
+                                var x = _ref4.x,
+                                    y = _ref4.y;
+                                return {
+                                    x: _this5.parentSVG.SVGToGrid(x),
+                                    y: _this5.parentSVG.SVGToGrid(y)
+                                };
+                            }));
                             _iteratorNormalCompletion7 = true;
                             _didIteratorError7 = false;
                             _iteratorError7 = undefined;
                             _context.prev = 4;
-                            _iterator7 = this.points[Symbol.iterator]();
+                            _iterator7 = traveller[Symbol.iterator]();
 
                         case 6:
                             if (_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done) {
-                                _context.next = 38;
+                                _context.next = 13;
                                 break;
                             }
 
                             point = _step7.value;
-                            x = this.parentSVG.SVGToGrid(point.x), y = this.parentSVG.SVGToGrid(point.y);
+                            _context.next = 10;
+                            return point;
 
-                            if (!(prevPoint === undefined)) {
-                                _context.next = 12;
-                                break;
-                            }
-
-                            _context.next = 34;
-                            break;
-
-                        case 12:
-                            if (!(prevPoint.x === x)) {
-                                _context.next = 23;
-                                break;
-                            }
-
-                            // if the line is horizontal
-                            from = Math.min(prevPoint.y, y);
-                            to = Math.max(prevPoint.y, y);
-
-                        case 15:
-                            if (!(from <= to)) {
-                                _context.next = 21;
-                                break;
-                            }
-
-                            _context.next = 18;
-                            return { x: x, y: from };
-
-                        case 18:
-                            from++;
-                            _context.next = 15;
-                            break;
-
-                        case 21:
-                            _context.next = 34;
-                            break;
-
-                        case 23:
-                            if (!(prevPoint.y === y)) {
-                                _context.next = 34;
-                                break;
-                            }
-
-                            // if the line is vertical
-                            _from = Math.min(prevPoint.x, x);
-                            _to = Math.max(prevPoint.x, x);
-
-                        case 26:
-                            if (!(_from <= _to)) {
-                                _context.next = 32;
-                                break;
-                            }
-
-                            _context.next = 29;
-                            return { x: _from, y: y };
-
-                        case 29:
-                            _from++;
-                            _context.next = 26;
-                            break;
-
-                        case 32:
-                            _context.next = 34;
-                            break;
-
-                        case 34:
-
-                            // set new prevPoint
-                            prevPoint = { x: x, y: y };
-
-                        case 35:
+                        case 10:
                             _iteratorNormalCompletion7 = true;
                             _context.next = 6;
                             break;
 
-                        case 38:
-                            _context.next = 44;
+                        case 13:
+                            _context.next = 19;
                             break;
 
-                        case 40:
-                            _context.prev = 40;
+                        case 15:
+                            _context.prev = 15;
                             _context.t0 = _context['catch'](4);
                             _didIteratorError7 = true;
                             _iteratorError7 = _context.t0;
 
-                        case 44:
-                            _context.prev = 44;
-                            _context.prev = 45;
+                        case 19:
+                            _context.prev = 19;
+                            _context.prev = 20;
 
                             if (!_iteratorNormalCompletion7 && _iterator7.return) {
                                 _iterator7.return();
                             }
 
-                        case 47:
-                            _context.prev = 47;
+                        case 22:
+                            _context.prev = 22;
 
                             if (!_didIteratorError7) {
-                                _context.next = 50;
+                                _context.next = 25;
                                 break;
                             }
 
                             throw _iteratorError7;
 
-                        case 50:
-                            return _context.finish(47);
+                        case 25:
+                            return _context.finish(22);
 
-                        case 51:
-                            return _context.finish(44);
+                        case 26:
+                            return _context.finish(19);
 
-                        case 52:
+                        case 27:
                         case 'end':
                             return _context.stop();
                     }
                 }
-            }, pathTraveller, this, [[4, 40, 44, 52], [45,, 47, 51]]);
+            }, pathTraveller, this, [[4, 15, 19, 27], [20,, 22, 26]]);
         })
 
         /**
@@ -14245,9 +14222,9 @@ var Wire = function (_NetworkElement) {
 
     }, {
         key: 'addAnchor',
-        value: function addAnchor(_ref3) {
-            var x = _ref3.x,
-                y = _ref3.y;
+        value: function addAnchor(_ref5) {
+            var x = _ref5.x,
+                y = _ref5.y;
 
             // place the anchor to the right position in the array
 
@@ -14354,7 +14331,10 @@ var Wire = function (_NetworkElement) {
             this.routeWire();
         }
 
-        /** TODO document */
+        /**
+         * Callback for a mousedown, that adds a new anchor on the place that user clicked on.
+         * @param  {jQuery.MouseEvent} event the mousedown event
+         */
 
     }, {
         key: 'onMouseDown',
@@ -14376,6 +14356,7 @@ var Wire = function (_NetworkElement) {
                     }
                 }
 
+                // add an anchor on this position
                 this.addAnchor(click);
             }
         }
@@ -14384,6 +14365,12 @@ var Wire = function (_NetworkElement) {
         get: function get() {
             return [this.connection.from.box, this.connection.to.box];
         }
+
+        /**
+         * get the connector objects that this wire is connecting
+         * @return {Array} array containing two instances of the {@link Connector} class
+         */
+
     }, {
         key: 'connectors',
         get: function get() {
@@ -14415,7 +14402,7 @@ var Wire = function (_NetworkElement) {
 
 exports.default = Wire;
 
-},{"../Logic":338,"../findPath":355,"../svgObjects":359,"./NetworkElement":348,"./WireAnchor":353,"./stateClasses":354}],353:[function(require,module,exports){
+},{"../Logic":338,"../findPath":356,"../svgObjects":360,"./NetworkElement":348,"./WireAnchor":353,"./pointTraveller":354,"./stateClasses":355}],353:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14570,7 +14557,166 @@ var WireAnchor = function (_NetworkElement) {
 
 exports.default = WireAnchor;
 
-},{"../svgObjects":359,"./NetworkElement":348,"./Transform":351,"./stateClasses":354}],354:[function(require,module,exports){
+},{"../svgObjects":360,"./NetworkElement":348,"./Transform":351,"./stateClasses":355}],354:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = _callee;
+
+var _marked = /*#__PURE__*/regeneratorRuntime.mark(_callee);
+
+/**
+ * Create a generator that travels between specified points returning each visited point
+ * @param  {Array}    points array of points represented by an object: `{x, y}`, subsequent points must have one equal
+ *                           coordinate (so the traveller can travel either vertically or horizontally)
+ * @return {Generator}       generator that travels between specified points returning each visited point
+ */
+function _callee(points) {
+    var prevPoint, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _ref, x, y, from, to, _from, _to;
+
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+            switch (_context.prev = _context.next) {
+                case 0:
+                    prevPoint = void 0;
+                    _iteratorNormalCompletion = true;
+                    _didIteratorError = false;
+                    _iteratorError = undefined;
+                    _context.prev = 4;
+                    _iterator = points[Symbol.iterator]();
+
+                case 6:
+                    if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                        _context.next = 39;
+                        break;
+                    }
+
+                    _ref = _step.value;
+                    x = _ref.x;
+                    y = _ref.y;
+
+                    if (!(prevPoint === undefined)) {
+                        _context.next = 13;
+                        break;
+                    }
+
+                    _context.next = 35;
+                    break;
+
+                case 13:
+                    if (!(prevPoint.x === x)) {
+                        _context.next = 24;
+                        break;
+                    }
+
+                    // if the line is horizontal
+                    from = Math.min(prevPoint.y, y);
+                    to = Math.max(prevPoint.y, y);
+
+                case 16:
+                    if (!(from <= to)) {
+                        _context.next = 22;
+                        break;
+                    }
+
+                    _context.next = 19;
+                    return { x: x, y: from };
+
+                case 19:
+                    from++;
+                    _context.next = 16;
+                    break;
+
+                case 22:
+                    _context.next = 35;
+                    break;
+
+                case 24:
+                    if (!(prevPoint.y === y)) {
+                        _context.next = 35;
+                        break;
+                    }
+
+                    // if the line is vertical
+                    _from = Math.min(prevPoint.x, x);
+                    _to = Math.max(prevPoint.x, x);
+
+                case 27:
+                    if (!(_from <= _to)) {
+                        _context.next = 33;
+                        break;
+                    }
+
+                    _context.next = 30;
+                    return { x: _from, y: y };
+
+                case 30:
+                    _from++;
+                    _context.next = 27;
+                    break;
+
+                case 33:
+                    _context.next = 35;
+                    break;
+
+                case 35:
+
+                    // set new prevPoint
+                    prevPoint = {
+                        x: x,
+                        y: y
+                    };
+
+                case 36:
+                    _iteratorNormalCompletion = true;
+                    _context.next = 6;
+                    break;
+
+                case 39:
+                    _context.next = 45;
+                    break;
+
+                case 41:
+                    _context.prev = 41;
+                    _context.t0 = _context["catch"](4);
+                    _didIteratorError = true;
+                    _iteratorError = _context.t0;
+
+                case 45:
+                    _context.prev = 45;
+                    _context.prev = 46;
+
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+
+                case 48:
+                    _context.prev = 48;
+
+                    if (!_didIteratorError) {
+                        _context.next = 51;
+                        break;
+                    }
+
+                    throw _iteratorError;
+
+                case 51:
+                    return _context.finish(48);
+
+                case 52:
+                    return _context.finish(45);
+
+                case 53:
+                case "end":
+                    return _context.stop();
+            }
+        }
+    }, _marked, this, [[4, 41, 45, 53], [46,, 48, 52]]);
+}
+
+},{}],355:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14597,7 +14743,7 @@ map[_Logic2.default.state.oscillating] = "stateOscillating";
 
 exports.default = map;
 
-},{"../Logic":338}],355:[function(require,module,exports){
+},{"../Logic":338}],356:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14853,7 +14999,7 @@ function reconstructPath(cameFrom, currentNode) {
     return path;
 }
 
-},{"./other/helperFunctions":356,"./other/mapWithDefaultValue":358,"libstl":335}],356:[function(require,module,exports){
+},{"./other/helperFunctions":357,"./other/mapWithDefaultValue":359,"libstl":335}],357:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14945,7 +15091,7 @@ function manhattanDistance(a, b) {
     return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
-},{"json-stringify-pretty-compact":327}],357:[function(require,module,exports){
+},{"json-stringify-pretty-compact":327}],358:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15022,7 +15168,7 @@ var Id = function () {
 
 exports.default = Id;
 
-},{}],358:[function(require,module,exports){
+},{}],359:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15041,7 +15187,7 @@ exports.default = function (defaultValue) {
     return map;
 };
 
-},{}],359:[function(require,module,exports){
+},{}],360:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15131,7 +15277,7 @@ Object.defineProperty(exports, 'MultiLineText', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./svgObjects/Group":360,"./svgObjects/MultiLineText":361,"./svgObjects/Pattern":362,"./svgObjects/PolyLine":363,"./svgObjects/PolyLinePoint":364,"./svgObjects/PolyLinePoints":365,"./svgObjects/Rectangle":366,"./svgObjects/SvgImage":368,"./svgObjects/Text":370}],360:[function(require,module,exports){
+},{"./svgObjects/Group":361,"./svgObjects/MultiLineText":362,"./svgObjects/Pattern":363,"./svgObjects/PolyLine":364,"./svgObjects/PolyLinePoint":365,"./svgObjects/PolyLinePoints":366,"./svgObjects/Rectangle":367,"./svgObjects/SvgImage":369,"./svgObjects/Text":371}],361:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15192,7 +15338,7 @@ var Group = function (_Tag) {
 
 exports.default = Group;
 
-},{"./Tag":369}],361:[function(require,module,exports){
+},{"./Tag":370}],362:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15278,7 +15424,7 @@ var MultiLineText = function (_Tag) {
 
 exports.default = MultiLineText;
 
-},{"./Tag":369,"./Text":370}],362:[function(require,module,exports){
+},{"./Tag":370,"./Text":371}],363:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15352,7 +15498,7 @@ var Pattern = function (_Tag) {
 
 exports.default = Pattern;
 
-},{"./Tag":369}],363:[function(require,module,exports){
+},{"./Tag":370}],364:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15426,7 +15572,7 @@ var PolyLine = function (_Tag) {
 
 exports.default = PolyLine;
 
-},{"./Tag":369}],364:[function(require,module,exports){
+},{"./Tag":370}],365:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15515,7 +15661,7 @@ var PolyLinePoint = function () {
 
 exports.default = PolyLinePoint;
 
-},{}],365:[function(require,module,exports){
+},{}],366:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15667,6 +15813,11 @@ var SmartArray = function () {
             };
         }
     }, {
+        key: "map",
+        value: function map(func) {
+            return this.arr.map(func);
+        }
+    }, {
         key: "length",
         get: function get() {
             return this.arr.length;
@@ -15806,7 +15957,7 @@ var PolyLinePoints = function (_SmartArray) {
 
 exports.default = PolyLinePoints;
 
-},{"./PolyLinePoint":364}],366:[function(require,module,exports){
+},{"./PolyLinePoint":365}],367:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15861,7 +16012,7 @@ var Rectangle = function (_SvgElement) {
 
 exports.default = Rectangle;
 
-},{"./SvgElement":367}],367:[function(require,module,exports){
+},{"./SvgElement":368}],368:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15915,7 +16066,7 @@ var SvgElement = function (_Tag) {
 
 exports.default = SvgElement;
 
-},{"./Tag":369}],368:[function(require,module,exports){
+},{"./Tag":370}],369:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15976,7 +16127,7 @@ var SvgImage = function (_SvgElement) {
 
 exports.default = SvgImage;
 
-},{"./SvgElement":367}],369:[function(require,module,exports){
+},{"./SvgElement":368}],370:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16170,7 +16321,7 @@ var Tag = function () {
 
 exports.default = Tag;
 
-},{"../other/id":357}],370:[function(require,module,exports){
+},{"../other/id":358}],371:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16238,7 +16389,7 @@ var Text = function (_Tag) {
 
 exports.default = Text;
 
-},{"./Tag":369}],371:[function(require,module,exports){
+},{"./Tag":370}],372:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -16907,7 +17058,7 @@ var ContextMenu = function () {
 
 exports.default = ContextMenu;
 
-},{"../editorElements":340,"./networkLibrary":376}],372:[function(require,module,exports){
+},{"../editorElements":340,"./networkLibrary":377}],373:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17065,7 +17216,7 @@ var FloatingMenu = function () {
 
 exports.default = FloatingMenu;
 
-},{"../other/helperFunctions":356}],373:[function(require,module,exports){
+},{"../other/helperFunctions":357}],374:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17359,7 +17510,7 @@ var Messages = function () {
 
 exports.default = Messages;
 
-},{}],374:[function(require,module,exports){
+},{}],375:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17972,7 +18123,7 @@ var Tutorial = function () {
 
 exports.default = Tutorial;
 
-},{}],375:[function(require,module,exports){
+},{}],376:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18173,7 +18324,7 @@ var ViewBox = function () {
 
 exports.default = ViewBox;
 
-},{}],376:[function(require,module,exports){
+},{}],377:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {

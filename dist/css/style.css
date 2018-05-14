@@ -3042,8 +3042,8 @@ ul#contextMenu, ul.subList {
       fill: #8b8b8b; }
     #canvas .connector.stateOscillating, #canvas .wireAnchor.stateOscillating {
       fill: #0000ff; }
-    #canvas .connector:hover, #canvas .wireAnchor:hover {
-      fill: #ffd800; }
+  #canvas .connector:hover {
+    fill: #ffd800; }
   #canvas .wire {
     cursor: hand;
     cursor: pointer; }

@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: modules/other/helperFunctions.js | Hradla</title>
+    <title>Source: modules/editorElements/WireAnchor.js | Hradla</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -50,79 +50,123 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * @module HelperFunctions
- */
+            <pre class="prettyprint source linenums"><code>import NetworkElement from './NetworkElement';
+import Transform from './Transform'
+import stateClasses from './stateClasses';
 
-import stringify from "json-stringify-pretty-compact"; // note: imported from a module
+import {Rectangle} from '../svgObjects'
+// import Logic from '../Logic'
 
-/**
- * add a cross browser event listener on a mouse scroll
- * @param {string} query DOM query of the element that the listener will be added to
- * @param {Function} func  Function that will be called when the event occurs. The function takes as a parameter an event object.
- */
-export function addMouseScrollEventListener(query, func) {
-    let MouseWheelHandler = event => {
-        // redeclare for old IE support
-        var event = window.event || event; // eslint-disable-line no-redeclare
+// import stateClasses from './stateClasses'
 
-        event.delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
-
-        func(event)
-
-        return false;
-    }
-
-    let svgelement;
-
-    // if the query is a simple DOM id selector, we can use getElementById which has better backwards compatibility
-    if(query.match(/^#\w+$/)) {
-        svgelement = document.getElementById(query.substr(1))
-    } else {
-        svgelement = document.querySelector(query)
-    }
-
-    if (svgelement.addEventListener) {
-        // IE9, Chrome, Safari, Opera
-        svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
-        // Firefox
-        svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
-    } else  {
-        // IE 6/7/8
-        svgelement.attachEvent("onmousewheel", MouseWheelHandler);
-    }
-    svgelement.addEventListener('mousewheel', function(e) {
-        console.log('event', e)
-    }, false)
-}
+/** @module editorElements.WireAnchor */
 
 /**
- * convert a data object to JSON string or to a data URI containing a JSON string
- * @param  {Object}  data            object that will be serialized into a JSON string
- * @param  {Boolean} [pretty=false]  if `true`, the code will be proprerly indented, else a more compact syntax will be used
- * @param  {Boolean} [dataUri=false] return dataUri containing the JSON string instead of the pure JSON string
- * @return {string}
+ * parent class for input and output connectors
+ * @extends NetworkElement
  */
-export function getJSONString(data, pretty = false, dataUri = false) {
-    if(dataUri) {
-        return 'data:application/json;charset=utf-8,'
-            + encodeURIComponent(getJSONString(data, pretty));
-    } else {
-        if (pretty)
-            return stringify(data, {maxLength: 50});
+export default class WireAnchor extends NetworkElement {
+    /**
+     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {number} gridSize  size of the grid in SVG pixels
+     * @param {number} x      horizontal position defined in grid pixels
+     * @param {number} y       vertical position defined in grid pixels
+     */
+    constructor(parentWire, x, y) {
+        super(parentWire.parentSVG);
 
-        return JSON.stringify(data);
+        this.parentWire = parentWire;
+
+        this.x = x;
+        this.y = y;
+
+        this.anchorSize = 10;
+        this.anchorCenter = this.anchorSize / 2;
+
+        this.svgPosition = {
+            x: this.parentSVG.gridToSVG(x),
+            y: this.parentSVG.gridToSVG(y)
+        }
+
+        this.svgObj = new Rectangle(
+            0,
+            0,
+            this.anchorSize,
+            this.anchorSize,
+            "none",
+            "black"
+        );
+
+        // move to the correct position
+        this.move(this.svgPosition.x, this.svgPosition.y);
+
+        // rotate the anchor by 45 degrees
+        let transform = new Transform(this.svgObj.getAttr("transform"));
+        transform.setRotate(
+            45,
+            this.anchorCenter,
+            this.anchorCenter
+        );
+        this.svgObj.addAttr({transform: transform.get()});
+
+        this.svgObj.$el.addClass("wireAnchor");
+
+        this.mouseEvent;
     }
-}
 
-/**
- * returns the Manhattan distance between the points _a_ and _b_
- * @param  {Object} a object containing numeric attributes `x` and `y`
- * @param  {Object} b object containing numeric attributes `x` and `y`
- * @return {number}
- */
-export function manhattanDistance(a, b) {
-    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    move(x, y) {
+        let transform = new Transform(this.svgObj.getAttr("transform"));
+        transform.setTranslate(x - this.anchorCenter, y - this.anchorCenter)
+        this.svgObj.addAttr({transform: transform.get()})
+
+        this.svgPosition = { x, y }
+
+        this.x = this.parentSVG.SVGToGrid(this.parentSVG.snapToGrid(x));
+        this.y = this.parentSVG.SVGToGrid(this.parentSVG.snapToGrid(y));
+    }
+
+    setState(state) {
+        this.svgObj.removeClasses(...stateClasses);
+        this.svgObj.addClass(stateClasses[state]);
+    }
+
+    get() {
+        return this.svgObj.$el;
+    }
+
+    onMouseDown() {
+        this.mouseEvent = {
+            moved:false
+        }
+    }
+
+    onMouseMove(event) {
+        this.mouseEvent.moved = true;
+
+        event = this.parentSVG.viewbox.transformEvent(event);
+
+        this.move(event.pageX, event.pageY)
+
+        this.parentWire.anchorMoved()
+    }
+
+    onMouseUp(event) {
+        if(this.mouseEvent.moved) {
+            event = this.parentSVG.viewbox.transformEvent(event);
+
+            const x = this.parentSVG.snapToGrid(event.pageX)
+            const y = this.parentSVG.snapToGrid(event.pageY)
+
+            this.move(x, y);
+
+            this.parentWire.anchorDropped()
+        } else {
+            // it was a click -- delete this anchor
+            this.parentWire.removeAnchor(this);
+        }
+
+        this.mouseEvent = undefined;
+    }
 }
 </code></pre>
         </article>

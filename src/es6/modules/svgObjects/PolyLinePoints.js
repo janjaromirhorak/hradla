@@ -121,6 +121,10 @@ class SmartArray {
             })
         };
     }
+
+    map(func) {
+        return this.arr.map(func);
+    }
 }
 
 /**

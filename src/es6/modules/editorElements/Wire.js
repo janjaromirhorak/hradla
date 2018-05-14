@@ -4,6 +4,7 @@ import {PolyLine, PolyLinePoints, PolyLinePoint, Group} from '../svgObjects'
 import Logic from '../Logic'
 import stateClasses from './stateClasses'
 import findPath from '../findPath'
+import pointTraveller from './pointTraveller'
 
 import NetworkElement from './NetworkElement'
 import WireAnchor from './WireAnchor'
@@ -24,9 +25,20 @@ export default class Wire extends NetworkElement {
 
         this.gridSize = parentSVG.gridSize;
 
-        /** TODO document */
+        /**
+         * array of anchors defined for this array,
+         * each anchor is an instance of the {@link WireAnchor} class
+         * @type {Array}
+         */
         this.anchors = []
 
+        /**
+         * All information about the wire endpoints, contains two members: `from` and `to`.
+         *
+         * Both members are objects with members `id`, `box` and `connector` containing
+         * the connector id, box object reference and connector object reference for the endpoint.
+         * @type {Object}
+         */
         this.connection = {
             from: {
                 id: fromId,
@@ -63,6 +75,10 @@ export default class Wire extends NetworkElement {
             this.temporaryWire();
         }
 
+        /**
+         * current state of the element
+         * @type {Logic.state}
+         */
         this.elementState = Logic.state.unknown;
 
         this.setState(this.connection.from.connector.state)
@@ -72,13 +88,21 @@ export default class Wire extends NetworkElement {
             this.parentSVG.startNewSimulation(connector, connector.state);
         }
 
-        this.svgObj.$el.addClass("wire");
+        this.svgObj.addClass("wire");
     }
 
+    /**
+     * get the box objects that this wire is connecting
+     * @return {Array} array containing two instances of the {@link Box} class
+     */
     get boxes() {
         return [this.connection.from.box, this.connection.to.box];
     }
 
+    /**
+     * get the connector objects that this wire is connecting
+     * @return {Array} array containing two instances of the {@link Connector} class
+     */
     get connectors() {
         return [this.connection.from.connector, this.connection.to.connector];
     }
@@ -124,7 +148,6 @@ export default class Wire extends NetworkElement {
      * update the state of this wire
      */
     updateWireState() {
-        // TODO investigate
         for (const box of this.boxes) {
             box.refreshState()
         }
@@ -139,50 +162,41 @@ export default class Wire extends NetworkElement {
     }
 
     /**
-     * get the PolyLine points for a temporary wire placement connecting the two connectors
-     * @return {PolyLinePoints} new instance of {@link PolyLinePoints}
+     * route the wire using the temporary wire points
      */
-    getTemporaryWirePoints() {
+    temporaryWire() {
+        const [from, to] = this.connectors.map(connector => {
+            return this.parentSVG.getConnectorPosition(connector, false)
+        })
+
         let points = new PolyLinePoints();
-        points.append(new PolyLinePoint(this.wireStart.x, this.wireStart.y));
+        points.append(new PolyLinePoint(from.x, from.y));
 
         for(const anchor of this.anchors) {
             points.append(new PolyLinePoint(anchor.svgPosition.x, anchor.svgPosition.y))
         }
 
-        points.append(new PolyLinePoint(this.wireEnd.x, this.wireEnd.y));
-        return points;
-    }
+        points.append(new PolyLinePoint(to.x, to.y));
 
-    /**
-     * route the wire using the temporary wire points
-     */
-    temporaryWire() {
-        this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, false);
-        this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, false);
-
-        this.setWirePath(this.getTemporaryWirePoints());
+        this.setWirePath(points);
     }
 
     /**
      * route the wire using the modified A* wire routing algorithm
      */
     routeWire(snapToGrid = true, refresh = true) {
-        this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, snapToGrid);
+        let endpoints = this.connectors.map(connector => {
+            const {x, y} = this.parentSVG.getConnectorPosition(connector, snapToGrid);
+            return {
+                x: this.parentSVG.SVGToGrid(x),
+                y: this.parentSVG.SVGToGrid(y)
+            }
+        })
 
-        this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, snapToGrid);
+        // get route between the endpoints
+        const points = this.findRoute(...endpoints);
 
-        // todo clean up
-        const points = this.findRoute(
-            {
-                x: this.wireStart.x / this.gridSize,
-                y: this.wireStart.y / this.gridSize
-            },
-            {
-                x: this.wireEnd.x / this.gridSize,
-                y: this.wireEnd.y / this.gridSize
-            });
-
+        // set the wire path to the generated points
         this.setWirePath(points);
 
         if (refresh)
@@ -220,10 +234,11 @@ export default class Wire extends NetworkElement {
     }
 
     pathToPolyLine(path) {
-        let totalPath = new PolyLinePoints();
-        for (const point of path) {
-            totalPath.append(new PolyLinePoint(point.x * this.gridSize, point.y * this.gridSize));
-        }
+        // create array of polyline points from the coordinates from `path` transformed from grid pixels to SVG pixels
+        const points = path.map(({x, y}) => new PolyLinePoint(this.parentSVG.gridToSVG(x), this.parentSVG.gridToSVG(y)));
+
+        const totalPath = new PolyLinePoints(points);
+
         return totalPath;
     }
 
@@ -256,18 +271,19 @@ export default class Wire extends NetworkElement {
         for (const routePoint of routePoints) {
             if(prev) {
                 // find the best path from 'prev' to 'routePoints'
-                const foundPath = findPath(prev, routePoint, nonRoutable, punishedButRoutable, this.gridSize);
+                const foundPath = findPath(prev, routePoint, nonRoutable, punishedButRoutable);
 
                 // to avoid repetition of the joints, ignore the first point
-                path.push(...foundPath.slice(1))
+                path.push(...foundPath.slice(1));
+
+                // add the new points to the punishedButRoutable set
+                const pt = pointTraveller(foundPath);
+                for (const point of pt) {
+                    punishedButRoutable.add(point);
+                }
             }
             prev = routePoint;
         }
-
-        // TODO obcas je pri renderovani z nejakeho duvodu vynechan
-        // v atributu jeden bod, i kdyz podle console.log by tam mel byt
-        // jedine reseni je zrejme pouzit nekolik polylines misto jedne
-        console.log(path);
 
         // let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
@@ -293,45 +309,13 @@ export default class Wire extends NetworkElement {
      * @return {Generator}
     */
     *pathTraveller() {
-        let prevPoint;
+        const traveller = pointTraveller(this.points.map(({x, y}) => ({
+            x: this.parentSVG.SVGToGrid(x),
+            y: this.parentSVG.SVGToGrid(y)
+        })));
 
-        for(const point of this.points) {
-            const
-                x = this.parentSVG.SVGToGrid(point.x),
-                y = this.parentSVG.SVGToGrid(point.y);
-
-            if (prevPoint === undefined) {
-                // if the prevPoint is undefined, add the first point
-                // yield ({x, y});
-            } else {
-                // else add all the point between the prevPoint (excluded) and point (included)
-
-                if(prevPoint.x === x) {
-                    // if the line is horizontal
-                    let from = Math.min(prevPoint.y, y);
-                    let to = Math.max(prevPoint.y, y);
-
-                    while(from <= to) {
-                        yield ({x: x, y: from});
-                        from++;
-                    }
-                } else if(prevPoint.y === y) {
-                    // if the line is vertical
-                    let from = Math.min(prevPoint.x, x);
-                    let to = Math.max(prevPoint.x, x);
-
-                    while(from <= to) {
-                        yield ({x: from, y: y});
-                        from++;
-                    }
-                } else {
-                    // line is neither horizontal nor vertical, throw an error for better future debugging
-                    // console.error("getInconvenientNodes: line between two points is neither horizontal nor vertical");
-                }
-            }
-
-            // set new prevPoint
-            prevPoint = {x, y};
+        for(const point of traveller) {
+            yield point;
         }
     }
 
@@ -431,7 +415,10 @@ export default class Wire extends NetworkElement {
         this.routeWire();
     }
 
-    /** TODO document */
+    /**
+     * Callback for a mousedown, that adds a new anchor on the place that user clicked on.
+     * @param  {jQuery.MouseEvent} event the mousedown event
+     */
     onMouseDown(event) {
         // only left click counts
         if(event.which===1) {
@@ -450,6 +437,7 @@ export default class Wire extends NetworkElement {
                 }
             }
 
+            // add an anchor on this position
             this.addAnchor(click);
         }
     }
