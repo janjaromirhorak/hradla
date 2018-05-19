@@ -112,9 +112,14 @@ export default class Wire extends NetworkElement {
      * @return {Object} javascript object containing essential data for this wire
      */
     get exportData() {
+        if(!this.parentSVG.exportWireIdMap.has(this.id)) {
+            this.parentSVG.exportWireIdMap.set(this.id, this.parentSVG.exportWireId);
+            this.parentSVG.exportWireId++;
+        }
+
         return {
-            fromId: this.connection.from.id,
-            toId: this.connection.to.id
+            id: this.parentSVG.exportWireIdMap.get(this.id),
+            anchors: this.anchors.map(({x, y}) => ({x, y}))
         };
     }
 

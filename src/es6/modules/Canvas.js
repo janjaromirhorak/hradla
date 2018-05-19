@@ -341,12 +341,17 @@ export default class Canvas {
         this.exportWireId = 0;
 
         let data = {
-            boxes: []
+            boxes: this.boxes.map(box => box.exportData)
         };
 
-        for (const box of this.boxes) {
-            data.boxes.push(box.exportData)
+        const wiresWithAnchors = this.wires.filter(wire => wire.anchors.length > 0).map(wire => wire.exportData);
+        if(wiresWithAnchors.length > 0) {
+            data.wires = wiresWithAnchors;
         }
+
+        // clean up
+        this.exportWireIdMap = undefined;
+        this.exportWireId = undefined;
 
         return data;
     }
