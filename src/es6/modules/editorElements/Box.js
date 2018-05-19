@@ -394,7 +394,7 @@ export default class Box extends NetworkElement {
             transform.setTranslate(0, 0);
             this.svgObj.addAttr({"transform": transform.get()});
         } else {
-            // the element does have a "transform" property --> change it
+            // the element does have a "transform" property --> fetch it
             transform = new Transform(this.svgObj.$el.attr("transform"));
         }
 
