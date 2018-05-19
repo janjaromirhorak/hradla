@@ -1,189 +1,129 @@
 {
     "name": "Half subtractor",
     "boxes": [{
-            "name": "input",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        7,
-                        4
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 0
-                },
-                {
-                    "index": 0,
-                    "wireId": 1
-                }
-            ],
-            "isOn": false
-        },
-        {
-            "name": "input",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        7,
-                        15
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 2
-                },
-                {
-                    "index": 0,
-                    "wireId": 3
-                }
-            ],
-            "isOn": false
-        },
-        {
-            "name": "xor",
-            "category": "gate",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        28,
-                        5
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 4
-                },
-                {
-                    "index": 1,
-                    "wireId": 0
-                },
-                {
-                    "index": 2,
-                    "wireId": 2
-                }
-            ]
-        },
-        {
-            "name": "not",
-            "category": "gate",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        19,
-                        10
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 5
-                },
-                {
-                    "index": 1,
-                    "wireId": 1
-                }
-            ]
-        },
-        {
-            "name": "output",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        41,
-                        5
-                    ]
-                }]
-            },
-            "connections": [{
-                "index": 0,
-                "wireId": 4
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [7, 4]
             }]
         },
-        {
-            "name": "output",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        41,
-                        14
-                    ]
-                }]
-            },
-            "connections": [{
-                "index": 0,
-                "wireId": 6
+        "connections": [{
+            "index": 0,
+            "wireId": 0
+        }, {
+            "index": 0,
+            "wireId": 1
+        }],
+        "isOn": false
+    }, {
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [7, 15]
             }]
         },
-        {
-            "name": "and",
-            "category": "gate",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        28,
-                        14
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 6
-                },
-                {
-                    "index": 1,
-                    "wireId": 5
-                },
-                {
-                    "index": 2,
-                    "wireId": 3
-                }
-            ]
-        }
-    ],
+        "connections": [{
+            "index": 0,
+            "wireId": 2
+        }, {
+            "index": 0,
+            "wireId": 3
+        }],
+        "isOn": false
+    }, {
+        "name": "xor",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [28, 5]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 4
+        }, {
+            "index": 1,
+            "wireId": 0
+        }, {
+            "index": 2,
+            "wireId": 2
+        }]
+    }, {
+        "name": "not",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [19, 10]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 5
+        }, {
+            "index": 1,
+            "wireId": 1
+        }]
+    }, {
+        "name": "output",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [41, 5]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 4
+        }]
+    }, {
+        "name": "output",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [41, 14]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 6
+        }]
+    }, {
+        "name": "and",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [28, 14]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 6
+        }, {
+            "index": 1,
+            "wireId": 5
+        }, {
+            "index": 2,
+            "wireId": 3
+        }]
+    }],
     "blackbox": {
         "name": "HALF SUBTR",
         "inputs": 2,
         "outputs": 2,
         "table": [
-            [
-                2,
-                2,
-                2,
-                2
-            ],
-            [
-                2,
-                1,
-                1,
-                1
-            ],
-            [
-                1,
-                2,
-                1,
-                2
-            ],
-            [
-                1,
-                1,
-                2,
-                2
-            ]
+            [2, 2, 2, 2],
+            [2, 1, 1, 1],
+            [1, 2, 1, 2],
+            [1, 1, 2, 2]
         ]
     }
 }

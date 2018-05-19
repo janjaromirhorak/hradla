@@ -1,0 +1,338 @@
+{
+    "name": "3-bit multiplexer",
+    "boxes": [{
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [25, 25]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 0
+        }],
+        "isOn": false
+    }, {
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [25, 33]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 1
+        }, {
+            "index": 0,
+            "wireId": 2
+        }],
+        "isOn": false
+    }, {
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [25, 43]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 3
+        }],
+        "isOn": false
+    }, {
+        "name": "output",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [69, 21]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 4
+        }]
+    }, {
+        "name": "output",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [69, 39]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 5
+        }]
+    }, {
+        "name": "or",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [55, 21]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 4
+        }, {
+            "index": 1,
+            "wireId": 6
+        }, {
+            "index": 2,
+            "wireId": 7
+        }]
+    }, {
+        "name": "or",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [44, 34]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 8
+        }, {
+            "index": 1,
+            "wireId": 0
+        }, {
+            "index": 2,
+            "wireId": 2
+        }]
+    }, {
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [25, 51]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 9
+        }, {
+            "index": 0,
+            "wireId": 10
+        }],
+        "isOn": false
+    }, {
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [25, 61]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 11
+        }, {
+            "index": 0,
+            "wireId": 12
+        }],
+        "isOn": false
+    }, {
+        "name": "output",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [69, 57]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 13
+        }]
+    }, {
+        "name": "or",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [56, 57]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 13
+        }, {
+            "index": 1,
+            "wireId": 14
+        }, {
+            "index": 2,
+            "wireId": 15
+        }]
+    }, {
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [26, 71]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 16
+        }, {
+            "index": 0,
+            "wireId": 17
+        }, {
+            "index": 0,
+            "wireId": 18
+        }],
+        "isOn": false
+    }, {
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [25, 15]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 19
+        }],
+        "isOn": false
+    }, {
+        "name": "or",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [44, 62]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 15
+        }, {
+            "index": 1,
+            "wireId": 12
+        }, {
+            "index": 2,
+            "wireId": 18
+        }]
+    }, {
+        "name": "or",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [44, 52]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 14
+        }, {
+            "index": 1,
+            "wireId": 3
+        }, {
+            "index": 2,
+            "wireId": 10
+        }]
+    }, {
+        "name": "or",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [44, 26]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 7
+        }, {
+            "index": 1,
+            "wireId": 9
+        }, {
+            "index": 2,
+            "wireId": 16
+        }]
+    }, {
+        "name": "or",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [44, 44]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 20
+        }, {
+            "index": 1,
+            "wireId": 11
+        }, {
+            "index": 2,
+            "wireId": 17
+        }]
+    }, {
+        "name": "or",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [56, 39]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 5
+        }, {
+            "index": 1,
+            "wireId": 8
+        }, {
+            "index": 2,
+            "wireId": 20
+        }]
+    }, {
+        "name": "or",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [44, 16]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 6
+        }, {
+            "index": 1,
+            "wireId": 19
+        }, {
+            "index": 2,
+            "wireId": 1
+        }]
+    }, {
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [25, 5]
+            }]
+        },
+        "connections": [],
+        "isOn": false
+    }]
+}

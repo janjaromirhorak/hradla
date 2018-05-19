@@ -1,166 +1,112 @@
 {
     "name": "Half adder",
     "boxes": [{
-            "name": "and",
-            "category": "gate",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        13,
-                        11
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 0
-                },
-                {
-                    "index": 1,
-                    "wireId": 1
-                },
-                {
-                    "index": 2,
-                    "wireId": 2
-                }
-            ]
-        },
-        {
-            "name": "xor",
-            "category": "gate",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        13,
-                        4
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 3
-                },
-                {
-                    "index": 1,
-                    "wireId": 4
-                },
-                {
-                    "index": 2,
-                    "wireId": 5
-                }
-            ]
-        },
-        {
-            "name": "input",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        1,
-                        3
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 1
-                },
-                {
-                    "index": 0,
-                    "wireId": 4
-                }
-            ],
-            "isOn": false
-        },
-        {
-            "name": "input",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        1,
-                        12
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 2
-                },
-                {
-                    "index": 0,
-                    "wireId": 5
-                }
-            ],
-            "isOn": false
-        },
-        {
-            "name": "output",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        27,
-                        4
-                    ]
-                }]
-            },
-            "connections": [{
-                "index": 0,
-                "wireId": 3
+        "name": "and",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [13, 11]
             }]
         },
-        {
-            "name": "output",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        27,
-                        11
-                    ]
-                }]
-            },
-            "connections": [{
-                "index": 0,
-                "wireId": 0
+        "connections": [{
+            "index": 0,
+            "wireId": 0
+        }, {
+            "index": 1,
+            "wireId": 1
+        }, {
+            "index": 2,
+            "wireId": 2
+        }]
+    }, {
+        "name": "xor",
+        "category": "gate",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [13, 4]
             }]
-        }
-    ],
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 3
+        }, {
+            "index": 1,
+            "wireId": 4
+        }, {
+            "index": 2,
+            "wireId": 5
+        }]
+    }, {
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [1, 3]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 1
+        }, {
+            "index": 0,
+            "wireId": 4
+        }],
+        "isOn": false
+    }, {
+        "name": "input",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [1, 12]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 2
+        }, {
+            "index": 0,
+            "wireId": 5
+        }],
+        "isOn": false
+    }, {
+        "name": "output",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [27, 4]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 3
+        }]
+    }, {
+        "name": "output",
+        "category": "other",
+        "transform": {
+            "items": [{
+                "name": "translate",
+                "args": [27, 11]
+            }]
+        },
+        "connections": [{
+            "index": 0,
+            "wireId": 0
+        }]
+    }],
     "blackbox": {
         "inputs": 2,
         "outputs": 2,
         "table": [
-            [
-                2,
-                2,
-                2,
-                2
-            ],
-            [
-                1,
-                2,
-                1,
-                2
-            ],
-            [
-                2,
-                1,
-                1,
-                2
-            ],
-            [
-                1,
-                1,
-                2,
-                1
-            ]
+            [2, 2, 2, 2],
+            [1, 2, 1, 2],
+            [2, 1, 1, 2],
+            [1, 1, 2, 1]
         ]
     }
 }
