@@ -53,7 +53,7 @@
         "gulp": "./node_modules/gulp/bin/gulp.js"
     },
     "dependencies": {
-        "npm": "^5.8.0"
+        "yarn": "^1.6.0"
     },
     "config": {
         "title": "Hradla — Logic Network Simulator"
