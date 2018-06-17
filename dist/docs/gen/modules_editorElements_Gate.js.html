@@ -124,7 +124,8 @@ export default class Gate extends Box {
      * @type {Set}
      */
     static get validGates() {
-        return new Set(["not", "and", "or", "nand", "nor", "xor", "xnor", "repeater"]);
+        // return new Set(["not", "and", "or", "nand", "nor", "xor", "xnor", "repeater"]);
+        return new Set(["not", "and", "or", "nand", "nor", "xor", "xnor"]);
     }
 
     generateBlockNodes(...specialNodes) {

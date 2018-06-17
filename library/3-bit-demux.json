@@ -1,556 +1,674 @@
 {
     "name": "3-bit demultiplexer",
-    "boxes": [
-      {
-        "name": "input",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [19, 71]}
-          ]
+    "boxes": [{
+            "name": "input",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [43, 81]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 0
+                },
+                {
+                    "index": 0,
+                    "wireId": 1
+                },
+                {
+                    "index": 0,
+                    "wireId": 2
+                },
+                {
+                    "index": 0,
+                    "wireId": 3
+                },
+                {
+                    "index": 0,
+                    "wireId": 4
+                }
+            ],
+            "isOn": false
         },
-        "connections": [
-          {"index": 0, "wireId": 0},
-          {"index": 0, "wireId": 1}
-        ],
-        "isOn": false
-      },
-      {
-        "name": "input",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [19, 82]}
-          ]
+        {
+            "name": "input",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [43, 92]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 5
+                },
+                {
+                    "index": 0,
+                    "wireId": 6
+                },
+                {
+                    "index": 0,
+                    "wireId": 7
+                },
+                {
+                    "index": 0,
+                    "wireId": 8
+                },
+                {
+                    "index": 0,
+                    "wireId": 9
+                }
+            ],
+            "isOn": false
         },
-        "connections": [
-          {"index": 0, "wireId": 2},
-          {"index": 0, "wireId": 3}
-        ],
-        "isOn": false
-      },
-      {
-        "name": "input",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [19, 93]}
-          ]
+        {
+            "name": "input",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [43, 103]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 10
+                },
+                {
+                    "index": 0,
+                    "wireId": 11
+                },
+                {
+                    "index": 0,
+                    "wireId": 12
+                },
+                {
+                    "index": 0,
+                    "wireId": 13
+                },
+                {
+                    "index": 0,
+                    "wireId": 14
+                }
+            ],
+            "isOn": false
         },
-        "connections": [
-          {"index": 0, "wireId": 4},
-          {"index": 0, "wireId": 5}
-        ],
-        "isOn": false
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 92]},
-            {"name": "rotate", "args": ["0", 1, 4]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [84, 102]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 15
+                },
+                {
+                    "index": 1,
+                    "wireId": 6
+                },
+                {
+                    "index": 2,
+                    "wireId": 11
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 6},
-          {"index": 1, "wireId": 7},
-          {"index": 2, "wireId": 8}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [74, 91]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [98, 101]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 16
+                },
+                {
+                    "index": 1,
+                    "wireId": 4
+                },
+                {
+                    "index": 2,
+                    "wireId": 15
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 9},
-          {"index": 1, "wireId": 10},
-          {"index": 2, "wireId": 6}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [74, 80]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [98, 90]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 17
+                },
+                {
+                    "index": 1,
+                    "wireId": 18
+                },
+                {
+                    "index": 2,
+                    "wireId": 19
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 11},
-          {"index": 1, "wireId": 12},
-          {"index": 2, "wireId": 13}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 81]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [84, 91]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 19
+                },
+                {
+                    "index": 1,
+                    "wireId": 7
+                },
+                {
+                    "index": 2,
+                    "wireId": 12
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 13},
-          {"index": 1, "wireId": 14},
-          {"index": 2, "wireId": 15}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [74, 69]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [98, 79]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 20
+                },
+                {
+                    "index": 1,
+                    "wireId": 3
+                },
+                {
+                    "index": 2,
+                    "wireId": 21
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 16},
-          {"index": 1, "wireId": 17},
-          {"index": 2, "wireId": 18}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 70]},
-            {"name": "rotate", "args": ["0", 1, 2]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [84, 80]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 21
+                },
+                {
+                    "index": 1,
+                    "wireId": 22
+                },
+                {
+                    "index": 2,
+                    "wireId": 13
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 18},
-          {"index": 1, "wireId": 19},
-          {"index": 2, "wireId": 20}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [74, 58]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [98, 68]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 23
+                },
+                {
+                    "index": 1,
+                    "wireId": 24
+                },
+                {
+                    "index": 2,
+                    "wireId": 25
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 21},
-          {"index": 1, "wireId": 22},
-          {"index": 2, "wireId": 23}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 59]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [84, 69]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 25
+                },
+                {
+                    "index": 1,
+                    "wireId": 26
+                },
+                {
+                    "index": 2,
+                    "wireId": 14
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 23},
-          {"index": 1, "wireId": 24},
-          {"index": 2, "wireId": 25}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [74, 47]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [98, 57]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 27
+                },
+                {
+                    "index": 1,
+                    "wireId": 2
+                },
+                {
+                    "index": 2,
+                    "wireId": 28
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 26},
-          {"index": 1, "wireId": 27},
-          {"index": 2, "wireId": 28}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 48]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [84, 58]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 28
+                },
+                {
+                    "index": 1,
+                    "wireId": 8
+                },
+                {
+                    "index": 2,
+                    "wireId": 29
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 28},
-          {"index": 1, "wireId": 29},
-          {"index": 2, "wireId": 30}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [74, 36]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [98, 46]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 30
+                },
+                {
+                    "index": 1,
+                    "wireId": 31
+                },
+                {
+                    "index": 2,
+                    "wireId": 32
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 31},
-          {"index": 1, "wireId": 32},
-          {"index": 2, "wireId": 33}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 37]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [84, 47]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 32
+                },
+                {
+                    "index": 1,
+                    "wireId": 9
+                },
+                {
+                    "index": 2,
+                    "wireId": 33
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 33},
-          {"index": 1, "wireId": 34},
-          {"index": 2, "wireId": 35}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [74, 25]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [98, 35]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 34
+                },
+                {
+                    "index": 1,
+                    "wireId": 1
+                },
+                {
+                    "index": 2,
+                    "wireId": 35
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 36},
-          {"index": 1, "wireId": 37},
-          {"index": 2, "wireId": 38}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 26]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [84, 36]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 35
+                },
+                {
+                    "index": 1,
+                    "wireId": 36
+                },
+                {
+                    "index": 2,
+                    "wireId": 37
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 38},
-          {"index": 1, "wireId": 39},
-          {"index": 2, "wireId": 40}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [74, 14]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [98, 24]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 38
+                },
+                {
+                    "index": 1,
+                    "wireId": 39
+                },
+                {
+                    "index": 2,
+                    "wireId": 40
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 41},
-          {"index": 1, "wireId": 42},
-          {"index": 2, "wireId": 43}
-        ]
-      },
-      {
-        "name": "and",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 15]}
-          ]
+        {
+            "name": "and",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [84, 25]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 40
+                },
+                {
+                    "index": 1,
+                    "wireId": 41
+                },
+                {
+                    "index": 2,
+                    "wireId": 42
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 43},
-          {"index": 1, "wireId": 44},
-          {"index": 2, "wireId": 45}
-        ]
-      },
-      {
-        "name": "output",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [88, 91]}
-          ]
+        {
+            "name": "output",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [112, 101]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 16
+            }]
         },
-        "connections": [{"index": 0, "wireId": 9}]
-      },
-      {
-        "name": "output",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [88, 80]}
-          ]
+        {
+            "name": "output",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [112, 90]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 17
+            }]
         },
-        "connections": [{"index": 0, "wireId": 11}]
-      },
-      {
-        "name": "output",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [88, 69]}
-          ]
+        {
+            "name": "output",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [112, 79]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 20
+            }]
         },
-        "connections": [{"index": 0, "wireId": 16}]
-      },
-      {
-        "name": "output",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [88, 58]}
-          ]
+        {
+            "name": "output",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [112, 68]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 23
+            }]
         },
-        "connections": [{"index": 0, "wireId": 21}]
-      },
-      {
-        "name": "output",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [88, 47]}
-          ]
+        {
+            "name": "output",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [112, 57]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 27
+            }]
         },
-        "connections": [{"index": 0, "wireId": 26}]
-      },
-      {
-        "name": "output",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [88, 36]}
-          ]
+        {
+            "name": "output",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [112, 46]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 30
+            }]
         },
-        "connections": [{"index": 0, "wireId": 31}]
-      },
-      {
-        "name": "output",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [88, 25]}
-          ]
+        {
+            "name": "output",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [112, 35]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 34
+            }]
         },
-        "connections": [{"index": 0, "wireId": 36}]
-      },
-      {
-        "name": "output",
-        "category": "other",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [88, 14]}
-          ]
+        {
+            "name": "output",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [112, 24]
+                }]
+            },
+            "connections": [{
+                "index": 0,
+                "wireId": 38
+            }]
         },
-        "connections": [{"index": 0, "wireId": 41}]
-      },
-      {
-        "name": "not",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [38, 38]},
-            {"name": "rotate", "args": ["0", 1, 3]}
-          ]
+        {
+            "name": "not",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [62, 48]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 29
+                },
+                {
+                    "index": 0,
+                    "wireId": 33
+                },
+                {
+                    "index": 0,
+                    "wireId": 37
+                },
+                {
+                    "index": 0,
+                    "wireId": 42
+                },
+                {
+                    "index": 1,
+                    "wireId": 10
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 30},
-          {"index": 0, "wireId": 35},
-          {"index": 0, "wireId": 40},
-          {"index": 0, "wireId": 45},
-          {"index": 1, "wireId": 5}
-        ]
-      },
-      {
-        "name": "not",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [38, 27]},
-            {"name": "rotate", "args": ["0", 1, 3]}
-          ]
+        {
+            "name": "not",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [62, 37]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 22
+                },
+                {
+                    "index": 0,
+                    "wireId": 26
+                },
+                {
+                    "index": 0,
+                    "wireId": 36
+                },
+                {
+                    "index": 0,
+                    "wireId": 41
+                },
+                {
+                    "index": 1,
+                    "wireId": 5
+                }
+            ]
         },
-        "connections": [
-          {"index": 0, "wireId": 19},
-          {"index": 0, "wireId": 24},
-          {"index": 0, "wireId": 39},
-          {"index": 0, "wireId": 44},
-          {"index": 1, "wireId": 3}
-        ]
-      },
-      {
-        "name": "not",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [38, 16]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 46},
-          {"index": 0, "wireId": 47},
-          {"index": 0, "wireId": 48},
-          {"index": 0, "wireId": 49},
-          {"index": 1, "wireId": 1}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [38, 71]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 50},
-          {"index": 0, "wireId": 51},
-          {"index": 0, "wireId": 52},
-          {"index": 0, "wireId": 53},
-          {"index": 1, "wireId": 0}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [38, 82]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 7},
-          {"index": 0, "wireId": 14},
-          {"index": 0, "wireId": 29},
-          {"index": 0, "wireId": 34},
-          {"index": 1, "wireId": 2}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [38, 93]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 8},
-          {"index": 0, "wireId": 15},
-          {"index": 0, "wireId": 20},
-          {"index": 0, "wireId": 25},
-          {"index": 1, "wireId": 4}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 11]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 42},
-          {"index": 1, "wireId": 46}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 22]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 37},
-          {"index": 1, "wireId": 50}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 33]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 32},
-          {"index": 1, "wireId": 47}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 44]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 27},
-          {"index": 1, "wireId": 51}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 55]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 22},
-          {"index": 1, "wireId": 48}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 66]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 17},
-          {"index": 1, "wireId": 52}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 77]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 12},
-          {"index": 1, "wireId": 49}
-        ]
-      },
-      {
-        "name": "repeater",
-        "category": "gate",
-        "transform": {
-          "items": [
-            {"name": "translate", "args": [60, 88]}
-          ]
-        },
-        "connections": [
-          {"index": 0, "wireId": 10},
-          {"index": 1, "wireId": 53}
-        ]
-      }
+        {
+            "name": "not",
+            "category": "gate",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [62, 26]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 39
+                },
+                {
+                    "index": 0,
+                    "wireId": 31
+                },
+                {
+                    "index": 0,
+                    "wireId": 18
+                },
+                {
+                    "index": 0,
+                    "wireId": 24
+                },
+                {
+                    "index": 1,
+                    "wireId": 0
+                }
+            ]
+        }
     ],
     "blackbox": {
         "name": "3-BIT DEMUX",
