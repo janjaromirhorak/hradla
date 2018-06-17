@@ -1,10 +1,10 @@
 "use strict";
 
-import Canvas from './modules/Canvas';
+import App from './modules/App';
 
 /**
  * When the document is ready, initialize the application
  */
 $(() => {
-    new Canvas("#canvas", 10);
+    new App("#canvas", 10);
 });

@@ -10,14 +10,14 @@ import Box from './Box'
  */
 export default class Gate extends Box {
     /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {App} appInstance  instance of [App](./module-App.html)
      * @param {string} name       name of the gate (and, not, xor...)
      */
-    constructor(parentSVG, name) {
+    constructor(appInstance, name) {
         const width = 9;
         const height = 4;
 
-        super(parentSVG, name, "gate", width, height);
+        super(appInstance, name, "gate", width, height);
 
         // ADD CONNECTORS
 
@@ -108,6 +108,6 @@ export default class Gate extends Box {
         }
 
         // notify the simulator about this change
-        this.parentSVG.simulation.notifyChange(this.connectors[0].id, state)
+        this.appInstance.simulation.notifyChange(this.connectors[0].id, state)
     }
 }

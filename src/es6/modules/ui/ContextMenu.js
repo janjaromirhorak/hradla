@@ -86,11 +86,11 @@ class ContextMenuItem {
     }
 
     /**
-     * instance of [Canvas](./module-Canvas.html) this menu belongs to
-     * @type {Canvas}
+     * instance of [App](./module-App.html) this menu belongs to
+     * @type {App}
      */
-    get parentSVG() {
-        return this.contextMenu.parentSVG;
+    get appInstance() {
+        return this.contextMenu.appInstance;
     }
 
     /**
@@ -144,7 +144,7 @@ class ContextMenuItem {
 }
 
 /**
- * Menu item that has a custom click callback function that adds a {@link Gate} of the specified type to the [Canvas](./module-Canvas.html)
+ * Menu item that has a custom click callback function that adds a {@link Gate} of the specified type to the [App](./module-App.html)
  * @extends ContextMenuItem
  */
 class GateMenuItem extends ContextMenuItem {
@@ -157,10 +157,10 @@ class GateMenuItem extends ContextMenuItem {
             `${type.toUpperCase()} gate`,
             contextMenu,
             () => {
-                this.parentSVG.newGate(
+                this.appInstance.newGate(
                     type,
-                    this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformX(contextMenu.position.x)),
-                    this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformY(contextMenu.position.y))
+                    this.appInstance.snapToGrid(this.appInstance.viewbox.transformX(contextMenu.position.x)),
+                    this.appInstance.snapToGrid(this.appInstance.viewbox.transformY(contextMenu.position.y))
                 );
             }
         );
@@ -168,7 +168,7 @@ class GateMenuItem extends ContextMenuItem {
 }
 
 /**
- * Menu item that has a custom click callback function that adds a specified {@link Blackbox} to the [Canvas](./module-Canvas.html)
+ * Menu item that has a custom click callback function that adds a specified {@link Blackbox} to the [App](./module-App.html)
  * @extends ContextMenuItem
  */
 class BlackboxMenuItem extends ContextMenuItem {
@@ -183,13 +183,13 @@ class BlackboxMenuItem extends ContextMenuItem {
                     // use the name specified in the blackbox item, if it does not exist, use the name for the network
                     let usedName = blackbox.name || name;
 
-                    this.parentSVG.newBlackbox(
+                    this.appInstance.newBlackbox(
                         inputs,
                         outputs,
                         table,
                         usedName,
-                        this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformX(contextMenu.position.x)),
-                        this.parentSVG.snapToGrid(this.parentSVG.viewbox.transformY(contextMenu.position.y))
+                        this.appInstance.snapToGrid(this.appInstance.viewbox.transformX(contextMenu.position.x)),
+                        this.appInstance.snapToGrid(this.appInstance.viewbox.transformY(contextMenu.position.y))
                     );
                 }).catch(error => {
                     console.error(error);
@@ -200,7 +200,7 @@ class BlackboxMenuItem extends ContextMenuItem {
 }
 
 /**
- * Menu item that has a custom click callback function that adds a specified Network to the [Canvas](./module-Canvas.html)
+ * Menu item that has a custom click callback function that adds a specified Network to the [App](./module-App.html)
  * @extends ContextMenuItem
  */
 class NetworkMenuItem extends ContextMenuItem {
@@ -210,17 +210,17 @@ class NetworkMenuItem extends ContextMenuItem {
             contextMenu,
             () => {
                 getNetworkFromLibrary(file).then(data => {
-                    this.parentSVG.importData(
+                    this.appInstance.importData(
                         data,
-                        Math.round(this.parentSVG.viewbox.transformX(contextMenu.position.x) / this.parentSVG.gridSize),
-                        Math.round(this.parentSVG.viewbox.transformY(contextMenu.position.y) / this.parentSVG.gridSize)
+                        Math.round(this.appInstance.viewbox.transformX(contextMenu.position.x) / this.appInstance.gridSize),
+                        Math.round(this.appInstance.viewbox.transformY(contextMenu.position.y) / this.appInstance.gridSize)
                     ).then(warnings => {
                         for (const warning of warnings) {
-                            this.parentSVG.messages.newWarningMessage(warning)
+                            this.appInstance.messages.newWarningMessage(warning)
                         }
                     })
                 }).catch(error => {
-                    this.parentSVG.messages.newErrorMessage(error);
+                    this.appInstance.messages.newErrorMessage(error);
                 })
             }
         )
@@ -230,22 +230,22 @@ class NetworkMenuItem extends ContextMenuItem {
 /** @module ContextMenu */
 /**
  * ContextMenu represents the menu that is displayed to the user when they right click on a canvas.
- * This menu allows user to add elements to the Canvas and in the case that user rightclicked
+ * This menu allows user to add elements to the canvas and in the case that user rightclicked
  * on a specific element, this menu allows them to remove this element.
  */
 export default class ContextMenu {
     /**
-     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html) this menu belongs to
+     * @param {App} appInstance instance of [App](./module-App.html) this menu belongs to
      */
-    constructor(parentSVG) {
+    constructor(appInstance) {
         /**
-         * instance of [Canvas](./module-Canvas.html) this menu belongs to
-         * @type {Canvas}
+         * instance of [App](./module-App.html) this menu belongs to
+         * @type {App}
          */
-        this.parentSVG = parentSVG;
+        this.appInstance = appInstance;
 
         /**
-         * Position of the context menu. It is used to add the new elements to the correct position on the Canvas.
+         * Position of the context menu. It is used to add the new elements to the correct position on the canvas.
          * @type {Object}
          */
         this.position = {
@@ -266,11 +266,11 @@ export default class ContextMenu {
             new ContextMenuItem("Input box", this,
                 () => {
                     let position = {
-                        left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
-                        top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
+                        left: this.appInstance.snapToGrid(appInstance.viewbox.transformX(this.position.x)),
+                        top: this.appInstance.snapToGrid(appInstance.viewbox.transformY(this.position.y))
                     };
 
-                    parentSVG.newInput(position.left, position.top);
+                    appInstance.newInput(position.left, position.top);
                 }
             )
         );
@@ -278,18 +278,18 @@ export default class ContextMenu {
         // add output box
         special.appendItem(new ContextMenuItem("Output box", this, () => {
             let position = {
-                left: this.parentSVG.snapToGrid(parentSVG.viewbox.transformX(this.position.x)),
-                top: this.parentSVG.snapToGrid(parentSVG.viewbox.transformY(this.position.y))
+                left: this.appInstance.snapToGrid(appInstance.viewbox.transformX(this.position.x)),
+                top: this.appInstance.snapToGrid(appInstance.viewbox.transformY(this.position.y))
             };
 
-            parentSVG.newOutput(position.left, position.top);
+            appInstance.newOutput(position.left, position.top);
         }));
 
         this.appendItem(special);
 
         // list of gates that can be added
         const gates = Gate.validGates;
-        let gateList = new ContextMenuItem("New gate", this, parentSVG);
+        let gateList = new ContextMenuItem("New gate", this, appInstance);
         for (const name of gates) {
             gateList.appendItem(
                 new GateMenuItem(name, this)
@@ -333,11 +333,11 @@ export default class ContextMenu {
         })
 
         // add conditional items for box and wire removal
-        this.appendConditionalItem('box', 'Remove this item', id => {this.parentSVG.removeBox(id)});
-        this.appendConditionalItem('wire', 'Remove this wire', id => {this.parentSVG.removeWireById(id)});
+        this.appendConditionalItem('box', 'Remove this item', id => {this.appInstance.removeBox(id)});
+        this.appendConditionalItem('wire', 'Remove this wire', id => {this.appInstance.removeWireById(id)});
 
         // add the context menu to the DOM
-        parentSVG.$svg.before(this.$el);
+        appInstance.$svg.before(this.$el);
 
         /**
          * Number of items in this menu (used in the .lenght getter). Conditional items do not count.
@@ -410,19 +410,19 @@ export default class ContextMenu {
                 try {
                     data = JSON.parse($('#' + textareaId).val());
                 } catch(e) {
-                    this.parentSVG.messages.newErrorMessage("The imported file is not a valid JSON file.");
+                    this.appInstance.messages.newErrorMessage("The imported file is not a valid JSON file.");
                     lityInstance.close();
                 }
 
                 if(data) {
                     // proccess the imported data
-                    this.parentSVG.importData(
+                    this.appInstance.importData(
                         data,
-                        Math.round(this.parentSVG.viewbox.transformX(this.position.x) / this.parentSVG.gridSize),
-                        Math.round(this.parentSVG.viewbox.transformY(this.position.y) / this.parentSVG.gridSize)
+                        Math.round(this.appInstance.viewbox.transformX(this.position.x) / this.appInstance.gridSize),
+                        Math.round(this.appInstance.viewbox.transformY(this.position.y) / this.appInstance.gridSize)
                     ).then(warnings => {
                         for (const warning of warnings) {
-                            this.parentSVG.messages.newWarningMessage(warning)
+                            this.appInstance.messages.newWarningMessage(warning)
                         }
                     }).finally(() => {
                         lityInstance.close();

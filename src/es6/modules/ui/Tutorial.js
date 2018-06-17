@@ -4,15 +4,15 @@
  */
 export default class Tutorial {
     /**
-     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html) for this tutorial
+     * @param {App} appInstance instance of [App](./module-App.html) for this tutorial
      * @param {Function} [onTutorialClosed] callback function when user closes or finishes the tutorial
      */
-    constructor(parentSVG, onTutorialClosed) {
+    constructor(appInstance, onTutorialClosed) {
         /**
-         * instance of [Canvas](./module-Canvas.html) for this tutorial
-         * @type {Canvas}
+         * instance of [App](./module-App.html) for this tutorial
+         * @type {App}
          */
-        this.parentSVG = parentSVG;
+        this.appInstance = appInstance;
 
         /**
          * helper variable for the `step` property, stores current state of the tutorial (step `0` means that tutorial is closed)
@@ -302,7 +302,7 @@ export default class Tutorial {
             {
                 text: 'yes, clean the canvas',
                 func: () => {
-                    this.parentSVG.cleanCanvas();
+                    this.appInstance.cleanCanvas();
                     this.stop();
                 }
             },
@@ -319,7 +319,7 @@ export default class Tutorial {
      * display the tutorial window
      */
     displayWindow() {
-        this.parentSVG.$svg.after(this.$tutorialWindow)
+        this.appInstance.$svg.after(this.$tutorialWindow)
     }
 
     /**

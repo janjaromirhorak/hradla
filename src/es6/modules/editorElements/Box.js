@@ -14,14 +14,14 @@ import Transform from './Transform'
  */
 export default class Box extends NetworkElement {
     /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {App} appInstance  instance of [App](./module-App.html)
      * @param {string} name       name of the element (input, output, and, or, xor...)
      * @param {string} category   type of the element (io, gate)
      * @param {number} gridWidth  width of the element in grid pixels
      * @param {number} gridHeight height of the element in grid pixels
      */
-    constructor(parentSVG, name, category, gridWidth, gridHeight) {
-        super(parentSVG);
+    constructor(appInstance, name, category, gridWidth, gridHeight) {
+        super(appInstance);
 
         /**
          * specifies the box type within the category (input/output in io, and/or/... in gate)
@@ -39,7 +39,7 @@ export default class Box extends NetworkElement {
          * size of the grid in SVG pixels
          * @type {number}
          */
-        this.gridSize = this.parentSVG.gridSize;
+        this.gridSize = this.appInstance.gridSize;
 
         /**
          * array of connectors of this box
@@ -134,14 +134,14 @@ export default class Box extends NetworkElement {
             // go through each its wire id
             for (const item of conn.wireIds) {
                 let thisWireId;
-                if(!this.parentSVG.exportWireIdMap.has(item)) {
+                if(!this.appInstance.exportWireIdMap.has(item)) {
                     // if the wire id is not in the map, add it and assign new arbitrary id
-                    this.parentSVG.exportWireIdMap.set(item, this.parentSVG.exportWireId);
-                    thisWireId = this.parentSVG.exportWireId;
-                    this.parentSVG.exportWireId++;
+                    this.appInstance.exportWireIdMap.set(item, this.appInstance.exportWireId);
+                    thisWireId = this.appInstance.exportWireId;
+                    this.appInstance.exportWireId++;
                 } else {
                     // else get id from the map
-                    thisWireId = this.parentSVG.exportWireIdMap.get(item);
+                    thisWireId = this.appInstance.exportWireIdMap.get(item);
                 }
 
 
@@ -327,8 +327,8 @@ export default class Box extends NetworkElement {
         this.updateWires();
 
         // if tutorial exists, call tutorial callback
-        if(this.parentSVG.tutorial) {
-            this.parentSVG.tutorial.onBoxRotated();
+        if(this.appInstance.tutorial) {
+            this.appInstance.tutorial.onBoxRotated();
         }
     }
 
@@ -341,9 +341,9 @@ export default class Box extends NetworkElement {
     addConnector(left, top, isInputConnector) {
         let index = this.connectors.length;
         if(isInputConnector) {
-            this.connectors[index] = new InputConnector(this.parentSVG, left, top);
+            this.connectors[index] = new InputConnector(this.appInstance, left, top);
         } else {
-            this.connectors[index] = new OutputConnector(this.parentSVG, left, top);
+            this.connectors[index] = new OutputConnector(this.appInstance, left, top);
         }
         this.svgObj.addChild(this.connectors[index].get());
     }
@@ -400,7 +400,7 @@ export default class Box extends NetworkElement {
 
         // convert values to grid pixels
         if(gridPixels) {
-            transform.toGridPixels(this.parentSVG);
+            transform.toGridPixels(this.appInstance);
         }
 
         return transform;
@@ -435,7 +435,7 @@ export default class Box extends NetworkElement {
             this.onMouseDownLeft(event);
 
             // move the DOM element to front
-            this.parentSVG.moveToFrontById(this.svgObj.id);
+            this.appInstance.moveToFrontById(this.svgObj.id);
         }
     }
 
@@ -453,7 +453,7 @@ export default class Box extends NetworkElement {
         // save the current item position into a variable
         let currentPosition = transform.getTranslate();
 
-        let {pageX, pageY} = this.parentSVG.viewbox.transformEvent(event)
+        let {pageX, pageY} = this.appInstance.viewbox.transformEvent(event)
 
         // calculate mouse offset from the object origin
         this.offset = {
@@ -473,7 +473,7 @@ export default class Box extends NetworkElement {
 
             this.mouseMoved = true;
 
-            let {pageX, pageY} = this.parentSVG.viewbox.transformEvent(event)
+            let {pageX, pageY} = this.appInstance.viewbox.transformEvent(event)
 
             const left = pageX - this.offset.x;
             const top = pageY - this.offset.y;
@@ -513,13 +513,13 @@ export default class Box extends NetworkElement {
      * @param  {jQuery.MouseEvent} event
      */
     onDrop(event) {
-        let {pageX, pageY} = this.parentSVG.viewbox.transformEvent(event)
+        let {pageX, pageY} = this.appInstance.viewbox.transformEvent(event)
 
         let left = pageX - this.offset.x;
         let top = pageY - this.offset.y;
 
-        left = this.parentSVG.snapToGrid(left);
-        top = this.parentSVG.snapToGrid(top);
+        left = this.appInstance.snapToGrid(left);
+        top = this.appInstance.snapToGrid(top);
 
         let transform = this.getTransform();
         transform.setTranslate(left, top);
@@ -529,8 +529,8 @@ export default class Box extends NetworkElement {
         this.updateWires();
 
         // if tutorial exists, call tutorial callback
-        if(this.parentSVG.tutorial) {
-            this.parentSVG.tutorial.onBoxMoved();
+        if(this.appInstance.tutorial) {
+            this.appInstance.tutorial.onBoxMoved();
         }
     }
 
@@ -558,7 +558,7 @@ export default class Box extends NetworkElement {
     updateWires(temporary = false) {
         this.connectors.forEach(conn => {
             conn.wireIds.forEach(wireId => {
-                let wire = this.parentSVG.getWireById(wireId);
+                let wire = this.appInstance.getWireById(wireId);
                 if(temporary) {
                     wire.temporaryWire();
                 } else {

@@ -13,26 +13,26 @@ import NetworkElement from './NetworkElement'
  */
 export default class Wire extends NetworkElement {
     /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {App} appInstance  instance of [App](./module-App.html)
      * @param {string}  fromId    id of the first connector this wire will be connected to
      * @param {string}  toId      id of the second connector this wire will be connected to
-     * @param {Boolean} [refresh=true] if `true`, the [Canvas](./module-Canvas.html) will refresh after creating this wire
+     * @param {Boolean} [refresh=true] if `true`, the [App](./module-App.html) will refresh after creating this wire
      */
-    constructor(parentSVG, fromId, toId, refresh = true, route = true) {
-        super(parentSVG);
+    constructor(appInstance, fromId, toId, refresh = true, route = true) {
+        super(appInstance);
 
-        this.gridSize = parentSVG.gridSize;
+        this.gridSize = appInstance.gridSize;
 
         this.connection = {
             from: {
                 id: fromId,
-                box: this.parentSVG.getBoxByConnectorId(fromId),
-                connector: this.parentSVG.getConnectorById(fromId)
+                box: this.appInstance.getBoxByConnectorId(fromId),
+                connector: this.appInstance.getConnectorById(fromId)
             },
             to: {
                 id: toId,
-                box: this.parentSVG.getBoxByConnectorId(toId),
-                connector: this.parentSVG.getConnectorById(toId)
+                box: this.appInstance.getBoxByConnectorId(toId),
+                connector: this.appInstance.getConnectorById(toId)
             }
         }
 
@@ -65,7 +65,7 @@ export default class Wire extends NetworkElement {
 
         if(refresh) {
             const {connector} = this.connection.to;
-            this.parentSVG.startNewSimulation(connector, connector.state);
+            this.appInstance.startNewSimulation(connector, connector.state);
         }
 
         this.svgObj.$el.addClass("wire");
@@ -144,8 +144,8 @@ export default class Wire extends NetworkElement {
      * route the wire using the temporary wire points
      */
     temporaryWire() {
-        this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, false);
-        this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, false);
+        this.wireStart = this.appInstance.getConnectorPosition(this.connection.from.connector, false);
+        this.wireEnd = this.appInstance.getConnectorPosition(this.connection.to.connector, false);
 
         this.setWirePath(this.getTemporaryWirePoints());
     }
@@ -154,8 +154,8 @@ export default class Wire extends NetworkElement {
      * route the wire using the modified A* wire routing algorithm
      */
     routeWire(snapToGrid = true, refresh = true) {
-        this.wireStart = this.parentSVG.getConnectorPosition(this.connection.from.connector, snapToGrid);
-        this.wireEnd = this.parentSVG.getConnectorPosition(this.connection.to.connector, snapToGrid);
+        this.wireStart = this.appInstance.getConnectorPosition(this.connection.from.connector, snapToGrid);
+        this.wireEnd = this.appInstance.getConnectorPosition(this.connection.to.connector, snapToGrid);
 
         this.points = this.findRoute(
             {
@@ -216,13 +216,13 @@ export default class Wire extends NetworkElement {
      * @return {PolyLinePoints}       [description]
      */
     findRoute(start, end) {
-        let nonRoutable = this.parentSVG.getNonRoutableNodes();
+        let nonRoutable = this.appInstance.getNonRoutableNodes();
 
         let punishedButRoutable;
         if(this.svgObj===undefined) {
-            punishedButRoutable = this.parentSVG.getInconvenientNodes();
+            punishedButRoutable = this.appInstance.getInconvenientNodes();
         } else {
-            punishedButRoutable = this.parentSVG.getInconvenientNodes(this.svgObj.id);
+            punishedButRoutable = this.appInstance.getInconvenientNodes(this.svgObj.id);
         }
 
         let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
@@ -254,8 +254,8 @@ export default class Wire extends NetworkElement {
 
         this.points.forEach(point => {
             const
-                x = this.parentSVG.SVGToGrid(point.x),
-                y = this.parentSVG.SVGToGrid(point.y);
+                x = this.appInstance.SVGToGrid(point.x),
+                y = this.appInstance.SVGToGrid(point.y);
 
             if (prevPoint === undefined) {
                 // if the prevPoint is undefined, add the first point

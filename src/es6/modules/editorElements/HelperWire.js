@@ -9,11 +9,11 @@ import NetworkElement from './NetworkElement'
  * @extends NetworkElement
  */
 export default class HelperWire extends NetworkElement {
-    constructor(parentSVG, fromId, mousePosition) {
-        super(parentSVG);
+    constructor(appInstance, fromId, mousePosition) {
+        super(appInstance);
 
-        const connector = this.parentSVG.getConnectorById(fromId);
-        this.connectorPosition = this.parentSVG.getConnectorPosition(connector, true);
+        const connector = this.appInstance.getConnectorById(fromId);
+        this.connectorPosition = this.appInstance.getConnectorPosition(connector, true);
 
         const from = new PolyLinePoint(this.connectorPosition.x, this.connectorPosition.y);
         const to = new PolyLinePoint(mousePosition.x, mousePosition.y);

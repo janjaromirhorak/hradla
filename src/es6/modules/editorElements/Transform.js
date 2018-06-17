@@ -69,18 +69,18 @@ export default class Transform {
 
     /**
      * convert distances from SVG pixels to grid pixels
-     * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+     * @param {App} appInstance instance of [App](./module-App.html)
      */
-    toGridPixels(parentSVG) {
-        this.pixelConversion((val) => parentSVG.SVGToGrid(val))
+    toGridPixels(appInstance) {
+        this.pixelConversion((val) => appInstance.SVGToGrid(val))
     }
 
     /**
      * convert distances from grid pixels to SVG pixels
-     * @param  {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+     * @param {App} appInstance instance of [App](./module-App.html)
      */
-    toSVGPixels(parentSVG) {
-        this.pixelConversion((val) => parentSVG.gridToSVG(val))
+    toSVGPixels(appInstance) {
+        this.pixelConversion((val) => appInstance.gridToSVG(val))
     }
 
     /**

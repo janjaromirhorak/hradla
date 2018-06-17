@@ -12,24 +12,24 @@ import stateClasses from './stateClasses'
  */
 export default class Connector extends NetworkElement {
     /**
-     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {App} appInstance link to the [App](./module-App.html) instance that this connector will belong to
      * @param {number} gridSize  size of the grid in SVG pixels
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    constructor(parentSVG, left, top) {
-        super(parentSVG);
+    constructor(appInstance, left, top) {
+        super(appInstance);
 
         /**
          * size of the grid in SVG pixels
          * @type {number}
          */
-        this.gridSize = parentSVG.gridSize;
+        this.gridSize = appInstance.gridSize;
         /**
          * size of the connector in SVG pixels
          * @type {number}
          */
-        this.connectorSize = parentSVG.gridSize;
+        this.connectorSize = appInstance.gridSize;
         /**
          * offset of the connector from the grid in SVG pixels
          * @type {number}
@@ -139,19 +139,19 @@ export default class Connector extends NetworkElement {
     }
 
     /**
-     * call [wireCreationHelper](./module-Canvas.html#wireCreationHelper) on mouse up
+     * call [wireCreationHelper](./module-App.html#wireCreationHelper) on mouse up
      */
     onMouseUp(event) {
         // only left click counts
         if(event.which === 1) {
-            event = this.parentSVG.viewbox.transformEvent(event);
+            event = this.appInstance.viewbox.transformEvent(event);
 
             const mousePosition = {
                 x: event.pageX,
                 y: event.pageY
             }
 
-            this.parentSVG.wireCreationHelper(this.svgObj.id, mousePosition);
+            this.appInstance.wireCreationHelper(this.svgObj.id, mousePosition);
         }
     }
 }

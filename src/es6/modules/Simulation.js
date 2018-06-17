@@ -20,14 +20,14 @@ class stateChange {
  */
 export default class Simulation {
     /**
-     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+     * @param {App} appInstance instance of [App](./module-App.html)
      */
-    constructor(parentSVG) {
+    constructor(appInstance) {
         /**
-         * instance of Canvas this Simulation belongs to
-         * @type {Canvas}
+         * instance of App this Simulation belongs to
+         * @type {App}
          */
-        this.parentSVG = parentSVG
+        this.appInstance = appInstance
 
         /**
          * maps each affected output connector to it's directly preceeding output connectors
@@ -127,7 +127,7 @@ export default class Simulation {
 
 
             // reflect the changes in SVG
-            let connector = this.parentSVG.getConnectorById(connectorId)
+            let connector = this.appInstance.getConnectorById(connectorId)
             if(connector) {
                 connector.setState(state)
             }
