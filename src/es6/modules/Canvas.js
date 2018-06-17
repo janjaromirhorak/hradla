@@ -381,10 +381,7 @@ export default class Canvas {
             let newWires = new Map();
 
             // find the leftmost and topmost coordinate of any box, save them to leftTopCorner
-            let leftTopCorner = {
-                x: 0,
-                y: 0
-            };
+            let leftTopCorner;
 
             for (const boxData of data.boxes) {
                 if (boxData.transform && boxData.transform.items) {
@@ -404,6 +401,13 @@ export default class Canvas {
                         }
                     }
                 }
+            }
+
+            if(!leftTopCorner) {
+                leftTopCorner = {
+                    x: 0,
+                    y: 0
+                };
             }
 
             for (let boxData of data.boxes) {
@@ -522,6 +526,19 @@ export default class Canvas {
                 }
             }
 
+            // create a map of wires and their anchors
+            let wireAnchors = new Map();
+            if(data.wires) {
+                for (const {id, anchors} of data.wires) {
+                    // we have to compare to undefined here because the id can be any numeric value
+                    if(id !== undefined && anchors) {
+                        if(!wireAnchors.has(id)) {
+                            wireAnchors.set(id, anchors);
+                        }
+                    }
+                }
+            }
+
             // refresh the SVG document (needed for wiring)
             this.refresh();
 
@@ -530,13 +547,13 @@ export default class Canvas {
             // priority queue for the new wires, priority being (1 / manhattanDistance) between the conenctors, higher is better
             let wireQueue = new PriorityQueue();
 
-            // get all ids for lal the
-            for (const wireInfo of newWires.values()) {
+            for (const wireId of newWires.keys()) {
+                const wireInfo = newWires.get(wireId);
+
                 let connectorIds = [];
 
                 // create an array [connector1Id, connector2Id]
-                for (const {boxId, index}
-                of wireInfo) {
+                for (const {boxId, index} of wireInfo) {
                     connectorIds.push(this.getBoxById(boxId).connectors[index].id)
                 }
 
@@ -545,6 +562,18 @@ export default class Canvas {
 
                 if (connectorsPositions.length === 2) {
                     let wire = this.newWire(...connectorIds, false, false);
+
+                    if(wireAnchors.has(wireId)) {
+                        const anchors = wireAnchors.get(wireId);
+                        for (const {x, y} of anchors) {
+                            if(x !== undefined && y !== undefined) {
+                                wire.addAnchor({
+                                    x: x - leftTopCorner.x + x,
+                                    y: y - leftTopCorner.y + y
+                                });
+                            }
+                        }
+                    }
 
                     // get the manhattan distance between these two connectors
                     const distance = manhattanDistance(...connectorsPositions);
