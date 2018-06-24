@@ -252,8 +252,8 @@ export default class App {
             let left = event.pageX - this.moveCanvas.left
             let top = event.pageY - this.moveCanvas.top
 
-            this.viewbox.leftShift += left
-            this.viewbox.topShift += top
+            this.viewbox.move(left, top);
+            
             this.applyViewbox()
 
             this.moveCanvas = {

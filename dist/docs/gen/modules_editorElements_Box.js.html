@@ -340,17 +340,23 @@ export default class Box extends NetworkElement {
         // get the transform value for this box
         let transform = this.getTransform();
 
-        // get the bounding rectangle for this box
-        let rect = this.svgObj.$el[0].getBoundingClientRect();
-
-        // use the bounding rectangle dimensions to figure out the geometrical center of the box
-        const center = {
-            x: Math.round(rect.width / 2),
-            y: Math.round(rect.height / 2)
+        // calculate the center of the box
+        const realCenter = {
+            x: Math.round(this.width / 2),
+            y: Math.round(this.height / 2)
         }
 
-        center.x -= center.x % this.gridSize;
-        center.y -= center.y % this.gridSize;
+        // swap the coordinates when the rotation parity is 1
+        const center = this.rotationParity ? {
+            x: realCenter.y,
+            y: realCenter.x
+        } : realCenter;
+
+        center.x = this.appInstance.snapToGrid(center.x) / this.appInstance.zoom;
+        center.y = this.appInstance.snapToGrid(center.y) / this.appInstance.zoom;
+
+        // center.x -= center.x % this.gridSize;
+        // center.y -= center.y % this.gridSize;
 
         // apply the rotation to the transform object
         if(clockWise) {
@@ -364,8 +370,8 @@ export default class Box extends NetworkElement {
         this.svgObj.addAttr({"transform": transform.get()});
 
         const gridCenter = {
-            x: center.x / this.gridSize,
-            y: center.y / this.gridSize
+            x: this.appInstance.SVGToGrid(center.x),
+            y: this.appInstance.SVGToGrid(center.y)
         };
 
         // rotate also the blocked nodes

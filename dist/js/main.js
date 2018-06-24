@@ -1257,8 +1257,8 @@ var App = function () {
                 var left = event.pageX - this.moveCanvas.left;
                 var top = event.pageY - this.moveCanvas.top;
 
-                this.viewbox.leftShift += left;
-                this.viewbox.topShift += top;
+                this.viewbox.move(left, top);
+
                 this.applyViewbox();
 
                 this.moveCanvas = {
@@ -2739,7 +2739,7 @@ var App = function () {
                      first = false;
                 }
                  this.refresh();
-                 */
+                 // */
                 // END FOR DEBUG ONLY
 
                 // return the set
@@ -2828,7 +2828,7 @@ var App = function () {
                     this.appendElement(nodeRectangle, false);
                 }
                  this.refresh();
-                 */
+                 // */
                 // END FOR DEBUG ONLY
 
                 // return the set
@@ -4162,17 +4162,22 @@ var Box = function (_NetworkElement) {
             // get the transform value for this box
             var transform = this.getTransform();
 
-            // get the bounding rectangle for this box
-            var rect = this.svgObj.$el[0].getBoundingClientRect();
+            // calculate the center of the box
+            var realCenter = {
+                x: Math.round(this.width / 2),
+                y: Math.round(this.height / 2)
 
-            // use the bounding rectangle dimensions to figure out the geometrical center of the box
-            var center = {
-                x: Math.round(rect.width / 2),
-                y: Math.round(rect.height / 2)
-            };
+                // swap the coordinates when the rotation parity is 1
+            };var center = this.rotationParity ? {
+                x: realCenter.y,
+                y: realCenter.x
+            } : realCenter;
 
-            center.x -= center.x % this.gridSize;
-            center.y -= center.y % this.gridSize;
+            center.x = this.appInstance.snapToGrid(center.x) / this.appInstance.zoom;
+            center.y = this.appInstance.snapToGrid(center.y) / this.appInstance.zoom;
+
+            // center.x -= center.x % this.gridSize;
+            // center.y -= center.y % this.gridSize;
 
             // apply the rotation to the transform object
             if (clockWise) {
@@ -4185,8 +4190,8 @@ var Box = function (_NetworkElement) {
             this.svgObj.addAttr({ "transform": transform.get() });
 
             var gridCenter = {
-                x: center.x / this.gridSize,
-                y: center.y / this.gridSize
+                x: this.appInstance.SVGToGrid(center.x),
+                y: this.appInstance.SVGToGrid(center.y)
             };
 
             // rotate also the blocked nodes
@@ -9895,6 +9900,12 @@ var ViewBox = function () {
       this.real.width = width;
       this.real.height = height;
     }
+  }, {
+    key: "move",
+    value: function move(left, top) {
+      this.leftShift += left / this.zoom;
+      this.topShift += top / this.zoom;
+    }
 
     /**
      * get the amount of zoom on the viewbox
@@ -9986,7 +9997,7 @@ var ViewBox = function () {
   }, {
     key: "left",
     get: function get() {
-      return this.real.left - this.leftShift / this.zoom + (this.real.width - this.width) / 2;
+      return this.real.left - this.leftShift + (this.real.width - this.width) / 2;
     }
 
     /**
@@ -9997,7 +10008,7 @@ var ViewBox = function () {
   }, {
     key: "top",
     get: function get() {
-      return this.real.top - this.topShift / this.zoom + (this.real.height - this.height) / 2;
+      return this.real.top - this.topShift + (this.real.height - this.height) / 2;
     }
 
     /**
