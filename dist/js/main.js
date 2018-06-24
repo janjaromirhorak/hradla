@@ -2693,37 +2693,59 @@ var App = function () {
                     // for each item in blockedNodes (set of blocked nodes with coordinates relative
                     // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
                     // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-                    var _iteratorNormalCompletion16 = true;
-                    var _didIteratorError16 = false;
-                    var _iteratorError16 = undefined;
+                    var _iteratorNormalCompletion14 = true;
+                    var _didIteratorError14 = false;
+                    var _iteratorError14 = undefined;
 
                     try {
-                        for (var _iterator16 = _box2.blockedNodes[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
-                            var _node = _step16.value;
+                        for (var _iterator14 = _box2.blockedNodes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                            var node = _step14.value;
 
                             blockedNodes.add({
-                                x: translate.x + _node.x,
-                                y: translate.y + _node.y
+                                x: translate.x + node.x,
+                                y: translate.y + node.y
                             });
                         }
                     } catch (err) {
-                        _didIteratorError16 = true;
-                        _iteratorError16 = err;
+                        _didIteratorError14 = true;
+                        _iteratorError14 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion16 && _iterator16.return) {
-                                _iterator16.return();
+                            if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                                _iterator14.return();
                             }
                         } finally {
-                            if (_didIteratorError16) {
-                                throw _iteratorError16;
+                            if (_didIteratorError14) {
+                                throw _iteratorError14;
                             }
                         }
                     }
                 }
 
                 // FOR DEBUG ONLY: display the non routable nodes
-                // /*
+                /*
+                 if(this.nodeDisplay) {
+                    for (const rectangleId of this.nodeDisplay) {
+                        $(`#${rectangleId}`).remove();
+                    }
+                }
+                 this.nodeDisplay = [];
+                 let first = true;
+                 for (const node of blockedNodes) {
+                    const x = this.gridToSVG(node.x);
+                    const y = this.gridToSVG(node.y);
+                     const w = 4;
+                    const p = w / 2;
+                     const nodeRectangle = new Rectangle(x - p, y - p, w, w, first ? "blue" : "red", "none")
+                    this.nodeDisplay.push(nodeRectangle.id);
+                    this.appendElement(nodeRectangle, false);
+                     first = false;
+                }
+                 this.refresh();
+                 // */
+                // END FOR DEBUG ONLY
+
+                // return the set
             } catch (err) {
                 _didIteratorError13 = true;
                 _iteratorError13 = err;
@@ -2739,78 +2761,6 @@ var App = function () {
                 }
             }
 
-            if (this.nodeDisplay) {
-                var _iteratorNormalCompletion14 = true;
-                var _didIteratorError14 = false;
-                var _iteratorError14 = undefined;
-
-                try {
-                    for (var _iterator14 = this.nodeDisplay[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                        var rectangleId = _step14.value;
-
-                        $('#' + rectangleId).remove();
-                    }
-                } catch (err) {
-                    _didIteratorError14 = true;
-                    _iteratorError14 = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                            _iterator14.return();
-                        }
-                    } finally {
-                        if (_didIteratorError14) {
-                            throw _iteratorError14;
-                        }
-                    }
-                }
-            }
-
-            this.nodeDisplay = [];
-
-            var first = true;
-
-            var _iteratorNormalCompletion15 = true;
-            var _didIteratorError15 = false;
-            var _iteratorError15 = undefined;
-
-            try {
-                for (var _iterator15 = blockedNodes[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-                    var node = _step15.value;
-
-                    var x = this.gridToSVG(node.x);
-                    var y = this.gridToSVG(node.y);
-
-                    var w = 4;
-                    var p = w / 2;
-
-                    var nodeRectangle = new _svgObjects.Rectangle(x - p, y - p, w, w, first ? "blue" : "red", "none");
-                    this.nodeDisplay.push(nodeRectangle.id);
-                    this.appendElement(nodeRectangle, false);
-
-                    first = false;
-                }
-            } catch (err) {
-                _didIteratorError15 = true;
-                _iteratorError15 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
-                        _iterator15.return();
-                    }
-                } finally {
-                    if (_didIteratorError15) {
-                        throw _iteratorError15;
-                    }
-                }
-            }
-
-            this.refresh();
-
-            // */
-            // END FOR DEBUG ONLY
-
-            // return the set
             return blockedNodes;
         }
 
@@ -2825,37 +2775,37 @@ var App = function () {
             var inconvenientNodes = new Set();
             // for each wire
 
-            var _iteratorNormalCompletion17 = true;
-            var _didIteratorError17 = false;
-            var _iteratorError17 = undefined;
+            var _iteratorNormalCompletion15 = true;
+            var _didIteratorError15 = false;
+            var _iteratorError15 = undefined;
 
             try {
-                for (var _iterator17 = this.wires[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
-                    var wire = _step17.value;
+                for (var _iterator15 = this.wires[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                    var wire = _step15.value;
 
                     if (ignoreWireId === undefined || ignoreWireId !== wire.id) {
                         if (wire.inconvenientNodes) {
-                            var _iteratorNormalCompletion18 = true;
-                            var _didIteratorError18 = false;
-                            var _iteratorError18 = undefined;
+                            var _iteratorNormalCompletion16 = true;
+                            var _didIteratorError16 = false;
+                            var _iteratorError16 = undefined;
 
                             try {
-                                for (var _iterator18 = wire.inconvenientNodes[Symbol.iterator](), _step18; !(_iteratorNormalCompletion18 = (_step18 = _iterator18.next()).done); _iteratorNormalCompletion18 = true) {
-                                    var node = _step18.value;
+                                for (var _iterator16 = wire.inconvenientNodes[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
+                                    var node = _step16.value;
 
                                     inconvenientNodes.add(node);
                                 }
                             } catch (err) {
-                                _didIteratorError18 = true;
-                                _iteratorError18 = err;
+                                _didIteratorError16 = true;
+                                _iteratorError16 = err;
                             } finally {
                                 try {
-                                    if (!_iteratorNormalCompletion18 && _iterator18.return) {
-                                        _iterator18.return();
+                                    if (!_iteratorNormalCompletion16 && _iterator16.return) {
+                                        _iterator16.return();
                                     }
                                 } finally {
-                                    if (_didIteratorError18) {
-                                        throw _iteratorError18;
+                                    if (_didIteratorError16) {
+                                        throw _iteratorError16;
                                     }
                                 }
                             }
@@ -2886,16 +2836,16 @@ var App = function () {
 
                 // return the set
             } catch (err) {
-                _didIteratorError17 = true;
-                _iteratorError17 = err;
+                _didIteratorError15 = true;
+                _iteratorError15 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
-                        _iterator17.return();
+                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
+                        _iterator15.return();
                     }
                 } finally {
-                    if (_didIteratorError17) {
-                        throw _iteratorError17;
+                    if (_didIteratorError15) {
+                        throw _iteratorError15;
                     }
                 }
             }
@@ -2949,27 +2899,27 @@ var App = function () {
                 boxes: []
             };
 
-            var _iteratorNormalCompletion19 = true;
-            var _didIteratorError19 = false;
-            var _iteratorError19 = undefined;
+            var _iteratorNormalCompletion17 = true;
+            var _didIteratorError17 = false;
+            var _iteratorError17 = undefined;
 
             try {
-                for (var _iterator19 = this.boxes[Symbol.iterator](), _step19; !(_iteratorNormalCompletion19 = (_step19 = _iterator19.next()).done); _iteratorNormalCompletion19 = true) {
-                    var _box3 = _step19.value;
+                for (var _iterator17 = this.boxes[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
+                    var _box3 = _step17.value;
 
                     data.boxes.push(_box3.exportData);
                 }
             } catch (err) {
-                _didIteratorError19 = true;
-                _iteratorError19 = err;
+                _didIteratorError17 = true;
+                _iteratorError17 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion19 && _iterator19.return) {
-                        _iterator19.return();
+                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
+                        _iterator17.return();
                     }
                 } finally {
-                    if (_didIteratorError19) {
-                        throw _iteratorError19;
+                    if (_didIteratorError17) {
+                        throw _iteratorError17;
                     }
                 }
             }
