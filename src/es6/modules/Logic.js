@@ -7,17 +7,17 @@ export default class Logic {
      * Enum for logic states.
      *
      * States:
-     * - `unknown`
-     * - `on`
      * - `off`
+     * - `on`
+     * - `unknown`
      * - `oscillating`
      * @type {Number}
      */
     static get state() {
         return {
-            unknown: 0,
+            off: 0,
             on: 1,
-            off: 2,
+            unknown: 2,
             oscillating: 3
         }
     }

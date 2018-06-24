@@ -10,12 +10,12 @@ import Logic from '../Logic'
 export default class InputConnector extends Connector {
     /**
      * Call the constructor from the parent {@link Connector} class and set isInputConnector to true.
-     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {App} appInstance link to the [App](./module-App.html) instance that this connector will belong to
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    constructor(parentSVG, left, top) {
-        super(parentSVG, left, top);
+    constructor(appInstance, left, top) {
+        super(appInstance, left, top);
 
         this.isInputConnector = true;
     }
@@ -28,7 +28,7 @@ export default class InputConnector extends Connector {
         super.setState(state);
         // console.log("SET STATE ON IC", this.id, ":", state)
 
-        let box = this.parentSVG.getBoxByConnectorId(this.svgObj.id);
+        let box = this.appInstance.getBoxByConnectorId(this.svgObj.id);
         box.refreshState();
     }
 

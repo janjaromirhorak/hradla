@@ -14,20 +14,35 @@ class stateChange {
 }
 
 /**
+ * This is a dummy that does nothing, just logs the function calls.
+ *
+ * Used on networks that has not been yet simulated but user tries to change logic values.
+ */
+export class SimulationDummy {
+    notifyChange() {
+        console.log("SimulationDummy.notifyChange() has been called.")
+    }
+
+    run() {
+        console.log("SimulationDummy.run() has been called.")
+    }
+}
+
+/**
  * This class runs the network simulation.
  *
  * _note: all connectors that are used in this class are **output connectors**_
  */
 export default class Simulation {
     /**
-     * @param {Canvas} parentSVG instance of [Canvas](./module-Canvas.html)
+     * @param {App} appInstance instance of [App](./module-App.html)
      */
-    constructor(parentSVG) {
+    constructor(appInstance) {
         /**
-         * instance of Canvas this Simulation belongs to
-         * @type {Canvas}
+         * instance of App this Simulation belongs to
+         * @type {App}
          */
-        this.parentSVG = parentSVG
+        this.appInstance = appInstance
 
         /**
          * maps each affected output connector to it's directly preceeding output connectors
@@ -127,7 +142,7 @@ export default class Simulation {
 
 
             // reflect the changes in SVG
-            let connector = this.parentSVG.getConnectorById(connectorId)
+            let connector = this.appInstance.getConnectorById(connectorId)
             if(connector) {
                 connector.setState(state)
             }

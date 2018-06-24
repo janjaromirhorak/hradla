@@ -2,22 +2,21 @@
 Logic network simulator that runs in your browser.
 
 ## install
-You will need [npm](https://www.npmjs.com/) and [gcc](https://gcc.gnu.org/) (or some other C++ compiler) to build this project. (C++ compiler is required because the current implementation of [gulp-sass](https://github.com/dlmanning/gulp-sass) uses [node-sass](https://github.com/sass/node-sass) which
-is dependent on [LibSass](https://github.com/sass/libsass).)
+You will need [yarn](https://yarnpkg.com/) and [gcc](https://gcc.gnu.org/) (or some other C++ compiler) to build this project. (C++ compiler is required because the current implementation of [gulp-sass](https://github.com/dlmanning/gulp-sass) uses [node-sass](https://github.com/sass/node-sass) which
+is dependent on [LibSass](https://github.com/sass/libsass), that requires a~C++ compiler.)
 
-Use `npm install` to install dependencies, than `npm run gulp` to build the project.
-
-If you have [gulp](https://github.com/gulpjs/gulp) (version 4.0.0 or higher) installed globally on your system,
-you can run `gulp` instead of `npm run gulp`.
+Use `yarn install` to install dependencies, than `yarn gulp` to build the production version of the project.
+The project will be built into the `/dist` directory.
 
 In one command:
 ```bash
-npm i && npm run gulp
+yarn install && yarn gulp
 ```
-or, if you have gulp (version 4.0.0 or higher) installed globally on your system
-```bash
-npm i && gulp
-```
+
+To build a development version of the project run `yarn gulp build-dev`.
+
+If you have [gulp](https://github.com/gulpjs/gulp) (version 4.0.0 or higher) installed globally on your system,
+you can run `gulp` instead of `yarn gulp`.
 
 ## download compiled code
 You also can download the [already compiled version](https://github.com/janjaromirhorak/hradla/releases/latest) of the latest release.

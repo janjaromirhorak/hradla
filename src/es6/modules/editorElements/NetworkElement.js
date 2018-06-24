@@ -6,13 +6,13 @@
 export default class NetworkElement {
     /**
      * Basic constructor for NetworkElement
-     * @param {Canvas} parentSVG reference to the instance of {@link Canvas} that this element belongs to
+     * @param {App} appInstance reference to the instance of [App](./module-App.html) that this element belongs to
      */
-    constructor(parentSVG) {
-        if(!parentSVG) {
+    constructor(appInstance) {
+        if(!appInstance) {
             console.error("Parent SVG element has to be defined.");
         }
-        this.parentSVG = parentSVG;
+        this.appInstance = appInstance;
 
         // used to store the svjObject's instance of this element
         this.svgObj = undefined;

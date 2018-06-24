@@ -62,6 +62,16 @@ export default class ViewBox {
     }
 
     /**
+     * apply viewbox movement and take the zoom into account
+     * @param  {number} left horizontal movement
+     * @param  {number} top  vertical movement
+     */
+    move(left, top) {
+        this.leftShift += left / this.zoom;
+        this.topShift += top / this.zoom;
+    }
+
+    /**
      * get the amount of zoom on the viewbox
      * @return {number}
      */
@@ -99,7 +109,7 @@ export default class ViewBox {
      * @return {number}
      */
     get left() {
-        return this.real.left - (this.leftShift / this.zoom) + ((this.real.width - this.width) / 2)
+        return this.real.left - this.leftShift + ((this.real.width - this.width) / 2)
     }
 
     /**
@@ -107,7 +117,7 @@ export default class ViewBox {
      * @return {number}
      */
     get top() {
-        return this.real.top - (this.topShift / this.zoom) + ((this.real.height - this.height) / 2)
+        return this.real.top - this.topShift + ((this.real.height - this.height) / 2)
     }
 
     /**

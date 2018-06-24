@@ -11,18 +11,18 @@ import Box from './Box'
  */
 export default class Blackbox extends Box {
     /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {App} appInstance  instance of [App](./module-App.html)
      * @param {number} inputConnectors  number of input connectors
      * @param {number} outputConnectors number of output connectors
      * @param {Function} evalFunction   function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
      *                                  and returns `outputConnectors` Logic.states.
      * @param {String} [name]        name that will be displayed on the blackbox
      */
-    constructor(parentSVG, inputConnectors, outputConnectors, evalFunction, name = "") {
+    constructor(appInstance, inputConnectors, outputConnectors, evalFunction, name = "") {
         const width = 11;
         const height = Math.max(inputConnectors, outputConnectors) * 2;
 
-        super(parentSVG, name, "blackbox", width, height);
+        super(appInstance, name, "blackbox", width, height);
 
         const connectorPinLenght = 2.5 * this.gridSize;
 

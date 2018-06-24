@@ -10,13 +10,13 @@ import Box from './Box'
  */
 export default class OutputBox extends Box {
     /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {App} appInstance  instance of [App](./module-App.html)
      */
-    constructor(parentSVG) {
+    constructor(appInstance) {
         const gridHeight = 4;
         const gridWidth = 5;
 
-        super(parentSVG, "output", "other", gridWidth, gridHeight);
+        super(appInstance, "output", "other", gridWidth, gridHeight);
 
         this.addConnector(0, gridHeight / 2, true);
 
@@ -37,8 +37,8 @@ export default class OutputBox extends Box {
      */
     setState(state) {
         if(state===Logic.state.on){
-            if(this.parentSVG.tutorial) {
-                this.parentSVG.tutorial.onOutputBoxTrue();
+            if(this.appInstance.tutorial) {
+                this.appInstance.tutorial.onOutputBoxTrue();
             }
         }
 

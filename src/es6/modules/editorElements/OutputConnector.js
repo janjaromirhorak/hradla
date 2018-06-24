@@ -9,12 +9,12 @@ import Connector from './Connector'
 export default class OutputConnector extends Connector {
     /**
      * Call the constructor from the parent {@link Connector} class and set isOutputConnector to true.
-     * @param {Canvas} parentSVG link to the {@link Canvas} instance that this connector will belong to
+     * @param {App} appInstance link to the [App](./module-App.html) instance that this connector will belong to
      * @param {number} left      horizontal position defined in grid units (SVG pixels divided by the grid size)
      * @param {number} top       vertical position defined in grid units (SVG pixels divided by the grid size)
      */
-    constructor(parentSVG, left, top) {
-        super(parentSVG, left, top);
+    constructor(appInstance, left, top) {
+        super(appInstance, left, top);
 
         this.isOutputConnector = true;
     }
@@ -27,7 +27,7 @@ export default class OutputConnector extends Connector {
         super.setState(state);
 
         for (const wireId of this.wireIds) {
-            this.parentSVG.getWireById(wireId).setState(state);
+            this.appInstance.getWireById(wireId).setState(state);
         }
     }
 }

@@ -10,14 +10,14 @@ import Box from './Box'
  */
 export default class InputBox extends Box {
     /**
-     * @param {Canvas} parentSVG  instance of [Canvas](./module-Canvas.html)
+     * @param {App} appInstance  instance of [App](./module-App.html)
      * @param {Boolean} [isOn=false] the initial state of the inputbox (`true` is *on*, `false` is *off*)
      */
-    constructor(parentSVG, isOn = false) {
+    constructor(appInstance, isOn = false) {
         const gridWidth = 7;
         const gridHeight = 4;
 
-        super(parentSVG, "input", "other", gridWidth, gridHeight);
+        super(appInstance, "input", "other", gridWidth, gridHeight);
 
         this.addConnector(gridWidth, gridHeight / 2, false);
 
@@ -50,7 +50,7 @@ export default class InputBox extends Box {
      * start a new simulation from the output connector
      */
     refreshState() {
-        this.parentSVG.startNewSimulation(this.connectors[0], this.connectors[0].state)
+        this.appInstance.startNewSimulation(this.connectors[0], this.connectors[0].state)
     }
 
     /**
@@ -87,8 +87,8 @@ export default class InputBox extends Box {
     onClick() {
         this.on = !this.on;
 
-        if(this.parentSVG.tutorial) {
-            this.parentSVG.tutorial.onChangeInputBoxState();
+        if(this.appInstance.tutorial) {
+            this.appInstance.tutorial.onChangeInputBoxState();
         }
     }
 }

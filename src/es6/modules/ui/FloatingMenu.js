@@ -9,9 +9,9 @@ class FloatingButton {
      * @param {string} buttonClass Custom string that identifies the SVG icon used on this button. This string is also added as a CSS class to the button.
      * @param {string} tooltip     tooltip for the button, that will be displayed on hover and also used as alternative title for the image
      * @param {Function} clickEvent  custom callback when user clicks the button
-     * @param {Canvas} parentSVG   reference to the parent SVG element
+     * @param {App} appInstance   reference to the parent SVG element
      */
-    constructor(buttonClass, tooltip, clickEvent, parentSVG) {
+    constructor(buttonClass, tooltip, clickEvent, appInstance) {
         /**
          * jQuery element representing the button
          * @type {jQuery.element}
@@ -40,7 +40,7 @@ class FloatingButton {
                 .addClass("tooltip")
                 .html(tooltip);
 
-            parentSVG.$svg.after(this.$tooltip);
+            appInstance.$svg.after(this.$tooltip);
 
             this.$el.hover(() => {
                 this.$tooltip.fadeIn(200);
@@ -63,9 +63,9 @@ class FloatingButton {
  */
 export default class FloatingMenu {
     /**
-     * @param {Canvas} parentSVG reference to the Canvas element this menu is associated with
+     * @param {App} appInstance reference to the App element this menu is associated with
      */
-    constructor(parentSVG) {
+    constructor(appInstance) {
         /**
          * the jQuery element containing all buttons
          * @type {jQuery.element}
@@ -89,7 +89,7 @@ export default class FloatingMenu {
 
                 // generate the block with code to be displayed and append it to the popup element
                 const $textblock = $("<textarea>").text(
-                    getJSONString(parentSVG.exportData, true)
+                    getJSONString(appInstance.exportData, true)
                 )
 
                 $popup.append($textblock);
@@ -97,7 +97,7 @@ export default class FloatingMenu {
                 // generate the links
                 $popup.append(
                     $("<a>").attr({
-                        "href": getJSONString(parentSVG.exportData, true, true),
+                        "href": getJSONString(appInstance.exportData, true, true),
                         "class": "download",
                         "download": "network.json"
                     }).append(
@@ -106,7 +106,7 @@ export default class FloatingMenu {
                 );
                 $popup.append(
                     $("<a>").attr({
-                        "href": getJSONString(parentSVG.exportData, false, true),
+                        "href": getJSONString(appInstance.exportData, false, true),
                         "class": "download",
                         "download": "network.min.json"
                     }).append(
@@ -118,28 +118,28 @@ export default class FloatingMenu {
 
                 // highlight the text in the textblock
                 $textblock.select();
-            }, parentSVG)
+            }, appInstance)
         );
 
         /* Tutorial */
         this.append(
             new FloatingButton("tutorial", "Start the tutorial", () => {
-                parentSVG.startTutorial();
-            }, parentSVG)
+                appInstance.startTutorial();
+            }, appInstance)
         );
 
-        parentSVG.$svg.after(this.$el);
+        appInstance.$svg.after(this.$el);
 
         /* HELP */
 
-        let help = new FloatingButton("help", "Display a help page", false, parentSVG);
+        let help = new FloatingButton("help", "Display a help page", false, appInstance);
         help.$el.attr({
             'href': './docs/user.html',
             'data-lity': ''
         });
         this.append(help);
 
-        parentSVG.$svg.after(this.$el);
+        appInstance.$svg.after(this.$el);
     }
 
     /**
