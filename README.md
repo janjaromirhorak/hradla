@@ -22,7 +22,7 @@ you can run `gulp` instead of `yarn gulp`.
 You also can download the [already compiled version](https://github.com/janjaromirhorak/hradla/releases/latest) of the latest release.
 
 ## live version
-[https://hradla.janjaromirhorak.cz/](https://hradla.janjaromirhorak.cz/)
+[https://janjaromirhorak.github.io/hradla/](https://janjaromirhorak.github.io/hradla/)
 
 ## live documentation
 [https://hradla.janjaromirhorak.cz/docs/gen/](https://hradla.janjaromirhorak.cz/docs/gen/)
