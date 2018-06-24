@@ -1328,7 +1328,7 @@ export default class App {
 
         this.refresh();
 
-        // */
+        */
         // END FOR DEBUG ONLY
 
         // return the set
@@ -1378,7 +1378,7 @@ export default class App {
 
         this.refresh();
 
-        */
+        // */
         // END FOR DEBUG ONLY
 
         // return the set
