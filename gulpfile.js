@@ -177,7 +177,7 @@ gulp.task('scripts:build', (done) => {
         });
 
     // create a merged stream
-    return eventStream.merge.apply(null, tasks).on('end', done);
+    return eventStream.merge(tasks).on('end', done);
 });
 
 gulp.task('scripts', gulp.series('scripts:lint', 'scripts:build'));

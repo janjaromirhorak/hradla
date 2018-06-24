@@ -21,7 +21,6 @@
         "gulp-cssnano": "^2.1.2",
         "gulp-eslint": "^4.0.2",
         "gulp-file": "^0.4.0",
-        "gulp-filter": "^5.1.0",
         "gulp-gzip": "^1.4.2",
         "gulp-html-minifier": "^0.1.8",
         "gulp-if": "^2.0.2",
