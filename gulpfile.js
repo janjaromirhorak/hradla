@@ -106,8 +106,10 @@ const
     docsOut = out + '/docs',
     docsCss = docsOut + '/css',
 
-    srcLibrary = "library",
-    outLibrary = out + "/library"
+    srcLibrary = 'library',
+    outLibrary = out + '/library',
+
+    ghPages = 'gh-pages'
 
 let production = false
 
@@ -439,6 +441,10 @@ gulp.task('tarball', () => {
         .pipe(gulp.dest(packaged));
 })
 
+gulp.task('gh-pages-copy', () => {
+    return gulp.src(out + '/**/*').pipe(gulp.dest(ghPages));
+})
+
 // create the zip archive and the tarball
 gulp.task('package', gulp.parallel('zip', 'tarball'))
 
@@ -448,10 +454,12 @@ gulp.task('package', gulp.parallel('zip', 'tarball'))
 
 gulp.task('build-all', gulp.series('clean', gulp.parallel('scripts', 'styles', 'library', 'libraries', 'html', 'images', 'fonts', 'docs')))
 gulp.task('build-prod', gulp.series('production', 'build-all', 'package'))
+gulp.task('gh-pages', gulp.series('production', 'build-all', 'gh-pages-copy'))
 
 gulp.task('build-dev', gulp.series('build-all'))
 
 gulp.task('default', gulp.series('build-prod'));
+
 
 ///// watches
 
