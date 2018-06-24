@@ -14,6 +14,21 @@ class stateChange {
 }
 
 /**
+ * This is a dummy that does nothing, just logs the function calls.
+ *
+ * Used on networks that has not been yet simulated but user tries to change logic values.
+ */
+export class SimulationDummy {
+    notifyChange() {
+        console.log("SimulationDummy.notifyChange() has been called.")
+    }
+
+    run() {
+        console.log("SimulationDummy.run() has been called.")
+    }
+}
+
+/**
  * This class runs the network simulation.
  *
  * _note: all connectors that are used in this class are **output connectors**_

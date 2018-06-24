@@ -1062,11 +1062,14 @@ var App = function () {
          */
         this.wires = []; // stores all wires
 
-        // TODO document this
+        /**
+         * Interface for showing messages to the user
+         * @type {Messages}
+         */
         this.messages = new _Messages2.default();
 
         this.simulationEnabled = true;
-        this.simulation = new _Simulation2.default(this); // dummy, will be overwritten on startNewSimulation
+        this.simulation = new _Simulation.SimulationDummy(); // dummy, will be overwritten on startNewSimulation
 
         /**
          * distance from the left top corner to the first element in the imported network
@@ -2690,59 +2693,37 @@ var App = function () {
                     // for each item in blockedNodes (set of blocked nodes with coordinates relative
                     // to the left upper corner of rect; unit used is "one gridSize") convert the coordinates
                     // to absolute (multiple with gridSize and add position of rect) and add the result to the set
-                    var _iteratorNormalCompletion14 = true;
-                    var _didIteratorError14 = false;
-                    var _iteratorError14 = undefined;
+                    var _iteratorNormalCompletion16 = true;
+                    var _didIteratorError16 = false;
+                    var _iteratorError16 = undefined;
 
                     try {
-                        for (var _iterator14 = _box2.blockedNodes[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                            var node = _step14.value;
+                        for (var _iterator16 = _box2.blockedNodes[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
+                            var _node = _step16.value;
 
                             blockedNodes.add({
-                                x: translate.x + node.x,
-                                y: translate.y + node.y
+                                x: translate.x + _node.x,
+                                y: translate.y + _node.y
                             });
                         }
                     } catch (err) {
-                        _didIteratorError14 = true;
-                        _iteratorError14 = err;
+                        _didIteratorError16 = true;
+                        _iteratorError16 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                                _iterator14.return();
+                            if (!_iteratorNormalCompletion16 && _iterator16.return) {
+                                _iterator16.return();
                             }
                         } finally {
-                            if (_didIteratorError14) {
-                                throw _iteratorError14;
+                            if (_didIteratorError16) {
+                                throw _iteratorError16;
                             }
                         }
                     }
                 }
 
                 // FOR DEBUG ONLY: display the non routable nodes
-                /*
-                 if(this.nodeDisplay) {
-                    for (const rectangleId of this.nodeDisplay) {
-                        $(`#${rectangleId}`).remove();
-                    }
-                }
-                 this.nodeDisplay = [];
-                 let first = true;
-                 for (const node of blockedNodes) {
-                    const x = this.gridToSVG(node.x);
-                    const y = this.gridToSVG(node.y);
-                     const w = 4;
-                    const p = w / 2;
-                     const nodeRectangle = new Rectangle(x - p, y - p, w, w, first ? "blue" : "red", "none")
-                    this.nodeDisplay.push(nodeRectangle.id);
-                    this.appendElement(nodeRectangle, false);
-                     first = false;
-                }
-                 this.refresh();
-                 // */
-                // END FOR DEBUG ONLY
-
-                // return the set
+                // /*
             } catch (err) {
                 _didIteratorError13 = true;
                 _iteratorError13 = err;
@@ -2758,6 +2739,78 @@ var App = function () {
                 }
             }
 
+            if (this.nodeDisplay) {
+                var _iteratorNormalCompletion14 = true;
+                var _didIteratorError14 = false;
+                var _iteratorError14 = undefined;
+
+                try {
+                    for (var _iterator14 = this.nodeDisplay[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                        var rectangleId = _step14.value;
+
+                        $('#' + rectangleId).remove();
+                    }
+                } catch (err) {
+                    _didIteratorError14 = true;
+                    _iteratorError14 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                            _iterator14.return();
+                        }
+                    } finally {
+                        if (_didIteratorError14) {
+                            throw _iteratorError14;
+                        }
+                    }
+                }
+            }
+
+            this.nodeDisplay = [];
+
+            var first = true;
+
+            var _iteratorNormalCompletion15 = true;
+            var _didIteratorError15 = false;
+            var _iteratorError15 = undefined;
+
+            try {
+                for (var _iterator15 = blockedNodes[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                    var node = _step15.value;
+
+                    var x = this.gridToSVG(node.x);
+                    var y = this.gridToSVG(node.y);
+
+                    var w = 4;
+                    var p = w / 2;
+
+                    var nodeRectangle = new _svgObjects.Rectangle(x - p, y - p, w, w, first ? "blue" : "red", "none");
+                    this.nodeDisplay.push(nodeRectangle.id);
+                    this.appendElement(nodeRectangle, false);
+
+                    first = false;
+                }
+            } catch (err) {
+                _didIteratorError15 = true;
+                _iteratorError15 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
+                        _iterator15.return();
+                    }
+                } finally {
+                    if (_didIteratorError15) {
+                        throw _iteratorError15;
+                    }
+                }
+            }
+
+            this.refresh();
+
+            // */
+            // END FOR DEBUG ONLY
+
+            // return the set
             return blockedNodes;
         }
 
@@ -2772,37 +2825,37 @@ var App = function () {
             var inconvenientNodes = new Set();
             // for each wire
 
-            var _iteratorNormalCompletion15 = true;
-            var _didIteratorError15 = false;
-            var _iteratorError15 = undefined;
+            var _iteratorNormalCompletion17 = true;
+            var _didIteratorError17 = false;
+            var _iteratorError17 = undefined;
 
             try {
-                for (var _iterator15 = this.wires[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-                    var wire = _step15.value;
+                for (var _iterator17 = this.wires[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
+                    var wire = _step17.value;
 
                     if (ignoreWireId === undefined || ignoreWireId !== wire.id) {
                         if (wire.inconvenientNodes) {
-                            var _iteratorNormalCompletion16 = true;
-                            var _didIteratorError16 = false;
-                            var _iteratorError16 = undefined;
+                            var _iteratorNormalCompletion18 = true;
+                            var _didIteratorError18 = false;
+                            var _iteratorError18 = undefined;
 
                             try {
-                                for (var _iterator16 = wire.inconvenientNodes[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
-                                    var node = _step16.value;
+                                for (var _iterator18 = wire.inconvenientNodes[Symbol.iterator](), _step18; !(_iteratorNormalCompletion18 = (_step18 = _iterator18.next()).done); _iteratorNormalCompletion18 = true) {
+                                    var node = _step18.value;
 
                                     inconvenientNodes.add(node);
                                 }
                             } catch (err) {
-                                _didIteratorError16 = true;
-                                _iteratorError16 = err;
+                                _didIteratorError18 = true;
+                                _iteratorError18 = err;
                             } finally {
                                 try {
-                                    if (!_iteratorNormalCompletion16 && _iterator16.return) {
-                                        _iterator16.return();
+                                    if (!_iteratorNormalCompletion18 && _iterator18.return) {
+                                        _iterator18.return();
                                     }
                                 } finally {
-                                    if (_didIteratorError16) {
-                                        throw _iteratorError16;
+                                    if (_didIteratorError18) {
+                                        throw _iteratorError18;
                                     }
                                 }
                             }
@@ -2833,16 +2886,16 @@ var App = function () {
 
                 // return the set
             } catch (err) {
-                _didIteratorError15 = true;
-                _iteratorError15 = err;
+                _didIteratorError17 = true;
+                _iteratorError17 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
-                        _iterator15.return();
+                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
+                        _iterator17.return();
                     }
                 } finally {
-                    if (_didIteratorError15) {
-                        throw _iteratorError15;
+                    if (_didIteratorError17) {
+                        throw _iteratorError17;
                     }
                 }
             }
@@ -2896,27 +2949,27 @@ var App = function () {
                 boxes: []
             };
 
-            var _iteratorNormalCompletion17 = true;
-            var _didIteratorError17 = false;
-            var _iteratorError17 = undefined;
+            var _iteratorNormalCompletion19 = true;
+            var _didIteratorError19 = false;
+            var _iteratorError19 = undefined;
 
             try {
-                for (var _iterator17 = this.boxes[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
-                    var _box3 = _step17.value;
+                for (var _iterator19 = this.boxes[Symbol.iterator](), _step19; !(_iteratorNormalCompletion19 = (_step19 = _iterator19.next()).done); _iteratorNormalCompletion19 = true) {
+                    var _box3 = _step19.value;
 
                     data.boxes.push(_box3.exportData);
                 }
             } catch (err) {
-                _didIteratorError17 = true;
-                _iteratorError17 = err;
+                _didIteratorError19 = true;
+                _iteratorError19 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion17 && _iterator17.return) {
-                        _iterator17.return();
+                    if (!_iteratorNormalCompletion19 && _iterator19.return) {
+                        _iterator19.return();
                     }
                 } finally {
-                    if (_didIteratorError17) {
-                        throw _iteratorError17;
+                    if (_didIteratorError19) {
+                        throw _iteratorError19;
                     }
                 }
             }
@@ -3147,15 +3200,16 @@ var Logic = function () {
 exports.default = Logic;
 
 },{}],13:[function(require,module,exports){
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.SimulationDummy = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Logic = require('./Logic');
+var _Logic = require("./Logic");
 
 var _Logic2 = _interopRequireDefault(_Logic);
 
@@ -3174,6 +3228,33 @@ var stateChange = function stateChange(connectorId, state, whoCausedIt) {
     this.state = state;
     this.whoCausedIt = whoCausedIt;
 };
+
+/**
+ * This is a dummy that does nothing, just logs the function calls.
+ *
+ * Used on networks that has not been yet simulated but user tries to change logic values.
+ */
+
+
+var SimulationDummy = exports.SimulationDummy = function () {
+    function SimulationDummy() {
+        _classCallCheck(this, SimulationDummy);
+    }
+
+    _createClass(SimulationDummy, [{
+        key: "notifyChange",
+        value: function notifyChange() {
+            console.log("SimulationDummy.notifyChange() has been called.");
+        }
+    }, {
+        key: "run",
+        value: function run() {
+            console.log("SimulationDummy.run() has been called.");
+        }
+    }]);
+
+    return SimulationDummy;
+}();
 
 /**
  * This class runs the network simulation.
@@ -3227,7 +3308,7 @@ var Simulation = function () {
 
 
     _createClass(Simulation, [{
-        key: 'run',
+        key: "run",
         value: function run() {
             this.wave++;
             while (this.waves.has(this.wave)) {
@@ -3244,7 +3325,7 @@ var Simulation = function () {
          */
 
     }, {
-        key: 'step',
+        key: "step",
         value: function step() {
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
@@ -3337,7 +3418,7 @@ var Simulation = function () {
          */
 
     }, {
-        key: 'addPredecessor',
+        key: "addPredecessor",
         value: function addPredecessor(connectorId, predecessorConnectorId) {
             if (!this.predecessors.has(connectorId)) {
                 this.predecessors.set(connectorId, new Set());
@@ -3353,7 +3434,7 @@ var Simulation = function () {
          */
 
     }, {
-        key: 'getAllPredecessors',
+        key: "getAllPredecessors",
         value: function getAllPredecessors(connectorId) {
             if (!this.predecessors.has(connectorId)) {
                 this.predecessors.set(connectorId, new Set());
@@ -3407,7 +3488,7 @@ var Simulation = function () {
          */
 
     }, {
-        key: 'notifyChange',
+        key: "notifyChange",
         value: function notifyChange(connectorId, state) {
             var waveId = this.wave + 1;
 
@@ -4083,6 +4164,7 @@ var Box = function (_NetworkElement) {
             var newBlockedNodes = new Set();
 
             // rotate the node
+            console.log('center:', center);
 
             var _iteratorNormalCompletion2 = true;
             var _didIteratorError2 = false;
@@ -4159,25 +4241,21 @@ var Box = function (_NetworkElement) {
     }, {
         key: 'rotate',
         value: function rotate(clockWise) {
-            // get the transform value for this box
+            // get the transform value for this box and convert it to grid pixels
+            // (so we don't have to convert between SVG and grid pixels manually)
             var transform = this.getTransform();
+            transform.toGridPixels(this.appInstance);
 
             // calculate the center of the box
             var realCenter = {
-                x: Math.round(this.width / 2),
-                y: Math.round(this.height / 2)
+                x: Math.round(this.gridWidth / 2),
+                y: Math.round(this.gridHeight / 2)
 
                 // swap the coordinates when the rotation parity is 1
             };var center = this.rotationParity ? {
                 x: realCenter.y,
                 y: realCenter.x
             } : realCenter;
-
-            center.x = this.appInstance.snapToGrid(center.x) / this.appInstance.zoom;
-            center.y = this.appInstance.snapToGrid(center.y) / this.appInstance.zoom;
-
-            // center.x -= center.x % this.gridSize;
-            // center.y -= center.y % this.gridSize;
 
             // apply the rotation to the transform object
             if (clockWise) {
@@ -4186,25 +4264,22 @@ var Box = function (_NetworkElement) {
                 transform.rotateLeft(center.x, center.y);
             }
 
-            // apply the modified transform object ot the svgObj
-            this.svgObj.addAttr({ "transform": transform.get() });
-
-            var gridCenter = {
-                x: this.appInstance.SVGToGrid(center.x),
-                y: this.appInstance.SVGToGrid(center.y)
-            };
-
-            // rotate also the blocked nodes
+            // rotate the blocked nodes as well
             if (clockWise) {
-                this.rotateBlockedNodesRight(gridCenter);
+                this.rotateBlockedNodesRight(center);
             } else {
-                this.rotateBlockedNodesLeft(gridCenter);
+                this.rotateBlockedNodesLeft(center);
             }
+
+            // convert the modified transform back to SVG pixels
+            // and apply it to the svgObj
+            transform.toSVGPixels(this.appInstance);
+            this.svgObj.addAttr({ "transform": transform.get() });
 
             // update the wires
             this.updateWires();
 
-            // if tutorial exists, call tutorial callback
+            // if tutorial exists, call the tutorial callback
             if (this.appInstance.tutorial) {
                 this.appInstance.tutorial.onBoxRotated();
             }
@@ -6147,7 +6222,6 @@ var Wire = function (_NetworkElement) {
          * update the state of this wire
          */
         value: function updateWireState() {
-            // TODO investigate
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
             var _iteratorError = undefined;
@@ -9900,6 +9974,13 @@ var ViewBox = function () {
       this.real.width = width;
       this.real.height = height;
     }
+
+    /**
+     * apply viewbox movement and take the zoom into account
+     * @param  {number} left horizontal movement
+     * @param  {number} top  vertical movement
+     */
+
   }, {
     key: "move",
     value: function move(left, top) {

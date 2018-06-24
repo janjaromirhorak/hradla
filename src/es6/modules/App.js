@@ -7,6 +7,7 @@ import {Pattern, Rectangle, PolyLinePoint, PolyLinePoints, PolyLine} from './svg
 // network logic and simulation
 import Logic from './Logic'
 import Simulation from './Simulation'
+import {SimulationDummy} from './Simulation'
 
 // ui stuff
 import ContextMenu from './ui/ContextMenu'
@@ -60,11 +61,14 @@ export default class App {
          */
         this.wires = []; // stores all wires
 
-        // TODO document this
+        /**
+         * Interface for showing messages to the user
+         * @type {Messages}
+         */
         this.messages = new Messages();
 
         this.simulationEnabled = true
-        this.simulation = new Simulation(this); // dummy, will be overwritten on startNewSimulation
+        this.simulation = new SimulationDummy(); // dummy, will be overwritten on startNewSimulation
 
         /**
          * distance from the left top corner to the first element in the imported network
@@ -253,7 +257,7 @@ export default class App {
             let top = event.pageY - this.moveCanvas.top
 
             this.viewbox.move(left, top);
-            
+
             this.applyViewbox()
 
             this.moveCanvas = {
@@ -1300,7 +1304,7 @@ export default class App {
         }
 
         // FOR DEBUG ONLY: display the non routable nodes
-        /*
+        // /*
 
         if(this.nodeDisplay) {
             for (const rectangleId of this.nodeDisplay) {
@@ -1328,7 +1332,7 @@ export default class App {
 
         this.refresh();
 
-        */
+        // */
         // END FOR DEBUG ONLY
 
         // return the set

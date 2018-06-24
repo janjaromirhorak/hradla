@@ -237,6 +237,7 @@ export default class Box extends NetworkElement {
         let newBlockedNodes = new Set();
 
         // rotate the node
+        console.log('center:', center);
 
         for (const node of this.blockedNodes) {
             let newNode;
@@ -285,13 +286,15 @@ export default class Box extends NetworkElement {
     }
 
     rotate(clockWise) {
-        // get the transform value for this box
+        // get the transform value for this box and convert it to grid pixels
+        // (so we don't have to convert between SVG and grid pixels manually)
         let transform = this.getTransform();
+        transform.toGridPixels(this.appInstance);
 
         // calculate the center of the box
         const realCenter = {
-            x: Math.round(this.width / 2),
-            y: Math.round(this.height / 2)
+            x: Math.round(this.gridWidth / 2),
+            y: Math.round(this.gridHeight / 2)
         }
 
         // swap the coordinates when the rotation parity is 1
@@ -300,12 +303,6 @@ export default class Box extends NetworkElement {
             y: realCenter.x
         } : realCenter;
 
-        center.x = this.appInstance.snapToGrid(center.x) / this.appInstance.zoom;
-        center.y = this.appInstance.snapToGrid(center.y) / this.appInstance.zoom;
-
-        // center.x -= center.x % this.gridSize;
-        // center.y -= center.y % this.gridSize;
-
         // apply the rotation to the transform object
         if(clockWise) {
             transform.rotateRight(center.x, center.y);
@@ -313,26 +310,22 @@ export default class Box extends NetworkElement {
             transform.rotateLeft(center.x, center.y);
         }
 
-
-        // apply the modified transform object ot the svgObj
-        this.svgObj.addAttr({"transform": transform.get()});
-
-        const gridCenter = {
-            x: this.appInstance.SVGToGrid(center.x),
-            y: this.appInstance.SVGToGrid(center.y)
-        };
-
-        // rotate also the blocked nodes
+        // rotate the blocked nodes as well
         if(clockWise) {
-            this.rotateBlockedNodesRight(gridCenter);
+            this.rotateBlockedNodesRight(center);
         } else {
-            this.rotateBlockedNodesLeft(gridCenter);
+            this.rotateBlockedNodesLeft(center);
         }
+
+        // convert the modified transform back to SVG pixels
+        // and apply it to the svgObj
+        transform.toSVGPixels(this.appInstance);
+        this.svgObj.addAttr({"transform": transform.get()});
 
         // update the wires
         this.updateWires();
 
-        // if tutorial exists, call tutorial callback
+        // if tutorial exists, call the tutorial callback
         if(this.appInstance.tutorial) {
             this.appInstance.tutorial.onBoxRotated();
         }

@@ -115,7 +115,6 @@ export default class Wire extends NetworkElement {
      * update the state of this wire
      */
     updateWireState() {
-        // TODO investigate
         for (const box of this.boxes) {
             box.refreshState()
         }
