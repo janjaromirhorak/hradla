@@ -60,14 +60,15 @@
 
     <section>
         <article class="readme"><h1>hradla</h1><p>Logic network simulator that runs in your browser.</p>
-<h2>install</h2><p>You will need <a href="https://www.npmjs.com/">npm</a> and <a href="https://gcc.gnu.org/">gcc</a> (or some other C++ compiler) to build this project. (C++ compiler is required because the current implementation of <a href="https://github.com/dlmanning/gulp-sass">gulp-sass</a> uses <a href="https://github.com/sass/node-sass">node-sass</a> which
-is dependent on <a href="https://github.com/sass/libsass">LibSass</a>.)</p>
-<p>Use <code>npm install</code> to install dependencies, than <code>npm run gulp</code> to build the project.</p>
-<p>If you have <a href="https://github.com/gulpjs/gulp">gulp</a> (version 4.0.0 or higher) installed globally on your system,
-you can run <code>gulp</code> instead of <code>npm run gulp</code>.</p>
+<h2>install</h2><p>You will need <a href="https://yarnpkg.com/">yarn</a> and <a href="https://gcc.gnu.org/">gcc</a> (or some other C++ compiler) to build this project. (C++ compiler is required because the current implementation of <a href="https://github.com/dlmanning/gulp-sass">gulp-sass</a> uses <a href="https://github.com/sass/node-sass">node-sass</a> which
+is dependent on <a href="https://github.com/sass/libsass">LibSass</a>, that requires a~C++ compiler.)</p>
+<p>Use <code>yarn install</code> to install dependencies, than <code>yarn gulp</code> to build the production version of the project.
+The project will be built into the <code>/dist</code> directory.</p>
 <p>In one command:</p>
-<pre class="prettyprint source lang-bash"><code>npm i && npm run gulp</code></pre><p>or, if you have gulp (version 4.0.0 or higher) installed globally on your system</p>
-<pre class="prettyprint source lang-bash"><code>npm i && gulp</code></pre><h2>download compiled code</h2><p>You also can download the <a href="https://github.com/janjaromirhorak/hradla/releases/latest">already compiled version</a> of the latest release.</p>
+<pre class="prettyprint source lang-bash"><code>yarn install && yarn gulp</code></pre><p>To build a development version of the project run <code>yarn gulp build-dev</code>.</p>
+<p>If you have <a href="https://github.com/gulpjs/gulp">gulp</a> (version 4.0.0 or higher) installed globally on your system,
+you can run <code>gulp</code> instead of <code>yarn gulp</code>.</p>
+<h2>download compiled code</h2><p>You also can download the <a href="https://github.com/janjaromirhorak/hradla/releases/latest">already compiled version</a> of the latest release.</p>
 <h2>live version</h2><p><a href="https://hradla.janjaromirhorak.cz/">https://hradla.janjaromirhorak.cz/</a></p>
 <h2>live documentation</h2><p><a href="https://hradla.janjaromirhorak.cz/docs/gen/">https://hradla.janjaromirhorak.cz/docs/gen/</a></p></article>
     </section>
