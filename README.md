@@ -5,7 +5,7 @@ Logic network simulator that runs in your browser.
 You will need [yarn](https://yarnpkg.com/) and [gcc](https://gcc.gnu.org/) (or some other C++ compiler) to build this project. (C++ compiler is required because the current implementation of [gulp-sass](https://github.com/dlmanning/gulp-sass) uses [node-sass](https://github.com/sass/node-sass) which
 is dependent on [LibSass](https://github.com/sass/libsass), that requires a~C++ compiler.)
 
-Use `yarn install` to install dependencies, than `yarn gulp` to build the production version of the project.
+Use `yarn install` to install dependencies, then `yarn gulp` to build the production version of the project.
 The project will be built into the `/dist` directory.
 
 In one command:
