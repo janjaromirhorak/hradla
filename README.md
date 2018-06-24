@@ -25,4 +25,4 @@ You also can download the [already compiled version](https://github.com/janjarom
 [https://janjaromirhorak.github.io/hradla/](https://janjaromirhorak.github.io/hradla/)
 
 ## live documentation
-[https://hradla.janjaromirhorak.cz/docs/gen/](https://hradla.janjaromirhorak.cz/docs/gen/)
+[https://janjaromirhorak.github.io/hradla/docs/gen/](https://janjaromirhorak.github.io/hradla/docs/gen/)
