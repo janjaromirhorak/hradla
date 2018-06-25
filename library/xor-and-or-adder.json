@@ -1,97 +1,21 @@
 {
     "name": "XOR, AND, OR adder",
     "boxes": [{
-            "name": "input",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        16,
-                        6
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 0
-                },
-                {
-                    "index": 0,
-                    "wireId": 1
-                }
-            ],
-            "isOn": false
-        },
-        {
-            "name": "input",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        16,
-                        15
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 2
-                },
-                {
-                    "index": 0,
-                    "wireId": 3
-                }
-            ],
-            "isOn": false
-        },
-        {
-            "name": "input",
-            "category": "other",
-            "transform": {
-                "items": [{
-                    "name": "translate",
-                    "args": [
-                        16,
-                        24
-                    ]
-                }]
-            },
-            "connections": [{
-                    "index": 0,
-                    "wireId": 4
-                },
-                {
-                    "index": 0,
-                    "wireId": 5
-                }
-            ],
-            "isOn": false
-        },
-        {
-            "name": "xor",
+            "name": "and",
             "category": "gate",
             "transform": {
                 "items": [{
                     "name": "translate",
-                    "args": [
-                        28,
-                        7
-                    ]
+                    "args": [42, 22]
                 }]
             },
             "connections": [{
                     "index": 0,
-                    "wireId": 6
-                },
-                {
-                    "index": 0,
-                    "wireId": 7
+                    "wireId": 0
                 },
                 {
                     "index": 1,
-                    "wireId": 0
+                    "wireId": 1
                 },
                 {
                     "index": 2,
@@ -105,23 +29,20 @@
             "transform": {
                 "items": [{
                     "name": "translate",
-                    "args": [
-                        43,
-                        8
-                    ]
+                    "args": [42, 15]
                 }]
             },
             "connections": [{
                     "index": 0,
-                    "wireId": 8
+                    "wireId": 3
                 },
                 {
                     "index": 1,
-                    "wireId": 6
+                    "wireId": 4
                 },
                 {
                     "index": 2,
-                    "wireId": 4
+                    "wireId": 5
                 }
             ]
         },
@@ -131,15 +52,12 @@
             "transform": {
                 "items": [{
                     "name": "translate",
-                    "args": [
-                        66,
-                        8
-                    ]
+                    "args": [63, 15]
                 }]
             },
             "connections": [{
                 "index": 0,
-                "wireId": 8
+                "wireId": 3
             }]
         },
         {
@@ -148,15 +66,12 @@
             "transform": {
                 "items": [{
                     "name": "translate",
-                    "args": [
-                        42,
-                        23
-                    ]
+                    "args": [27, 30]
                 }]
             },
             "connections": [{
                     "index": 0,
-                    "wireId": 9
+                    "wireId": 6
                 },
                 {
                     "index": 1,
@@ -164,35 +79,96 @@
                 },
                 {
                     "index": 2,
-                    "wireId": 5
+                    "wireId": 8
                 }
             ]
         },
         {
-            "name": "and",
+            "name": "xor",
             "category": "gate",
             "transform": {
                 "items": [{
                     "name": "translate",
-                    "args": [
-                        42,
-                        15
-                    ]
+                    "args": [27, 23]
                 }]
             },
             "connections": [{
                     "index": 0,
-                    "wireId": 10
+                    "wireId": 2
+                },
+                {
+                    "index": 0,
+                    "wireId": 5
                 },
                 {
                     "index": 1,
-                    "wireId": 1
+                    "wireId": 9
                 },
                 {
                     "index": 2,
-                    "wireId": 3
+                    "wireId": 10
                 }
             ]
+        },
+        {
+            "name": "input",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [16, 14]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 4
+                },
+                {
+                    "index": 0,
+                    "wireId": 1
+                }
+            ],
+            "isOn": false
+        },
+        {
+            "name": "input",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [16, 22]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 7
+                },
+                {
+                    "index": 0,
+                    "wireId": 9
+                }
+            ],
+            "isOn": false
+        },
+        {
+            "name": "input",
+            "category": "other",
+            "transform": {
+                "items": [{
+                    "name": "translate",
+                    "args": [16, 31]
+                }]
+            },
+            "connections": [{
+                    "index": 0,
+                    "wireId": 8
+                },
+                {
+                    "index": 0,
+                    "wireId": 10
+                }
+            ],
+            "isOn": false
         },
         {
             "name": "or",
@@ -200,10 +176,7 @@
             "transform": {
                 "items": [{
                     "name": "translate",
-                    "args": [
-                        53,
-                        19
-                    ]
+                    "args": [51, 29]
                 }]
             },
             "connections": [{
@@ -212,11 +185,11 @@
                 },
                 {
                     "index": 1,
-                    "wireId": 10
+                    "wireId": 0
                 },
                 {
                     "index": 2,
-                    "wireId": 9
+                    "wireId": 6
                 }
             ]
         },
@@ -226,10 +199,7 @@
             "transform": {
                 "items": [{
                     "name": "translate",
-                    "args": [
-                        66,
-                        19
-                    ]
+                    "args": [63, 29]
                 }]
             },
             "connections": [{
