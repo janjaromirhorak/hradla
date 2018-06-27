@@ -57,7 +57,7 @@
             "index": 0,
             "wireId": 5
         }],
-        "isOn": true
+        "isOn": false
     }, {
         "name": "input",
         "category": "other",
@@ -195,7 +195,7 @@
             "index": 0,
             "wireId": 16
         }],
-        "isOn": true
+        "isOn": false
     }, {
         "name": "input",
         "category": "other",
@@ -212,7 +212,7 @@
             "index": 0,
             "wireId": 17
         }],
-        "isOn": true
+        "isOn": false
     }, {
         "name": "output",
         "category": "other",
@@ -376,7 +376,7 @@
             "index": 0,
             "wireId": 28
         }],
-        "isOn": true
+        "isOn": false
     }, {
         "name": "output",
         "category": "other",
