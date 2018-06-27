@@ -68,7 +68,7 @@
                     "wireId": 5
                 }
             ],
-            "isOn": true
+            "isOn": false
         },
         {
             "name": "input",
@@ -236,7 +236,7 @@
                     "wireId": 16
                 }
             ],
-            "isOn": true
+            "isOn": false
         },
         {
             "name": "input",
@@ -256,7 +256,7 @@
                     "wireId": 17
                 }
             ],
-            "isOn": true
+            "isOn": false
         },
         {
             "name": "output",
@@ -452,7 +452,7 @@
                     "wireId": 28
                 }
             ],
-            "isOn": true
+            "isOn": false
         },
         {
             "name": "output",
