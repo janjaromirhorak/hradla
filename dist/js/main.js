@@ -930,9 +930,9 @@ module.exports = {
 	PriorityQueue: require('./Datastructures/PriorityQueue')
 };
 },{"./Datastructures/DoublyLinkedList":2,"./Datastructures/Heap":3,"./Datastructures/MaxHeap":4,"./Datastructures/MinHeap":5,"./Datastructures/PriorityQueue":6,"./Datastructures/Queue":7,"./Datastructures/Stack":8}],10:[function(require,module,exports){
-"use strict";
+'use strict';
 
-var _App = require("./modules/App");
+var _App = require('./modules/App');
 
 var _App2 = _interopRequireDefault(_App);
 
@@ -942,7 +942,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * When the document is ready, initialize the application
  */
 $(function () {
-  new _App2.default("#canvas", 10);
+  new _App2.default('#canvas', 10);
 });
 
 },{"./modules/App":11}],11:[function(require,module,exports){
@@ -1079,18 +1079,18 @@ var App = function () {
         this.leftTopPadding = 4;
 
         // create the defs element, used for patterns
-        this.$defs = $("<defs>");
+        this.$defs = $('<defs>');
         this.$svg.prepend(this.$defs);
 
         // BACKGROUND PATTERN
-        var pattern = new _svgObjects.Pattern("grid", this.gridSize, this.gridSize);
+        var pattern = new _svgObjects.Pattern('grid', this.gridSize, this.gridSize);
 
         var patternPoints = new _svgObjects.PolyLinePoints().append(new _svgObjects.PolyLinePoint(0, 0)).append(new _svgObjects.PolyLinePoint(this.gridSize, 0)).append(new _svgObjects.PolyLinePoint(this.gridSize, this.gridSize));
 
-        pattern.addChild(new _svgObjects.PolyLine(patternPoints, 2, "#c2c3e4"));
+        pattern.addChild(new _svgObjects.PolyLine(patternPoints, 2, '#c2c3e4'));
         this.addPattern(pattern.get());
 
-        this.background = new _svgObjects.Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
+        this.background = new _svgObjects.Rectangle(0, 0, this.width, this.height, 'url(#grid)', 'none');
         this.appendJQueryObject(this.background.get());
         this.refresh();
 
@@ -1141,14 +1141,14 @@ var App = function () {
             target = undefined;
 
             event.preventDefault();
-        }).on("contextmenu", function (event) {
+        }).on('contextmenu', function (event) {
             _this.displayContextMenu(event.pageX, event.pageY, _this.getRealJQueryTarget(event.target));
             event.preventDefault();
         });
 
         $(document).on('keydown', function (event) {
             _this.onKeyDown(event);
-        }).on("keyup", function (event) {
+        }).on('keyup', function (event) {
             _this.onKeyUp(event);
         });
 
@@ -1298,7 +1298,12 @@ var App = function () {
         key: 'applyViewbox',
         value: function applyViewbox() {
             // adjust background
-            this.background.addAttr({ x: this.viewbox.left, y: this.viewbox.top, width: this.viewbox.width, height: this.viewbox.height });
+            this.background.addAttr({
+                x: this.viewbox.left,
+                y: this.viewbox.top,
+                width: this.viewbox.width,
+                height: this.viewbox.height
+            });
 
             // set the viewBox attribute
             this.$svg.attr('viewBox', this.viewbox.str);
@@ -1388,7 +1393,7 @@ var App = function () {
                                 for (var _iterator4 = boxData.transform.items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
                                     var transformInfo = _step4.value;
 
-                                    if (transformInfo.name === "translate") {
+                                    if (transformInfo.name === 'translate') {
                                         if (leftTopCorner) {
                                             leftTopCorner = {
                                                 x: Math.min(leftTopCorner.x, transformInfo.args[0]),
@@ -1436,22 +1441,23 @@ var App = function () {
                 var _loop = function _loop(_boxData) {
                     // mapping of dataBox.name of the objects that have category "other"
                     var otherMap = {
-                        "input": function input() {
+                        input: function input() {
                             return _this3.newInput(0, 0, _boxData.isOn, false);
                         },
-                        "output": function output() {
+                        output: function output() {
                             return _this3.newOutput(0, 0, false);
                         }
+                    };
 
-                        // mapping of dataBox.category
-                    };var boxMap = {
-                        "gate": function gate() {
+                    // mapping of dataBox.category
+                    var boxMap = {
+                        gate: function gate() {
                             return _this3.newGate(_boxData.name, 0, 0, false);
                         },
-                        "blackbox": function blackbox() {
+                        blackbox: function blackbox() {
                             return _this3.newBlackbox(_boxData.inputs, _boxData.outputs, _boxData.table, _boxData.name, 0, 0, false);
                         },
-                        "other": function other() {
+                        other: function other() {
                             if (!_boxData.name) throw 'This network contains a box without a name.';
 
                             if (!otherMap[_boxData.name]) throw 'This network contains unknown box names. (' + _boxData.name + ')';
@@ -1482,15 +1488,14 @@ var App = function () {
                         var rotationCount = 0;
 
                         var transformItemMap = {
-                            "translate": function translate(args) {
-                                transform.setTranslate(args[0] - leftTopCorner.x // make it the relative distance from the leftmost element
-                                + x // apply the position
-
-                                , args[1] - leftTopCorner.y // make it the relative distance from the topmost element
-                                + y // apply the position
+                            translate: function translate(args) {
+                                transform.setTranslate(args[0] - leftTopCorner.x + // make it the relative distance from the leftmost element
+                                x, // apply the position
+                                args[1] - leftTopCorner.y + // make it the relative distance from the topmost element
+                                y // apply the position
                                 );
                             },
-                            "rotate": function rotate(args) {
+                            rotate: function rotate(args) {
                                 rotationCount = args[0] % 360 / 90;
                             }
                         };
@@ -1721,9 +1726,9 @@ var App = function () {
                     }
 
                     // routeWorker.js replaced in the build process (defined in gulpfile) depending on devel / prod build
-                    var myWorker = new Worker("js/routeWorker.js");
+                    var myWorker = new Worker('js/routeWorker.js');
 
-                    var loadingMessage = _this3.messages.newLoadingMessage("looking for the best wiring…");
+                    var loadingMessage = _this3.messages.newLoadingMessage('looking for the best wiring…');
 
                     myWorker.onmessage = function (event) {
                         var paths = event.data.paths;
@@ -1764,7 +1769,7 @@ var App = function () {
                                 _wire.updateWireState();
                             }
                         } else {
-                            console.log("finished");
+                            console.log('finished');
                             clearInterval(wirePlacingInterval);
                         }
                     }, delayBetweenIterations);
@@ -1951,7 +1956,7 @@ var App = function () {
                 var tr = new editorElements.Transform();
                 tr.setTranslate(x, y);
 
-                this.boxes[index].svgObj.addAttr({ "transform": tr.get() });
+                this.boxes[index].svgObj.addAttr({ transform: tr.get() });
             }
 
             this.appendElement(this.boxes[index], refresh);
@@ -1972,7 +1977,7 @@ var App = function () {
     }, {
         key: 'removeBox',
         value: function removeBox(boxId) {
-            var $gate = $("#" + boxId);
+            var $gate = $('#' + boxId);
 
             // find the gate in svg's list of gates
             var gateIndex = -1;
@@ -1998,7 +2003,7 @@ var App = function () {
                     this.tutorial.onElementRemoved();
                 }
             } else {
-                console.error("Trying to remove an nonexisting box. Box id:", boxId);
+                console.error('Trying to remove an nonexisting box. Box id:', boxId);
             }
         }
 
@@ -2111,8 +2116,8 @@ var App = function () {
             position.left = this.viewbox.transformX(position.left);
             position.top = this.viewbox.transformY(position.top);
 
-            var width = $connector.attr("width");
-            var height = $connector.attr("height");
+            var width = $connector.attr('width');
+            var height = $connector.attr('height');
 
             var x = position.left + width / 2;
             var y = position.top + height / 2;
@@ -2205,7 +2210,7 @@ var App = function () {
                 var tr = new editorElements.Transform();
                 tr.setTranslate(x, y);
 
-                this.boxes[index].svgObj.addAttr({ "transform": tr.get() });
+                this.boxes[index].svgObj.addAttr({ transform: tr.get() });
             }
 
             this.appendElement(this.boxes[index], refresh);
@@ -2343,7 +2348,7 @@ var App = function () {
                 otherConnector.wireIds.delete(wireId);
 
                 // remove the wire representation using jQuery
-                $("#" + wireId).remove();
+                $('#' + wireId).remove();
 
                 // if otherConnector is an input connector, set its state to unknown
                 if (otherConnector.isInputConnector) {
@@ -2410,7 +2415,6 @@ var App = function () {
         value: function getConnectorById(connectorId) {
             var wire = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
 
-
             if (wire !== undefined) {
                 // we know the wire -- we can check only gates at the ends of this wire
                 var _wire$connection2 = wire.connection,
@@ -2468,9 +2472,9 @@ var App = function () {
         key: 'getRealJQueryTarget',
         value: function getRealJQueryTarget(target) {
             var $target = $(target);
-            if (!$target.hasClass("connector") && $target.parents('g').length > 0) {
+            if (!$target.hasClass('connector') && $target.parents('g').length > 0) {
                 $target = $target.parent();
-                while ($target.prop("tagName") !== "G" && $target.prop("tagName") !== "g") {
+                while ($target.prop('tagName') !== 'G' && $target.prop('tagName') !== 'g') {
                     $target = $target.parent();
                 }
             }
@@ -2494,7 +2498,7 @@ var App = function () {
             // eventy se museji zpracovat tady, protoze v SVG se eventy nepropaguji
             var $target = $(target);
 
-            if ($target.hasClass("connector")) {
+            if ($target.hasClass('connector')) {
                 // this is a connector, don't traverse groups
                 return this.getConnectorById($target.attr('id'));
             } else if ($target.parents('g').length > 0) {
@@ -2502,16 +2506,16 @@ var App = function () {
 
                 // traversing up the DOM tree until we find the closest group
                 var $parentGroup = $target.parent();
-                while ($parentGroup.prop("tagName") !== "G" && $parentGroup.prop("tagName") !== "g") {
+                while ($parentGroup.prop('tagName') !== 'G' && $parentGroup.prop('tagName') !== 'g') {
                     $parentGroup = $parentGroup.parent();
                 }
 
                 // try to match the jQuery element to the logical element using DOM classes
 
-                if ($parentGroup.hasClass("box")) {
+                if ($parentGroup.hasClass('box')) {
                     // return the corresponding box
                     return this.getBoxById($parentGroup.attr('id'));
-                } else if ($parentGroup.hasClass("wire")) {
+                } else if ($parentGroup.hasClass('wire')) {
                     // return the corresponding wire
                     return this.getWireById($parentGroup.attr('id'));
                 } else {
@@ -2573,7 +2577,7 @@ var App = function () {
         key: 'refresh',
         value: function refresh() {
             this.$svg.html(this.$svg.html());
-            console.log("SVG document has been reloaded.");
+            console.log('SVG document has been reloaded.');
         }
 
         /**
@@ -2656,7 +2660,7 @@ var App = function () {
          * @param  {string} objId id of the element
          */
         value: function moveToFrontById(objId) {
-            this.$svg.append($("#" + objId));
+            this.$svg.append($('#' + objId));
         }
 
         /**
@@ -2667,7 +2671,7 @@ var App = function () {
     }, {
         key: 'moveToBackById',
         value: function moveToBackById(objId) {
-            $("#" + this.background.id).after($("#" + objId));
+            $('#' + this.background.id).after($('#' + objId));
         }
 
         /**
@@ -3150,7 +3154,7 @@ var Logic = function () {
 exports.default = Logic;
 
 },{}],13:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -3159,7 +3163,7 @@ exports.SimulationDummy = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Logic = require("./Logic");
+var _Logic = require('./Logic');
 
 var _Logic2 = _interopRequireDefault(_Logic);
 
@@ -3192,14 +3196,14 @@ var SimulationDummy = exports.SimulationDummy = function () {
     }
 
     _createClass(SimulationDummy, [{
-        key: "notifyChange",
+        key: 'notifyChange',
         value: function notifyChange() {
-            console.log("SimulationDummy.notifyChange() has been called.");
+            console.log('SimulationDummy.notifyChange() has been called.');
         }
     }, {
-        key: "run",
+        key: 'run',
         value: function run() {
-            console.log("SimulationDummy.run() has been called.");
+            console.log('SimulationDummy.run() has been called.');
         }
     }]);
 
@@ -3258,7 +3262,7 @@ var Simulation = function () {
 
 
     _createClass(Simulation, [{
-        key: "run",
+        key: 'run',
         value: function run() {
             this.wave++;
             while (this.waves.has(this.wave)) {
@@ -3275,7 +3279,7 @@ var Simulation = function () {
          */
 
     }, {
-        key: "step",
+        key: 'step',
         value: function step() {
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
@@ -3300,7 +3304,6 @@ var Simulation = function () {
 
                         // if the connector already had this state in this cycle, resolve the cycle
                         if (states.has(state)) {
-
                             // if there are more states in the set, the connector is oscillating
                             // (else it keeps its state and we just break the cycle)
                             if (states.size > 1) {
@@ -3368,7 +3371,7 @@ var Simulation = function () {
          */
 
     }, {
-        key: "addPredecessor",
+        key: 'addPredecessor',
         value: function addPredecessor(connectorId, predecessorConnectorId) {
             if (!this.predecessors.has(connectorId)) {
                 this.predecessors.set(connectorId, new Set());
@@ -3384,7 +3387,7 @@ var Simulation = function () {
          */
 
     }, {
-        key: "getAllPredecessors",
+        key: 'getAllPredecessors',
         value: function getAllPredecessors(connectorId) {
             if (!this.predecessors.has(connectorId)) {
                 this.predecessors.set(connectorId, new Set());
@@ -3438,7 +3441,7 @@ var Simulation = function () {
          */
 
     }, {
-        key: "notifyChange",
+        key: 'notifyChange',
         value: function notifyChange(connectorId, state) {
             var waveId = this.wave + 1;
 
@@ -3594,14 +3597,14 @@ var Blackbox = function (_Box) {
      * @param {String} [name]        name that will be displayed on the blackbox
      */
     function Blackbox(appInstance, inputConnectors, outputConnectors, evalFunction) {
-        var name = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "";
+        var name = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
 
         _classCallCheck(this, Blackbox);
 
         var width = 11;
         var height = Math.max(inputConnectors, outputConnectors) * 2;
 
-        var _this = _possibleConstructorReturn(this, (Blackbox.__proto__ || Object.getPrototypeOf(Blackbox)).call(this, appInstance, name, "blackbox", width, height));
+        var _this = _possibleConstructorReturn(this, (Blackbox.__proto__ || Object.getPrototypeOf(Blackbox)).call(this, appInstance, name, 'blackbox', width, height));
 
         var connectorPinLenght = 2.5 * _this.gridSize;
 
@@ -3609,7 +3612,7 @@ var Blackbox = function (_Box) {
         _this.svgObj = new _svgObjects.Group();
 
         // transparent background rectangle
-        var hitbox = new _svgObjects.Rectangle(0, 0, _this.width, _this.height, "none", "none");
+        var hitbox = new _svgObjects.Rectangle(0, 0, _this.width, _this.height, 'none', 'none');
         hitbox.$el.addClass('rect');
 
         _this.svgObj.addChild(hitbox);
@@ -3617,7 +3620,7 @@ var Blackbox = function (_Box) {
         // main rectangle
         var bodyWidth = _this.width - 2 * connectorPinLenght;
 
-        var rectangle = new _svgObjects.Rectangle(connectorPinLenght, 0, bodyWidth, _this.height, "white", "black");
+        var rectangle = new _svgObjects.Rectangle(connectorPinLenght, 0, bodyWidth, _this.height, 'white', 'black');
         rectangle.addAttr({ 'stroke-width': '2.5' });
         rectangle.$el.addClass('rect');
 
@@ -3636,7 +3639,7 @@ var Blackbox = function (_Box) {
             var gridPosition = i * 2 + 1;
             var pixelPosition = gridPosition * _this.gridSize;
 
-            var pin = new _svgObjects.PolyLine(new _svgObjects.PolyLinePoints([new _svgObjects.PolyLinePoint(0, pixelPosition), new _svgObjects.PolyLinePoint(connectorPinLenght, pixelPosition)]), 1, "black");
+            var pin = new _svgObjects.PolyLine(new _svgObjects.PolyLinePoints([new _svgObjects.PolyLinePoint(0, pixelPosition), new _svgObjects.PolyLinePoint(connectorPinLenght, pixelPosition)]), 1, 'black');
 
             _this.svgObj.addChild(pin);
 
@@ -3649,14 +3652,14 @@ var Blackbox = function (_Box) {
             var _gridPosition = _i * 2 + 1;
             var _pixelPosition = _gridPosition * _this.gridSize;
 
-            var _pin = new _svgObjects.PolyLine(new _svgObjects.PolyLinePoints([new _svgObjects.PolyLinePoint(_this.width - connectorPinLenght, _pixelPosition), new _svgObjects.PolyLinePoint(_this.width, _pixelPosition)]), 1, "black");
+            var _pin = new _svgObjects.PolyLine(new _svgObjects.PolyLinePoints([new _svgObjects.PolyLinePoint(_this.width - connectorPinLenght, _pixelPosition), new _svgObjects.PolyLinePoint(_this.width, _pixelPosition)]), 1, 'black');
 
             _this.svgObj.addChild(_pin);
 
             _this.addOutputConnector(width, _gridPosition);
         }
 
-        _this.svgObj.$el.addClass("box");
+        _this.svgObj.$el.addClass('box');
 
         /**
          * function that takes `inputConnectors` [Logic.state](./module-Logic.html#.state)s
@@ -3971,7 +3974,7 @@ var Box = function (_NetworkElement) {
         _this.gridHeight = gridHeight;
 
         // transparent background rectangle
-        var rectangle = new _svgObjects.Rectangle(0, 0, _this.width, _this.height, "none", "none");
+        var rectangle = new _svgObjects.Rectangle(0, 0, _this.width, _this.height, 'none', 'none');
         rectangle.$el.addClass('rect');
 
         _this.svgObj.addChild(rectangle);
@@ -3981,9 +3984,9 @@ var Box = function (_NetworkElement) {
         _this.svgObj.addChild(_this.image);
 
         // add type="gate", used in special callbacks in contextmenu
-        _this.svgObj.addAttr({ "type": category });
+        _this.svgObj.addAttr({ type: category });
 
-        _this.svgObj.$el.addClass("box");
+        _this.svgObj.$el.addClass('box');
         _this.svgObj.$el.addClass(category);
         return _this;
     }
@@ -4061,7 +4064,7 @@ var Box = function (_NetworkElement) {
     }, {
         key: 'refreshState',
         value: function refreshState() {
-            console.warn("Calling the virtual function refreshState has no effect.");
+            console.warn('Calling the virtual function refreshState has no effect.');
         }
 
         /**
@@ -4075,10 +4078,10 @@ var Box = function (_NetworkElement) {
     }, {
         key: 'changeImage',
         value: function changeImage(suffix) {
-            if (suffix === undefined || suffix === "") {
-                this.imgSuffix = "";
+            if (suffix === undefined || suffix === '') {
+                this.imgSuffix = '';
             } else {
-                this.imgSuffix = "-" + suffix;
+                this.imgSuffix = '-' + suffix;
             }
 
             this.image.changeUrl(this.url);
@@ -4200,9 +4203,10 @@ var Box = function (_NetworkElement) {
             var realCenter = {
                 x: Math.round(this.gridWidth / 2),
                 y: Math.round(this.gridHeight / 2)
+            };
 
-                // swap the coordinates when the rotation parity is 1
-            };var center = this.rotationParity ? {
+            // swap the coordinates when the rotation parity is 1
+            var center = this.rotationParity ? {
                 x: realCenter.y,
                 y: realCenter.x
             } : realCenter;
@@ -4224,7 +4228,7 @@ var Box = function (_NetworkElement) {
             // convert the modified transform back to SVG pixels
             // and apply it to the svgObj
             transform.toSVGPixels(this.appInstance);
-            this.svgObj.addAttr({ "transform": transform.get() });
+            this.svgObj.addAttr({ transform: transform.get() });
 
             // update the wires
             this.updateWires();
@@ -4308,14 +4312,14 @@ var Box = function (_NetworkElement) {
             var gridPixels = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
             var transform = void 0;
-            if (!this.svgObj.$el.attr("transform")) {
+            if (!this.svgObj.$el.attr('transform')) {
                 // the element does not have a "transform" property --> create it
                 transform = new _Transform2.default();
                 transform.setTranslate(0, 0);
-                this.svgObj.addAttr({ "transform": transform.get() });
+                this.svgObj.addAttr({ transform: transform.get() });
             } else {
                 // the element does have a "transform" property --> change it
-                transform = new _Transform2.default(this.svgObj.$el.attr("transform"));
+                transform = new _Transform2.default(this.svgObj.$el.attr('transform'));
             }
 
             // convert values to grid pixels
@@ -4345,7 +4349,7 @@ var Box = function (_NetworkElement) {
     }, {
         key: 'setTransform',
         value: function setTransform(transform) {
-            this.svgObj.addAttr({ "transform": transform.get() });
+            this.svgObj.addAttr({ transform: transform.get() });
         }
 
         /**
@@ -4532,9 +4536,9 @@ var Box = function (_NetworkElement) {
     }, {
         key: 'url',
         get: function get() {
-            var category = this.category || "",
-                name = this.name || "",
-                suffix = this.imgSuffix || "";
+            var category = this.category || '',
+                name = this.name || '',
+                suffix = this.imgSuffix || '';
 
             return 'img/svg/' + category + '/' + name + suffix + '.svg';
         }
@@ -4731,9 +4735,9 @@ var Connector = function (_NetworkElement) {
      * instance of {@link svgObjects.svgObj} that holds all SVG information about this connector
      * @type {svgObj}
      */
-    _this.svgObj = new _svgObjects.Rectangle(left * _this.gridSize - _this.connectorOffset, top * _this.gridSize - _this.connectorOffset, _this.connectorSize, _this.connectorSize, "none", "black");
+    _this.svgObj = new _svgObjects.Rectangle(left * _this.gridSize - _this.connectorOffset, top * _this.gridSize - _this.connectorOffset, _this.connectorSize, _this.connectorSize, 'none', 'black');
 
-    _this.svgObj.$el.addClass("connector");
+    _this.svgObj.$el.addClass('connector');
 
     /**
      * this flag describes whether this connector is an input connector
@@ -4922,7 +4926,7 @@ var Gate = function (_Box) {
 
         // ADD CONNECTORS
 
-        var _this = _possibleConstructorReturn(this, (Gate.__proto__ || Object.getPrototypeOf(Gate)).call(this, appInstance, name, "gate", width, height));
+        var _this = _possibleConstructorReturn(this, (Gate.__proto__ || Object.getPrototypeOf(Gate)).call(this, appInstance, name, 'gate', width, height));
 
         var specialNodes = [];
 
@@ -4935,7 +4939,7 @@ var Gate = function (_Box) {
             y: height / 2
         });
 
-        if (_this.name === "not" || _this.name === "repeater") {
+        if (_this.name === 'not' || _this.name === 'repeater') {
             // input
             _this.addConnector(0, height / 2, true);
             // block the input connector
@@ -5005,28 +5009,28 @@ var Gate = function (_Box) {
 
             // map gate names to their logic functions
             var stateMap = {
-                "and": function and() {
+                and: function and() {
                     return _Logic2.default.and(_this2.connectors[1].state, _this2.connectors[2].state);
                 },
-                "nand": function nand() {
+                nand: function nand() {
                     return _Logic2.default.nand(_this2.connectors[1].state, _this2.connectors[2].state);
                 },
-                "nor": function nor() {
+                nor: function nor() {
                     return _Logic2.default.nor(_this2.connectors[1].state, _this2.connectors[2].state);
                 },
-                "not": function not() {
+                not: function not() {
                     return _Logic2.default.not(_this2.connectors[1].state);
                 },
-                "or": function or() {
+                or: function or() {
                     return _Logic2.default.or(_this2.connectors[1].state, _this2.connectors[2].state);
                 },
-                "xnor": function xnor() {
+                xnor: function xnor() {
                     return _Logic2.default.xnor(_this2.connectors[1].state, _this2.connectors[2].state);
                 },
-                "xor": function xor() {
+                xor: function xor() {
                     return _Logic2.default.xor(_this2.connectors[1].state, _this2.connectors[2].state);
                 },
-                "repeater": function repeater() {
+                repeater: function repeater() {
                     return _this2.connectors[1].state;
                 }
             };
@@ -5044,7 +5048,7 @@ var Gate = function (_Box) {
         key: 'validGates',
         get: function get() {
             // return new Set(["not", "and", "or", "nand", "nor", "xor", "xnor", "repeater"]);
-            return new Set(["not", "and", "or", "nand", "nor", "xor", "xnor"]);
+            return new Set(['not', 'and', 'or', 'nand', 'nor', 'xor', 'xnor']);
         }
     }]);
 
@@ -5098,7 +5102,7 @@ var HelperWire = function (_NetworkElement) {
 
         var points = new _svgObjects.PolyLinePoints([from, to]);
 
-        _this.svgObj = new _svgObjects.PolyLine(points, 2, "#8b8b8b");
+        _this.svgObj = new _svgObjects.PolyLine(points, 2, '#8b8b8b');
         return _this;
     }
 
@@ -5178,7 +5182,7 @@ var InputBox = function (_Box) {
         var gridWidth = 7;
         var gridHeight = 4;
 
-        var _this = _possibleConstructorReturn(this, (InputBox.__proto__ || Object.getPrototypeOf(InputBox)).call(this, appInstance, "input", "other", gridWidth, gridHeight));
+        var _this = _possibleConstructorReturn(this, (InputBox.__proto__ || Object.getPrototypeOf(InputBox)).call(this, appInstance, 'input', 'other', gridWidth, gridHeight));
 
         _this.addConnector(gridWidth, gridHeight / 2, false);
 
@@ -5247,7 +5251,7 @@ var InputBox = function (_Box) {
         set: function set(isOn) {
             if (isOn) {
                 // turn on
-                this.changeImage("on");
+                this.changeImage('on');
                 this.connectors[0].setState(_Logic2.default.state.on);
                 this.refreshState();
             } else {
@@ -5386,7 +5390,7 @@ var NetworkElement = function () {
     _classCallCheck(this, NetworkElement);
 
     if (!appInstance) {
-      console.error("Parent SVG element has to be defined.");
+      console.error('Parent SVG element has to be defined.');
     }
     this.appInstance = appInstance;
 
@@ -5492,7 +5496,7 @@ var OutputBox = function (_Box) {
         var gridHeight = 4;
         var gridWidth = 5;
 
-        var _this = _possibleConstructorReturn(this, (OutputBox.__proto__ || Object.getPrototypeOf(OutputBox)).call(this, appInstance, "output", "other", gridWidth, gridHeight));
+        var _this = _possibleConstructorReturn(this, (OutputBox.__proto__ || Object.getPrototypeOf(OutputBox)).call(this, appInstance, 'output', 'other', gridWidth, gridHeight));
 
         _this.addConnector(0, gridHeight / 2, true);
 
@@ -5527,10 +5531,10 @@ var OutputBox = function (_Box) {
             }
 
             var stateMap = {};
-            stateMap[_Logic2.default.state.on] = "on";
-            stateMap[_Logic2.default.state.off] = "off";
-            stateMap[_Logic2.default.state.unknown] = "";
-            stateMap[_Logic2.default.state.oscillating] = "osc";
+            stateMap[_Logic2.default.state.on] = 'on';
+            stateMap[_Logic2.default.state.off] = 'off';
+            stateMap[_Logic2.default.state.unknown] = '';
+            stateMap[_Logic2.default.state.oscillating] = 'osc';
 
             this.changeImage(stateMap[state]);
         }
@@ -5642,7 +5646,7 @@ var OutputConnector = function (_Connector) {
 exports.default = OutputConnector;
 
 },{"./Connector":17}],25:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -5669,8 +5673,8 @@ var Property = function () {
         _classCallCheck(this, Property);
 
         if (string !== undefined) {
-            this.name = string.replace(/^[ ]*([^(]+).*/, "$1");
-            this.args = string.replace(/^[^(]+\((.*)\)/, "$1").split(' ');
+            this.name = string.replace(/^[ ]*([^(]+).*/, '$1');
+            this.args = string.replace(/^[^(]+\((.*)\)/, '$1').split(' ');
         }
     }
 
@@ -5681,7 +5685,7 @@ var Property = function () {
 
 
     _createClass(Property, [{
-        key: "setName",
+        key: 'setName',
         value: function setName(name) {
             this.name = name;
         }
@@ -5692,7 +5696,7 @@ var Property = function () {
          */
 
     }, {
-        key: "setArguments",
+        key: 'setArguments',
         value: function setArguments(args) {
             this.args = args;
         }
@@ -5703,9 +5707,9 @@ var Property = function () {
          */
 
     }, {
-        key: "get",
+        key: 'get',
         value: function get() {
-            return this.name + "(" + this.args.join(" ") + ")";
+            return this.name + '(' + this.args.join(' ') + ')';
         }
     }]);
 
@@ -5737,12 +5741,12 @@ var Transform = function () {
             var _iteratorError = undefined;
 
             try {
-                for (var _iterator = string.split(")")[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                for (var _iterator = string.split(')')[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                     var item = _step.value;
 
                     if (item) {
                         // if not empty
-                        this.items.push(new Property(item + ")"));
+                        this.items.push(new Property(item + ')'));
                     }
                 }
             } catch (err) {
@@ -5769,7 +5773,7 @@ var Transform = function () {
 
 
     _createClass(Transform, [{
-        key: "toGridPixels",
+        key: 'toGridPixels',
         value: function toGridPixels(appInstance) {
             this.pixelConversion(function (val) {
                 return appInstance.SVGToGrid(val);
@@ -5782,7 +5786,7 @@ var Transform = function () {
          */
 
     }, {
-        key: "toSVGPixels",
+        key: 'toSVGPixels',
         value: function toSVGPixels(appInstance) {
             this.pixelConversion(function (val) {
                 return appInstance.gridToSVG(val);
@@ -5795,16 +5799,16 @@ var Transform = function () {
          */
 
     }, {
-        key: "pixelConversion",
+        key: 'pixelConversion',
         value: function pixelConversion(convertor) {
             var propertyMap = {
-                "translate": function translate(item) {
+                translate: function translate(item) {
                     item.args = item.args.map(function (arg) {
                         return convertor(arg);
                     });
                     return item;
                 },
-                "rotate": function rotate(item) {
+                rotate: function rotate(item) {
                     item.args = [item.args[0], convertor(item.args[1]), convertor(item.args[2])];
                     return item;
                 }
@@ -5822,7 +5826,7 @@ var Transform = function () {
          */
 
     }, {
-        key: "getIndex",
+        key: 'getIndex',
         value: function getIndex(name) {
             for (var i = 0; i < this.items.length; i++) {
                 if (name === this.items[i].name) {
@@ -5839,9 +5843,9 @@ var Transform = function () {
          */
 
     }, {
-        key: "getTranslate",
+        key: 'getTranslate',
         value: function getTranslate() {
-            var args = this.getArguments(this.getIndex("translate"));
+            var args = this.getArguments(this.getIndex('translate'));
 
             return {
                 x: Number(args[0]),
@@ -5855,9 +5859,9 @@ var Transform = function () {
          */
 
     }, {
-        key: "getRotate",
+        key: 'getRotate',
         value: function getRotate() {
-            var args = this.getArguments(this.getIndex("rotate"));
+            var args = this.getArguments(this.getIndex('rotate'));
 
             return {
                 deg: Number(args[0]),
@@ -5873,9 +5877,9 @@ var Transform = function () {
          */
 
     }, {
-        key: "setTranslate",
+        key: 'setTranslate',
         value: function setTranslate(x, y) {
-            this.setParameter("translate", [x, y]);
+            this.setParameter('translate', [x, y]);
         }
 
         /**
@@ -5886,9 +5890,9 @@ var Transform = function () {
          */
 
     }, {
-        key: "setRotate",
+        key: 'setRotate',
         value: function setRotate(deg, centerX, centerY) {
-            this.setParameter("rotate", [deg, centerX, centerY]);
+            this.setParameter('rotate', [deg, centerX, centerY]);
         }
 
         /**
@@ -5899,11 +5903,11 @@ var Transform = function () {
          */
 
     }, {
-        key: "rotateRightAngle",
+        key: 'rotateRightAngle',
         value: function rotateRightAngle(centerX, centerY, right) {
             var amount = right ? 90 : 270;
 
-            if (this.getIndex("rotate") === -1) {
+            if (this.getIndex('rotate') === -1) {
                 this.setRotate(amount, centerX, centerY);
             } else {
                 var newRotation = (parseInt(this.getRotate().deg) + amount) % 360;
@@ -5927,7 +5931,7 @@ var Transform = function () {
          */
 
     }, {
-        key: "rotateRight",
+        key: 'rotateRight',
         value: function rotateRight(centerX, centerY) {
             this.rotateRightAngle(centerX, centerY, true);
         }
@@ -5939,7 +5943,7 @@ var Transform = function () {
          */
 
     }, {
-        key: "rotateLeft",
+        key: 'rotateLeft',
         value: function rotateLeft(centerX, centerY) {
             this.rotateRightAngle(centerX, centerY, false);
         }
@@ -5950,7 +5954,7 @@ var Transform = function () {
          */
 
     }, {
-        key: "get",
+        key: 'get',
         value: function get() {
             var retVal = void 0;
             var _iteratorNormalCompletion2 = true;
@@ -5962,7 +5966,7 @@ var Transform = function () {
                     var item = _step2.value;
 
                     if (retVal) {
-                        retVal += " " + item.get();
+                        retVal += ' ' + item.get();
                     } else {
                         retVal = item.get();
                     }
@@ -5992,7 +5996,7 @@ var Transform = function () {
          */
 
     }, {
-        key: "getArguments",
+        key: 'getArguments',
         value: function getArguments(index) {
             return this.items[index].args;
         }
@@ -6004,7 +6008,7 @@ var Transform = function () {
          */
 
     }, {
-        key: "setParameter",
+        key: 'setParameter',
         value: function setParameter(name, args) {
             // determine index of the parameter (if set), else index == -1
             var index = this.getIndex(name);
@@ -6105,12 +6109,12 @@ var Wire = function (_NetworkElement) {
                 // desired state
             } else {
                 // connecting two output connectors
-                throw "Can not place wire between two output connectors";
+                throw 'Can not place wire between two output connectors';
             }
         } else {
             if (_this.connection.to.connector.isInputConnector) {
                 // connecting two input connectors
-                throw "Can not place wire between two input connectors";
+                throw 'Can not place wire between two input connectors';
             } else {
                 var _ref = [_this.connection.to, _this.connection.from];
                 // swap them and we are ready to go
@@ -6136,7 +6140,7 @@ var Wire = function (_NetworkElement) {
             _this.appInstance.startNewSimulation(connector, connector.state);
         }
 
-        _this.svgObj.$el.addClass("wire");
+        _this.svgObj.$el.addClass('wire');
         return _this;
     }
 
@@ -6304,12 +6308,12 @@ var Wire = function (_NetworkElement) {
                 this.svgObj = new _svgObjects.Group();
 
                 var hitbox = new _svgObjects.PolyLine(points, 10, 'white');
-                hitbox.addClass("hitbox");
+                hitbox.addClass('hitbox');
                 hitbox.addAttr({ opacity: 0 });
                 this.svgObj.addChild(hitbox);
 
                 var mainLine = new _svgObjects.PolyLine(points, 2);
-                mainLine.addClass("main", "stateUnknown");
+                mainLine.addClass('main', 'stateUnknown');
                 this.svgObj.addChild(mainLine);
             }
         }
@@ -6470,13 +6474,13 @@ var Wire = function (_NetworkElement) {
 exports.default = Wire;
 
 },{"../Logic":12,"../findPath":28,"../svgObjects":32,"./NetworkElement":22,"./stateClasses":27}],27:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _Logic = require("../Logic");
+var _Logic = require('../Logic');
 
 var _Logic2 = _interopRequireDefault(_Logic);
 
@@ -6489,10 +6493,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var map = []; // array so we can use the ...spread operator
 
-map[_Logic2.default.state.on] = "stateOn";
-map[_Logic2.default.state.off] = "stateOff";
-map[_Logic2.default.state.unknown] = "stateUnknown";
-map[_Logic2.default.state.oscillating] = "stateOscillating";
+map[_Logic2.default.state.on] = 'stateOn';
+map[_Logic2.default.state.off] = 'stateOff';
+map[_Logic2.default.state.unknown] = 'stateUnknown';
+map[_Logic2.default.state.oscillating] = 'stateOscillating';
 
 exports.default = map;
 
@@ -6752,7 +6756,7 @@ function reconstructPath(cameFrom, currentNode) {
 }
 
 },{"./other/helperFunctions":29,"./other/mapWithDefaultValue":31,"libstl":9}],29:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -6761,7 +6765,7 @@ exports.addMouseScrollEventListener = addMouseScrollEventListener;
 exports.getJSONString = getJSONString;
 exports.manhattanDistance = manhattanDistance;
 
-var _jsonStringifyPrettyCompact = require("json-stringify-pretty-compact");
+var _jsonStringifyPrettyCompact = require('json-stringify-pretty-compact');
 
 var _jsonStringifyPrettyCompact2 = _interopRequireDefault(_jsonStringifyPrettyCompact);
 
@@ -6797,12 +6801,12 @@ function addMouseScrollEventListener(query, func) {
 
     if (svgelement.addEventListener) {
         // IE9, Chrome, Safari, Opera
-        svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
+        svgelement.addEventListener('mousewheel', MouseWheelHandler, false);
         // Firefox
-        svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+        svgelement.addEventListener('DOMMouseScroll', MouseWheelHandler, false);
     } else {
         // IE 6/7/8
-        svgelement.attachEvent("onmousewheel", MouseWheelHandler);
+        svgelement.attachEvent('onmousewheel', MouseWheelHandler);
     }
     svgelement.addEventListener('mousewheel', function (e) {
         console.log('event', e);
@@ -6844,7 +6848,7 @@ function manhattanDistance(a, b) {
 }
 
 },{"json-stringify-pretty-compact":1}],30:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -6880,7 +6884,7 @@ var Id = function () {
      * prefix for the id, that is common in all the Ids
      * @type {String}
      */
-    this.prefix = "id";
+    this.prefix = 'id';
 
     /**
      * numeric part of the next id (the next id without the prefix)
@@ -6898,13 +6902,13 @@ var Id = function () {
 
 
   _createClass(Id, [{
-    key: "unique",
+    key: 'unique',
     get: function get() {
       var retVal = this.prefix + this.nextId;
 
       // find next unused idXXXX to prevent id collision that might be caused by some other component
       // (it really should not happen, but this is a simple way to ensure it)
-      while ($("#" + retVal).length) {
+      while ($('#' + retVal).length) {
         this.nextId++;
         retVal = this.generate();
       }
@@ -7030,7 +7034,7 @@ Object.defineProperty(exports, 'MultiLineText', {
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 },{"./svgObjects/Group":33,"./svgObjects/MultiLineText":34,"./svgObjects/Pattern":35,"./svgObjects/PolyLine":36,"./svgObjects/PolyLinePoint":37,"./svgObjects/PolyLinePoints":38,"./svgObjects/Rectangle":39,"./svgObjects/SvgImage":41,"./svgObjects/Text":43}],33:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -7038,7 +7042,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Tag2 = require("./Tag");
+var _Tag2 = require('./Tag');
 
 var _Tag3 = _interopRequireDefault(_Tag2);
 
@@ -7063,7 +7067,7 @@ var Group = function (_Tag) {
     function Group() {
         _classCallCheck(this, Group);
 
-        var _this = _possibleConstructorReturn(this, (Group.__proto__ || Object.getPrototypeOf(Group)).call(this, "g"));
+        var _this = _possibleConstructorReturn(this, (Group.__proto__ || Object.getPrototypeOf(Group)).call(this, 'g'));
 
         _this.children = [];
         return _this;
@@ -7076,7 +7080,7 @@ var Group = function (_Tag) {
 
 
     _createClass(Group, [{
-        key: "addChild",
+        key: 'addChild',
         value: function addChild(el) {
             this.children.push(el);
 
@@ -7144,13 +7148,13 @@ var MultiLineText = function (_Tag) {
      *
      */
     function MultiLineText(x, y, w, h, text, size) {
-        var color = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : "black";
+        var color = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'black';
 
         _classCallCheck(this, MultiLineText);
 
-        var _this = _possibleConstructorReturn(this, (MultiLineText.__proto__ || Object.getPrototypeOf(MultiLineText)).call(this, "switch"));
+        var _this = _possibleConstructorReturn(this, (MultiLineText.__proto__ || Object.getPrototypeOf(MultiLineText)).call(this, 'switch'));
 
-        var foreignObject = new _Tag3.default("foreignObject");
+        var foreignObject = new _Tag3.default('foreignObject');
         var alternativeText = new _Text2.default(x, y, w, h, text, size, color);
 
         foreignObject.addAttr({
@@ -7160,9 +7164,9 @@ var MultiLineText = function (_Tag) {
             height: h
         });
 
-        var $wrapper = $("<div>").attr("xmlns", "http://www.w3.org/1999/xhtml").addClass("multilinetext").css("height", h);
+        var $wrapper = $('<div>').attr('xmlns', 'http://www.w3.org/1999/xhtml').addClass('multilinetext').css('height', h);
 
-        var $paragraph = $("<p>").attr("xmlns", "http://www.w3.org/1999/xhtml").css("font-size", size).append(text);
+        var $paragraph = $('<p>').attr('xmlns', 'http://www.w3.org/1999/xhtml').css('font-size', size).append(text);
 
         $wrapper.append($paragraph);
         foreignObject.$el.append($wrapper);
@@ -7177,7 +7181,7 @@ var MultiLineText = function (_Tag) {
 exports.default = MultiLineText;
 
 },{"./Tag":42,"./Text":43}],35:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -7185,7 +7189,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Tag2 = require("./Tag");
+var _Tag2 = require('./Tag');
 
 var _Tag3 = _interopRequireDefault(_Tag2);
 
@@ -7214,7 +7218,7 @@ var Pattern = function (_Tag) {
     function Pattern(id, width, height) {
         _classCallCheck(this, Pattern);
 
-        var _this = _possibleConstructorReturn(this, (Pattern.__proto__ || Object.getPrototypeOf(Pattern)).call(this, "pattern"));
+        var _this = _possibleConstructorReturn(this, (Pattern.__proto__ || Object.getPrototypeOf(Pattern)).call(this, 'pattern'));
 
         _this.addAttr({
             id: id,
@@ -7222,8 +7226,8 @@ var Pattern = function (_Tag) {
             y: 0,
             width: width,
             height: height,
-            patternUnits: "userSpaceOnUse",
-            viewBox: "0 0 " + width + " " + height
+            patternUnits: 'userSpaceOnUse',
+            viewBox: '0 0 ' + width + ' ' + height
         });
         return _this;
     }
@@ -7238,7 +7242,7 @@ var Pattern = function (_Tag) {
 
 
     _createClass(Pattern, [{
-        key: "addChild",
+        key: 'addChild',
         value: function addChild(el) {
             this.$el.append(el.$el);
             return el;
@@ -7251,7 +7255,7 @@ var Pattern = function (_Tag) {
 exports.default = Pattern;
 
 },{"./Tag":42}],36:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -7259,7 +7263,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Tag2 = require("./Tag");
+var _Tag2 = require('./Tag');
 
 var _Tag3 = _interopRequireDefault(_Tag2);
 
@@ -7288,12 +7292,12 @@ var PolyLine = function (_Tag) {
     function PolyLine(points, strokeWidth, color) {
         _classCallCheck(this, PolyLine);
 
-        var _this = _possibleConstructorReturn(this, (PolyLine.__proto__ || Object.getPrototypeOf(PolyLine)).call(this, "PolyLine"));
+        var _this = _possibleConstructorReturn(this, (PolyLine.__proto__ || Object.getPrototypeOf(PolyLine)).call(this, 'PolyLine'));
 
         var attributes = {
             points: points.string,
-            fill: "none",
-            "stroke-width": strokeWidth
+            fill: 'none',
+            'stroke-width': strokeWidth
         };
 
         if (color !== undefined) {
@@ -7311,7 +7315,7 @@ var PolyLine = function (_Tag) {
 
 
     _createClass(PolyLine, [{
-        key: "updatePoints",
+        key: 'updatePoints',
         value: function updatePoints(points) {
             this.addAttr({
                 points: points.string
@@ -7325,7 +7329,7 @@ var PolyLine = function (_Tag) {
 exports.default = PolyLine;
 
 },{"./Tag":42}],37:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -7364,7 +7368,7 @@ var PolyLinePoint = function () {
 
 
     _createClass(PolyLinePoint, [{
-        key: "set",
+        key: 'set',
         value: function set(x, y) {
             this.x = x;
             this.y = y;
@@ -7377,7 +7381,7 @@ var PolyLinePoint = function () {
          */
 
     }, {
-        key: "string",
+        key: 'string',
 
 
         /**
@@ -7385,7 +7389,7 @@ var PolyLinePoint = function () {
          * @return {string} string in the format "x,y"
          */
         get: function get() {
-            return this.x + "," + this.y;
+            return this.x + ',' + this.y;
         }
 
         /**
@@ -7396,13 +7400,13 @@ var PolyLinePoint = function () {
          */
 
     }], [{
-        key: "parseFromString",
+        key: 'parseFromString',
         value: function parseFromString(string) {
-            var arr = string.split(",");
+            var arr = string.split(',');
             return new PolyLinePoint(arr[0], arr[1]);
         }
     }, {
-        key: "equals",
+        key: 'equals',
         value: function equals(a, b) {
             return a.x === b.x && a.y === b.y;
         }
@@ -7414,7 +7418,7 @@ var PolyLinePoint = function () {
 exports.default = PolyLinePoint;
 
 },{}],38:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -7424,7 +7428,7 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _PolyLinePoint = require("./PolyLinePoint");
+var _PolyLinePoint = require('./PolyLinePoint');
 
 var _PolyLinePoint2 = _interopRequireDefault(_PolyLinePoint);
 
@@ -7462,7 +7466,7 @@ var SmartArray = function () {
 
 
     _createClass(SmartArray, [{
-        key: "copy",
+        key: 'copy',
         value: function copy() {
             return SmartArray($.extend(true, [], this.arr));
         }
@@ -7473,7 +7477,7 @@ var SmartArray = function () {
          */
 
     }, {
-        key: "append",
+        key: 'append',
         value: function append(item) {
             return this.addWithIndex(item, this.arr.length);
         }
@@ -7484,7 +7488,7 @@ var SmartArray = function () {
          */
 
     }, {
-        key: "prepend",
+        key: 'prepend',
         value: function prepend(item) {
             return this.addWithIndex(item, 0);
         }
@@ -7496,7 +7500,7 @@ var SmartArray = function () {
          */
 
     }, {
-        key: "addWithIndex",
+        key: 'addWithIndex',
         value: function addWithIndex(item, index) {
             for (var i = this.arr.length; i > index; --i) {
                 this.arr[i] = this.arr[i - 1];
@@ -7511,7 +7515,7 @@ var SmartArray = function () {
          */
 
     }, {
-        key: "getItem",
+        key: 'getItem',
 
 
         /**
@@ -7528,7 +7532,7 @@ var SmartArray = function () {
          */
 
     }, {
-        key: "remove",
+        key: 'remove',
 
 
         /**
@@ -7544,12 +7548,12 @@ var SmartArray = function () {
             this.arr.pop();
         }
     }, {
-        key: "length",
+        key: 'length',
         get: function get() {
             return this.arr.length;
         }
     }, {
-        key: "last",
+        key: 'last',
         get: function get() {
             if (this.length !== 0) {
                 return this.arr[this.length - 1];
@@ -7563,7 +7567,7 @@ var SmartArray = function () {
          */
 
     }, {
-        key: "first",
+        key: 'first',
         get: function get() {
             if (this.length !== 0) {
                 return this.arr[0];
@@ -7601,7 +7605,7 @@ var PolyLinePoints = function (_SmartArray) {
 
 
     _createClass(PolyLinePoints, [{
-        key: "copy",
+        key: 'copy',
         value: function copy() {
             return new PolyLinePoints($.extend(true, [], this.arr));
         }
@@ -7612,10 +7616,10 @@ var PolyLinePoints = function (_SmartArray) {
          */
 
     }, {
-        key: "append",
+        key: 'append',
         value: function append(point) {
             // call inherited function to handle the appending
-            _get(PolyLinePoints.prototype.__proto__ || Object.getPrototypeOf(PolyLinePoints.prototype), "append", this).call(this, point);
+            _get(PolyLinePoints.prototype.__proto__ || Object.getPrototypeOf(PolyLinePoints.prototype), 'append', this).call(this, point);
 
             // if the second to last point is unnecessary, remove it
             var length = this.length;
@@ -7634,7 +7638,7 @@ var PolyLinePoints = function (_SmartArray) {
          */
 
     }, {
-        key: "forEach",
+        key: 'forEach',
 
 
         /**
@@ -7647,7 +7651,7 @@ var PolyLinePoints = function (_SmartArray) {
             }
         }
     }, {
-        key: "string",
+        key: 'string',
 
 
         /**
@@ -7655,19 +7659,19 @@ var PolyLinePoints = function (_SmartArray) {
          * @return {string} string in the PolyLine format (`x1,y1 x2,y2, x3,y3`)
          */
         get: function get() {
-            var string = "";
+            var string = '';
             for (var i = 0; i < this.length; ++i) {
                 if (i !== 0) {
-                    string += " ";
+                    string += ' ';
                 }
                 string += this.arr[i].string;
             }
             return string;
         }
     }], [{
-        key: "parseFromString",
+        key: 'parseFromString',
         value: function parseFromString(string) {
-            var pointStrings = string.split(" ");
+            var pointStrings = string.split(' ');
             var points = new PolyLinePoints();
 
             for (var i = 0; i < pointStrings.length; ++i) {
@@ -7722,7 +7726,7 @@ var Rectangle = function (_SvgElement) {
     function Rectangle(x, y, w, h, fill, stroke) {
         _classCallCheck(this, Rectangle);
 
-        var _this = _possibleConstructorReturn(this, (Rectangle.__proto__ || Object.getPrototypeOf(Rectangle)).call(this, x, y, w, h, "rect"));
+        var _this = _possibleConstructorReturn(this, (Rectangle.__proto__ || Object.getPrototypeOf(Rectangle)).call(this, x, y, w, h, 'rect'));
 
         _this.addAttr({
             fill: fill,
@@ -7793,7 +7797,7 @@ var SvgElement = function (_Tag) {
 exports.default = SvgElement;
 
 },{"./Tag":42}],41:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -7801,7 +7805,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _SvgElement2 = require("./SvgElement");
+var _SvgElement2 = require('./SvgElement');
 
 var _SvgElement3 = _interopRequireDefault(_SvgElement2);
 
@@ -7825,10 +7829,10 @@ var SvgImage = function (_SvgElement) {
     function SvgImage(x, y, w, h, url) {
         _classCallCheck(this, SvgImage);
 
-        var _this = _possibleConstructorReturn(this, (SvgImage.__proto__ || Object.getPrototypeOf(SvgImage)).call(this, x, y, w, h, "image"));
+        var _this = _possibleConstructorReturn(this, (SvgImage.__proto__ || Object.getPrototypeOf(SvgImage)).call(this, x, y, w, h, 'image'));
 
         _this.addAttr({
-            "xlink:href": url
+            'xlink:href': url
         });
         return _this;
     }
@@ -7840,10 +7844,10 @@ var SvgImage = function (_SvgElement) {
 
 
     _createClass(SvgImage, [{
-        key: "changeUrl",
+        key: 'changeUrl',
         value: function changeUrl(url) {
             this.addAttr({
-                "xlink:href": url
+                'xlink:href': url
             });
         }
     }]);
@@ -7854,7 +7858,7 @@ var SvgImage = function (_SvgElement) {
 exports.default = SvgImage;
 
 },{"./SvgElement":40}],42:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -7862,7 +7866,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _id = require("../other/id");
+var _id = require('../other/id');
 
 var _id2 = _interopRequireDefault(_id);
 
@@ -7892,7 +7896,7 @@ var Tag = function () {
      * jQuery element for this tag
      * @type {jQuery.element}
      */
-    this.$el = $("<" + this.tagName + ">");
+    this.$el = $('<' + this.tagName + '>');
 
     /**
      * unique ID of this SVG object
@@ -7908,7 +7912,7 @@ var Tag = function () {
 
 
   _createClass(Tag, [{
-    key: "addClass",
+    key: 'addClass',
     value: function addClass(name) {
       this.$el.addClass(name);
     }
@@ -7919,7 +7923,7 @@ var Tag = function () {
      */
 
   }, {
-    key: "removeClasses",
+    key: 'removeClasses',
     value: function removeClasses() {
       for (var _len = arguments.length, classes = Array(_len), _key = 0; _key < _len; _key++) {
         classes[_key] = arguments[_key];
@@ -7957,7 +7961,7 @@ var Tag = function () {
      */
 
   }, {
-    key: "addAttr",
+    key: 'addAttr',
     value: function addAttr(assoc) {
       this.checkIfElementExistsInDOM();
 
@@ -7972,7 +7976,7 @@ var Tag = function () {
      */
 
   }, {
-    key: "getAttr",
+    key: 'getAttr',
     value: function getAttr(name) {
       this.checkIfElementExistsInDOM();
 
@@ -7985,7 +7989,7 @@ var Tag = function () {
      */
 
   }, {
-    key: "removeAttr",
+    key: 'removeAttr',
     value: function removeAttr(name) {
       this.checkIfElementExistsInDOM();
 
@@ -7998,7 +8002,7 @@ var Tag = function () {
      */
 
   }, {
-    key: "get",
+    key: 'get',
 
 
     /**
@@ -8015,17 +8019,17 @@ var Tag = function () {
      */
 
   }, {
-    key: "checkIfElementExistsInDOM",
+    key: 'checkIfElementExistsInDOM',
     value: function checkIfElementExistsInDOM() {
-      var $jqElement = $("#" + this.$el.attr('id'));
+      var $jqElement = $('#' + this.$el.attr('id'));
       if ($jqElement.length) {
         this.$el = $jqElement;
       }
     }
   }, {
-    key: "id",
+    key: 'id',
     set: function set(id) {
-      this.addAttr({ "id": id });
+      this.addAttr({ id: id });
     }
 
     /**
@@ -8034,7 +8038,7 @@ var Tag = function () {
      */
     ,
     get: function get() {
-      return this.getAttr("id");
+      return this.getAttr('id');
     }
   }]);
 
@@ -8044,13 +8048,13 @@ var Tag = function () {
 exports.default = Tag;
 
 },{"../other/id":30}],43:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _Tag2 = require("./Tag");
+var _Tag2 = require('./Tag');
 
 var _Tag3 = _interopRequireDefault(_Tag2);
 
@@ -8082,11 +8086,11 @@ var Text = function (_Tag) {
      *
      */
     function Text(x, y, w, h, text, size) {
-        var color = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : "black";
+        var color = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'black';
 
         _classCallCheck(this, Text);
 
-        var _this = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, "text"));
+        var _this = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, 'text'));
 
         _this.addAttr({
             x: x,
@@ -8160,7 +8164,7 @@ var ContextMenuItem = function () {
          * jQuery element representing DOM content of this menu item
          * @type {jQuery.element}
          */
-        this.$el = $("<li>").text(text);
+        this.$el = $('<li>').text(text);
 
         // set up click callback if clickFunction is defined
         if (clickFunction !== undefined) {
@@ -8190,7 +8194,7 @@ var ContextMenuItem = function () {
 
             if (_this.length > 0) {
                 _this.$submenu.css({
-                    display: "block",
+                    display: 'block',
                     top: _this.$el.offset().top,
                     left: _this.$el.parent().offset().left + _this.$el.parent().width()
                 });
@@ -8203,7 +8207,7 @@ var ContextMenuItem = function () {
             // mouse out
             if (_this.$submenu) {
                 _this.$submenu.css({
-                    display: "none"
+                    display: 'none'
                 });
             }
 
@@ -8242,11 +8246,11 @@ var ContextMenuItem = function () {
             var _this2 = this;
 
             if (!this.$submenu) {
-                this.$submenu = $("<ul>").addClass("subList");
+                this.$submenu = $('<ul>').addClass('subList');
                 this.$submenu.hover(function () {
-                    _this2.$submenu.css("display", "block");
+                    _this2.$submenu.css('display', 'block');
                 }, function () {
-                    _this2.$submenu.css("display", "none");
+                    _this2.$submenu.css('display', 'none');
                 });
             }
             this.$submenu.append(item.$el);
@@ -8433,20 +8437,21 @@ var ContextMenu = function () {
          * @type {Object}
          */
         this.position = {
-            x: 0, y: 0
+            x: 0,
+            y: 0
         };
 
         /**
          * jQuery element containing the context menu
          * @type {jQuery.element}
          */
-        this.$el = $("<ul>");
+        this.$el = $('<ul>');
         this.$el.attr('id', 'contextMenu');
 
-        var special = new ContextMenuItem("Special elements", this);
+        var special = new ContextMenuItem('Special elements', this);
 
         // add input box
-        special.appendItem(new ContextMenuItem("Input box", this, function () {
+        special.appendItem(new ContextMenuItem('Input box', this, function () {
             var position = {
                 left: _this6.appInstance.snapToGrid(appInstance.viewbox.transformX(_this6.position.x)),
                 top: _this6.appInstance.snapToGrid(appInstance.viewbox.transformY(_this6.position.y))
@@ -8456,7 +8461,7 @@ var ContextMenu = function () {
         }));
 
         // add output box
-        special.appendItem(new ContextMenuItem("Output box", this, function () {
+        special.appendItem(new ContextMenuItem('Output box', this, function () {
             var position = {
                 left: _this6.appInstance.snapToGrid(appInstance.viewbox.transformX(_this6.position.x)),
                 top: _this6.appInstance.snapToGrid(appInstance.viewbox.transformY(_this6.position.y))
@@ -8469,7 +8474,7 @@ var ContextMenu = function () {
 
         // list of gates that can be added
         var gates = _editorElements.Gate.validGates;
-        var gateList = new ContextMenuItem("New gate", this, appInstance);
+        var gateList = new ContextMenuItem('New gate', this, appInstance);
         var _iteratorNormalCompletion2 = true;
         var _didIteratorError2 = false;
         var _iteratorError2 = undefined;
@@ -8498,13 +8503,13 @@ var ContextMenu = function () {
         this.appendItem(gateList);
 
         // more options will be added in the getLibrary() callback below
-        var networkList = new ContextMenuItem("Add a network", this);
-        networkList.appendItem(new ContextMenuItem("Paste a network", this, function () {
+        var networkList = new ContextMenuItem('Add a network', this);
+        networkList.appendItem(new ContextMenuItem('Paste a network', this, function () {
             _this6.displayImportDialog();
         }));
         this.appendItem(networkList); // always append
 
-        var blackboxList = new ContextMenuItem("Add a blackbox", this); // appends only if contains items (see the callback)
+        var blackboxList = new ContextMenuItem('Add a blackbox', this); // appends only if contains items (see the callback)
 
         // network import (blackbox, network)
         (0, _networkLibrary.getLibrary)().then(function (networks) {
@@ -8513,7 +8518,6 @@ var ContextMenu = function () {
             var _iteratorError3 = undefined;
 
             try {
-
                 for (var _iterator3 = networks[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
                     var _ref2 = _step3.value;
                     var _name = _ref2.name;
@@ -8617,23 +8621,23 @@ var ContextMenu = function () {
         value: function displayImportDialog() {
             var _this7 = this;
 
-            var $popup = $("<div>").addClass("importExport").addClass("import");
+            var $popup = $('<div>').addClass('importExport').addClass('import');
 
-            var textareaId = "importJSON";
-            var $textblock = $("<textarea>").attr('id', textareaId);
+            var textareaId = 'importJSON';
+            var $textblock = $('<textarea>').attr('id', textareaId);
 
             var lityInstance = void 0;
 
-            $popup.append($textblock).append($("<a>").attr({
-                "href": "#",
-                "class": "upload"
-            }).append($("<img>").attr('src', "img/gui/import.svg")).append(" import from JSON").on('click', function () {
+            $popup.append($textblock).append($('<a>').attr({
+                href: '#',
+                class: 'upload'
+            }).append($('<img>').attr('src', 'img/gui/import.svg')).append(' import from JSON').on('click', function () {
                 var data = void 0;
 
                 try {
                     data = JSON.parse($('#' + textareaId).val());
                 } catch (e) {
-                    _this7.appInstance.messages.newErrorMessage("The imported file is not a valid JSON file.");
+                    _this7.appInstance.messages.newErrorMessage('The imported file is not a valid JSON file.');
                     lityInstance.close();
                 }
 
@@ -8765,7 +8769,7 @@ var ContextMenu = function () {
         key: 'hide',
         value: function hide() {
             this.$el.css({ display: 'none' });
-            $(".subList").css({ display: 'none' });
+            $('.subList').css({ display: 'none' });
             this.hideAllConditionalItems();
         }
     }, {
@@ -8781,7 +8785,7 @@ var ContextMenu = function () {
 exports.default = ContextMenu;
 
 },{"../editorElements":14,"./networkLibrary":49}],45:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -8789,7 +8793,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _helperFunctions = require("../other/helperFunctions");
+var _helperFunctions = require('../other/helperFunctions');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -8816,11 +8820,11 @@ function FloatingButton(buttonClass, tooltip, clickEvent, appInstance) {
     this.$el = $('<a>');
 
     // add classes to the element
-    this.$el.addClass("button");
+    this.$el.addClass('button');
     this.$el.addClass(buttonClass);
 
     // add the icon
-    this.$el.append($("<img>").attr("src", "img/gui/" + buttonClass + ".svg").attr("alt", tooltip));
+    this.$el.append($('<img>').attr('src', 'img/gui/' + buttonClass + '.svg').attr('alt', tooltip));
 
     // add the tooltip element and an event listener if tooltip is defined
     if (tooltip) {
@@ -8828,8 +8832,8 @@ function FloatingButton(buttonClass, tooltip, clickEvent, appInstance) {
          * jQuery element representing the tooltip
          * @type {jQuery.element}
          */
-        this.$tooltip = $("<div>");
-        this.$tooltip.addClass("tooltip").html(tooltip);
+        this.$tooltip = $('<div>');
+        this.$tooltip.addClass('tooltip').html(tooltip);
 
         appInstance.$svg.after(this.$tooltip);
 
@@ -8842,7 +8846,7 @@ function FloatingButton(buttonClass, tooltip, clickEvent, appInstance) {
 
     // add an event listener on click, if the callback function is defined
     if (clickEvent) {
-        this.$el.on("click", clickEvent);
+        this.$el.on('click', clickEvent);
     }
 };
 
@@ -8868,32 +8872,31 @@ var FloatingMenu = function () {
 
         var id = 'floatingMenu';
 
-        this.$el.attr("id", id);
+        this.$el.attr('id', id);
 
         // const $loader = $("<div>").addClass("loader").addClass("hidden");
 
-
         /* EXPORT */
-        this.append(new FloatingButton("export", "Get code for this network", function () {
+        this.append(new FloatingButton('export', 'Get code for this network', function () {
             // create the popup container holding all popup content (that will be passed to lity)
-            var $popup = $("<div>").addClass("importExport").addClass("export");
+            var $popup = $('<div>').addClass('importExport').addClass('export');
 
             // generate the block with code to be displayed and append it to the popup element
-            var $textblock = $("<textarea>").text((0, _helperFunctions.getJSONString)(appInstance.exportData, true));
+            var $textblock = $('<textarea>').text((0, _helperFunctions.getJSONString)(appInstance.exportData, true));
 
             $popup.append($textblock);
 
             // generate the links
-            $popup.append($("<a>").attr({
-                "href": (0, _helperFunctions.getJSONString)(appInstance.exportData, true, true),
-                "class": "download",
-                "download": "network.json"
-            }).append($("<img>").attr('src', "img/gui/export.svg")).append(" expanded JSON"));
-            $popup.append($("<a>").attr({
-                "href": (0, _helperFunctions.getJSONString)(appInstance.exportData, false, true),
-                "class": "download",
-                "download": "network.min.json"
-            }).append($("<img>").attr('src', "img/gui/export.svg")).append(" compact JSON"));
+            $popup.append($('<a>').attr({
+                href: (0, _helperFunctions.getJSONString)(appInstance.exportData, true, true),
+                class: 'download',
+                download: 'network.json'
+            }).append($('<img>').attr('src', 'img/gui/export.svg')).append(' expanded JSON'));
+            $popup.append($('<a>').attr({
+                href: (0, _helperFunctions.getJSONString)(appInstance.exportData, false, true),
+                class: 'download',
+                download: 'network.min.json'
+            }).append($('<img>').attr('src', 'img/gui/export.svg')).append(' compact JSON'));
 
             lity($popup);
 
@@ -8902,7 +8905,7 @@ var FloatingMenu = function () {
         }, appInstance));
 
         /* Tutorial */
-        this.append(new FloatingButton("tutorial", "Start the tutorial", function () {
+        this.append(new FloatingButton('tutorial', 'Start the tutorial', function () {
             appInstance.startTutorial();
         }, appInstance));
 
@@ -8910,9 +8913,9 @@ var FloatingMenu = function () {
 
         /* HELP */
 
-        var help = new FloatingButton("help", "Display a help page", false, appInstance);
+        var help = new FloatingButton('help', 'Display a help page', false, appInstance);
         help.$el.attr({
-            'href': './docs/user.html',
+            href: './docs/user.html',
             'data-lity': ''
         });
         this.append(help);
@@ -8927,7 +8930,7 @@ var FloatingMenu = function () {
 
 
     _createClass(FloatingMenu, [{
-        key: "append",
+        key: 'append',
         value: function append(menuItem) {
             this.$el.append(menuItem.$el);
         }
@@ -8939,7 +8942,7 @@ var FloatingMenu = function () {
 exports.default = FloatingMenu;
 
 },{"../other/helperFunctions":29}],46:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -8966,7 +8969,7 @@ var Message = function () {
     function Message(text, onHide) {
         _classCallCheck(this, Message);
 
-        this.$el = $("<div>").addClass("message").text(text);
+        this.$el = $('<div>').addClass('message').text(text);
 
         /**
          * callback function that will be called when the `hide()` method is called
@@ -8981,7 +8984,7 @@ var Message = function () {
 
 
     _createClass(Message, [{
-        key: "hide",
+        key: 'hide',
         value: function hide() {
             this.$el.remove();
 
@@ -9010,7 +9013,7 @@ var LoadingMessage = function (_Message) {
 
         var _this = _possibleConstructorReturn(this, (LoadingMessage.__proto__ || Object.getPrototypeOf(LoadingMessage)).call(this, text, onHide));
 
-        _this.$el.addClass("loading");
+        _this.$el.addClass('loading');
         return _this;
     }
 
@@ -9033,7 +9036,7 @@ var ClosableMessage = function (_Message2) {
 
         var _this2 = _possibleConstructorReturn(this, (ClosableMessage.__proto__ || Object.getPrototypeOf(ClosableMessage)).call(this, text, onHide));
 
-        _this2.$el.append($("<span>").addClass("close").click(function () {
+        _this2.$el.append($('<span>').addClass('close').click(function () {
             _this2.hide();
         }));
         return _this2;
@@ -9058,7 +9061,7 @@ var ErrorMessage = function (_ClosableMessage) {
 
         var _this3 = _possibleConstructorReturn(this, (ErrorMessage.__proto__ || Object.getPrototypeOf(ErrorMessage)).call(this, text, onHide));
 
-        _this3.$el.addClass("error");
+        _this3.$el.addClass('error');
         return _this3;
     }
 
@@ -9081,7 +9084,7 @@ var WarningMessage = function (_ClosableMessage2) {
 
         var _this4 = _possibleConstructorReturn(this, (WarningMessage.__proto__ || Object.getPrototypeOf(WarningMessage)).call(this, text, onHide));
 
-        _this4.$el.addClass("warning");
+        _this4.$el.addClass('warning');
         return _this4;
     }
 
@@ -9101,7 +9104,7 @@ var Messages = function () {
          * jQuery element that represents the message interface. This element contains all the currently displayed messages.
          * @type {jQuery.element}
          */
-        this.$el = $("<div>").addClass('messages');
+        this.$el = $('<div>').addClass('messages');
 
         /**
          * number of currently displayed messages, has a specified setter and getter
@@ -9120,7 +9123,7 @@ var Messages = function () {
 
 
     _createClass(Messages, [{
-        key: "hide",
+        key: 'hide',
 
 
         /**
@@ -9135,7 +9138,7 @@ var Messages = function () {
          */
 
     }, {
-        key: "display",
+        key: 'display',
         value: function display() {
             this.$el.removeClass('hidden');
         }
@@ -9148,7 +9151,7 @@ var Messages = function () {
          */
 
     }, {
-        key: "newMessage",
+        key: 'newMessage',
         value: function newMessage(text) {
             var _this5 = this;
 
@@ -9174,7 +9177,7 @@ var Messages = function () {
          */
 
     }, {
-        key: "newLoadingMessage",
+        key: 'newLoadingMessage',
         value: function newLoadingMessage(text) {
             return this.newMessage(text, LoadingMessage);
         }
@@ -9186,7 +9189,7 @@ var Messages = function () {
          */
 
     }, {
-        key: "newErrorMessage",
+        key: 'newErrorMessage',
         value: function newErrorMessage(text) {
             return this.newMessage(text, ErrorMessage);
         }
@@ -9198,12 +9201,12 @@ var Messages = function () {
          */
 
     }, {
-        key: "newWarningMessage",
+        key: 'newWarningMessage',
         value: function newWarningMessage(text) {
             return this.newMessage(text, WarningMessage);
         }
     }, {
-        key: "count",
+        key: 'count',
         get: function get() {
             return this.messageCount;
         }
@@ -9233,7 +9236,7 @@ var Messages = function () {
 exports.default = Messages;
 
 },{}],47:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -9302,7 +9305,7 @@ var Tutorial = function () {
 
 
     _createClass(Tutorial, [{
-        key: "resetHooks",
+        key: 'resetHooks',
 
 
         /**
@@ -9360,7 +9363,7 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "setUpTutorial",
+        key: 'setUpTutorial',
         value: function setUpTutorial() {
             var _this2 = this;
 
@@ -9392,11 +9395,11 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "stepWelcome",
+        key: 'stepWelcome',
         value: function stepWelcome() {
             var _this3 = this;
 
-            this.windowContent("Welcome to Hradla! To get started, click anywhere on the editing area with your right mouse button.");
+            this.windowContent('Welcome to Hradla! To get started, click anywhere on the editing area with your right mouse button.');
 
             this.onContextMenuOpened = function () {
                 _this3.next();
@@ -9408,11 +9411,11 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "stepAddBoxes",
+        key: 'stepAddBoxes',
         value: function stepAddBoxes() {
             var _this4 = this;
 
-            this.windowContent("Great job! Now you know, how to open the editor menu.\n            Now try to add an <em>Input box</em>, <em>Output box</em> and a <em>NOT gate</em>\n            to the editing area.");
+            this.windowContent('Great job! Now you know, how to open the editor menu.\n            Now try to add an <em>Input box</em>, <em>Output box</em> and a <em>NOT gate</em>\n            to the editing area.');
 
             var elementsAdded = {
                 inputBox: false,
@@ -9422,13 +9425,13 @@ var Tutorial = function () {
 
             this.onElementAdded = function (name) {
                 switch (name) {
-                    case "input":
+                    case 'input':
                         elementsAdded.inputBox = true;
                         break;
-                    case "output":
+                    case 'output':
                         elementsAdded.outputBox = true;
                         break;
-                    case "not":
+                    case 'not':
                         elementsAdded.notGate = true;
                         break;
                     default:
@@ -9448,11 +9451,11 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "stepMoveCanvas",
+        key: 'stepMoveCanvas',
         value: function stepMoveCanvas() {
             var _this5 = this;
 
-            this.windowContent("You can move the editing area (sometimes called canvas) by dragging\n            with the middle mouse button or by holding the <code>Ctrl</code> key\n            and dragging with the left mouse button. Check it out.");
+            this.windowContent('You can move the editing area (sometimes called canvas) by dragging\n            with the middle mouse button or by holding the <code>Ctrl</code> key\n            and dragging with the left mouse button. Check it out.');
 
             this.onCanvasMoved = function () {
                 _this5.next();
@@ -9464,11 +9467,11 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "stepZoomCanvas",
+        key: 'stepZoomCanvas',
         value: function stepZoomCanvas() {
             var _this6 = this;
 
-            this.windowContent("You can also zoom in and out using the mouse wheel\n            or with the <code>+</code>&nbsp;and <code>\u2212</code>&nbsp;keys.");
+            this.windowContent('You can also zoom in and out using the mouse wheel\n            or with the <code>+</code>&nbsp;and <code>\u2212</code>&nbsp;keys.');
 
             this.onCanvasZoomed = function () {
                 _this6.next();
@@ -9480,11 +9483,11 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "stepMoveBoxes",
+        key: 'stepMoveBoxes',
         value: function stepMoveBoxes() {
             var _this7 = this;
 
-            this.windowContent("You can move the elements on the editing canvas by dragging them\n            using the left mouse button. You can also rotate them using middle click. Try it out.");
+            this.windowContent('You can move the elements on the editing canvas by dragging them\n            using the left mouse button. You can also rotate them using middle click. Try it out.');
 
             var boxMoved = false;
             var boxRotated = false;
@@ -9511,11 +9514,11 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "stepWiring",
+        key: 'stepWiring',
         value: function stepWiring() {
             var _this8 = this;
 
-            this.windowContent("Essential part of logic networks is the wiring. Create a very simple\n            inverter by connecting the <em>Input box</em> to the input of the <em>NOT gate</em>\n            and the output of the <em>NOT gate</em> to the input of the <em>Output box</em>.", "To connect two elemnts, simply click on a connector of the first element,\n            than click on a conector of the second element.");
+            this.windowContent('Essential part of logic networks is the wiring. Create a very simple\n            inverter by connecting the <em>Input box</em> to the input of the <em>NOT gate</em>\n            and the output of the <em>NOT gate</em> to the input of the <em>Output box</em>.', 'To connect two elemnts, simply click on a connector of the first element,\n            than click on a conector of the second element.');
 
             this.onOutputBoxTrue = function () {
                 _this8.next();
@@ -9527,11 +9530,11 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "switchInputBox",
+        key: 'switchInputBox',
         value: function switchInputBox() {
             var _this9 = this;
 
-            this.windowContent("\n            The input boxes can be in two states: <em>ON</em> and <em>OFF</em>, signalled\n            by the green and red colors respectively. You can left click on an Input box to\n            switch its state. Try it out!\n        ");
+            this.windowContent('\n            The input boxes can be in two states: <em>ON</em> and <em>OFF</em>, signalled\n            by the green and red colors respectively. You can left click on an Input box to\n            switch its state. Try it out!\n        ');
 
             this.onChangeInputBoxState = function () {
                 _this9.next();
@@ -9543,11 +9546,11 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "stepRemoveBox",
+        key: 'stepRemoveBox',
         value: function stepRemoveBox() {
             var _this10 = this;
 
-            this.windowContent("When you right click on an element, you can find a new item in the menu,\n            that allows you to remove the element. This works for wires as well as for gates and other types of boxes.\n            Try to remove an element!");
+            this.windowContent('When you right click on an element, you can find a new item in the menu,\n            that allows you to remove the element. This works for wires as well as for gates and other types of boxes.\n            Try to remove an element!');
 
             this.onElementRemoved = function () {
                 _this10.next();
@@ -9559,11 +9562,11 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "stepFinish",
+        key: 'stepFinish',
         value: function stepFinish() {
             var _this11 = this;
 
-            this.windowContent("You're all set, enjoy your stay!", "Do you wish to start with empty canvas?");
+            this.windowContent('You\'re all set, enjoy your stay!', 'Do you wish to start with empty canvas?');
             this.windowChoice({
                 text: 'yes, clean the canvas',
                 func: function func() {
@@ -9583,7 +9586,7 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "displayWindow",
+        key: 'displayWindow',
         value: function displayWindow() {
             this.appInstance.$svg.after(this.$tutorialWindow);
         }
@@ -9594,7 +9597,7 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "closeWindow",
+        key: 'closeWindow',
         value: function closeWindow(onTutorialClosed) {
             this.$tutorialWindow.remove();
 
@@ -9609,62 +9612,63 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "windowContent",
+        key: 'windowContent',
         value: function windowContent() {
             var _this12 = this;
 
             if (!this.$tutorialWindow) {
-                this.$tutorialWindow = $("<div>").attr("id", "tutorial");
+                this.$tutorialWindow = $('<div>').attr('id', 'tutorial');
 
-                this.$topButtonsLeft = $("<div>").addClass("left");
+                this.$topButtonsLeft = $('<div>').addClass('left');
 
-                this.$tutorialWindow.append($("<div>").addClass("topButtons").append(this.$topButtonsLeft).append( // the .right div can be added here because it is not modified during the tutorial
-                $("<div>").addClass("right").append($("<a>").attr({
-                    href: "#",
-                    title: "close tutorial"
-                }).addClass("button close").click(function () {
+                this.$tutorialWindow.append($('<div>').addClass('topButtons').append(this.$topButtonsLeft).append(
+                // the .right div can be added here because it is not modified during the tutorial
+                $('<div>').addClass('right').append($('<a>').attr({
+                    href: '#',
+                    title: 'close tutorial'
+                }).addClass('button close').click(function () {
                     _this12.stop();
                 }))));
 
                 this.$tutorialWindow.append(this.$topButtons);
 
-                this.$tutorialContent = $("<div>").addClass("content");
+                this.$tutorialContent = $('<div>').addClass('content');
                 this.$tutorialWindow.append(this.$tutorialContent);
             }
 
-            this.$topButtonsLeft.html("");
+            this.$topButtonsLeft.html('');
 
-            var $prev = $("<a>").attr({
-                href: "#",
-                title: "go back"
-            }).addClass("button prev");
+            var $prev = $('<a>').attr({
+                href: '#',
+                title: 'go back'
+            }).addClass('button prev');
 
             if (this.step > 1) {
                 $prev.click(function () {
                     _this12.prev();
                 });
             } else {
-                $prev.addClass("disabled");
+                $prev.addClass('disabled');
             }
 
-            var $next = $("<a>").attr({
-                href: "#",
-                title: "go forward"
-            }).addClass("button next");
+            var $next = $('<a>').attr({
+                href: '#',
+                title: 'go forward'
+            }).addClass('button next');
 
             if (this.step < this.steps.length - 1) {
                 $next.click(function () {
                     _this12.next();
                 });
             } else {
-                $next.addClass("disabled");
+                $next.addClass('disabled');
             }
 
             this.$topButtonsLeft.append($prev).append($next);
 
             // set the text content
 
-            this.$tutorialContent.html("");
+            this.$tutorialContent.html('');
 
             for (var _len = arguments.length, text = Array(_len), _key = 0; _key < _len; _key++) {
                 text[_key] = arguments[_key];
@@ -9678,7 +9682,7 @@ var Tutorial = function () {
                 for (var _iterator = text[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                     var paragraph = _step.value;
 
-                    this.$tutorialContent.append($("<p>").html(paragraph));
+                    this.$tutorialContent.append($('<p>').html(paragraph));
                 }
 
                 // // render the buttons in each step (to remove focus and to
@@ -9732,16 +9736,16 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "windowChoice",
+        key: 'windowChoice',
         value: function windowChoice() {
-            var $choices = $("<ol>").addClass("choices");
+            var $choices = $('<ol>').addClass('choices');
 
             for (var _len2 = arguments.length, choices = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
                 choices[_key2] = arguments[_key2];
             }
 
             var _loop = function _loop(choice) {
-                $choices.append($("<li>").append($("<a>").attr("href", "#").click(function () {
+                $choices.append($('<li>').append($('<a>').attr('href', '#').click(function () {
                     choice.func();
                 }).html(choice.text)));
             };
@@ -9779,7 +9783,7 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "start",
+        key: 'start',
         value: function start() {
             this.step = 1;
         }
@@ -9789,7 +9793,7 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "next",
+        key: 'next',
         value: function next() {
             this.step++;
         }
@@ -9799,7 +9803,7 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "prev",
+        key: 'prev',
         value: function prev() {
             this.step--;
         }
@@ -9809,12 +9813,12 @@ var Tutorial = function () {
          */
 
     }, {
-        key: "stop",
+        key: 'stop',
         value: function stop() {
             this.step = 0;
         }
     }, {
-        key: "step",
+        key: 'step',
         get: function get() {
             return this.currentStep;
         }
@@ -9875,13 +9879,13 @@ var ViewBox = function () {
      * ViewBox attributes before applying zoom and shift
      * @type {object}
      */
-    this.real = { left: left, top: top, width: width, height: height
+    this.real = { left: left, top: top, width: width, height: height };
 
-      /**
-       * The maximum amount of zoom on the viewbox
-       * @type {number}
-       */
-    };this.maxZoom = 8;
+    /**
+     * The maximum amount of zoom on the viewbox
+     * @type {number}
+     */
+    this.maxZoom = 8;
     /**
      * The minimum amount of zoom on the viewbox
      * @type {number}
@@ -10083,14 +10087,14 @@ function getLibrary() {
 
         var request = new XMLHttpRequest();
 
-        request.addEventListener("load", function () {
+        request.addEventListener('load', function () {
             if (this.response) {
                 resolve(this.response.networks);
             }
         });
 
-        request.addEventListener(["error", "abort"], function () {
-            reject("Failed loading libraries.");
+        request.addEventListener(['error', 'abort'], function () {
+            reject('Failed loading libraries.');
         });
 
         request.open('GET', libraryFile, true);
@@ -10108,13 +10112,13 @@ function getNetworkFromLibrary(networkName) {
     return new Promise(function (resolve, reject) {
         var request = new XMLHttpRequest();
 
-        request.addEventListener("load", function () {
+        request.addEventListener('load', function () {
             if (this.response) {
                 resolve(this.response);
             }
         });
 
-        request.addEventListener(["error", "abort"], function () {
+        request.addEventListener(['error', 'abort'], function () {
             reject('Failed loading library ' + networkName + '.');
         });
 

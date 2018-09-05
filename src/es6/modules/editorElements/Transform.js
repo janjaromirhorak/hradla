@@ -12,9 +12,9 @@ class Property {
      * @param {string} [string] string in the property format `propertyname(list of space separated values)`
      */
     constructor(string) {
-        if(string!==undefined) {
-            this.name = string.replace(/^[ ]*([^(]+).*/, "$1");
-            this.args = string.replace(/^[^(]+\((.*)\)/, "$1").split(' ');
+        if (string !== undefined) {
+            this.name = string.replace(/^[ ]*([^(]+).*/, '$1');
+            this.args = string.replace(/^[^(]+\((.*)\)/, '$1').split(' ');
         }
     }
 
@@ -39,7 +39,7 @@ class Property {
      * @return {string} property in the property format `name(arg1 arg2)`
      */
     get() {
-        return this.name + "(" + this.args.join(" ") + ")";
+        return this.name + '(' + this.args.join(' ') + ')';
     }
 }
 
@@ -58,10 +58,11 @@ export default class Transform {
          */
         this.items = [];
 
-        if(string!==undefined) {
-            for (const item of string.split(")")) {
-                if(item) { // if not empty
-                    this.items.push(new Property(item + ")"));
+        if (string !== undefined) {
+            for (const item of string.split(')')) {
+                if (item) {
+                    // if not empty
+                    this.items.push(new Property(item + ')'));
                 }
             }
         }
@@ -72,7 +73,7 @@ export default class Transform {
      * @param {App} appInstance instance of [App](./module-App.html)
      */
     toGridPixels(appInstance) {
-        this.pixelConversion((val) => appInstance.SVGToGrid(val))
+        this.pixelConversion(val => appInstance.SVGToGrid(val));
     }
 
     /**
@@ -80,7 +81,7 @@ export default class Transform {
      * @param {App} appInstance instance of [App](./module-App.html)
      */
     toSVGPixels(appInstance) {
-        this.pixelConversion((val) => appInstance.gridToSVG(val))
+        this.pixelConversion(val => appInstance.gridToSVG(val));
     }
 
     /**
@@ -89,23 +90,19 @@ export default class Transform {
      */
     pixelConversion(convertor) {
         const propertyMap = {
-            "translate": (item) => {
-                item.args = item.args.map(arg => convertor(arg))
+            translate: item => {
+                item.args = item.args.map(arg => convertor(arg));
                 return item;
             },
-            "rotate": (item) => {
-                item.args = [
-                    item.args[0],
-                    convertor(item.args[1]),
-                    convertor(item.args[2])
-                ]
+            rotate: item => {
+                item.args = [item.args[0], convertor(item.args[1]), convertor(item.args[2])];
                 return item;
             }
-        }
+        };
 
-        this.items = this.items.map((item) => {
-            return propertyMap[item.name] ? propertyMap[item.name](item) : item
-        })
+        this.items = this.items.map(item => {
+            return propertyMap[item.name] ? propertyMap[item.name](item) : item;
+        });
     }
 
     /**
@@ -114,8 +111,8 @@ export default class Transform {
      * @return {number}      index of the property in the array of properties or `-1` if not found
      */
     getIndex(name) {
-        for(let i = 0 ; i < this.items.length; i++) {
-            if(name === this.items[i].name) {
+        for (let i = 0; i < this.items.length; i++) {
+            if (name === this.items[i].name) {
                 return i;
             }
         }
@@ -128,12 +125,12 @@ export default class Transform {
      * @return {Object} object containing parameters of the translate attribute
      */
     getTranslate() {
-        let args = this.getArguments(this.getIndex("translate"));
+        let args = this.getArguments(this.getIndex('translate'));
 
         return {
             x: Number(args[0]),
             y: Number(args[1])
-        }
+        };
     }
 
     /**
@@ -141,13 +138,13 @@ export default class Transform {
      * @return {Object} object containing parameters of the rotate attribute
      */
     getRotate() {
-        let args = this.getArguments(this.getIndex("rotate"));
+        let args = this.getArguments(this.getIndex('rotate'));
 
         return {
             deg: Number(args[0]),
             centerX: Number(args[1]),
             centerY: Number(args[2])
-        }
+        };
     }
 
     /**
@@ -156,7 +153,7 @@ export default class Transform {
      * @param {number} y vertical translation
      */
     setTranslate(x, y) {
-        this.setParameter("translate", [x, y]);
+        this.setParameter('translate', [x, y]);
     }
 
     /**
@@ -166,7 +163,7 @@ export default class Transform {
      * @param {number} centerY vertical position of the center of the rotation
      */
     setRotate(deg, centerX, centerY) {
-        this.setParameter("rotate", [deg, centerX, centerY]);
+        this.setParameter('rotate', [deg, centerX, centerY]);
     }
 
     /**
@@ -178,12 +175,12 @@ export default class Transform {
     rotateRightAngle(centerX, centerY, right) {
         const amount = right ? 90 : 270;
 
-        if(this.getIndex("rotate")===-1) {
+        if (this.getIndex('rotate') === -1) {
             this.setRotate(amount, centerX, centerY);
         } else {
             let newRotation = (parseInt(this.getRotate().deg) + amount) % 360;
 
-            if(newRotation===180) {
+            if (newRotation === 180) {
                 // swap center coordinates
                 // because rotate(c, x, y) is defined like transform(-x, -y) rotate(c) transform(x, y)
                 let a = centerX;
@@ -191,11 +188,7 @@ export default class Transform {
                 centerY = a;
             }
 
-            this.setRotate(
-                newRotation,
-                centerX,
-                centerY
-            );
+            this.setRotate(newRotation, centerX, centerY);
         }
     }
 
@@ -223,9 +216,9 @@ export default class Transform {
      */
     get() {
         let retVal;
-        for(const item of this.items) {
-            if(retVal) {
-                retVal += " " + item.get();
+        for (const item of this.items) {
+            if (retVal) {
+                retVal += ' ' + item.get();
             } else {
                 retVal = item.get();
             }
@@ -253,7 +246,7 @@ export default class Transform {
 
         // if the property has been already set, change it (rewrite the array in the right index)
         // else create a new one (set index to the length of an array --> ad an item to the end)
-        if(index===-1) {
+        if (index === -1) {
             index = this.items.length;
             this.items[index] = new Property();
             this.items[index].setName(name);

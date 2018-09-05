@@ -52,12 +52,12 @@
         <article>
             <pre class="prettyprint source linenums"><code>/** @module editorElements.Wire */
 
-import {PolyLine, PolyLinePoints, PolyLinePoint, Group} from '../svgObjects'
-import Logic from '../Logic'
-import stateClasses from './stateClasses'
-import findPath from '../findPath'
+import { PolyLine, PolyLinePoints, PolyLinePoint, Group } from '../svgObjects';
+import Logic from '../Logic';
+import stateClasses from './stateClasses';
+import findPath from '../findPath';
 
-import NetworkElement from './NetworkElement'
+import NetworkElement from './NetworkElement';
 
 /**
  * Wire represents connection of two {@link Connector}s.
@@ -86,26 +86,29 @@ export default class Wire extends NetworkElement {
                 box: this.appInstance.getBoxByConnectorId(toId),
                 connector: this.appInstance.getConnectorById(toId)
             }
-        }
+        };
 
-        if(this.connection.from.connector.isOutputConnector) {
-            if(this.connection.to.connector.isInputConnector) {
+        if (this.connection.from.connector.isOutputConnector) {
+            if (this.connection.to.connector.isInputConnector) {
                 // desired state
             } else {
                 // connecting two output connectors
-                throw "Can not place wire between two output connectors";
+                throw 'Can not place wire between two output connectors';
             }
         } else {
-            if(this.connection.to.connector.isInputConnector) {
+            if (this.connection.to.connector.isInputConnector) {
                 // connecting two input connectors
-                throw "Can not place wire between two input connectors";
+                throw 'Can not place wire between two input connectors';
             } else {
                 // swap them and we are ready to go
-                [ this.connection.from, this.connection.to ] = [ this.connection.to, this.connection.from ];
+                [this.connection.from, this.connection.to] = [
+                    this.connection.to,
+                    this.connection.from
+                ];
             }
         }
 
-        if(route) {
+        if (route) {
             this.routeWire(true, refresh);
         } else {
             this.temporaryWire();
@@ -113,14 +116,14 @@ export default class Wire extends NetworkElement {
 
         this.elementState = Logic.state.unknown;
 
-        this.setState(this.connection.from.connector.state)
+        this.setState(this.connection.from.connector.state);
 
-        if(refresh) {
-            const {connector} = this.connection.to;
+        if (refresh) {
+            const { connector } = this.connection.to;
             this.appInstance.startNewSimulation(connector, connector.state);
         }
 
-        this.svgObj.$el.addClass("wire");
+        this.svgObj.$el.addClass('wire');
     }
 
     get boxes() {
@@ -168,7 +171,7 @@ export default class Wire extends NetworkElement {
      */
     updateWireState() {
         for (const box of this.boxes) {
-            box.refreshState()
+            box.refreshState();
         }
     }
 
@@ -195,7 +198,10 @@ export default class Wire extends NetworkElement {
      * route the wire using the temporary wire points
      */
     temporaryWire() {
-        this.wireStart = this.appInstance.getConnectorPosition(this.connection.from.connector, false);
+        this.wireStart = this.appInstance.getConnectorPosition(
+            this.connection.from.connector,
+            false
+        );
         this.wireEnd = this.appInstance.getConnectorPosition(this.connection.to.connector, false);
 
         this.setWirePath(this.getTemporaryWirePoints());
@@ -205,8 +211,14 @@ export default class Wire extends NetworkElement {
      * route the wire using the modified A* wire routing algorithm
      */
     routeWire(snapToGrid = true, refresh = true) {
-        this.wireStart = this.appInstance.getConnectorPosition(this.connection.from.connector, snapToGrid);
-        this.wireEnd = this.appInstance.getConnectorPosition(this.connection.to.connector, snapToGrid);
+        this.wireStart = this.appInstance.getConnectorPosition(
+            this.connection.from.connector,
+            snapToGrid
+        );
+        this.wireEnd = this.appInstance.getConnectorPosition(
+            this.connection.to.connector,
+            snapToGrid
+        );
 
         this.points = this.findRoute(
             {
@@ -216,12 +228,12 @@ export default class Wire extends NetworkElement {
             {
                 x: this.wireEnd.x / this.gridSize,
                 y: this.wireEnd.y / this.gridSize
-            });
+            }
+        );
 
         this.setWirePath(this.points);
 
-        if (refresh)
-            this.updateWireState();
+        if (refresh) this.updateWireState();
 
         // regenerate inconvenient nodes
         this.generateInconvenientNodes();
@@ -233,7 +245,7 @@ export default class Wire extends NetworkElement {
      */
     setWirePath(points) {
         // set the line
-        if(this.svgObj!==undefined) {
+        if (this.svgObj !== undefined) {
             // this.svgObj.updatePoints(points);
             for (let child of this.svgObj.children) {
                 child.updatePoints(points);
@@ -242,12 +254,12 @@ export default class Wire extends NetworkElement {
             this.svgObj = new Group();
 
             let hitbox = new PolyLine(points, 10, 'white');
-            hitbox.addClass("hitbox");
-            hitbox.addAttr({opacity: 0});
+            hitbox.addClass('hitbox');
+            hitbox.addAttr({ opacity: 0 });
             this.svgObj.addChild(hitbox);
 
             let mainLine = new PolyLine(points, 2);
-            mainLine.addClass("main", "stateUnknown");
+            mainLine.addClass('main', 'stateUnknown');
             this.svgObj.addChild(mainLine);
         }
     }
@@ -270,7 +282,7 @@ export default class Wire extends NetworkElement {
         let nonRoutable = this.appInstance.getNonRoutableNodes();
 
         let punishedButRoutable;
-        if(this.svgObj===undefined) {
+        if (this.svgObj === undefined) {
             punishedButRoutable = this.appInstance.getInconvenientNodes();
         } else {
             punishedButRoutable = this.appInstance.getInconvenientNodes(this.svgObj.id);
@@ -278,15 +290,14 @@ export default class Wire extends NetworkElement {
 
         let path = findPath(start, end, nonRoutable, punishedButRoutable, this.gridSize);
 
-        if(path) {
+        if (path) {
             return this.pathToPolyLine(path);
         }
-
 
         // if a path was not found, try again but don't take into account the punished and non routable node
         path = findPath(start, end, new Set(), new Set(), this.gridSize);
 
-        if(path) {
+        if (path) {
             return this.pathToPolyLine(path);
         }
 
@@ -304,32 +315,31 @@ export default class Wire extends NetworkElement {
         let prevPoint;
 
         this.points.forEach(point => {
-            const
-                x = this.appInstance.SVGToGrid(point.x),
+            const x = this.appInstance.SVGToGrid(point.x),
                 y = this.appInstance.SVGToGrid(point.y);
 
             if (prevPoint === undefined) {
                 // if the prevPoint is undefined, add the first point
-                this.inconvenientNodes.add({x, y});
+                this.inconvenientNodes.add({ x, y });
             } else {
                 // else add all the point between the prevPoint (excluded) and point (included)
 
-                if(prevPoint.x === x) {
+                if (prevPoint.x === x) {
                     // if the line is horizontal
                     let from = Math.min(prevPoint.y, y);
                     let to = Math.max(prevPoint.y, y);
 
-                    while(from &lt;= to) {
-                        this.inconvenientNodes.add({x: x, y: from});
+                    while (from &lt;= to) {
+                        this.inconvenientNodes.add({ x: x, y: from });
                         from++;
                     }
-                } else if(prevPoint.y === y) {
+                } else if (prevPoint.y === y) {
                     // if the line is vertical
                     let from = Math.min(prevPoint.x, x);
                     let to = Math.max(prevPoint.x, x);
 
-                    while(from &lt;= to) {
-                        this.inconvenientNodes.add({x: from, y: y});
+                    while (from &lt;= to) {
+                        this.inconvenientNodes.add({ x: from, y: y });
                         from++;
                     }
                 } else {
@@ -339,7 +349,7 @@ export default class Wire extends NetworkElement {
             }
 
             // set new prevPoint
-            prevPoint = {x, y};
+            prevPoint = { x, y };
         });
     }
 }

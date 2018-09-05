@@ -1,4 +1,4 @@
-import PolyLinePoint from './PolyLinePoint'
+import PolyLinePoint from './PolyLinePoint';
 
 /** @module svgObjects.PolyLinePoints */
 
@@ -10,7 +10,7 @@ class SmartArray {
      * @param {Array} [arr] if set, initialized SmartArray will contain these values
      */
     constructor(arr) {
-        if(arr !== undefined) {
+        if (arr !== undefined) {
             this.arr = arr;
         } else {
             this.arr = [];
@@ -47,8 +47,8 @@ class SmartArray {
      * @param {number} index index of this item
      */
     addWithIndex(item, index) {
-        for(let i = this.arr.length ; i > index ; --i) {
-            this.arr[i] = this.arr[i-1];
+        for (let i = this.arr.length; i > index; --i) {
+            this.arr[i] = this.arr[i - 1];
         }
         this.arr[index] = item;
         return this; // to enable chaining of append / preppend / addWithIndex commands
@@ -75,7 +75,7 @@ class SmartArray {
      * @return last element of the array
      */
     get last() {
-        if(this.length!==0) {
+        if (this.length !== 0) {
             return this.arr[this.length - 1];
         } else {
             return false;
@@ -86,7 +86,7 @@ class SmartArray {
      * @return first element of the array
      */
     get first() {
-        if(this.length!==0) {
+        if (this.length !== 0) {
             return this.arr[0];
         } else {
             return false;
@@ -100,7 +100,7 @@ class SmartArray {
     remove(index) {
         let length = this.length;
 
-        for(let i = index ; i < length ; ++i) {
+        for (let i = index; i < length; ++i) {
             this.arr[i] = this.arr[i + 1];
         }
         this.arr.pop();
@@ -137,14 +137,13 @@ export default class PolyLinePoints extends SmartArray {
 
         // if the second to last point is unnecessary, remove it
         let length = this.length;
-        if ( length >= 3
-                && (    ( this.getItem(length - 3).x === this.getItem(length - 2).x &&
-                          this.getItem(length - 2).x === this.getItem(length - 1).x )
-                     || ( this.getItem(length - 3).y === this.getItem(length - 2).y &&
-                          this.getItem(length - 2).y === this.getItem(length - 1).y )
-                   )
-           )
-        {
+        if (
+            length >= 3 &&
+            ((this.getItem(length - 3).x === this.getItem(length - 2).x &&
+                this.getItem(length - 2).x === this.getItem(length - 1).x) ||
+                (this.getItem(length - 3).y === this.getItem(length - 2).y &&
+                    this.getItem(length - 2).y === this.getItem(length - 1).y))
+        ) {
             this.remove(length - 2);
         }
 
@@ -158,10 +157,10 @@ export default class PolyLinePoints extends SmartArray {
      * @return {PolyLinePoints} a new instance of {@link PolyLinePoints} created by parsing the string
      */
     static parseFromString(string) {
-        let pointStrings = string.split(" ");
+        let pointStrings = string.split(' ');
         let points = new PolyLinePoints();
 
-        for(let i = 0 ; i < pointStrings.length ; ++i) {
+        for (let i = 0; i < pointStrings.length; ++i) {
             points.append(PolyLinePoint.parseFromString(pointStrings[i]));
         }
 
@@ -173,10 +172,10 @@ export default class PolyLinePoints extends SmartArray {
      * @return {string} string in the PolyLine format (`x1,y1 x2,y2, x3,y3`)
      */
     get string() {
-        let string = "";
-        for(let i = 0 ; i < this.length ; ++i) {
-            if(i !== 0) {
-                string += " ";
+        let string = '';
+        for (let i = 0; i < this.length; ++i) {
+            if (i !== 0) {
+                string += ' ';
             }
             string += this.arr[i].string;
         }
@@ -188,7 +187,7 @@ export default class PolyLinePoints extends SmartArray {
      * @param  {Function} func function that will be called on each element
      */
     forEach(func) {
-        for(let i = 0 ; i < this.arr.length ; ++i) {
+        for (let i = 0; i < this.arr.length; ++i) {
             func(this.arr[i]);
         }
     }

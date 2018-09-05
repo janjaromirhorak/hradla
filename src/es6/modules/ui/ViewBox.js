@@ -15,7 +15,7 @@ export default class ViewBox {
          * ViewBox attributes before applying zoom and shift
          * @type {object}
          */
-        this.real = { left, top, width, height }
+        this.real = { left, top, width, height };
 
         /**
          * The maximum amount of zoom on the viewbox
@@ -32,18 +32,18 @@ export default class ViewBox {
          * Amount of zoom on the viewbox, always between this.minZoom and this.maxZoom
          * @type {number}
          */
-        this.realZoom = 1
+        this.realZoom = 1;
 
         /**
          * amount of horizontal shift of the document
          * @type {number}
          */
-        this.leftShift = 0
+        this.leftShift = 0;
         /**
          * amount of vertical shift of the document
          * @type {number}
          */
-        this.topShift = 0
+        this.topShift = 0;
     }
 
     /**
@@ -53,8 +53,8 @@ export default class ViewBox {
      */
     newDimensions(width, height) {
         // keep the viewbox centered
-        this.real.left += (this.real.width - width)/2
-        this.real.top += (this.real.height - height)/2
+        this.real.left += (this.real.width - width) / 2;
+        this.real.top += (this.real.height - height) / 2;
 
         // update the dimensions
         this.real.width = width;
@@ -93,7 +93,7 @@ export default class ViewBox {
      * @return {number} the final width of the viewbox
      */
     get width() {
-        return this.real.width / this.zoom
+        return this.real.width / this.zoom;
     }
 
     /**
@@ -101,7 +101,7 @@ export default class ViewBox {
      * @return {number} the final height of the viewbox
      */
     get height() {
-        return this.real.height / this.zoom
+        return this.real.height / this.zoom;
     }
 
     /**
@@ -109,7 +109,7 @@ export default class ViewBox {
      * @return {number}
      */
     get left() {
-        return this.real.left - this.leftShift + ((this.real.width - this.width) / 2)
+        return this.real.left - this.leftShift + (this.real.width - this.width) / 2;
     }
 
     /**
@@ -117,7 +117,7 @@ export default class ViewBox {
      * @return {number}
      */
     get top() {
-        return this.real.top - this.topShift + ((this.real.height - this.height) / 2)
+        return this.real.top - this.topShift + (this.real.height - this.height) / 2;
     }
 
     /**
@@ -125,7 +125,7 @@ export default class ViewBox {
      * @return {string} string in format "left top width height"
      */
     get str() {
-        return `${this.left} ${this.top} ${this.width} ${this.height}`
+        return `${this.left} ${this.top} ${this.width} ${this.height}`;
     }
 
     /**
@@ -134,7 +134,7 @@ export default class ViewBox {
      * @return {number}   transformed horizontal value
      */
     transformX(x) {
-        return this.left + (x / this.zoom)
+        return this.left + x / this.zoom;
     }
 
     /**
@@ -143,7 +143,7 @@ export default class ViewBox {
      * @return {number}   transformed vertical value
      */
     transformY(y) {
-        return this.top + (y / this.zoom)
+        return this.top + y / this.zoom;
     }
 
     /**
@@ -152,9 +152,9 @@ export default class ViewBox {
      * @return {jquery.MouseEvent}       the same event but with transformed pageX and pageY members
      */
     transformEvent(event) {
-        event.pageX = this.transformX(event.pageX)
-        event.pageY = this.transformY(event.pageY)
+        event.pageX = this.transformX(event.pageX);
+        event.pageY = this.transformY(event.pageY);
 
-        return event
+        return event;
     }
 }

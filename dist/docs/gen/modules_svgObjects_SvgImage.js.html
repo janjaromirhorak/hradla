@@ -50,7 +50,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import SvgElement from './SvgElement'
+            <pre class="prettyprint source linenums"><code>import SvgElement from './SvgElement';
 
 /** @module svgObjects.SvgImage */
 
@@ -60,9 +60,9 @@
  */
 export default class SvgImage extends SvgElement {
     constructor(x, y, w, h, url) {
-        super(x, y, w, h, "image");
+        super(x, y, w, h, 'image');
         this.addAttr({
-            "xlink:href": url
+            'xlink:href': url
         });
     }
 
@@ -72,7 +72,7 @@ export default class SvgImage extends SvgElement {
      */
     changeUrl(url) {
         this.addAttr({
-            "xlink:href": url
+            'xlink:href': url
         });
     }
 }

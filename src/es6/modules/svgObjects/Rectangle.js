@@ -1,4 +1,4 @@
-import SvgElement from './SvgElement'
+import SvgElement from './SvgElement';
 
 /** @module svgObjects.Rectangle */
 
@@ -16,7 +16,7 @@ export default class Rectangle extends SvgElement {
      * @param {string} stroke  stroke color of the rectangle
      */
     constructor(x, y, w, h, fill, stroke) {
-        super(x, y, w, h, "rect");
+        super(x, y, w, h, 'rect');
         this.addAttr({
             fill: fill,
             stroke: stroke,

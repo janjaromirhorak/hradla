@@ -1,4 +1,4 @@
-import Tag from './Tag'
+import Tag from './Tag';
 
 /** @module svgObjects.Group */
 
@@ -9,7 +9,7 @@ import Tag from './Tag'
  */
 export default class Group extends Tag {
     constructor() {
-        super("g");
+        super('g');
 
         this.children = [];
     }

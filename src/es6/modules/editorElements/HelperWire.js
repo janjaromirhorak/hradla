@@ -1,6 +1,6 @@
-import {PolyLine, PolyLinePoints, PolyLinePoint} from '../svgObjects'
+import { PolyLine, PolyLinePoints, PolyLinePoint } from '../svgObjects';
 
-import NetworkElement from './NetworkElement'
+import NetworkElement from './NetworkElement';
 
 /** @module editorElements.HelperWire */
 
@@ -20,7 +20,7 @@ export default class HelperWire extends NetworkElement {
 
         const points = new PolyLinePoints([from, to]);
 
-        this.svgObj = new PolyLine(points, 2, "#8b8b8b");
+        this.svgObj = new PolyLine(points, 2, '#8b8b8b');
     }
 
     updateMousePosition(mousePosition) {

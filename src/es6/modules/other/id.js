@@ -13,7 +13,7 @@ let existingIdInstance;
  */
 export default class Id {
     constructor() {
-        if(!existingIdInstance){
+        if (!existingIdInstance) {
             existingIdInstance = this;
         }
 
@@ -21,7 +21,7 @@ export default class Id {
          * prefix for the id, that is common in all the Ids
          * @type {String}
          */
-        this.prefix = "id";
+        this.prefix = 'id';
 
         /**
          * numeric part of the next id (the next id without the prefix)
@@ -41,7 +41,7 @@ export default class Id {
 
         // find next unused idXXXX to prevent id collision that might be caused by some other component
         // (it really should not happen, but this is a simple way to ensure it)
-        while($("#"+retVal).length) {
+        while ($('#' + retVal).length) {
             this.nextId++;
             retVal = this.generate();
         }

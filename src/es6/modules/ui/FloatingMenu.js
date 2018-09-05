@@ -1,4 +1,4 @@
-import { getJSONString } from "../other/helperFunctions";
+import { getJSONString } from '../other/helperFunctions';
 
 /**
  * FloatingButton represents a button that is used in the floating menu in the right bottom corner
@@ -16,17 +16,17 @@ class FloatingButton {
          * jQuery element representing the button
          * @type {jQuery.element}
          */
-        this.$el = $('<a>')
+        this.$el = $('<a>');
 
         // add classes to the element
-        this.$el.addClass("button");
+        this.$el.addClass('button');
         this.$el.addClass(buttonClass);
 
         // add the icon
         this.$el.append(
-            $("<img>")
-            .attr("src", `img/gui/${buttonClass}.svg`)
-            .attr("alt", tooltip)
+            $('<img>')
+                .attr('src', `img/gui/${buttonClass}.svg`)
+                .attr('alt', tooltip)
         );
 
         // add the tooltip element and an event listener if tooltip is defined
@@ -35,23 +35,24 @@ class FloatingButton {
              * jQuery element representing the tooltip
              * @type {jQuery.element}
              */
-            this.$tooltip = $("<div>");
-            this.$tooltip
-                .addClass("tooltip")
-                .html(tooltip);
+            this.$tooltip = $('<div>');
+            this.$tooltip.addClass('tooltip').html(tooltip);
 
             appInstance.$svg.after(this.$tooltip);
 
-            this.$el.hover(() => {
-                this.$tooltip.fadeIn(200);
-            }, () => {
-                this.$tooltip.fadeOut(200);
-            });
+            this.$el.hover(
+                () => {
+                    this.$tooltip.fadeIn(200);
+                },
+                () => {
+                    this.$tooltip.fadeOut(200);
+                }
+            );
         }
 
         // add an event listener on click, if the callback function is defined
         if (clickEvent) {
-            this.$el.on("click", clickEvent);
+            this.$el.on('click', clickEvent);
         }
     }
 }
@@ -70,71 +71,82 @@ export default class FloatingMenu {
          * the jQuery element containing all buttons
          * @type {jQuery.element}
          */
-        this.$el = $('<div>')
+        this.$el = $('<div>');
 
         const id = 'floatingMenu';
 
-        this.$el.attr("id", id);
+        this.$el.attr('id', id);
 
         // const $loader = $("<div>").addClass("loader").addClass("hidden");
 
-
         /* EXPORT */
         this.append(
-            new FloatingButton("export", "Get code for this network", () => {
-                // create the popup container holding all popup content (that will be passed to lity)
-                let $popup = $("<div>")
-                    .addClass("importExport")
-                    .addClass("export");
+            new FloatingButton(
+                'export',
+                'Get code for this network',
+                () => {
+                    // create the popup container holding all popup content (that will be passed to lity)
+                    let $popup = $('<div>')
+                        .addClass('importExport')
+                        .addClass('export');
 
-                // generate the block with code to be displayed and append it to the popup element
-                const $textblock = $("<textarea>").text(
-                    getJSONString(appInstance.exportData, true)
-                )
+                    // generate the block with code to be displayed and append it to the popup element
+                    const $textblock = $('<textarea>').text(
+                        getJSONString(appInstance.exportData, true)
+                    );
 
-                $popup.append($textblock);
+                    $popup.append($textblock);
 
-                // generate the links
-                $popup.append(
-                    $("<a>").attr({
-                        "href": getJSONString(appInstance.exportData, true, true),
-                        "class": "download",
-                        "download": "network.json"
-                    }).append(
-                        $("<img>").attr('src', "img/gui/export.svg")
-                    ).append(" expanded JSON")
-                );
-                $popup.append(
-                    $("<a>").attr({
-                        "href": getJSONString(appInstance.exportData, false, true),
-                        "class": "download",
-                        "download": "network.min.json"
-                    }).append(
-                        $("<img>").attr('src', "img/gui/export.svg")
-                    ).append(" compact JSON")
-                );
+                    // generate the links
+                    $popup.append(
+                        $('<a>')
+                            .attr({
+                                href: getJSONString(appInstance.exportData, true, true),
+                                class: 'download',
+                                download: 'network.json'
+                            })
+                            .append($('<img>').attr('src', 'img/gui/export.svg'))
+                            .append(' expanded JSON')
+                    );
+                    $popup.append(
+                        $('<a>')
+                            .attr({
+                                href: getJSONString(appInstance.exportData, false, true),
+                                class: 'download',
+                                download: 'network.min.json'
+                            })
+                            .append($('<img>').attr('src', 'img/gui/export.svg'))
+                            .append(' compact JSON')
+                    );
 
-                lity($popup);
+                    lity($popup);
 
-                // highlight the text in the textblock
-                $textblock.select();
-            }, appInstance)
+                    // highlight the text in the textblock
+                    $textblock.select();
+                },
+                appInstance
+            )
         );
 
         /* Tutorial */
         this.append(
-            new FloatingButton("tutorial", "Start the tutorial", () => {
-                appInstance.startTutorial();
-            }, appInstance)
+            new FloatingButton(
+                'tutorial',
+                'Start the tutorial',
+                () => {
+                    appInstance.startTutorial();
+                },
+                appInstance
+            )
         );
 
         appInstance.$svg.after(this.$el);
 
         /* HELP */
 
-        let help = new FloatingButton("help", "Display a help page", false, appInstance);
+        let help = new FloatingButton('help', 'Display a help page', false, appInstance);
         help.$el.attr({
-            'href': './docs/user.html',
+            href: './docs/user.html',
             'data-lity': ''
         });
         this.append(help);

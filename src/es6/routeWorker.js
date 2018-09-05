@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
 /** @module routeWorker */
 
-import findPath from './modules/findPath'
+import findPath from './modules/findPath';
 
 /**
  * callback when a message is sent to the web worker
@@ -10,14 +10,14 @@ import findPath from './modules/findPath'
  * @param {Object} event web worker event object (the `data` item of the event object is expected to contain
  *                       these items: `wires` (array), `nonRoutableNodes` (iterable) and `inconvenientNodes` (iterable))
  */
-onmessage = (event) => {
-    const {wires, nonRoutableNodes, inconvenientNodes} = event.data;
+onmessage = event => {
+    const { wires, nonRoutableNodes, inconvenientNodes } = event.data;
 
     const paths = findPaths(wires, nonRoutableNodes, inconvenientNodes);
 
-    postMessage({paths});
+    postMessage({ paths });
     close();
-}
+};
 
 /**
  * find paths for all the specified wires
@@ -32,36 +32,44 @@ function findPaths(wires, nonRoutableNodes, inconvenientNodes) {
     let paths = [];
 
     for (const [from, to] of wires) {
-        const path = findPath(from, to, nonRoutableNodes, inconvenientNodes)
+        const path = findPath(from, to, nonRoutableNodes, inconvenientNodes);
 
-        if(!path) {
-            console.log("path not found")
+        if (!path) {
+            console.log('path not found');
             console.log(from, to);
         } else {
-            console.log("path found")
+            console.log('path found');
         }
 
         paths.push(path);
 
         // add new inconvenient nodes created by this new path
         let prevPoint;
-        for(const point of path) {
-            if(prevPoint) {
-                if(point.x === prevPoint.x) {
+        for (const point of path) {
+            if (prevPoint) {
+                if (point.x === prevPoint.x) {
                     // horizontal section of the path
-                    for(let y = Math.min(point.y, prevPoint.y); y <= Math.max(point.y, prevPoint.y) ; ++y) {
+                    for (
+                        let y = Math.min(point.y, prevPoint.y);
+                        y <= Math.max(point.y, prevPoint.y);
+                        ++y
+                    ) {
                         inconvenientNodes.add({
                             x: point.x,
                             y: y
-                        })
+                        });
                     }
-                } else if(point.y === prevPoint.y) {
+                } else if (point.y === prevPoint.y) {
                     // vertical section of the path
-                    for(let x = Math.min(point.x, prevPoint.x); x <= Math.max(point.x, prevPoint.x) ; ++x) {
+                    for (
+                        let x = Math.min(point.x, prevPoint.x);
+                        x <= Math.max(point.x, prevPoint.x);
+                        ++x
+                    ) {
                         inconvenientNodes.add({
                             x: x,
                             y: point.y
-                        })
+                        });
                     }
                 }
             }

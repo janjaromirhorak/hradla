@@ -1,6 +1,6 @@
-import Logic from '../Logic'
+import Logic from '../Logic';
 
-import Box from './Box'
+import Box from './Box';
 
 /** @module editorElements.InputBox */
 
@@ -17,7 +17,7 @@ export default class InputBox extends Box {
         const gridWidth = 7;
         const gridHeight = 4;
 
-        super(appInstance, "input", "other", gridWidth, gridHeight);
+        super(appInstance, 'input', 'other', gridWidth, gridHeight);
 
         this.addConnector(gridWidth, gridHeight / 2, false);
 
@@ -42,7 +42,7 @@ export default class InputBox extends Box {
         const specialNode = {
             x: this.gridWidth,
             y: this.gridHeight / 2
-        }
+        };
         super.generateBlockNodes(0, 1, 1, 0, specialNode);
     }
 
@@ -50,7 +50,7 @@ export default class InputBox extends Box {
      * start a new simulation from the output connector
      */
     refreshState() {
-        this.appInstance.startNewSimulation(this.connectors[0], this.connectors[0].state)
+        this.appInstance.startNewSimulation(this.connectors[0], this.connectors[0].state);
     }
 
     /**
@@ -60,14 +60,14 @@ export default class InputBox extends Box {
     set on(isOn) {
         if (isOn) {
             // turn on
-            this.changeImage("on");
+            this.changeImage('on');
             this.connectors[0].setState(Logic.state.on);
-            this.refreshState()
+            this.refreshState();
         } else {
             // turn off
             this.changeImage();
             this.connectors[0].setState(Logic.state.off);
-            this.refreshState()
+            this.refreshState();
         }
 
         this.isOn = isOn;
@@ -87,7 +87,7 @@ export default class InputBox extends Box {
     onClick() {
         this.on = !this.on;
 
-        if(this.appInstance.tutorial) {
+        if (this.appInstance.tutorial) {
             this.appInstance.tutorial.onChangeInputBoxState();
         }
     }

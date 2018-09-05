@@ -9,7 +9,9 @@ class Message {
      * @param {Function} [onHide] a function that will be called when the `hide()` method is called
      */
     constructor(text, onHide) {
-        this.$el = $("<div>").addClass("message").text(text);
+        this.$el = $('<div>')
+            .addClass('message')
+            .text(text);
 
         /**
          * callback function that will be called when the `hide()` method is called
@@ -24,7 +26,7 @@ class Message {
     hide() {
         this.$el.remove();
 
-        if(this.onHide) {
+        if (this.onHide) {
             this.onHide();
         }
     }
@@ -38,7 +40,7 @@ class LoadingMessage extends Message {
     constructor(text, onHide = undefined) {
         super(text, onHide);
 
-        this.$el.addClass("loading");
+        this.$el.addClass('loading');
     }
 }
 
@@ -51,10 +53,12 @@ class ClosableMessage extends Message {
         super(text, onHide);
 
         this.$el.append(
-            $("<span>").addClass("close").click(() => {
-                this.hide();
-            })
-        )
+            $('<span>')
+                .addClass('close')
+                .click(() => {
+                    this.hide();
+                })
+        );
     }
 }
 
@@ -66,7 +70,7 @@ class ErrorMessage extends ClosableMessage {
     constructor(text, onHide = undefined) {
         super(text, onHide);
 
-        this.$el.addClass("error");
+        this.$el.addClass('error');
     }
 }
 
@@ -78,7 +82,7 @@ class WarningMessage extends ClosableMessage {
     constructor(text, onHide = undefined) {
         super(text, onHide);
 
-        this.$el.addClass("warning");
+        this.$el.addClass('warning');
     }
 }
 
@@ -91,7 +95,7 @@ export default class Messages {
          * jQuery element that represents the message interface. This element contains all the currently displayed messages.
          * @type {jQuery.element}
          */
-        this.$el = $("<div>").addClass('messages');
+        this.$el = $('<div>').addClass('messages');
 
         /**
          * number of currently displayed messages, has a specified setter and getter
@@ -121,7 +125,7 @@ export default class Messages {
     set count(value) {
         this.messageCount = value;
 
-        if(this.messageCount < 1) {
+        if (this.messageCount < 1) {
             this.hide();
         } else {
             this.display();

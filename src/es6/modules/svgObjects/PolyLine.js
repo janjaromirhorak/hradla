@@ -1,4 +1,4 @@
-import Tag from './Tag'
+import Tag from './Tag';
 
 /** @module svgObjects.PolyLine */
 
@@ -13,16 +13,16 @@ export default class PolyLine extends Tag {
      * @param {string} [color] CSS color of this PolyLine
      */
     constructor(points, strokeWidth, color) {
-        super("PolyLine");
+        super('PolyLine');
 
         let attributes = {
             points: points.string,
-            fill: "none",
-            "stroke-width": strokeWidth
+            fill: 'none',
+            'stroke-width': strokeWidth
         };
 
-        if(color!==undefined) {
-            attributes.stroke = color
+        if (color !== undefined) {
+            attributes.stroke = color;
         }
 
         this.addAttr(attributes);

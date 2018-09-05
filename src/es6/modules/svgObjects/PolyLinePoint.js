@@ -11,7 +11,7 @@ export default class PolyLinePoint {
     constructor(x, y) {
         this.x = 0;
         this.y = 0;
-        if(x !== undefined && y !== undefined) {
+        if (x !== undefined && y !== undefined) {
             this.x = x;
             this.y = y;
         }
@@ -33,7 +33,7 @@ export default class PolyLinePoint {
      * @return {PolyLinePoint} newly created instance of {@link PolyLinePoint}
      */
     static parseFromString(string) {
-        let arr = string.split(",");
+        let arr = string.split(',');
         return new PolyLinePoint(arr[0], arr[1]);
     }
 
@@ -42,7 +42,7 @@ export default class PolyLinePoint {
      * @return {string} string in the format "x,y"
      */
     get string() {
-        return this.x + "," + this.y;
+        return this.x + ',' + this.y;
     }
 
     /**

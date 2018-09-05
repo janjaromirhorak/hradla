@@ -1,5 +1,5 @@
-import Connector from './Connector'
-import Logic from '../Logic'
+import Connector from './Connector';
+import Logic from '../Logic';
 
 /** @module editorElements.InputConnector */
 

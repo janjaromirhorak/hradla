@@ -37,7 +37,11 @@ export default class Tutorial {
          * by default populated with step `0` that closes the tutorial
          * @type {Array}
          */
-        this.steps = [() => { this.closeWindow(onTutorialClosed) }];
+        this.steps = [
+            () => {
+                this.closeWindow(onTutorialClosed);
+            }
+        ];
 
         // set up the tutorial
         this.setUpTutorial();
@@ -62,11 +66,10 @@ export default class Tutorial {
 
         this.currentStep = value;
 
-        if(this.step < this.steps.length) {
+        if (this.step < this.steps.length) {
             this.steps[this.step]();
 
-            if(this.step === 1)
-                this.displayWindow();
+            if (this.step === 1) this.displayWindow();
         } else {
             this.step = 0;
         }
@@ -129,16 +132,34 @@ export default class Tutorial {
         this.resetHooks();
 
         this.steps.push(
-            () => { this.stepWelcome() },
-            () => { this.stepAddBoxes() },
-            () => { this.stepMoveCanvas() },
-            () => { this.stepZoomCanvas() },
-            () => { this.stepMoveBoxes() },
-            () => { this.stepWiring() },
-            () => { this.switchInputBox() },
-            () => { this.stepRemoveBox() },
-            () => { this.stepFinish() }
-        )
+            () => {
+                this.stepWelcome();
+            },
+            () => {
+                this.stepAddBoxes();
+            },
+            () => {
+                this.stepMoveCanvas();
+            },
+            () => {
+                this.stepZoomCanvas();
+            },
+            () => {
+                this.stepMoveBoxes();
+            },
+            () => {
+                this.stepWiring();
+            },
+            () => {
+                this.switchInputBox();
+            },
+            () => {
+                this.stepRemoveBox();
+            },
+            () => {
+                this.stepFinish();
+            }
+        );
     }
 
     /**
@@ -147,11 +168,11 @@ export default class Tutorial {
     stepWelcome() {
         this.windowContent(
             `Welcome to Hradla! To get started, click anywhere on the editing area with your right mouse button.`
-        )
+        );
 
         this.onContextMenuOpened = () => {
             this.next();
-        }
+        };
     }
 
     /**
@@ -161,23 +182,24 @@ export default class Tutorial {
         this.windowContent(
             `Great job! Now you know, how to open the editor menu.
             Now try to add an <em>Input box</em>, <em>Output box</em> and a <em>NOT gate</em>
-            to the editing area.`)
+            to the editing area.`
+        );
 
         let elementsAdded = {
             inputBox: false,
             outputBox: false,
             notGate: false
-        }
+        };
 
-        this.onElementAdded = (name) => {
+        this.onElementAdded = name => {
             switch (name) {
-                case "input":
+                case 'input':
                     elementsAdded.inputBox = true;
                     break;
-                case "output":
+                case 'output':
                     elementsAdded.outputBox = true;
                     break;
-                case "not":
+                case 'not':
                     elementsAdded.notGate = true;
                     break;
                 default:
@@ -185,7 +207,7 @@ export default class Tutorial {
                     break;
             }
 
-            if(elementsAdded.inputBox && elementsAdded.outputBox && elementsAdded.notGate) {
+            if (elementsAdded.inputBox && elementsAdded.outputBox && elementsAdded.notGate) {
                 // proceed to the next step of the tutorial
                 this.next();
             }
@@ -199,11 +221,12 @@ export default class Tutorial {
         this.windowContent(
             `You can move the editing area (sometimes called canvas) by dragging
             with the middle mouse button or by holding the <code>Ctrl</code> key
-            and dragging with the left mouse button. Check it out.`)
+            and dragging with the left mouse button. Check it out.`
+        );
 
         this.onCanvasMoved = () => {
             this.next();
-        }
+        };
     }
 
     /**
@@ -213,11 +236,11 @@ export default class Tutorial {
         this.windowContent(
             `You can also zoom in and out using the mouse wheel
             or with the <code>+</code>&nbsp;and <code>−</code>&nbsp;keys.`
-        )
+        );
 
         this.onCanvasZoomed = () => {
             this.next();
-        }
+        };
     }
 
     /**
@@ -225,37 +248,39 @@ export default class Tutorial {
      */
     stepMoveBoxes() {
         this.windowContent(`You can move the elements on the editing canvas by dragging them
-            using the left mouse button. You can also rotate them using middle click. Try it out.`)
+            using the left mouse button. You can also rotate them using middle click. Try it out.`);
 
         let boxMoved = false;
         let boxRotated = false;
 
         let moveRotateCallback = () => {
-            if(boxMoved && boxRotated) {
+            if (boxMoved && boxRotated) {
                 this.next();
             }
-        }
+        };
 
         this.onBoxMoved = () => {
             boxMoved = true;
-            moveRotateCallback()
-        }
+            moveRotateCallback();
+        };
 
         this.onBoxRotated = () => {
             boxRotated = true;
-            moveRotateCallback()
-        }
+            moveRotateCallback();
+        };
     }
 
     /**
      * _tutorial step_: create an invertor
      */
     stepWiring() {
-        this.windowContent(`Essential part of logic networks is the wiring. Create a very simple
+        this.windowContent(
+            `Essential part of logic networks is the wiring. Create a very simple
             inverter by connecting the <em>Input box</em> to the input of the <em>NOT gate</em>
             and the output of the <em>NOT gate</em> to the input of the <em>Output box</em>.`,
             `To connect two elemnts, simply click on a connector of the first element,
-            than click on a conector of the second element.`)
+            than click on a conector of the second element.`
+        );
 
         this.onOutputBoxTrue = () => {
             this.next();
@@ -270,7 +295,7 @@ export default class Tutorial {
             The input boxes can be in two states: <em>ON</em> and <em>OFF</em>, signalled
             by the green and red colors respectively. You can left click on an Input box to
             switch its state. Try it out!
-        `)
+        `);
 
         this.onChangeInputBoxState = () => {
             this.next();
@@ -285,19 +310,21 @@ export default class Tutorial {
             `When you right click on an element, you can find a new item in the menu,
             that allows you to remove the element. This works for wires as well as for gates and other types of boxes.
             Try to remove an element!`
-        )
+        );
 
         this.onElementRemoved = () => {
             this.next();
-        }
+        };
     }
 
     /**
      * _tutorial step_: ask the user if they want to clean the canvas before closing the tutorial
      */
     stepFinish() {
-        this.windowContent(`You're all set, enjoy your stay!`,
-                           `Do you wish to start with empty canvas?`)
+        this.windowContent(
+            `You're all set, enjoy your stay!`,
+            `Do you wish to start with empty canvas?`
+        );
         this.windowChoice(
             {
                 text: 'yes, clean the canvas',
@@ -312,14 +339,14 @@ export default class Tutorial {
                     this.stop();
                 }
             }
-        )
+        );
     }
 
     /**
      * display the tutorial window
      */
     displayWindow() {
-        this.appInstance.$svg.after(this.$tutorialWindow)
+        this.appInstance.$svg.after(this.$tutorialWindow);
     }
 
     /**
@@ -329,7 +356,7 @@ export default class Tutorial {
     closeWindow(onTutorialClosed) {
         this.$tutorialWindow.remove();
 
-        if(onTutorialClosed!==undefined) {
+        if (onTutorialClosed !== undefined) {
             onTutorialClosed();
         }
     }
@@ -339,71 +366,78 @@ export default class Tutorial {
      * @param  {...string} text each string is a separate paragraph
      */
     windowContent(...text) {
-        if(!this.$tutorialWindow) {
-            this.$tutorialWindow = $("<div>").attr("id", "tutorial");
+        if (!this.$tutorialWindow) {
+            this.$tutorialWindow = $('<div>').attr('id', 'tutorial');
 
-            this.$topButtonsLeft = $("<div>").addClass("left");
+            this.$topButtonsLeft = $('<div>').addClass('left');
 
             this.$tutorialWindow.append(
-                $("<div>").addClass("topButtons")
+                $('<div>')
+                    .addClass('topButtons')
                     .append(this.$topButtonsLeft)
-                    .append( // the .right div can be added here because it is not modified during the tutorial
-                        $("<div>").addClass("right")
-                        .append(
-                            $("<a>").attr({
-                                href: "#",
-                                title: "close tutorial"
-                            }).addClass("button close")
-                            .click(() => {
-                                this.stop();
-                            })
-                        )
+                    .append(
+                        // the .right div can be added here because it is not modified during the tutorial
+                        $('<div>')
+                            .addClass('right')
+                            .append(
+                                $('<a>')
+                                    .attr({
+                                        href: '#',
+                                        title: 'close tutorial'
+                                    })
+                                    .addClass('button close')
+                                    .click(() => {
+                                        this.stop();
+                                    })
+                            )
                     )
-            )
+            );
 
             this.$tutorialWindow.append(this.$topButtons);
 
-            this.$tutorialContent = $("<div>").addClass("content");
+            this.$tutorialContent = $('<div>').addClass('content');
             this.$tutorialWindow.append(this.$tutorialContent);
         }
 
-        this.$topButtonsLeft.html("");
+        this.$topButtonsLeft.html('');
 
-        let $prev = $("<a>").attr({
-            href: "#",
-            title: "go back"
-        }).addClass("button prev");
+        let $prev = $('<a>')
+            .attr({
+                href: '#',
+                title: 'go back'
+            })
+            .addClass('button prev');
 
-        if(this.step>1) {
+        if (this.step > 1) {
             $prev.click(() => {
                 this.prev();
             });
         } else {
-            $prev.addClass("disabled");
+            $prev.addClass('disabled');
         }
 
-        let $next = $("<a>").attr({
-            href: "#",
-            title: "go forward"
-        }).addClass("button next");
+        let $next = $('<a>')
+            .attr({
+                href: '#',
+                title: 'go forward'
+            })
+            .addClass('button next');
 
-        if(this.step < this.steps.length - 1) {
+        if (this.step < this.steps.length - 1) {
             $next.click(() => {
                 this.next();
             });
         } else {
-            $next.addClass("disabled");
+            $next.addClass('disabled');
         }
 
         this.$topButtonsLeft.append($prev).append($next);
 
         // set the text content
 
-        this.$tutorialContent.html("");
+        this.$tutorialContent.html('');
         for (const paragraph of text) {
-            this.$tutorialContent.append(
-                $("<p>").html(paragraph)
-            );
+            this.$tutorialContent.append($('<p>').html(paragraph));
         }
 
         // // render the buttons in each step (to remove focus and to
@@ -442,15 +476,18 @@ export default class Tutorial {
      * @param  {...object} choices each choice is an object in with a `string` property _text_ and a `function` property _func_
      */
     windowChoice(...choices) {
-        let $choices = $("<ol>").addClass("choices");
+        let $choices = $('<ol>').addClass('choices');
         for (const choice of choices) {
             $choices.append(
-                $("<li>").append(
-                    $("<a>").attr("href", "#").click(() => {
-                        choice.func()
-                    }).html(choice.text)
+                $('<li>').append(
+                    $('<a>')
+                        .attr('href', '#')
+                        .click(() => {
+                            choice.func();
+                        })
+                        .html(choice.text)
                 )
-            )
+            );
         }
         this.$tutorialContent.append($choices);
     }
@@ -458,20 +495,28 @@ export default class Tutorial {
     /**
      * start the tutorial
      */
-    start() { this.step = 1; }
+    start() {
+        this.step = 1;
+    }
 
     /**
      * go to the next step of the tutorial
      */
-    next() { this.step++; }
+    next() {
+        this.step++;
+    }
 
     /**
      * go to the previous step of the tutorial
      */
-    prev() { this.step--; }
+    prev() {
+        this.step--;
+    }
 
     /**
      * stop the tutorial
      */
-    stop() { this.step = 0 }
+    stop() {
+        this.step = 0;
+    }
 }

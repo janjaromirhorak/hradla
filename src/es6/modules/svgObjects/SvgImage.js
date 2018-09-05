@@ -1,4 +1,4 @@
-import SvgElement from './SvgElement'
+import SvgElement from './SvgElement';
 
 /** @module svgObjects.SvgImage */
 
@@ -8,9 +8,9 @@ import SvgElement from './SvgElement'
  */
 export default class SvgImage extends SvgElement {
     constructor(x, y, w, h, url) {
-        super(x, y, w, h, "image");
+        super(x, y, w, h, 'image');
         this.addAttr({
-            "xlink:href": url
+            'xlink:href': url
         });
     }
 
@@ -20,7 +20,7 @@ export default class SvgImage extends SvgElement {
      */
     changeUrl(url) {
         this.addAttr({
-            "xlink:href": url
+            'xlink:href': url
         });
     }
 }

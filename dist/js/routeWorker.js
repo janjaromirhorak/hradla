@@ -1185,7 +1185,7 @@ function reconstructPath(cameFrom, currentNode) {
 }
 
 },{"./other/helperFunctions":11,"./other/mapWithDefaultValue":12,"libstl":9}],11:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -1194,7 +1194,7 @@ exports.addMouseScrollEventListener = addMouseScrollEventListener;
 exports.getJSONString = getJSONString;
 exports.manhattanDistance = manhattanDistance;
 
-var _jsonStringifyPrettyCompact = require("json-stringify-pretty-compact");
+var _jsonStringifyPrettyCompact = require('json-stringify-pretty-compact');
 
 var _jsonStringifyPrettyCompact2 = _interopRequireDefault(_jsonStringifyPrettyCompact);
 
@@ -1230,12 +1230,12 @@ function addMouseScrollEventListener(query, func) {
 
     if (svgelement.addEventListener) {
         // IE9, Chrome, Safari, Opera
-        svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
+        svgelement.addEventListener('mousewheel', MouseWheelHandler, false);
         // Firefox
-        svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+        svgelement.addEventListener('DOMMouseScroll', MouseWheelHandler, false);
     } else {
         // IE 6/7/8
-        svgelement.attachEvent("onmousewheel", MouseWheelHandler);
+        svgelement.attachEvent('onmousewheel', MouseWheelHandler);
     }
     svgelement.addEventListener('mousewheel', function (e) {
         console.log('event', e);
@@ -1296,13 +1296,13 @@ exports.default = function (defaultValue) {
 };
 
 },{}],13:[function(require,module,exports){
-"use strict";
+'use strict';
 
 /** @module routeWorker */
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _findPath = require("./modules/findPath");
+var _findPath = require('./modules/findPath');
 
 var _findPath2 = _interopRequireDefault(_findPath);
 
@@ -1355,10 +1355,10 @@ function findPaths(wires, nonRoutableNodes, inconvenientNodes) {
             var path = (0, _findPath2.default)(from, to, nonRoutableNodes, inconvenientNodes);
 
             if (!path) {
-                console.log("path not found");
+                console.log('path not found');
                 console.log(from, to);
             } else {
-                console.log("path found");
+                console.log('path found');
             }
 
             paths.push(path);

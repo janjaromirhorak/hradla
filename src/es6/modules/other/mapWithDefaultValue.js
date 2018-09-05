@@ -37,10 +37,8 @@ export default function(defaultValue) {
      * @param  {any} key key of a requested item
      * @return {any} value of the item with the corresponding key, or defaultValue if the key is not found in the map
      */
-    map.getWithDefault = (key) => {
-        return map.has(key)
-            ? map.get(key)
-            : defaultValue;
-    }
+    map.getWithDefault = key => {
+        return map.has(key) ? map.get(key) : defaultValue;
+    };
     return map;
 }
