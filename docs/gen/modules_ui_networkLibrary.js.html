@@ -54,7 +54,7 @@
  * @module Library
  */
 
-const libraryDir = './library/'
+const libraryDir = './library/';
 
 /**
  * get list of networks from the library
@@ -66,14 +66,14 @@ export function getLibrary() {
 
         let request = new XMLHttpRequest();
 
-        request.addEventListener("load", function() {
-            if(this.response) {
+        request.addEventListener('load', function() {
+            if (this.response) {
                 resolve(this.response.networks);
             }
         });
 
-        request.addEventListener(["error", "abort"], () => {
-            reject("Failed loading libraries.")
+        request.addEventListener(['error', 'abort'], () => {
+            reject('Failed loading libraries.');
         });
 
         request.open('GET', libraryFile, true);
@@ -91,14 +91,14 @@ export function getNetworkFromLibrary(networkName) {
     return new Promise((resolve, reject) => {
         let request = new XMLHttpRequest();
 
-        request.addEventListener("load", function() {
-            if(this.response) {
+        request.addEventListener('load', function() {
+            if (this.response) {
                 resolve(this.response);
             }
         });
 
-        request.addEventListener(["error", "abort"], () => {
-            reject(`Failed loading library ${networkName}.`)
+        request.addEventListener(['error', 'abort'], () => {
+            reject(`Failed loading library ${networkName}.`);
         });
 
         request.open('GET', libraryDir + networkName + '.json', true);
@@ -117,7 +117,7 @@ export function getNetworkFromLibrary(networkName) {
 
 <footer>
     <img class="logo" src="../../img/svg/gate/xor.svg" style="width: 40px; height: 20px">
-    <div class="footer-text">Hradla — Logic Network Simulator (v1.7.1)</div>
+    <div class="footer-text">Hradla — Logic Network Simulator (v1.7.2)</div>
 </footer>
 <script>prettyPrint();</script>
 <script src="scripts/jquery.min.js"></script>

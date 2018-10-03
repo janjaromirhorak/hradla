@@ -50,7 +50,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import SvgElement from './SvgElement'
+            <pre class="prettyprint source linenums"><code>import SvgElement from './SvgElement';
 
 /** @module svgObjects.Rectangle */
 
@@ -68,7 +68,7 @@ export default class Rectangle extends SvgElement {
      * @param {string} stroke  stroke color of the rectangle
      */
     constructor(x, y, w, h, fill, stroke) {
-        super(x, y, w, h, "rect");
+        super(x, y, w, h, 'rect');
         this.addAttr({
             fill: fill,
             stroke: stroke,
@@ -88,7 +88,7 @@ export default class Rectangle extends SvgElement {
 
 <footer>
     <img class="logo" src="../../img/svg/gate/xor.svg" style="width: 40px; height: 20px">
-    <div class="footer-text">Hradla — Logic Network Simulator (v1.7.1)</div>
+    <div class="footer-text">Hradla — Logic Network Simulator (v1.7.2)</div>
 </footer>
 <script>prettyPrint();</script>
 <script src="scripts/jquery.min.js"></script>

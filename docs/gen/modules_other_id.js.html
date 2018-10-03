@@ -65,7 +65,7 @@ let existingIdInstance;
  */
 export default class Id {
     constructor() {
-        if(!existingIdInstance){
+        if (!existingIdInstance) {
             existingIdInstance = this;
         }
 
@@ -73,7 +73,7 @@ export default class Id {
          * prefix for the id, that is common in all the Ids
          * @type {String}
          */
-        this.prefix = "id";
+        this.prefix = 'id';
 
         /**
          * numeric part of the next id (the next id without the prefix)
@@ -93,7 +93,7 @@ export default class Id {
 
         // find next unused idXXXX to prevent id collision that might be caused by some other component
         // (it really should not happen, but this is a simple way to ensure it)
-        while($("#"+retVal).length) {
+        while ($('#' + retVal).length) {
             this.nextId++;
             retVal = this.generate();
         }
@@ -114,7 +114,7 @@ export default class Id {
 
 <footer>
     <img class="logo" src="../../img/svg/gate/xor.svg" style="width: 40px; height: 20px">
-    <div class="footer-text">Hradla — Logic Network Simulator (v1.7.1)</div>
+    <div class="footer-text">Hradla — Logic Network Simulator (v1.7.2)</div>
 </footer>
 <script>prettyPrint();</script>
 <script src="scripts/jquery.min.js"></script>

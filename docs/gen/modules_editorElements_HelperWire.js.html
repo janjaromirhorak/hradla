@@ -50,9 +50,9 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {PolyLine, PolyLinePoints, PolyLinePoint} from '../svgObjects'
+            <pre class="prettyprint source linenums"><code>import { PolyLine, PolyLinePoints, PolyLinePoint } from '../svgObjects';
 
-import NetworkElement from './NetworkElement'
+import NetworkElement from './NetworkElement';
 
 /** @module editorElements.HelperWire */
 
@@ -72,7 +72,7 @@ export default class HelperWire extends NetworkElement {
 
         const points = new PolyLinePoints([from, to]);
 
-        this.svgObj = new PolyLine(points, 2, "#8b8b8b");
+        this.svgObj = new PolyLine(points, 2, '#8b8b8b');
     }
 
     updateMousePosition(mousePosition) {
@@ -103,7 +103,7 @@ export default class HelperWire extends NetworkElement {
 
 <footer>
     <img class="logo" src="../../img/svg/gate/xor.svg" style="width: 40px; height: 20px">
-    <div class="footer-text">Hradla — Logic Network Simulator (v1.7.1)</div>
+    <div class="footer-text">Hradla — Logic Network Simulator (v1.7.2)</div>
 </footer>
 <script>prettyPrint();</script>
 <script src="scripts/jquery.min.js"></script>
