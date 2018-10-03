@@ -8920,6 +8920,13 @@ var FloatingMenu = function () {
         });
         this.append(help);
 
+        var github = new FloatingButton('github', 'Open the project repository', false, appInstance);
+        github.$el.attr({
+            href: 'https://github.com/janjaromirhorak/hradla',
+            target: '_blank'
+        });
+        this.append(github);
+
         appInstance.$svg.after(this.$el);
     }
 
