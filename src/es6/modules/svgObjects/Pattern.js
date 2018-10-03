@@ -1,4 +1,4 @@
-import Tag from './Tag'
+import Tag from './Tag';
 
 /** @module svgObjects.Pattern */
 
@@ -13,7 +13,7 @@ export default class Pattern extends Tag {
      * @param {number} height height of one pattern tile in SVG pixels
      */
     constructor(id, width, height) {
-        super("pattern");
+        super('pattern');
 
         this.addAttr({
             id: id,
@@ -21,8 +21,8 @@ export default class Pattern extends Tag {
             y: 0,
             width: width,
             height: height,
-            patternUnits: "userSpaceOnUse",
-            viewBox: "0 0 "+width+" "+height
+            patternUnits: 'userSpaceOnUse',
+            viewBox: '0 0 ' + width + ' ' + height
         });
     }
 

@@ -1,27 +1,27 @@
 // editor elements (gates, wires...)
-import * as editorElements from './editorElements'
+import * as editorElements from './editorElements';
 
 // svg elements
-import {Pattern, Rectangle, PolyLinePoint, PolyLinePoints, PolyLine} from './svgObjects'
+import { Pattern, Rectangle, PolyLinePoint, PolyLinePoints, PolyLine } from './svgObjects';
 
 // network logic and simulation
-import Logic from './Logic'
-import Simulation from './Simulation'
-import {SimulationDummy} from './Simulation'
+import Logic from './Logic';
+import Simulation from './Simulation';
+import { SimulationDummy } from './Simulation';
 
 // ui stuff
-import ContextMenu from './ui/ContextMenu'
-import FloatingMenu from './ui/FloatingMenu'
-import Tutorial from './ui/Tutorial'
-import Messages from './ui/Messages'
-import ViewBox from './ui/ViewBox'
+import ContextMenu from './ui/ContextMenu';
+import FloatingMenu from './ui/FloatingMenu';
+import Tutorial from './ui/Tutorial';
+import Messages from './ui/Messages';
+import ViewBox from './ui/ViewBox';
 
 // mouse scroll event listerer for ui, manhattan distance for importData
-import {addMouseScrollEventListener, manhattanDistance} from './other/helperFunctions'
+import { addMouseScrollEventListener, manhattanDistance } from './other/helperFunctions';
 
 // used in importData
 // note: imported from a node module
-import {PriorityQueue} from 'libstl'
+import { PriorityQueue } from 'libstl';
 
 const ctrlKey = 17,
     cmdKey = 91;
@@ -67,7 +67,7 @@ export default class App {
          */
         this.messages = new Messages();
 
-        this.simulationEnabled = true
+        this.simulationEnabled = true;
         this.simulation = new SimulationDummy(); // dummy, will be overwritten on startNewSimulation
 
         /**
@@ -78,25 +78,28 @@ export default class App {
         this.leftTopPadding = 4;
 
         // create the defs element, used for patterns
-        this.$defs = $("<defs>");
+        this.$defs = $('<defs>');
         this.$svg.prepend(this.$defs);
 
         // BACKGROUND PATTERN
-        let pattern = new Pattern("grid", this.gridSize, this.gridSize);
+        let pattern = new Pattern('grid', this.gridSize, this.gridSize);
 
-        let patternPoints = new PolyLinePoints().append(new PolyLinePoint(0, 0)).append(new PolyLinePoint(this.gridSize, 0)).append(new PolyLinePoint(this.gridSize, this.gridSize));
+        let patternPoints = new PolyLinePoints()
+            .append(new PolyLinePoint(0, 0))
+            .append(new PolyLinePoint(this.gridSize, 0))
+            .append(new PolyLinePoint(this.gridSize, this.gridSize));
 
-        pattern.addChild(new PolyLine(patternPoints, 2, "#c2c3e4"));
+        pattern.addChild(new PolyLine(patternPoints, 2, '#c2c3e4'));
         this.addPattern(pattern.get());
 
-        this.background = new Rectangle(0, 0, this.width, this.height, "url(#grid)", "none");
+        this.background = new Rectangle(0, 0, this.width, this.height, 'url(#grid)', 'none');
         this.appendJQueryObject(this.background.get());
         this.refresh();
 
         // set the viewbox for future zooming and moving of the canvas
-        this.$svg.attr('preserveAspectRatio', 'xMinYMin slice')
-        this.viewbox = new ViewBox(0, 0, this.width, this.height)
-        this.applyViewbox()
+        this.$svg.attr('preserveAspectRatio', 'xMinYMin slice');
+        this.viewbox = new ViewBox(0, 0, this.width, this.height);
+        this.applyViewbox();
 
         // CONSTRUCT CONTEXT MENU
         this.contextMenu = new ContextMenu(this);
@@ -107,49 +110,59 @@ export default class App {
         let target;
 
         // ALL EVENT CALLBACKS
-        this.$svg.on('mousedown', event => {
-            target = this.getRealTarget(event.target);
+        this.$svg
+            .on('mousedown', event => {
+                target = this.getRealTarget(event.target);
 
-            if (target !== undefined) {
-                // propagate mousedown to the real target
-                target.onMouseDown(event);
-            } else {
-                // mousedown happened directly on the svg
-                this.onMouseDown(event)
-            }
+                if (target !== undefined) {
+                    // propagate mousedown to the real target
+                    target.onMouseDown(event);
+                } else {
+                    // mousedown happened directly on the svg
+                    this.onMouseDown(event);
+                }
 
-            this.hideContextMenu();
-            event.preventDefault();
-        }).on('mousemove', event => {
-            if (target !== undefined) {
-                target.onMouseMove(event);
-            } else {
-                // mousemove happened directly on the svg
-                this.onMouseMove(event)
-            }
+                this.hideContextMenu();
+                event.preventDefault();
+            })
+            .on('mousemove', event => {
+                if (target !== undefined) {
+                    target.onMouseMove(event);
+                } else {
+                    // mousemove happened directly on the svg
+                    this.onMouseMove(event);
+                }
 
-            event.preventDefault();
-        }).on('mouseup', event => {
-            if (target !== undefined) {
-                target.onMouseUp(event);
-            } else {
-                // mouseup happened directly on the svg
-                this.onMouseUp(event)
-            }
+                event.preventDefault();
+            })
+            .on('mouseup', event => {
+                if (target !== undefined) {
+                    target.onMouseUp(event);
+                } else {
+                    // mouseup happened directly on the svg
+                    this.onMouseUp(event);
+                }
 
-            target = undefined;
+                target = undefined;
 
-            event.preventDefault();
-        }).on("contextmenu", event => {
-            this.displayContextMenu(event.pageX, event.pageY, this.getRealJQueryTarget(event.target));
-            event.preventDefault();
-        })
+                event.preventDefault();
+            })
+            .on('contextmenu', event => {
+                this.displayContextMenu(
+                    event.pageX,
+                    event.pageY,
+                    this.getRealJQueryTarget(event.target)
+                );
+                event.preventDefault();
+            });
 
-        $(document).on('keydown', event => {
-            this.onKeyDown(event);
-        }).on("keyup", event => {
-            this.onKeyUp(event);
-        });
+        $(document)
+            .on('keydown', event => {
+                this.onKeyDown(event);
+            })
+            .on('keyup', event => {
+                this.onKeyUp(event);
+            });
 
         // update the viewbox on window resize
         $(window).on('resize', () => {
@@ -162,20 +175,20 @@ export default class App {
             if (!event.ctrlKey) {
                 this.zoom += event.delta * 0.1;
 
-                event.preventDefault()
+                event.preventDefault();
             }
-        })
+        });
 
-        $(window).on('keydown', (event) => {
+        $(window).on('keydown', event => {
             const actions = {
                 '+': 0.1,
                 '-': -0.1
-            }
+            };
 
             if (actions[event.key]) {
                 this.zoom += actions[event.key];
             }
-        })
+        });
 
         /**
          * property containing an instance of [Tutorial](./module-Tutorial.html), if there is any
@@ -198,7 +211,7 @@ export default class App {
      * @return {number} width of the SVG element in pixels
      */
     get width() {
-        return this.$svg.width()
+        return this.$svg.width();
     }
 
     /**
@@ -206,7 +219,7 @@ export default class App {
      * @return {number} height of the SVG element in pixels
      */
     get height() {
-        return this.$svg.height()
+        return this.$svg.height();
     }
 
     /**
@@ -243,7 +256,7 @@ export default class App {
             this.moveCanvas = {
                 left: event.pageX,
                 top: event.pageY
-            }
+            };
         }
     }
 
@@ -253,17 +266,17 @@ export default class App {
      */
     onMouseMove(event) {
         if (this.moveCanvas) {
-            let left = event.pageX - this.moveCanvas.left
-            let top = event.pageY - this.moveCanvas.top
+            let left = event.pageX - this.moveCanvas.left;
+            let top = event.pageY - this.moveCanvas.top;
 
             this.viewbox.move(left, top);
 
-            this.applyViewbox()
+            this.applyViewbox();
 
             this.moveCanvas = {
                 left: event.pageX,
                 top: event.pageY
-            }
+            };
         }
     }
 
@@ -273,7 +286,7 @@ export default class App {
     onMouseUp() {
         if (this.moveCanvas) {
             this.$svg.removeClass('grabbed');
-            this.moveCanvas = undefined
+            this.moveCanvas = undefined;
 
             // if tutorial exists, call tutorial callback
             if (this.tutorial) {
@@ -288,10 +301,15 @@ export default class App {
      */
     applyViewbox() {
         // adjust background
-        this.background.addAttr({x: this.viewbox.left, y: this.viewbox.top, width: this.viewbox.width, height: this.viewbox.height})
+        this.background.addAttr({
+            x: this.viewbox.left,
+            y: this.viewbox.top,
+            width: this.viewbox.width,
+            height: this.viewbox.height
+        });
 
         // set the viewBox attribute
-        this.$svg.attr('viewBox', this.viewbox.str)
+        this.$svg.attr('viewBox', this.viewbox.str);
     }
 
     /**
@@ -299,7 +317,7 @@ export default class App {
      * @return {number}
      */
     get zoom() {
-        return this.viewbox.zoom
+        return this.viewbox.zoom;
     }
 
     /**
@@ -308,8 +326,8 @@ export default class App {
      * @param  {number} value set the zoom to this value
      */
     set zoom(value) {
-        this.viewbox.zoom = value
-        this.applyViewbox()
+        this.viewbox.zoom = value;
+        this.applyViewbox();
 
         // if tutorial exists, call tutorial callback
         if (this.tutorial) {
@@ -349,7 +367,7 @@ export default class App {
         };
 
         for (const box of this.boxes) {
-            data.boxes.push(box.exportData)
+            data.boxes.push(box.exportData);
         }
 
         return data;
@@ -367,14 +385,10 @@ export default class App {
 
             // if the x or y is undefined, set it to leftTopPadding instead
             // (cannot use x || leftTopPadding because of 0)
-            x = x !== undefined
-                ? x
-                : this.leftTopPadding
-            y = y !== undefined
-                ? y
-                : this.leftTopPadding
+            x = x !== undefined ? x : this.leftTopPadding;
+            y = y !== undefined ? y : this.leftTopPadding;
 
-            this.simulationEnabled = false
+            this.simulationEnabled = false;
 
             // list of wires to be added
             let newWires = new Map();
@@ -388,17 +402,17 @@ export default class App {
             for (const boxData of data.boxes) {
                 if (boxData.transform && boxData.transform.items) {
                     for (const transformInfo of boxData.transform.items) {
-                        if (transformInfo.name === "translate") {
+                        if (transformInfo.name === 'translate') {
                             if (leftTopCorner) {
                                 leftTopCorner = {
                                     x: Math.min(leftTopCorner.x, transformInfo.args[0]),
                                     y: Math.min(leftTopCorner.y, transformInfo.args[1])
-                                }
+                                };
                             } else {
                                 leftTopCorner = {
                                     x: transformInfo.args[0],
                                     y: transformInfo.args[1]
-                                }
+                                };
                             }
                         }
                     }
@@ -408,34 +422,41 @@ export default class App {
             for (let boxData of data.boxes) {
                 // mapping of dataBox.name of the objects that have category "other"
                 const otherMap = {
-                    "input": () => this.newInput(0, 0, boxData.isOn, false),
-                    "output": () => this.newOutput(0, 0, false)
-                }
+                    input: () => this.newInput(0, 0, boxData.isOn, false),
+                    output: () => this.newOutput(0, 0, false)
+                };
 
                 // mapping of dataBox.category
                 const boxMap = {
-                    "gate": () => this.newGate(boxData.name, 0, 0, false),
-                    "blackbox": () => this.newBlackbox(boxData.inputs, boxData.outputs, boxData.table, boxData.name, 0, 0, false),
-                    "other": () => {
-                        if (!boxData.name)
-                            throw `This network contains a box without a name.`
+                    gate: () => this.newGate(boxData.name, 0, 0, false),
+                    blackbox: () =>
+                        this.newBlackbox(
+                            boxData.inputs,
+                            boxData.outputs,
+                            boxData.table,
+                            boxData.name,
+                            0,
+                            0,
+                            false
+                        ),
+                    other: () => {
+                        if (!boxData.name) throw `This network contains a box without a name.`;
 
                         if (!otherMap[boxData.name])
-                            throw `This network contains unknown box names. (${boxData.name})`
+                            throw `This network contains unknown box names. (${boxData.name})`;
 
-                        return otherMap[boxData.name]()
+                        return otherMap[boxData.name]();
                     }
-                }
+                };
 
                 const createBox = () => {
-                    if (!boxData.category)
-                        throw `This network a box without a category.`;
+                    if (!boxData.category) throw `This network a box without a category.`;
 
                     if (!boxMap[boxData.category])
                         throw `This network contains unknown box categories. (${boxData.category})`;
 
-                    return boxMap[boxData.category]()
-                }
+                    return boxMap[boxData.category]();
+                };
 
                 let box;
 
@@ -451,37 +472,42 @@ export default class App {
                     let rotationCount = 0;
 
                     const transformItemMap = {
-                        "translate": (args) => {
+                        translate: args => {
                             transform.setTranslate(
-                                args[0]
-                                    - leftTopCorner.x // make it the relative distance from the leftmost element
-                                    + x // apply the position
-                                    ,
-                                args[1]
-                                    - leftTopCorner.y // make it the relative distance from the topmost element
-                                    + y // apply the position
-                          );
+                                args[0] -
+                                leftTopCorner.x + // make it the relative distance from the leftmost element
+                                    x, // apply the position
+                                args[1] -
+                                leftTopCorner.y + // make it the relative distance from the topmost element
+                                    y // apply the position
+                            );
                         },
-                        "rotate": (args) => {
-                            rotationCount = args[0] % 360 / 90;
+                        rotate: args => {
+                            rotationCount = (args[0] % 360) / 90;
                         }
-                    }
+                    };
 
                     if (boxData.transform && boxData.transform.items) {
                         for (const transformItem of boxData.transform.items) {
-                            const {name, args} = transformItem;
+                            const { name, args } = transformItem;
 
                             if (!name) {
-                                warnings.push(`This network contains unnamed transform properties.`);
+                                warnings.push(
+                                    `This network contains unnamed transform properties.`
+                                );
                                 break;
                             }
 
                             if (!transformItemMap[name]) {
-                                warnings.push(`This network contains unknown transform properties. (${transformItem.name})`);
+                                warnings.push(
+                                    `This network contains unknown transform properties. (${
+                                        transformItem.name
+                                    })`
+                                );
                                 break;
                             }
 
-                            transformItemMap[name](args)
+                            transformItemMap[name](args);
                         }
                     }
 
@@ -534,13 +560,14 @@ export default class App {
                 let connectorIds = [];
 
                 // create an array [connector1Id, connector2Id]
-                for (const {boxId, index}
-                of wireInfo) {
-                    connectorIds.push(this.getBoxById(boxId).connectors[index].id)
+                for (const { boxId, index } of wireInfo) {
+                    connectorIds.push(this.getBoxById(boxId).connectors[index].id);
                 }
 
                 // create and array [{x, y}, {x, y}] containing positions for connectors 1 and 2
-                const connectorsPositions = connectorIds.map(connectorId => this.getConnectorPosition(this.getConnectorById(connectorId), true))
+                const connectorsPositions = connectorIds.map(connectorId =>
+                    this.getConnectorPosition(this.getConnectorById(connectorId), true)
+                );
 
                 if (connectorsPositions.length === 2) {
                     let wire = this.newWire(...connectorIds, false, false);
@@ -551,7 +578,11 @@ export default class App {
                     // add connectorids to the priority queue
                     wireQueue.enqueue(wire, 1 / distance);
                 } else {
-                    warnings.push(`Found a wire that does not have two endings. (It had ${connectorsPositions.length} instead.)`)
+                    warnings.push(
+                        `Found a wire that does not have two endings. (It had ${
+                            connectorsPositions.length
+                        } instead.)`
+                    );
                 }
             }
 
@@ -570,39 +601,41 @@ export default class App {
                         {
                             x: wireStart.x / this.gridSize,
                             y: wireStart.y / this.gridSize
-                        }, {
+                        },
+                        {
                             x: wireEnd.x / this.gridSize,
                             y: wireEnd.y / this.gridSize
                         }
-                    ])
+                    ]);
 
                     wireReferences.push(wire);
                 }
 
                 // [routeWorkerFileName] replaced in the build process (defined in gulpfile) depending on devel / prod build
-                let myWorker = new Worker("js/[routeWorkerFileName]");
+                let myWorker = new Worker('js/[routeWorkerFileName]');
 
-                let loadingMessage = this.messages.newLoadingMessage("looking for the best wiring…");
+                let loadingMessage = this.messages.newLoadingMessage(
+                    'looking for the best wiring…'
+                );
 
-                myWorker.onmessage = (event) => {
-                    const {paths} = event.data
+                myWorker.onmessage = event => {
+                    const { paths } = event.data;
                     // iterate wireReferences and paths synchronously
                     wireReferences.forEach((wire, key) => {
-                        wire.setWirePath(wire.pathToPolyLine(paths[key]))
+                        wire.setWirePath(wire.pathToPolyLine(paths[key]));
                         wire.updateWireState();
-                    })
+                    });
 
                     loadingMessage.hide();
-                }
+                };
 
                 const message = {
                     wires: wirePoints,
                     nonRoutableNodes: this.getNonRoutableNodes(),
                     inconvenientNodes: this.getInconvenientNodes()
-                }
+                };
 
-                myWorker.postMessage(message)
-
+                myWorker.postMessage(message);
             } else {
                 // web worker is not supported: use an interval to make the import a bit slower
                 // by dividing it into chunks, so the browser window is not entirely frozen when the wiring is happening
@@ -623,10 +656,10 @@ export default class App {
                             wire.updateWireState();
                         }
                     } else {
-                        console.log("finished");
+                        console.log('finished');
                         clearInterval(wirePlacingInterval);
                     }
-                }, delayBetweenIterations)
+                }, delayBetweenIterations);
             }
 
             // refresh the SVG document
@@ -634,8 +667,8 @@ export default class App {
 
             this.simulationEnabled = true;
 
-            resolve(warnings)
-        })
+            resolve(warnings);
+        });
     }
 
     /**
@@ -648,7 +681,7 @@ export default class App {
         if (!this.wireCreation) {
             this.wireCreation = {
                 fromId: connectorId
-            }
+            };
 
             this.displayCreatedWire(mousePosition);
         } else {
@@ -667,18 +700,22 @@ export default class App {
      * @param  {Object} mousePosition object with x and y coordinates in SVG pixels
      */
     displayCreatedWire(mousePosition) {
-        this.wireCreation.tempWire = new editorElements.HelperWire(this, this.wireCreation.fromId, mousePosition);
+        this.wireCreation.tempWire = new editorElements.HelperWire(
+            this,
+            this.wireCreation.fromId,
+            mousePosition
+        );
 
         $(window).on('mousemove.wireCreation', event => {
-            event = this.viewbox.transformEvent(event)
+            event = this.viewbox.transformEvent(event);
 
             mousePosition = {
                 x: event.pageX,
                 y: event.pageY
-            }
+            };
 
             this.wireCreation.tempWire.updateMousePosition(mousePosition);
-        })
+        });
 
         this.appendElement(this.wireCreation.tempWire);
         this.moveToBackById(this.wireCreation.tempWire.id);
@@ -713,9 +750,9 @@ export default class App {
      */
     startNewSimulation(startingConnector, state) {
         if (this.simulationEnabled) {
-            this.simulation = new Simulation(this)
-            this.simulation.notifyChange(startingConnector.id, state)
-            this.simulation.run()
+            this.simulation = new Simulation(this);
+            this.simulation.notifyChange(startingConnector.id, state);
+            this.simulation.run();
         }
     }
 
@@ -772,7 +809,7 @@ export default class App {
             let tr = new editorElements.Transform();
             tr.setTranslate(x, y);
 
-            this.boxes[index].svgObj.addAttr({"transform": tr.get()});
+            this.boxes[index].svgObj.addAttr({ transform: tr.get() });
         }
 
         this.appendElement(this.boxes[index], refresh);
@@ -790,7 +827,7 @@ export default class App {
      * @param {string} boxId id of the box that should be removed
      */
     removeBox(boxId) {
-        let $gate = $("#" + boxId);
+        let $gate = $('#' + boxId);
 
         // find the gate in svg's list of gates
         let gateIndex = -1;
@@ -816,7 +853,7 @@ export default class App {
                 this.tutorial.onElementRemoved();
             }
         } else {
-            console.error("Trying to remove an nonexisting box. Box id:", boxId);
+            console.error('Trying to remove an nonexisting box. Box id:', boxId);
         }
     }
 
@@ -844,16 +881,14 @@ export default class App {
      */
     newWire(fromId, toId, refresh = true, route = true) {
         // wire must connect two distinct connectors
-        if (fromId === toId)
-            return undefined
+        if (fromId === toId) return undefined;
 
-        let connectors = [this.getConnectorById(fromId), this.getConnectorById(toId)]
+        let connectors = [this.getConnectorById(fromId), this.getConnectorById(toId)];
 
         // input connectors can be connected to one wire max
         connectors.forEach(conn => {
-            if (conn.isInputConnector)
-                this.removeWiresByConnectorId(conn.id)
-        })
+            if (conn.isInputConnector) this.removeWiresByConnectorId(conn.id);
+        });
         let index = this.wires.length;
 
         try {
@@ -865,13 +900,12 @@ export default class App {
 
         connectors.forEach(conn => {
             conn.addWireId(this.wires[index].svgObj.id);
-        })
+        });
 
         this.appendElement(this.wires[index], refresh);
         this.moveToBackById(this.wires[index].svgObj.id);
 
-        if (refresh)
-            this.wires[index].updateWireState()
+        if (refresh) this.wires[index].updateWireState();
 
         return this.wires[index];
     }
@@ -890,11 +924,11 @@ export default class App {
 
         let position = $connector.position();
 
-        position.left = this.viewbox.transformX(position.left)
-        position.top = this.viewbox.transformY(position.top)
+        position.left = this.viewbox.transformX(position.left);
+        position.top = this.viewbox.transformY(position.top);
 
-        let width = $connector.attr("width");
-        let height = $connector.attr("height");
+        let width = $connector.attr('width');
+        let height = $connector.attr('height');
 
         let x = position.left + width / 2;
         let y = position.top + height / 2;
@@ -903,7 +937,7 @@ export default class App {
             y = this.snapToGrid(y);
         }
 
-        return {x: x, y: y};
+        return { x: x, y: y };
     }
 
     /**
@@ -926,25 +960,31 @@ export default class App {
     newBlackbox(inputs, outputs, table, name, x, y, refresh = true) {
         const index = this.boxes.length;
 
-        this.boxes[index] = new editorElements.Blackbox(this, inputs, outputs, (...inputStates) => {
-            for (const line of table) {
-                const lineInputStates = line.slice(0, inputs);
+        this.boxes[index] = new editorElements.Blackbox(
+            this,
+            inputs,
+            outputs,
+            (...inputStates) => {
+                for (const line of table) {
+                    const lineInputStates = line.slice(0, inputs);
 
-                // if every input state matches the corresponding input state in this line of the truth table
-                if (inputStates.every((value, index) => value === lineInputStates[index])) {
-                    // return the rest of the line as output
-                    return line.slice(inputs);
+                    // if every input state matches the corresponding input state in this line of the truth table
+                    if (inputStates.every((value, index) => value === lineInputStates[index])) {
+                        // return the rest of the line as output
+                        return line.slice(inputs);
+                    }
                 }
-            }
-            // if nothing matches, set all outputs to undefined
-            return Array.from(new Array(outputs), () => Logic.state.unknown)
-        }, name);
+                // if nothing matches, set all outputs to undefined
+                return Array.from(new Array(outputs), () => Logic.state.unknown);
+            },
+            name
+        );
 
         if (x && y) {
             let tr = new editorElements.Transform();
             tr.setTranslate(x, y);
 
-            this.boxes[index].svgObj.addAttr({"transform": tr.get()});
+            this.boxes[index].svgObj.addAttr({ transform: tr.get() });
         }
 
         this.appendElement(this.boxes[index], refresh);
@@ -960,7 +1000,7 @@ export default class App {
     getWireById(wireId) {
         for (const wire of this.wires) {
             if (wire.svgObj.id === wireId) {
-                return wire
+                return wire;
             }
         }
 
@@ -984,8 +1024,7 @@ export default class App {
     removeWireById(wireId) {
         for (let i = 0; i < this.wires.length; ++i) {
             if (this.wires[i].svgObj.id === wireId) {
-
-                let {connectors} = this.wires[i];
+                let { connectors } = this.wires[i];
 
                 for (let connector of connectors) {
                     connector.removeWireIdAndUpdate(wireId);
@@ -1015,23 +1054,21 @@ export default class App {
         connector.wireIds.forEach(wireId => {
             let wire = this.getWireById(wireId);
 
-            let {from, to} = wire.connection;
+            let { from, to } = wire.connection;
 
             // get the other connector that is the wire connected to
-            let otherConnector = connectorId === from.id
-                ? to.connector
-                : from.connector;
+            let otherConnector = connectorId === from.id ? to.connector : from.connector;
 
             // delete the wire record from the other connector
             otherConnector.wireIds.delete(wireId);
 
             // remove the wire representation using jQuery
-            $("#" + wireId).remove();
+            $('#' + wireId).remove();
 
             // if otherConnector is an input connector, set its state to unknown
             if (otherConnector.isInputConnector) {
-                otherConnector.setState(Logic.state.unknown)
-                this.startNewSimulation(otherConnector, Logic.state.unknown)
+                otherConnector.setState(Logic.state.unknown);
+                this.startNewSimulation(otherConnector, Logic.state.unknown);
             }
         });
 
@@ -1039,8 +1076,8 @@ export default class App {
         connector.wireIds.clear();
         // if connector is an input connector, set its state to unknown
         if (connector.isInputConnector) {
-            connector.setState(Logic.state.unknown)
-            this.startNewSimulation(connector, Logic.state.unknown)
+            connector.setState(Logic.state.unknown);
+            this.startNewSimulation(connector, Logic.state.unknown);
         }
     }
 
@@ -1082,29 +1119,24 @@ export default class App {
      * @return {editorElements.Connector}        instance of the connector
      */
     getConnectorById(connectorId, wire = undefined) {
-
         if (wire !== undefined) {
             // we know the wire -- we can check only gates at the ends of this wire
-            const {from, to} = wire.connection;
+            const { from, to } = wire.connection;
 
-            if (from.id === connectorId)
-                return from.connector;
+            if (from.id === connectorId) return from.connector;
 
-            if (to.id === connectorId)
-                return to.connector;
-
-            }
-        else {
+            if (to.id === connectorId) return to.connector;
+        } else {
             // we do not know the wire -- we have to check all gates
             for (const box of this.boxes) {
-                const connector = box.getConnectorById(connectorId)
+                const connector = box.getConnectorById(connectorId);
                 if (connector) {
-                    return connector
+                    return connector;
                 }
             }
         }
 
-        return undefined
+        return undefined;
     }
 
     /**
@@ -1117,9 +1149,9 @@ export default class App {
      */
     getRealJQueryTarget(target) {
         let $target = $(target);
-        if (!$target.hasClass("connector") && $target.parents('g').length > 0) {
+        if (!$target.hasClass('connector') && $target.parents('g').length > 0) {
             $target = $target.parent();
-            while ($target.prop("tagName") !== "G" && $target.prop("tagName") !== "g") {
+            while ($target.prop('tagName') !== 'G' && $target.prop('tagName') !== 'g') {
                 $target = $target.parent();
             }
         }
@@ -1140,7 +1172,7 @@ export default class App {
         // eventy se museji zpracovat tady, protoze v SVG se eventy nepropaguji
         let $target = $(target);
 
-        if ($target.hasClass("connector")) {
+        if ($target.hasClass('connector')) {
             // this is a connector, don't traverse groups
             return this.getConnectorById($target.attr('id'));
         } else if ($target.parents('g').length > 0) {
@@ -1148,16 +1180,16 @@ export default class App {
 
             // traversing up the DOM tree until we find the closest group
             let $parentGroup = $target.parent();
-            while ($parentGroup.prop("tagName") !== "G" && $parentGroup.prop("tagName") !== "g") {
+            while ($parentGroup.prop('tagName') !== 'G' && $parentGroup.prop('tagName') !== 'g') {
                 $parentGroup = $parentGroup.parent();
             }
 
             // try to match the jQuery element to the logical element using DOM classes
 
-            if ($parentGroup.hasClass("box")) {
+            if ($parentGroup.hasClass('box')) {
                 // return the corresponding box
                 return this.getBoxById($parentGroup.attr('id'));
-            } else if ($parentGroup.hasClass("wire")) {
+            } else if ($parentGroup.hasClass('wire')) {
                 // return the corresponding wire
                 return this.getWireById($parentGroup.attr('id'));
             } else {
@@ -1186,9 +1218,8 @@ export default class App {
      */
     appendJQueryObject(object, refresh = true) {
         this.$svg.append(object);
-        if (refresh)
-            this.refresh();
-        }
+        if (refresh) this.refresh();
+    }
 
     /**
      * Add a new pattern to the definitions element in the SVG document
@@ -1204,7 +1235,7 @@ export default class App {
      */
     refresh() {
         this.$svg.html(this.$svg.html());
-        console.log("SVG document has been reloaded.")
+        console.log('SVG document has been reloaded.');
     }
 
     /**
@@ -1271,7 +1302,7 @@ export default class App {
      * @param  {string} objId id of the element
      */
     moveToFrontById(objId) {
-        this.$svg.append($("#" + objId));
+        this.$svg.append($('#' + objId));
     }
 
     /**
@@ -1279,7 +1310,7 @@ export default class App {
      * @param  {string} objId id of the element
      */
     moveToBackById(objId) {
-        $("#" + this.background.id).after($("#" + objId));
+        $('#' + this.background.id).after($('#' + objId));
     }
 
     /**

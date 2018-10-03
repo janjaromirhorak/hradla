@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 import App from './modules/App';
 
@@ -6,5 +6,5 @@ import App from './modules/App';
  * When the document is ready, initialize the application
  */
 $(() => {
-    new App("#canvas", 10);
+    new App('#canvas', 10);
 });

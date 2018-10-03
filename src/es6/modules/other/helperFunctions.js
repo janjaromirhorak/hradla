@@ -2,7 +2,7 @@
  * @module HelperFunctions
  */
 
-import stringify from "json-stringify-pretty-compact"; // note: imported from a module
+import stringify from 'json-stringify-pretty-compact'; // note: imported from a module
 
 /**
  * add a cross browser event listener on a mouse scroll
@@ -14,34 +14,38 @@ export function addMouseScrollEventListener(query, func) {
         // redeclare for old IE support
         var event = window.event || event; // eslint-disable-line no-redeclare
 
-        event.delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+        event.delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
 
-        func(event)
+        func(event);
 
         return false;
-    }
+    };
 
     let svgelement;
 
     // if the query is a simple DOM id selector, we can use getElementById which has better backwards compatibility
-    if(query.match(/^#\w+$/)) {
-        svgelement = document.getElementById(query.substr(1))
+    if (query.match(/^#\w+$/)) {
+        svgelement = document.getElementById(query.substr(1));
     } else {
-        svgelement = document.querySelector(query)
+        svgelement = document.querySelector(query);
     }
 
     if (svgelement.addEventListener) {
         // IE9, Chrome, Safari, Opera
-        svgelement.addEventListener("mousewheel", MouseWheelHandler, false);
+        svgelement.addEventListener('mousewheel', MouseWheelHandler, false);
         // Firefox
-        svgelement.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
-    } else  {
+        svgelement.addEventListener('DOMMouseScroll', MouseWheelHandler, false);
+    } else {
         // IE 6/7/8
-        svgelement.attachEvent("onmousewheel", MouseWheelHandler);
+        svgelement.attachEvent('onmousewheel', MouseWheelHandler);
     }
-    svgelement.addEventListener('mousewheel', function(e) {
-        console.log('event', e)
-    }, false)
+    svgelement.addEventListener(
+        'mousewheel',
+        function(e) {
+            console.log('event', e);
+        },
+        false
+    );
 }
 
 /**
@@ -52,12 +56,12 @@ export function addMouseScrollEventListener(query, func) {
  * @return {string}
  */
 export function getJSONString(data, pretty = false, dataUri = false) {
-    if(dataUri) {
-        return 'data:application/json;charset=utf-8,'
-            + encodeURIComponent(getJSONString(data, pretty));
+    if (dataUri) {
+        return (
+            'data:application/json;charset=utf-8,' + encodeURIComponent(getJSONString(data, pretty))
+        );
     } else {
-        if (pretty)
-            return stringify(data, {maxLength: 50});
+        if (pretty) return stringify(data, { maxLength: 50 });
 
         return JSON.stringify(data);
     }

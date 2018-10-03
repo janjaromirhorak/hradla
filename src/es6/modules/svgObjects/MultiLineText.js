@@ -1,5 +1,5 @@
-import Tag from './Tag'
-import Text from './Text'
+import Tag from './Tag';
+import Text from './Text';
 
 /** @module svgObjects.MultiLineText */
 
@@ -29,10 +29,10 @@ export default class MultiLineText extends Tag {
      * @param {String} [color="black"] color of the text
      *
      */
-    constructor(x, y, w, h, text, size, color = "black") {
-        super("switch");
+    constructor(x, y, w, h, text, size, color = 'black') {
+        super('switch');
 
-        let foreignObject = new Tag("foreignObject");
+        let foreignObject = new Tag('foreignObject');
         let alternativeText = new Text(x, y, w, h, text, size, color);
 
         foreignObject.addAttr({
@@ -42,23 +42,19 @@ export default class MultiLineText extends Tag {
             height: h
         });
 
-        let $wrapper = $("<div>")
-            .attr("xmlns", "http://www.w3.org/1999/xhtml")
-            .addClass("multilinetext")
-            .css("height", h);
+        let $wrapper = $('<div>')
+            .attr('xmlns', 'http://www.w3.org/1999/xhtml')
+            .addClass('multilinetext')
+            .css('height', h);
 
-        let $paragraph = $("<p>")
-            .attr("xmlns", "http://www.w3.org/1999/xhtml")
-            .css("font-size", size)
+        let $paragraph = $('<p>')
+            .attr('xmlns', 'http://www.w3.org/1999/xhtml')
+            .css('font-size', size)
             .append(text);
 
         $wrapper.append($paragraph);
-        foreignObject.$el.append($wrapper)
+        foreignObject.$el.append($wrapper);
 
-        this.$el.append(
-            foreignObject.$el
-        ).append(
-            alternativeText.$el
-        )
+        this.$el.append(foreignObject.$el).append(alternativeText.$el);
     }
 }

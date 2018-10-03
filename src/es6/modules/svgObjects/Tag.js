@@ -1,4 +1,4 @@
-import Id from '../other/id'
+import Id from '../other/id';
 
 /** @module svgObjects.Tag */
 
@@ -20,7 +20,7 @@ export default class Tag {
          * jQuery element for this tag
          * @type {jQuery.element}
          */
-        this.$el = $("<"+this.tagName+">");
+        this.$el = $('<' + this.tagName + '>');
 
         /**
          * unique ID of this SVG object
@@ -42,7 +42,7 @@ export default class Tag {
      * @param  {string} classes class names to be removed
      */
     removeClasses(...classes) {
-        for(let item of classes) {
+        for (let item of classes) {
             this.$el.removeClass(item);
         }
     }
@@ -84,7 +84,7 @@ export default class Tag {
      * @param  {string} id new id for this object
      */
     set id(id) {
-        this.addAttr({"id": id});
+        this.addAttr({ id: id });
     }
 
     /**
@@ -92,7 +92,7 @@ export default class Tag {
      * @return {string}
      */
     get id() {
-        return this.getAttr("id");
+        return this.getAttr('id');
     }
 
     /**
@@ -108,8 +108,8 @@ export default class Tag {
      * check if the element exists in dom, if so, refetch it from DOM using jQuery
      */
     checkIfElementExistsInDOM() {
-        let $jqElement = $("#"+this.$el.attr('id'));
-        if($jqElement.length) {
+        let $jqElement = $('#' + this.$el.attr('id'));
+        if ($jqElement.length) {
             this.$el = $jqElement;
         }
     }

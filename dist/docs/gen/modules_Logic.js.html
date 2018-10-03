@@ -71,7 +71,7 @@ export default class Logic {
             on: 1,
             unknown: 2,
             oscillating: 3
-        }
+        };
     }
 
     /**
@@ -140,7 +140,7 @@ export default class Logic {
      * @return {Logic.state}   output state
      */
     static not(a) {
-        if(a === Logic.state.on) {
+        if (a === Logic.state.on) {
             return Logic.state.off;
         } else if (a === Logic.state.off) {
             return Logic.state.on;

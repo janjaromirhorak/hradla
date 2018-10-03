@@ -1,9 +1,9 @@
-import {Group, Rectangle, SvgImage} from '../svgObjects'
+import { Group, Rectangle, SvgImage } from '../svgObjects';
 
-import NetworkElement from './NetworkElement'
-import InputConnector from './InputConnector'
-import OutputConnector from './OutputConnector'
-import Transform from './Transform'
+import NetworkElement from './NetworkElement';
+import InputConnector from './InputConnector';
+import OutputConnector from './OutputConnector';
+import Transform from './Transform';
 
 /** @module editorElements.Box */
 
@@ -76,7 +76,7 @@ export default class Box extends NetworkElement {
         this.gridHeight = gridHeight;
 
         // transparent background rectangle
-        let rectangle = new Rectangle(0, 0, this.width, this.height, "none", "none");
+        let rectangle = new Rectangle(0, 0, this.width, this.height, 'none', 'none');
         rectangle.$el.addClass('rect');
 
         this.svgObj.addChild(rectangle);
@@ -86,9 +86,9 @@ export default class Box extends NetworkElement {
         this.svgObj.addChild(this.image);
 
         // add type="gate", used in special callbacks in contextmenu
-        this.svgObj.addAttr({"type": category});
+        this.svgObj.addAttr({ type: category });
 
-        this.svgObj.$el.addClass("box");
+        this.svgObj.$el.addClass('box');
         this.svgObj.$el.addClass(category);
     }
 
@@ -97,10 +97,9 @@ export default class Box extends NetworkElement {
      * @type {string}
      */
     get url() {
-        const
-            category = this.category || "",
-            name = this.name || "",
-            suffix = this.imgSuffix || "";
+        const category = this.category || '',
+            name = this.name || '',
+            suffix = this.imgSuffix || '';
 
         return `img/svg/${category}/${name}${suffix}.svg`;
     }
@@ -110,7 +109,7 @@ export default class Box extends NetworkElement {
      * @return {Array} array of input connectors
      */
     get inputConnectors() {
-        return this.connectors.filter(conn => conn.isInputConnector)
+        return this.connectors.filter(conn => conn.isInputConnector);
     }
 
     /**
@@ -118,7 +117,7 @@ export default class Box extends NetworkElement {
      * @return {Array} array of output connectors
      */
     get outputConnectors() {
-        return this.connectors.filter(conn => conn.isOutputConnector)
+        return this.connectors.filter(conn => conn.isOutputConnector);
     }
 
     /**
@@ -129,12 +128,12 @@ export default class Box extends NetworkElement {
         let connections = [];
 
         // go through all connectors
-        let counter = 0
+        let counter = 0;
         for (const conn of this.connectors) {
             // go through each its wire id
             for (const item of conn.wireIds) {
                 let thisWireId;
-                if(!this.appInstance.exportWireIdMap.has(item)) {
+                if (!this.appInstance.exportWireIdMap.has(item)) {
                     // if the wire id is not in the map, add it and assign new arbitrary id
                     this.appInstance.exportWireIdMap.set(item, this.appInstance.exportWireId);
                     thisWireId = this.appInstance.exportWireId;
@@ -144,7 +143,6 @@ export default class Box extends NetworkElement {
                     thisWireId = this.appInstance.exportWireIdMap.get(item);
                 }
 
-
                 // add this connection to the list
                 connections[connections.length] = {
                     index: counter,
@@ -152,7 +150,7 @@ export default class Box extends NetworkElement {
                     wireId: thisWireId
                 };
             }
-            counter++
+            counter++;
         }
 
         return {
@@ -172,10 +170,16 @@ export default class Box extends NetworkElement {
      * @param  {Number} specialNodes     additional nodes that should be added to the set
      * @return {Set}                     set of not suitable nodes
      */
-    generateBlockNodes(marginTop = 0, marginRight = 0, marginBottom = 0, marginLeft = 0, ...specialNodes) {
+    generateBlockNodes(
+        marginTop = 0,
+        marginRight = 0,
+        marginBottom = 0,
+        marginLeft = 0,
+        ...specialNodes
+    ) {
         this.blockedNodes = new Set();
-        for(let x = marginLeft ; x <= this.gridWidth - marginRight ; x++) {
-            for(let y = marginTop ; y <= this.gridHeight - marginBottom ; y++) {
+        for (let x = marginLeft; x <= this.gridWidth - marginRight; x++) {
+            for (let y = marginTop; y <= this.gridHeight - marginBottom; y++) {
                 this.blockedNodes.add({
                     x: x,
                     y: y
@@ -193,7 +197,7 @@ export default class Box extends NetworkElement {
      * refreshState takes input connector values and sets output values accordingly
      */
     refreshState() {
-        console.warn("Calling the virtual function refreshState has no effect.");
+        console.warn('Calling the virtual function refreshState has no effect.');
     }
 
     /**
@@ -204,10 +208,10 @@ export default class Box extends NetworkElement {
      * @param  {string} [suffix] new suffix for the image
      */
     changeImage(suffix) {
-        if(suffix === undefined || suffix === "") {
-            this.imgSuffix = "";
+        if (suffix === undefined || suffix === '') {
+            this.imgSuffix = '';
         } else {
-            this.imgSuffix = "-" + suffix;
+            this.imgSuffix = '-' + suffix;
         }
 
         this.image.changeUrl(this.url);
@@ -228,7 +232,7 @@ export default class Box extends NetworkElement {
      * @param  {boolean} right rotate clockwise if true, counterclockwise if false
      */
     rotateBlockedNodes(center, right) {
-        if(this.rotationParity===undefined) {
+        if (this.rotationParity === undefined) {
             this.rotationParity = false;
         }
 
@@ -242,22 +246,25 @@ export default class Box extends NetworkElement {
         for (const node of this.blockedNodes) {
             let newNode;
 
-            const parityFactor =  (this.rotationParity ? 1 : -1);
+            const parityFactor = this.rotationParity ? 1 : -1;
 
-            if(right) {
+            if (right) {
                 newNode = {
-                    x: - node.y + this.gridHeight + (center.x - center.y) * parityFactor,
+                    x: -node.y + this.gridHeight + (center.x - center.y) * parityFactor,
                     y: node.x + (center.y - center.x) * parityFactor
                 };
             } else {
                 newNode = {
                     x: node.y + (center.x - center.y) * parityFactor
-                }
+                };
 
-                if(this.rotationParity) {
-                    newNode.y = - node.x + this.gridWidth + ((this.gridHeight - center.y) - (this.gridWidth - center.x))
+                if (this.rotationParity) {
+                    newNode.y =
+                        -node.x +
+                        this.gridWidth +
+                        (this.gridHeight - center.y - (this.gridWidth - center.x));
                 } else {
-                    newNode.y = - node.x + this.gridHeight + (center.y - center.x)
+                    newNode.y = -node.x + this.gridHeight + (center.y - center.x);
                 }
             }
 
@@ -295,23 +302,25 @@ export default class Box extends NetworkElement {
         const realCenter = {
             x: Math.round(this.gridWidth / 2),
             y: Math.round(this.gridHeight / 2)
-        }
+        };
 
         // swap the coordinates when the rotation parity is 1
-        const center = this.rotationParity ? {
-            x: realCenter.y,
-            y: realCenter.x
-        } : realCenter;
+        const center = this.rotationParity
+            ? {
+                  x: realCenter.y,
+                  y: realCenter.x
+              }
+            : realCenter;
 
         // apply the rotation to the transform object
-        if(clockWise) {
+        if (clockWise) {
             transform.rotateRight(center.x, center.y);
         } else {
             transform.rotateLeft(center.x, center.y);
         }
 
         // rotate the blocked nodes as well
-        if(clockWise) {
+        if (clockWise) {
             this.rotateBlockedNodesRight(center);
         } else {
             this.rotateBlockedNodesLeft(center);
@@ -320,13 +329,13 @@ export default class Box extends NetworkElement {
         // convert the modified transform back to SVG pixels
         // and apply it to the svgObj
         transform.toSVGPixels(this.appInstance);
-        this.svgObj.addAttr({"transform": transform.get()});
+        this.svgObj.addAttr({ transform: transform.get() });
 
         // update the wires
         this.updateWires();
 
         // if tutorial exists, call the tutorial callback
-        if(this.appInstance.tutorial) {
+        if (this.appInstance.tutorial) {
             this.appInstance.tutorial.onBoxRotated();
         }
     }
@@ -339,7 +348,7 @@ export default class Box extends NetworkElement {
      */
     addConnector(left, top, isInputConnector) {
         let index = this.connectors.length;
-        if(isInputConnector) {
+        if (isInputConnector) {
             this.connectors[index] = new InputConnector(this.appInstance, left, top);
         } else {
             this.connectors[index] = new OutputConnector(this.appInstance, left, top);
@@ -353,7 +362,7 @@ export default class Box extends NetworkElement {
      * @param {number} top  vertical distance from the top edge of the element
      */
     addInputConnector(left, top) {
-        return this.addConnector(left, top, true)
+        return this.addConnector(left, top, true);
     }
 
     /**
@@ -362,7 +371,7 @@ export default class Box extends NetworkElement {
      * @param {number} top  vertical distance from the top edge of the element
      */
     addOutputConnector(left, top) {
-        return this.addConnector(left, top, false)
+        return this.addConnector(left, top, false);
     }
 
     /**
@@ -371,8 +380,8 @@ export default class Box extends NetworkElement {
      * @return {Connector}             instance of the {@link Connector} or `undefined` if not found
      */
     getConnectorById(connectorId) {
-        for(let i = 0 ; i < this.connectors.length ; i++) {
-            if(this.connectors[i].id===connectorId) {
+        for (let i = 0; i < this.connectors.length; i++) {
+            if (this.connectors[i].id === connectorId) {
                 return this.connectors[i];
             }
         }
@@ -387,18 +396,18 @@ export default class Box extends NetworkElement {
      */
     getTransform(gridPixels = false) {
         let transform;
-        if (!this.svgObj.$el.attr("transform")) {
+        if (!this.svgObj.$el.attr('transform')) {
             // the element does not have a "transform" property --> create it
             transform = new Transform();
             transform.setTranslate(0, 0);
-            this.svgObj.addAttr({"transform": transform.get()});
+            this.svgObj.addAttr({ transform: transform.get() });
         } else {
             // the element does have a "transform" property --> change it
-            transform = new Transform(this.svgObj.$el.attr("transform"));
+            transform = new Transform(this.svgObj.$el.attr('transform'));
         }
 
         // convert values to grid pixels
-        if(gridPixels) {
+        if (gridPixels) {
             transform.toGridPixels(this.appInstance);
         }
 
@@ -418,7 +427,7 @@ export default class Box extends NetworkElement {
      * @param {Transform} transform {@link Transform} of the element (with lengths specified in SVG pixels)
      */
     setTransform(transform) {
-        this.svgObj.addAttr({"transform": transform.get()});
+        this.svgObj.addAttr({ transform: transform.get() });
     }
 
     /**
@@ -429,7 +438,7 @@ export default class Box extends NetworkElement {
      */
     onMouseDown(event) {
         this.mouseLeft = false;
-        if(event.which === 1) {
+        if (event.which === 1) {
             this.mouseLeft = true;
             this.onMouseDownLeft(event);
 
@@ -452,7 +461,7 @@ export default class Box extends NetworkElement {
         // save the current item position into a variable
         let currentPosition = transform.getTranslate();
 
-        let {pageX, pageY} = this.appInstance.viewbox.transformEvent(event)
+        let { pageX, pageY } = this.appInstance.viewbox.transformEvent(event);
 
         // calculate mouse offset from the object origin
         this.offset = {
@@ -467,12 +476,12 @@ export default class Box extends NetworkElement {
      * @param  {jQuery.MouseEvent} event
      */
     onMouseMove(event) {
-        if(this.mouseLeft) {
+        if (this.mouseLeft) {
             this.svgObj.$el.addClass('grabbed');
 
             this.mouseMoved = true;
 
-            let {pageX, pageY} = this.appInstance.viewbox.transformEvent(event)
+            let { pageX, pageY } = this.appInstance.viewbox.transformEvent(event);
 
             const left = pageX - this.offset.x;
             const top = pageY - this.offset.y;
@@ -492,13 +501,13 @@ export default class Box extends NetworkElement {
      * @param  {jQuery.MouseEvent} event
      */
     onMouseUp(event) {
-        if(event.which === 1) {
-            if(this.mouseMoved) {
+        if (event.which === 1) {
+            if (this.mouseMoved) {
                 this.onDrop(event);
             } else {
                 this.onClick();
             }
-        } else if (event.which === 2 ) {
+        } else if (event.which === 2) {
             this.onClickMiddle(event);
         }
 
@@ -512,7 +521,7 @@ export default class Box extends NetworkElement {
      * @param  {jQuery.MouseEvent} event
      */
     onDrop(event) {
-        let {pageX, pageY} = this.appInstance.viewbox.transformEvent(event)
+        let { pageX, pageY } = this.appInstance.viewbox.transformEvent(event);
 
         let left = pageX - this.offset.x;
         let top = pageY - this.offset.y;
@@ -528,7 +537,7 @@ export default class Box extends NetworkElement {
         this.updateWires();
 
         // if tutorial exists, call tutorial callback
-        if(this.appInstance.tutorial) {
+        if (this.appInstance.tutorial) {
             this.appInstance.tutorial.onBoxMoved();
         }
     }
@@ -542,7 +551,7 @@ export default class Box extends NetworkElement {
      * custom callback function for middle click that rotates the box by 90 degrees to the right
      */
     onClickMiddle(event) {
-        if(event.ctrlKey) {
+        if (event.ctrlKey) {
             this.rotate(false);
         } else {
             this.rotate(true);
@@ -558,12 +567,12 @@ export default class Box extends NetworkElement {
         this.connectors.forEach(conn => {
             conn.wireIds.forEach(wireId => {
                 let wire = this.appInstance.getWireById(wireId);
-                if(temporary) {
+                if (temporary) {
                     wire.temporaryWire();
                 } else {
                     wire.routeWire();
                 }
-            })
-        })
+            });
+        });
     }
 }

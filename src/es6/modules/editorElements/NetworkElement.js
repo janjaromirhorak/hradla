@@ -9,8 +9,8 @@ export default class NetworkElement {
      * @param {App} appInstance reference to the instance of [App](./module-App.html) that this element belongs to
      */
     constructor(appInstance) {
-        if(!appInstance) {
-            console.error("Parent SVG element has to be defined.");
+        if (!appInstance) {
+            console.error('Parent SVG element has to be defined.');
         }
         this.appInstance = appInstance;
 

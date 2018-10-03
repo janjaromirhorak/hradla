@@ -50,18 +50,17 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import Logic from './Logic'
+            <pre class="prettyprint source linenums"><code>import Logic from './Logic';
 
 /**
  * @module Simulation
  */
 
-
 class stateChange {
     constructor(connectorId, state, whoCausedIt) {
-        this.connectorId = connectorId
-        this.state = state
-        this.whoCausedIt = whoCausedIt
+        this.connectorId = connectorId;
+        this.state = state;
+        this.whoCausedIt = whoCausedIt;
     }
 }
 
@@ -72,11 +71,11 @@ class stateChange {
  */
 export class SimulationDummy {
     notifyChange() {
-        console.log("SimulationDummy.notifyChange() has been called.")
+        console.log('SimulationDummy.notifyChange() has been called.');
     }
 
     run() {
-        console.log("SimulationDummy.run() has been called.")
+        console.log('SimulationDummy.run() has been called.');
     }
 }
 
@@ -94,7 +93,7 @@ export default class Simulation {
          * instance of App this Simulation belongs to
          * @type {App}
          */
-        this.appInstance = appInstance
+        this.appInstance = appInstance;
 
         /**
          * maps each affected output connector to it's directly preceeding output connectors
@@ -107,20 +106,19 @@ export default class Simulation {
          * @type {Map}
          */
         this.waves = new Map();
-        this.wave = 0
+        this.wave = 0;
 
         /**
          * maps cycled connector id to set of states this connector was in
          * @type {Map}
          */
-        this.cycledConnectors = new Map()
+        this.cycledConnectors = new Map();
 
         /**
          * set of cycled connectors that have been already resolved
          * @type {Set}
          */
-        this.resolvedCycledConnectors = new Set()
-
+        this.resolvedCycledConnectors = new Set();
     }
 
     /**
@@ -128,10 +126,10 @@ export default class Simulation {
      */
     run() {
         this.wave++;
-        while(this.waves.has(this.wave)) {
-            this.step()
-            this.waves.delete(this.wave) // clean old waves on the go
-            this.wave++
+        while (this.waves.has(this.wave)) {
+            this.step();
+            this.waves.delete(this.wave); // clean old waves on the go
+            this.wave++;
         }
     }
 
@@ -141,39 +139,38 @@ export default class Simulation {
      * determines states of the connectors in the current wave, detects cycles
      */
     step() {
-        for (let {connectorId, state, whoCausedIt} of this.waves.get(this.wave)) {
+        for (let { connectorId, state, whoCausedIt } of this.waves.get(this.wave)) {
             // skip resolved cycles
-            if(this.resolvedCycledConnectors.has(connectorId)) {
-                continue
+            if (this.resolvedCycledConnectors.has(connectorId)) {
+                continue;
             }
 
             // skip connector that are cycles
             if (this.cycledConnectors.has(connectorId)) {
                 // get the set of states that this connector appeared from the moment the signal first cycled
-                let states = this.cycledConnectors.get(connectorId)
+                let states = this.cycledConnectors.get(connectorId);
 
                 // if the connector already had this state in this cycle, resolve the cycle
-                if(states.has(state)) {
-
+                if (states.has(state)) {
                     // if there are more states in the set, the connector is oscillating
                     // (else it keeps its state and we just break the cycle)
-                    if(states.size > 1) {
-                        state = Logic.state.oscillating
+                    if (states.size > 1) {
+                        state = Logic.state.oscillating;
                     }
 
                     // mark this connector as resolved
-                    this.resolvedCycledConnectors.add(connectorId)
+                    this.resolvedCycledConnectors.add(connectorId);
 
-                // this is a new, unseen state, add it to the set and continue simulating the cycle
+                    // this is a new, unseen state, add it to the set and continue simulating the cycle
                 } else {
-                    states.add(state)
+                    states.add(state);
                 }
 
                 // map the modified set of states to the connector
-                this.cycledConnectors.set(connectorId, states)
+                this.cycledConnectors.set(connectorId, states);
             }
 
-            this.whoCausedIt = connectorId
+            this.whoCausedIt = connectorId;
             /*  process all outputConnectors by setting their state
                 this will trigger a following event chain:
                     outputConnector changes
@@ -183,23 +180,24 @@ export default class Simulation {
                     -> these elements compute the new state of their output connectors and call notifyChange()
             */
 
-
-            if(whoCausedIt) {
-                this.addPredecessor(connectorId, whoCausedIt)
+            if (whoCausedIt) {
+                this.addPredecessor(connectorId, whoCausedIt);
             }
 
-            if (!this.cycledConnectors.has(connectorId) &amp;&amp; this.getAllPredecessors(connectorId).has(connectorId)) {
-                this.cycledConnectors.set(connectorId, new Set([state]))
+            if (
+                !this.cycledConnectors.has(connectorId) &amp;&amp;
+                this.getAllPredecessors(connectorId).has(connectorId)
+            ) {
+                this.cycledConnectors.set(connectorId, new Set([state]));
             }
-
 
             // reflect the changes in SVG
-            let connector = this.appInstance.getConnectorById(connectorId)
-            if(connector) {
-                connector.setState(state)
+            let connector = this.appInstance.getConnectorById(connectorId);
+            if (connector) {
+                connector.setState(state);
             }
         }
-        this.whoCausedIt = undefined
+        this.whoCausedIt = undefined;
     }
 
     /**
@@ -208,11 +206,11 @@ export default class Simulation {
      * @param {string} predecessorConnectorId predecessor of `connectorId`
      */
     addPredecessor(connectorId, predecessorConnectorId) {
-        if(!this.predecessors.has(connectorId)) {
-            this.predecessors.set(connectorId, new Set())
+        if (!this.predecessors.has(connectorId)) {
+            this.predecessors.set(connectorId, new Set());
         }
 
-        this.predecessors.get(connectorId).add(predecessorConnectorId)
+        this.predecessors.get(connectorId).add(predecessorConnectorId);
     }
 
     /**
@@ -221,27 +219,27 @@ export default class Simulation {
      * @return {Set}                set of connector ids that are before this output connector
      */
     getAllPredecessors(connectorId) {
-        if(!this.predecessors.has(connectorId)) {
-            this.predecessors.set(connectorId, new Set())
+        if (!this.predecessors.has(connectorId)) {
+            this.predecessors.set(connectorId, new Set());
         }
 
-        let all = new Set()
+        let all = new Set();
 
         this.predecessors.get(connectorId).forEach(all.add, all);
 
-        let prevSize = 0
-        let size = all.size
-        while(prevSize &lt; size) {
+        let prevSize = 0;
+        let size = all.size;
+        while (prevSize &lt; size) {
             for (let connector of all) {
                 if (this.predecessors.has(connector)) {
                     this.predecessors.get(connector).forEach(all.add, all);
                 }
             }
-            prevSize = size
-            size = all.size
+            prevSize = size;
+            size = all.size;
         }
 
-        return all
+        return all;
     }
 
     /**
@@ -250,10 +248,10 @@ export default class Simulation {
      * @param  {Logic.state} state  new [Logic.state](./module-Logic.html#.state) of the connector
      */
     notifyChange(connectorId, state) {
-        let waveId = this.wave + 1
+        let waveId = this.wave + 1;
 
-        if(!this.waves.has(waveId)) {
-            this.waves.set(waveId, [])
+        if (!this.waves.has(waveId)) {
+            this.waves.set(waveId, []);
         }
 
         this.waves.get(waveId).push(new stateChange(connectorId, state, this.whoCausedIt));

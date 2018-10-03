@@ -1,8 +1,8 @@
 import NetworkElement from './NetworkElement';
-import {Rectangle} from '../svgObjects'
-import Logic from '../Logic'
+import { Rectangle } from '../svgObjects';
+import Logic from '../Logic';
 
-import stateClasses from './stateClasses'
+import stateClasses from './stateClasses';
 
 /** @module editorElements.Connector */
 
@@ -45,11 +45,11 @@ export default class Connector extends NetworkElement {
             top * this.gridSize - this.connectorOffset,
             this.connectorSize,
             this.connectorSize,
-            "none",
-            "black"
+            'none',
+            'black'
         );
 
-        this.svgObj.$el.addClass("connector");
+        this.svgObj.$el.addClass('connector');
 
         /**
          * this flag describes whether this connector is an input connector
@@ -143,13 +143,13 @@ export default class Connector extends NetworkElement {
      */
     onMouseUp(event) {
         // only left click counts
-        if(event.which === 1) {
+        if (event.which === 1) {
             event = this.appInstance.viewbox.transformEvent(event);
 
             const mousePosition = {
                 x: event.pageX,
                 y: event.pageY
-            }
+            };
 
             this.appInstance.wireCreationHelper(this.svgObj.id, mousePosition);
         }

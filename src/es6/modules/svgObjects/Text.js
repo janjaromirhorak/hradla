@@ -1,4 +1,4 @@
-import Tag from './Tag'
+import Tag from './Tag';
 
 /** @module svgObjects.Text */
 
@@ -17,8 +17,8 @@ export default class Text extends Tag {
      * @param {String} [color="black"] color of the text
      *
      */
-    constructor(x, y, w, h, text, size, color = "black") {
-        super("text");
+    constructor(x, y, w, h, text, size, color = 'black') {
+        super('text');
         this.addAttr({
             x: x,
             y: y,
@@ -27,10 +27,10 @@ export default class Text extends Tag {
             fill: color
         });
 
-        if(size) {
+        if (size) {
             this.addAttr({
                 'font-size': size
-            })
+            });
         }
 
         this.$el.append(text);

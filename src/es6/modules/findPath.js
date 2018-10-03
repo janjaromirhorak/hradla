@@ -1,5 +1,5 @@
-import { manhattanDistance } from './other/helperFunctions'
-import MapWithDefaultValue from './other/mapWithDefaultValue'
+import { manhattanDistance } from './other/helperFunctions';
+import MapWithDefaultValue from './other/mapWithDefaultValue';
 
 import { PriorityQueue } from 'libstl'; // note: imported from a node module
 
@@ -38,7 +38,7 @@ export default function findPath(start, end, nonRoutable, punishedButRoutable) {
         openNodes.add(node);
         // flip the fscore, because PriorityQueue uses max heap
         openNodeQueue.enqueue(node, 1 / fscore);
-    }
+    };
 
     /**
      * get the open node with the lowest fScore and remove it
@@ -48,7 +48,7 @@ export default function findPath(start, end, nonRoutable, punishedButRoutable) {
         const node = openNodeQueue.dequeue();
         openNodes.delete(node);
         return node;
-    }
+    };
 
     let cameFrom = new Map();
 
@@ -87,9 +87,11 @@ export default function findPath(start, end, nonRoutable, punishedButRoutable) {
                 // don't add it and stop proceeding in this direction
                 if (setHasThisPoint(nonRoutable, newPoint)) {
                     // if this not the end or start point, break
-                    if (!(newPoint.x === end.x && newPoint.y === end.y) &&
-                        !(newPoint.x === start.x && newPoint.y === start.y)) {
-                            break;
+                    if (
+                        !(newPoint.x === end.x && newPoint.y === end.y) &&
+                        !(newPoint.x === start.x && newPoint.y === start.y)
+                    ) {
+                        break;
                     }
                 }
 
@@ -134,7 +136,11 @@ export default function findPath(start, end, nonRoutable, punishedButRoutable) {
         }
 
         if (openNodes.size > maxNodeLimit) {
-            console.log(`aStar: Number of open nodes (${openNodes.size}) exceeded the limit for open nodes (${maxNodeLimit}).`)
+            console.log(
+                `aStar: Number of open nodes (${
+                    openNodes.size
+                }) exceeded the limit for open nodes (${maxNodeLimit}).`
+            );
             break;
         }
     }
@@ -167,26 +173,26 @@ function setHasThisPoint(set, point) {
  *     - 3: left
  * @return {Object}           object containing numeric attributes `x` and `y`
  */
-function movePoint({x, y}, direction) {
+function movePoint({ x, y }, direction) {
     // map direction do point coordinate modification
     const dirMap = {
         0: () => {
-            y -= 1
+            y -= 1;
         },
         1: () => {
-            x += 1
+            x += 1;
         },
         2: () => {
-            y += 1
+            y += 1;
         },
         3: () => {
-            x -= 1
+            x -= 1;
         }
-    }
+    };
 
     dirMap[direction]();
 
-    return {x, y}
+    return { x, y };
 }
 
 /**
@@ -201,14 +207,14 @@ function reconstructPath(cameFrom, currentNode) {
     path.push({
         x: currentNode.x,
         y: currentNode.y
-    })
+    });
 
     while (cameFrom.has(currentNode)) {
         currentNode = cameFrom.get(currentNode);
         path.push({
             x: currentNode.x,
             y: currentNode.y
-        })
+        });
     }
 
     return path;
