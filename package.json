@@ -14,7 +14,7 @@
         "babelify": "^8.0.0",
         "browserify": "^16.1.0",
         "del": "^3.0.0",
-        "event-stream": "^3.3.4",
+        "event-stream": "3.3.4",
         "gulp": "^4.0.0",
         "gulp-autoprefixer": "^4.0.0",
         "gulp-changed": "^3.2.0",
