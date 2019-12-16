@@ -1,6 +1,6 @@
 {
     "name": "hradla",
-    "version": "1.7.4",
+    "version": "1.7.5",
     "repository": "github:janjaromirhorak/hradla",
     "browser": "dist/index.html",
     "license": "GPL-3.0",
@@ -52,7 +52,7 @@
         "gulp": "./node_modules/gulp/bin/gulp.js"
     },
     "dependencies": {
-        "npm": "^5.8.0"
+        "npm": "^6.13.4"
     },
     "config": {
         "title": "Hradla — Logic Network Simulator"
