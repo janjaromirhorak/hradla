@@ -87,7 +87,9 @@
 <p>For the complete documentation of the Map see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Map in the MDN web docs</a></p>
 <p>Usage:</p>
 <pre class="prettyprint source lang-JavaScript"><code> let myMap = new MapWithDefaultValue(Infinity);
- const value = myMap.getWithDefault(key)</code></pre><p><em>Note: This version is written specially for ES6 compiled into ES5. In non-compiled ES6 is the implementation far more elegant:</em></p>
+ const value = myMap.getWithDefault(key)
+</code></pre>
+<p><em>Note: This version is written specially for ES6 compiled into ES5. In non-compiled ES6 is the implementation far more elegant:</em></p>
 <pre class="prettyprint source lang-JavaScript"><code> export class MapWithDefaultValue extends Map {
      constructor(defaultValue) {
          super();
@@ -102,7 +104,7 @@
              return this.default;
          }
      }
- }</code></pre>
+ }```</code></pre>
     </div>
     
 
