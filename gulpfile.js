@@ -46,12 +46,11 @@ class Modules {
 let modules = new Modules();
 modules.addModules({
     autoprefixer: 'gulp-autoprefixer',
-    cssnano: 'gulp-cssnano',
     uglify: 'gulp-uglify',
     rename: 'gulp-rename',
     del: 'del',
     file: 'gulp-file',
-    htmlmin: 'gulp-html-minifier',
+    minifier: 'gulp-minifier',
     watch: 'gulp-watch',
     imagemin: 'gulp-imagemin',
     zip: 'gulp-zip',
@@ -116,14 +115,17 @@ gulp.task('styles', () => {
         autoprefixer = modules.get('autoprefixer'),
         gulpif = modules.get('gulpif'),
         rename = modules.get('rename'),
-        cssnano = modules.get('cssnano');
+        minifier = modules.get('minifier');
 
     return gulp
         .src(srcCss + '/*.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer('last 2 version'))
         .pipe(gulpif(production, rename({ suffix: '.min' })))
-        .pipe(gulpif(production, cssnano()))
+        .pipe(gulpif(production, minifier({
+            minify: true,
+            minifyCSS: true
+        })))
         .pipe(gulp.dest(outCss));
 });
 
@@ -156,7 +158,7 @@ gulp.task('scripts:build', done => {
         return browserify(srcJs + '/' + startpoint, { debug: true })
             .transform(
                 babel.configure({
-                    presets: ['babel-preset-env'].map(require.resolve)
+                    presets: ['@babel/preset-env'].map(require.resolve)
                 })
             )
             .bundle()
@@ -234,7 +236,7 @@ gulp.task('html', () => {
         insert = modules.get('insert'),
         gulpif = modules.get('gulpif'),
         template = modules.get('template'),
-        htmlmin = modules.get('htmlmin');
+        minifier = modules.get('minifier');
 
     const p = production ? '.min' : '';
 
@@ -255,7 +257,13 @@ gulp.task('html', () => {
         .pipe(insert.append('<!-- /build:scripts -->'))
 
         .pipe(template(srcHtml + '/index.html'))
-        .pipe(gulpif(production, htmlmin({ collapseWhitespace: true, removeComments: true })))
+        .pipe(gulpif(production, minifier({
+            minify: true,
+            minifyHTML: {
+                collapseWhitespace: true,
+                conservativeCollapse: true,
+            }
+        })))
 
         .pipe(gulp.dest(out));
 });
@@ -292,7 +300,7 @@ gulp.task('help', () => {
         insert = modules.get('insert'),
         template = modules.get('template'),
         gulpif = modules.get('gulpif'),
-        htmlmin = modules.get('htmlmin');
+        minifier = modules.get('minifier');
 
     let styleSheet = 'docs.css';
     if (production) {
@@ -334,7 +342,13 @@ gulp.task('help', () => {
             .pipe(insert.append('<!-- /build:styleSheet -->'))
             // put the generated file into a predefined template
             .pipe(template(srcHtml + '/help.html'))
-            .pipe(gulpif(production, htmlmin({ collapseWhitespace: true, removeComments: true })))
+            .pipe(gulpif(production, minifier({
+                minify: true,
+                minifyHTML: {
+                    collapseWhitespace: true,
+                    conservativeCollapse: true,
+                }
+            })))
             .pipe(gulp.dest(outDocs))
     );
 });

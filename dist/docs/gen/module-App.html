@@ -16,7 +16,7 @@
 
     
         
-            <link type="text/css" rel="stylesheet" href="../../css/jsdoc.css">
+            <link type="text/css" rel="stylesheet" href="../../css/jsdoc.min.css">
         
     
 </head>
@@ -73,7 +73,7 @@ references to all its elements.</p></div>
             
             <div class="container-source members">
                 <code><a href="modules_App.js.html">modules/App.js</a></code>,
-                <code><a href="modules_App.js.html#line34">line 34</a></code>
+                <code><a href="modules_App.js.html#line40">line 40</a></code>
             </div>
             
         </h4>
@@ -1004,7 +1004,7 @@ and distance from the left top corner to the imported black box <em>in grid pixe
     
     <div class="container-source members">
         <code><a href="modules_App.js.html">modules/App.js</a></code>,
-        <code><a href="modules_App.js.html#line328">line 328</a></code>
+        <code><a href="modules_App.js.html#line319">line 319</a></code>
     </div>
     
 </h4>
@@ -1014,8 +1014,7 @@ and distance from the left top corner to the imported black box <em>in grid pixe
 <dd>
     
     <div class="description">
-        <p>Set the zoom multiplier of the canvas.
-I sets the viewbox zoom and then applies the new value by calling this.applyViewbox()</p>
+        <p>Get the current zoom multiplier of the canvas</p>
     </div>
     
 
@@ -1074,7 +1073,7 @@ I sets the viewbox zoom and then applies the new value by calling this.applyView
     
     <div class="container-source members">
         <code><a href="modules_App.js.html">modules/App.js</a></code>,
-        <code><a href="modules_App.js.html#line319">line 319</a></code>
+        <code><a href="modules_App.js.html#line328">line 328</a></code>
     </div>
     
 </h4>
@@ -1084,7 +1083,8 @@ I sets the viewbox zoom and then applies the new value by calling this.applyView
 <dd>
     
     <div class="description">
-        <p>Get the current zoom multiplier of the canvas</p>
+        <p>Set the zoom multiplier of the canvas.
+I sets the viewbox zoom and then applies the new value by calling this.applyViewbox()</p>
     </div>
     
 
@@ -5108,11 +5108,11 @@ return the group jQuery object instead of the original jQuery object.</p>
             
 
             <td class="description last"><p>Array of arrays, each inner array contains list of <a href="./module-Logic.html#.state">Logic.state</a>s,
-                         that describe the combination of input pin and output pin states in the order from the top to bottom for both input and output connectors.
-                         If we had an AND array as a blackbox, one of the states could be <code>[Logic.state.on, Logic.state.off, Logic.state.off]</code>
-                         which means that if the first input connector is in the <code>on</code> state and the second connector is in the <code>off</code> state,
-                         the state of the output connector will be <code>off</code>.
-                         The array can be described as <code>[state for input conn 1, state for input conn 2, ..., state for output conn 1, state for output conn 2 ...]</code>.</p></td>
+that describe the combination of input pin and output pin states in the order from the top to bottom for both input and output connectors.
+If we had an AND array as a blackbox, one of the states could be <code>[Logic.state.on, Logic.state.off, Logic.state.off]</code>
+which means that if the first input connector is in the <code>on</code> state and the second connector is in the <code>off</code> state,
+the state of the output connector will be <code>off</code>.
+The array can be described as <code>[state for input conn 1, state for input conn 2, ..., state for output conn 1, state for output conn 2 ...]</code>.</p></td>
         </tr>
 
     
