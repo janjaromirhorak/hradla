@@ -40,7 +40,7 @@
         "gulp-uglify": "^3.0.0",
         "gulp-watch": "^4.3.11",
         "gulp-zip": "^4.1.0",
-        "jquery": "^3.3.1",
+        "jquery": "^3.4.0",
         "jsdoc": "^3.5.5",
         "json-stringify-pretty-compact": "^1.1.0",
         "libstl": "^0.1.22",
