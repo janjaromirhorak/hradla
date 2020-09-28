@@ -1,6 +1,6 @@
 {
     "name": "hradla",
-    "version": "1.7.5",
+    "version": "1.7.6",
     "repository": "github:janjaromirhorak/hradla",
     "browser": "dist/index.html",
     "license": "GPL-3.0",
