@@ -12,6 +12,7 @@
         "@babel/preset-env": "^7.9.5",
         "babel-eslint": "^10.1.0",
         "babelify": "^10.0.0",
+        "bl": "^4.0.3",
         "browserify": "^16.5.1",
         "del": "^5.1.0",
         "event-stream": "^4.0.1",
@@ -39,14 +40,15 @@
         "gulp-uglify": "^3.0.2",
         "gulp-watch": "^5.0.1",
         "gulp-zip": "^5.0.1",
-        "jquery": "^3.4.1",
+        "jquery": "^3.5.1",
         "jsdoc": "^3.6.4",
         "json-stringify-pretty-compact": "^2.0.0",
         "libstl": "^0.1.22",
         "lity": "^2.4.0",
         "tui-jsdoc-template": "^1.2.2",
         "vinyl-buffer": "^1.0.1",
-        "vinyl-source-stream": "^2.0.0"
+        "vinyl-source-stream": "^2.0.0",
+        "yargs-parser": "^20.2.0"
     },
     "scripts": {
         "gulp": "./node_modules/gulp/bin/gulp.js"
