@@ -1,0 +1,86 @@
+Arguments: 
+  /usr/bin/node /usr/bin/yarn install
+
+PATH: 
+  /home/jenda/.instalaky/torch/install/bin:/home/jenda/.config/yarn/global/node_modules/.bin:/home/jenda/.local/bin:/home/jenda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/ghc/bin:/snap/bin:/home/jenda/.cabal/bin/
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  14.17.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: connect EHOSTUNREACH 104.16.24.35:443
+      at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1146:16)
+
+npm manifest: 
+  {
+      "name": "hradla",
+      "version": "1.7.6",
+      "repository": "github:janjaromirhorak/hradla",
+      "browser": "dist/index.html",
+      "license": "GPL-3.0",
+      "author": {
+          "name": "Jan Horák"
+      },
+      "devDependencies": {
+          "@babel/core": "^7.11.6",
+          "@babel/preset-env": "^7.11.5",
+          "babel-eslint": "^10.1.0",
+          "babelify": "^10.0.0",
+          "bl": "^4.0.3",
+          "browserify": "^16.5.2",
+          "del": "^6.0.0",
+          "event-stream": "^4.0.1",
+          "gulp": "^4.0.2",
+          "gulp-autoprefixer": "^7.0.1",
+          "gulp-changed": "^4.0.2",
+          "gulp-eslint": "^6.0.0",
+          "gulp-file": "^0.4.0",
+          "gulp-filter": "^6.0.0",
+          "gulp-gzip": "^1.4.2",
+          "gulp-if": "^3.0.0",
+          "gulp-imagemin": "^7.1.0",
+          "gulp-insert": "^0.5.0",
+          "gulp-jsdoc3": "^3.0.0",
+          "gulp-json-editor": "^2.5.4",
+          "gulp-markdown": "^5.1.0",
+          "gulp-minifier": "^3.5.0",
+          "gulp-rename": "^2.0.0",
+          "gulp-replace": "^1.0.0",
+          "gulp-sass": "^4.1.0",
+          "gulp-sourcemaps": "^2.6.5",
+          "gulp-tap": "^2.0.0",
+          "gulp-tar": "^3.1.0",
+          "gulp-template-html": "^0.2.2",
+          "gulp-uglify": "^3.0.2",
+          "gulp-watch": "^5.0.1",
+          "gulp-zip": "^5.0.2",
+          "jquery": "^3.5.1",
+          "jsdoc": "^3.6.6",
+          "json-stringify-pretty-compact": "^2.0.0",
+          "libstl": "^0.1.22",
+          "lity": "^2.4.1",
+          "tui-jsdoc-template": "^1.2.2",
+          "vinyl-buffer": "^1.0.1",
+          "vinyl-source-stream": "^2.0.0",
+          "yargs-parser": "^20.2.0"
+      },
+      "scripts": {
+          "gulp": "./node_modules/gulp/bin/gulp.js"
+      },
+      "dependencies": {},
+      "config": {
+          "title": "Hradla — Logic Network Simulator"
+      }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
